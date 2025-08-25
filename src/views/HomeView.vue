@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import TheWelcome from '../components/TheWelcome.vue'
+import SkillsTable from '../components/SkillsTable.vue';
 </script>
 
 <template>
-  <main>
-    <TheWelcome />
-  </main>
+	<main>
+		<SkillsTable playerId="corfid" />
+		<SkillsTable playerId="veris" />
+	</main>
 </template>
