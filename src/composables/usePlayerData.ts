@@ -21,10 +21,40 @@ const playerDataSources: Record<string, PlayerDataSource> = {
 	},
 };
 
-const columnsToFieldNames = (parsed) => {
+export type GVizSheetResponse = {
+	version: string;
+	reqId: string;
+	status: string;
+	sig: string;
+	table: Table;
+};
+
+export type Table = {
+	cols: ColumnDef[];
+	rows: Row[];
+	parsedNumHeaders: number;
+};
+
+export type ColumnDef = {
+	id: string;
+	label: string;
+	type: string;
+	pattern?: string;
+};
+
+export type Row = {
+	c: (ColumnValue | undefined)[];
+};
+
+export type ColumnValue = {
+	v: unknown;
+	f?: string;
+};
+
+const columnsToFieldNames = (parsed: GVizSheetResponse): Record<string, unknown>[] => {
 	const cols = parsed.table.cols;
 	return parsed.table.rows.map((row) => {
-		const result = {};
+		const result: Record<string, unknown> = {};
 		row.c.forEach((column, columnIndex) => {
 			const key = cols[columnIndex].label;
 			if (key && column) {
