@@ -65,7 +65,7 @@ const columnsToFieldNames = (parsed: GVizSheetResponse): Record<string, unknown>
 	});
 };
 
-export type StatsTableData = {
+export type StatsTableItem = {
 	Bonus: number;
 	Name: string;
 	Score: string;
@@ -74,7 +74,7 @@ export type StatsTableData = {
 };
 
 const unwrapJSONPRegex = /google\.visualization\.Query\.setResponse\((.+)\);/;
-const getSheetForPlayer = async <T>(playerId: string, sheetName: SheetNames): Promise<T> => {
+const getSheetForPlayer = async <T>(playerId: string, sheetName: SheetNames): Promise<T[]> => {
 	const player = playerDataSources[playerId];
 	if (!player) {
 		throw new Error(`Invalid Player ID: ${playerId}`);
@@ -94,13 +94,13 @@ const getSheetForPlayer = async <T>(playerId: string, sheetName: SheetNames): Pr
 	// console.log('parsed', parsed);
 	const flattened = columnsToFieldNames(parsed);
 	// console.log('flattened', flattened);
-	return flattened as T;
+	return flattened as T[];
 };
 
 export default function usePlayerData(playerId: string) {
 	return {
-		getStatsTable(): Promise<StatsTableData> {
-			return getSheetForPlayer<StatsTableData>(playerId, 'skills');
+		getStatsTable(): Promise<StatsTableItem[]> {
+			return getSheetForPlayer<StatsTableItem>(playerId, 'skills');
 		},
 	};
 }
