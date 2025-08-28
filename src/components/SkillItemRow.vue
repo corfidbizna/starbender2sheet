@@ -5,11 +5,18 @@ defineProps<StatsTableItem>();
 </script>
 <template>
 	<tr>
-		<td>{{ Bonus }}</td>
+		<td class="bonus">{{ Bonus }}</td>
 		<td>{{ Name }}</td>
 		<td>{{ Score }}</td>
 		<td>{{ Focused }}</td>
 		<td>{{ Notes }}</td>
 	</tr>
 </template>
-<style scoped></style>
+<style scoped>
+.bonus {
+	max-width: 1rem;
+	font-weight: 800;
+	text-align: right;
+	padding-right: 1em;
+}
+</style>

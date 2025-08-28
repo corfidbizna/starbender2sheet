@@ -7,6 +7,7 @@ type Filter<T> = {
 type UseFilterArgs<T> = {
 	listUnfiltered: Ref<T[]>;
 	filter: Filter<T>;
+	shouldExclude: boolean;
 };
 const isValueEmpty = (dataType: DataTypes, value: unknown): boolean => {
 	if (value === undefined) {

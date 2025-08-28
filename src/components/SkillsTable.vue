@@ -13,16 +13,15 @@ getStatsTable().then((table) => (data.value = table));
 const { queryValue, filteredData } = useFilter<StatsTableItem, string>({
 	listUnfiltered: data,
 	filter: { dataType: 'string', fieldName: 'Name' },
+	shouldExclude: false,
 });
 </script>
 <template>
 	<div class="skills-table">
 		<h1>Stats for player ID: {{ playerId }}</h1>
-		<p>One skill:</p>
-		<p>All skills</p>
 		<div>
 			<label>
-				<span class="label">Filter by name</span>
+				<span class="label">Filter by name: </span>
 				<input
 					type="text"
 					v-model="queryValue"
@@ -33,9 +32,9 @@ const { queryValue, filteredData } = useFilter<StatsTableItem, string>({
 			<table>
 				<thead>
 					<tr>
-						<th>Bonus</th>
+						<th class="bonus">Bonus</th>
 						<th>Name</th>
-						<th>Score</th>
+						<th class="score">Score</th>
 						<th>Focused</th>
 						<th>Notes</th>
 					</tr>
@@ -55,10 +54,12 @@ const { queryValue, filteredData } = useFilter<StatsTableItem, string>({
 .scroll-box {
 	max-height: 200px;
 	overflow-y: scroll;
+	border: 2px solid #666;
+	border-radius: 0.5em;
 }
 table {
 	width: 100%;
-	border-collapse: collapse;
+	/* border-collapse: collapse; */
 }
 thead {
 	position: sticky;
@@ -71,6 +72,10 @@ th {
 th,
 td {
 	border: 1px solid #666;
-	padding: 2px 4px;
+	padding: 1px 4px;
+}
+.bonus,
+.score {
+	max-width: 1rem;
 }
 </style>
