@@ -70,7 +70,7 @@ export type StatsTableItem = {
 	Name: string;
 	Score: string;
 	Focused: boolean;
-	Notes: string;
+	Notes: string | null;
 };
 
 const unwrapJSONPRegex = /google\.visualization\.Query\.setResponse\((.+)\);/;
@@ -100,7 +100,16 @@ const getSheetForPlayer = async <T>(playerId: string, sheetName: SheetNames): Pr
 export default function usePlayerData(playerId: string) {
 	return {
 		getStatsTable(): Promise<StatsTableItem[]> {
-			return getSheetForPlayer<StatsTableItem>(playerId, 'skills');
+			// Since this involves a network call, "Promise" means "do this when you have the data."
+			const filterTableItemsWithNoName = (list: StatsTableItem[]) => {
+				// Removes items if there's nothing in the name field.
+				return list.filter((item) => !!item.Name);
+			};
+			return getSheetForPlayer<StatsTableItem>(playerId, 'skills').then(
+				// vv This is a "callback function" that will run when the promise resolves.
+				// vv Doesn't need parens for some reason???
+				filterTableItemsWithNoName,
+			);
 		},
 	};
 }

@@ -21,12 +21,13 @@ const isValueEmpty = (dataType: DataTypes, value: unknown): boolean => {
 	}
 	return false;
 };
-export default function useFilter<T, X>({ listUnfiltered: dataSource, filter }: UseFilterArgs<T>) {
+export default function useFilter<T, X>(config: UseFilterArgs<T>) {
+	const { listUnfiltered, filter } = config;
 	const queryValue = ref<X>();
 	return {
 		queryValue,
 		filteredData: computed<T[]>(() => {
-			const list = dataSource.value;
+			const list = listUnfiltered.value;
 			let currentValue: X | undefined = queryValue.value;
 			const isEmpty = isValueEmpty(filter.dataType, currentValue);
 			if (filter.dataType === 'string') {
