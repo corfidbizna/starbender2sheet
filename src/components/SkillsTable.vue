@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import usePlayerData, { type StatsTableItem } from '@/composables/usePlayerData';
+import useCharacterData, { type StatsTableItem } from '@/composables/useCharacterData';
 import SkillItemRow from './SkillItemRow.vue';
 import useFilter from '@/composables/useFilter';
 
 const props = defineProps<{
-	playerId: string;
+	characterId: string;
 }>();
-const { getStatsTable } = usePlayerData(props.playerId);
+const { getStatsTable } = useCharacterData(props.characterId);
 const data = ref<StatsTableItem[]>([]);
 getStatsTable().then((table) => (data.value = table));
 const { queryValue, filteredData } = useFilter<StatsTableItem, string>({
@@ -18,7 +18,7 @@ const { queryValue, filteredData } = useFilter<StatsTableItem, string>({
 </script>
 <template>
 	<div class="skills-table">
-		<h1>Stats for player ID: {{ playerId }}</h1>
+		<h1>Stats for Character ID: {{ characterId }}</h1>
 		<div>
 			<label>
 				<span class="label">Filter by name: </span>

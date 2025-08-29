@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type StatsTableItem } from '@/composables/usePlayerData';
+import { type StatsTableItem } from '@/composables/useCharacterData';
 
 defineProps<StatsTableItem>();
 </script>

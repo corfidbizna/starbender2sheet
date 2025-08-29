@@ -1,19 +1,22 @@
-type PlayerDataSource = {
+export type CharacterDataSource = {
+	label: string;
 	documentId: string;
 	sheets: {
 		skills: string;
 	};
 };
-type SheetNames = keyof PlayerDataSource['sheets'];
+type SheetNames = keyof CharacterDataSource['sheets'];
 
-const playerDataSources: Record<string, PlayerDataSource> = {
-	corfid: {
+export const characterDataSources: Record<string, CharacterDataSource> = {
+	kara: {
+		label: 'Kara',
 		documentId: '1RcSqD_99aJc-gOcmJTloZ-jItp2XOTiozjNvV-nzgSI',
 		sheets: {
 			skills: '544688264',
 		},
 	},
-	veris: {
+	aurora: {
+		label: 'Aurora',
 		documentId: '12vonRcFzriWY5AjLmueqbjd6DCQCJpqiLJkDpZEDgNU',
 		sheets: {
 			skills: '544688264',
@@ -74,12 +77,15 @@ export type StatsTableItem = {
 };
 
 const unwrapJSONPRegex = /google\.visualization\.Query\.setResponse\((.+)\);/;
-const getSheetForPlayer = async <T>(playerId: string, sheetName: SheetNames): Promise<T[]> => {
-	const player = playerDataSources[playerId];
-	if (!player) {
-		throw new Error(`Invalid Player ID: ${playerId}`);
+const getSheetForCharacter = async <T>(
+	characterId: string,
+	sheetName: SheetNames,
+): Promise<T[]> => {
+	const character = characterDataSources[characterId];
+	if (!character) {
+		throw new Error(`Invalid Character ID: ${characterId}`);
 	}
-	const { documentId, sheets } = player;
+	const { documentId, sheets } = character;
 	const sheetKey = sheets[sheetName];
 	const source = `https://docs.google.com/spreadsheets/d/${documentId}/gviz/tq?gid=${sheetKey}`;
 
@@ -97,7 +103,7 @@ const getSheetForPlayer = async <T>(playerId: string, sheetName: SheetNames): Pr
 	return flattened as T[];
 };
 
-export default function usePlayerData(playerId: string) {
+export default function useCharacterData(characterId: string) {
 	return {
 		getStatsTable(): Promise<StatsTableItem[]> {
 			// Since this involves a network call, "Promise" means "do this when you have the data."
@@ -105,7 +111,7 @@ export default function usePlayerData(playerId: string) {
 				// Removes items if there's nothing in the name field.
 				return list.filter((item) => !!item.Name);
 			};
-			return getSheetForPlayer<StatsTableItem>(playerId, 'skills').then(
+			return getSheetForCharacter<StatsTableItem>(characterId, 'skills').then(
 				// vv This is a "callback function" that will run when the promise resolves.
 				// vv Doesn't need parens for some reason???
 				filterTableItemsWithNoName,
