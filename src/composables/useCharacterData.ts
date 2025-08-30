@@ -5,6 +5,13 @@ export type CharacterDataSource = {
 		skills: string;
 	};
 };
+export type PartyDataSource = {
+	documentId: string;
+	sheets: {
+		weapons: string;
+		buffs: string;
+	};
+};
 type SheetNames = keyof CharacterDataSource['sheets'];
 
 export const characterDataSources: Record<string, CharacterDataSource> = {
@@ -21,6 +28,13 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 		sheets: {
 			skills: '544688264',
 		},
+	},
+};
+export const partyDataSources: PartyDataSource = {
+	documentId: '1agznHO98JumWB896PpQZ3eJQGIJwEIivChTurlwu5H8',
+	sheets: {
+		weapons: '0',
+		buffs: '1800-yolo',
 	},
 };
 
@@ -75,6 +89,32 @@ export type StatsTableItem = {
 	Focused: boolean;
 	Notes: string | null;
 };
+export type Weapon = {
+	Aurora: boolean;
+	Kara: boolean;
+	Mark: boolean;
+	Lewis: boolean;
+	Name: string;
+	Flavortext?: string;
+	Rarity: string;
+	DamageType: string;
+	WeaponClass: string;
+	AttackType: string;
+	HitType: string;
+	HitBonus: number;
+	CritRange: number;
+	CritMult: number;
+	Damage: string;
+	RangeType: string;
+	Range: number;
+	Handed: number;
+	Ammo: number;
+	AmmoCapacity: number;
+	AmmoType: string;
+	IsMagic: boolean;
+	Perks: string;
+	Shape?: string;
+};
 
 const unwrapJSONPRegex = /google\.visualization\.Query\.setResponse\((.+)\);/;
 const getSheetForCharacter = async <T>(
@@ -87,6 +127,9 @@ const getSheetForCharacter = async <T>(
 	}
 	const { documentId, sheets } = character;
 	const sheetKey = sheets[sheetName];
+	return getSheet(documentId, sheetKey);
+};
+const getSheet = async <T>(documentId: string, sheetKey: string): Promise<T[]> => {
 	const source = `https://docs.google.com/spreadsheets/d/${documentId}/gviz/tq?gid=${sheetKey}`;
 
 	const text = await (await fetch(source)).text();
@@ -116,6 +159,9 @@ export default function useCharacterData(characterId: string) {
 				// vv Doesn't need parens for some reason???
 				filterTableItemsWithNoName,
 			);
+		},
+		getWeaponsTable(): Promise<Weapon[]> {
+			return getSheet<Weapon>(partyDataSources.documentId, partyDataSources.sheets.weapons);
 		},
 	};
 }
