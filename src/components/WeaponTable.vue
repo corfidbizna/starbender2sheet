@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import useCharacterData, { type Weapon } from '@/composables/useCharacterData';
+import { computed, ref } from 'vue';
+import useCharacterData, { type CharacterNames, type Weapon } from '@/composables/useCharacterData';
 import WeaponItemRow from './WeaponItemRow.vue';
 import useFilter from '@/composables/useFilter';
 
 const props = defineProps<{
-	characterId: string;
+	characterId: CharacterNames;
 }>();
 const { getWeaponsTable } = useCharacterData(props.characterId);
 const defaultWeapon = {
-	Aurora: false,
-	Kara: true,
-	Mark: false,
-	Lewis: false,
+	aurora: false,
+	kara: true,
+	mark: false,
+	lewis: false,
 	Name: 'Test Gun',
 	Flavortext: '"Flavortext goes here."',
 	Rarity: 'Common',
@@ -36,10 +36,13 @@ const defaultWeapon = {
 	IsMagic: false,
 	Perks: '',
 };
-const data = ref<Weapon[]>([defaultWeapon]);
-getWeaponsTable().then((table) => (data.value = table));
+const weapons = ref<Weapon[]>([defaultWeapon]);
+getWeaponsTable().then((table) => (weapons.value = table));
+const weaponsFilteredByCharacter = computed<Weapon[]>(() => {
+	return weapons.value.filter((item) => item[props.characterId]);
+});
 const { queryValue, filteredData } = useFilter<Weapon, string>({
-	listUnfiltered: data,
+	listUnfiltered: weaponsFilteredByCharacter,
 	filter: { dataType: 'string', fieldName: 'Name' },
 	shouldExclude: false,
 });

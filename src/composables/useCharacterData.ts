@@ -93,10 +93,10 @@ export type StatsTableItem = {
 	Notes: string | null;
 };
 export type Weapon = {
-	Aurora: boolean;
-	Kara: boolean;
-	Mark: boolean;
-	Lewis: boolean;
+	aurora: boolean;
+	kara: boolean;
+	mark: boolean;
+	lewis: boolean;
 	Name: string;
 	Flavortext?: string;
 	Rarity: string;
@@ -120,6 +120,7 @@ export type Weapon = {
 	IsMagic: boolean;
 	Perks?: string;
 };
+export type CharacterNames = 'aurora' | 'kara' | 'mark' | 'lewis';
 
 const unwrapJSONPRegex = /google\.visualization\.Query\.setResponse\((.+)\);/;
 const getSheetForCharacter = async <T>(

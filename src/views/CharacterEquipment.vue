@@ -3,12 +3,13 @@ import { computed, ref } from 'vue';
 import useCharacterData, {
 	type CharacterDataSource,
 	characterDataSources,
+	type CharacterNames,
 	type Weapon,
 } from '@/composables/useCharacterData';
 import WeaponTable from '@/components/WeaponTable.vue';
 // import WeaponItemRow from './WeaponItemRow.vue';
 type CharacterProps = {
-	characterId: string;
+	characterId: CharacterNames;
 };
 const props = defineProps<CharacterProps>();
 const character = computed<CharacterDataSource>(() => characterDataSources[props.characterId]);
