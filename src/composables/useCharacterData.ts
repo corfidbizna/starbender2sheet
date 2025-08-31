@@ -3,6 +3,7 @@ export type CharacterDataSource = {
 	documentId: string;
 	sheets: {
 		skills: string;
+		variables: string;
 	};
 };
 export type PartyDataSource = {
@@ -20,6 +21,7 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 		documentId: '1RcSqD_99aJc-gOcmJTloZ-jItp2XOTiozjNvV-nzgSI',
 		sheets: {
 			skills: '544688264',
+			variables: '249151624',
 		},
 	},
 	aurora: {
@@ -27,6 +29,7 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 		documentId: '12vonRcFzriWY5AjLmueqbjd6DCQCJpqiLJkDpZEDgNU',
 		sheets: {
 			skills: '544688264',
+			variables: '0',
 		},
 	},
 };
@@ -97,23 +100,25 @@ export type Weapon = {
 	Name: string;
 	Flavortext?: string;
 	Rarity: string;
-	DamageType: string;
+	Element: string; // <-- Please change the "DamageType" at the beginning of the list to "Element" on the sheet!!!
 	WeaponClass: string;
 	AttackType: string;
 	HitType: string;
 	HitBonus: number;
-	CritRange: number;
-	CritMult: number;
+	CritRange?: number;
+	CritMult?: number;
 	Damage: string;
+	DamageType: string;
 	RangeType: string;
 	Range: number;
 	Handed: number;
+	Shape?: string;
+	Duration?: number;
 	Ammo: number;
 	AmmoCapacity: number;
 	AmmoType: string;
 	IsMagic: boolean;
-	Perks: string;
-	Shape?: string;
+	Perks?: string;
 };
 
 const unwrapJSONPRegex = /google\.visualization\.Query\.setResponse\((.+)\);/;

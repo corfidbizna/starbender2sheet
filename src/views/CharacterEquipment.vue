@@ -5,6 +5,8 @@ import useCharacterData, {
 	characterDataSources,
 	type Weapon,
 } from '@/composables/useCharacterData';
+import WeaponTable from '@/components/WeaponTable.vue';
+// import WeaponItemRow from './WeaponItemRow.vue';
 type CharacterProps = {
 	characterId: string;
 };
@@ -20,6 +22,7 @@ getWeaponsTable().then((table) => (weapons.value = table));
 	<div class="CharacterEquipment">
 		<div>
 			<h1>Equipment for {{ character.label }}</h1>
+			<WeaponTable :character-id="characterId"></WeaponTable>
 			<pre>{{ weapons }}</pre>
 		</div>
 	</div>

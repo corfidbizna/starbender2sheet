@@ -7,6 +7,7 @@ import { RouterLink, RouterView } from 'vue-router';
 		<nav>
 			<RouterLink :to="{ name: 'home' }">Home</RouterLink>
 		</nav>
+		<h1>Starbender 2: Season of Collapse</h1>
 	</header>
 
 	<RouterView />
@@ -28,6 +29,7 @@ nav {
 	font-size: 12px;
 	text-align: center;
 	margin-top: 2rem;
+	width: min-content;
 }
 
 nav a.router-link-exact-active {

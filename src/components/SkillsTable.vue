@@ -52,7 +52,7 @@ const { queryValue, filteredData } = useFilter<StatsTableItem, string>({
 </template>
 <style scoped>
 .scroll-box {
-	max-height: 200px;
+	/* max-height: 100px; */
 	overflow-y: scroll;
 	border: 2px solid #666;
 	border-radius: 0.5em;

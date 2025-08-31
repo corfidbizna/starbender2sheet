@@ -27,22 +27,54 @@ const character = computed<CharacterDataSource | undefined>(
 			<h1>Invalid character ID: {{ characterId }}</h1>
 		</div>
 		<div v-else>
-			<h1>This is an page about {{ character.label }}</h1>
-			<h2>Sub pages:</h2>
-			<ul>
-				<li>
-					<RouterLink :to="{ name: 'characterSkills', params: { characterId } }"
-						>Skills</RouterLink
-					>
-				</li>
-				<li>
-					<RouterLink :to="{ name: 'characterEquipment', params: { characterId } }"
-						>Equipment</RouterLink
-					>
-				</li>
-			</ul>
+			<h1>This is a page about {{ character.label }}</h1>
+			<div class="tab-container">
+				<a>Gameplay</a>
+				<RouterLink :to="{ name: 'characterSkills', params: { characterId } }"
+					>Skills</RouterLink
+				>
+				<a>Buffs</a>
+				<RouterLink :to="{ name: 'characterEquipment', params: { characterId } }"
+					>Loadout</RouterLink
+				>
+				<a>Seasonal Artifact</a>
+				<a>Lore</a>
+				<a>Settings</a>
+			</div>
 
 			<router-view />
 		</div>
 	</div>
 </template>
+<style scoped>
+.tab-container {
+	text-align: center;
+}
+a {
+	display: inline-block;
+	padding: 0.5em 0.75em;
+	width: 140px;
+	text-align: center;
+	text-decoration: none;
+	color: #000;
+	background-image: linear-gradient(to bottom, #bbb 0%, #ccc 30%, #bbb 70%, #aaa 100%);
+	border: 0.5px solid #eee;
+	border-top: 2px solid #eee;
+	border-bottom: 2px solid #eee;
+}
+.router-link-active {
+	font-weight: 800;
+	background-image: none;
+	background-color: white;
+}
+.tab-container a:first-child {
+	border-left: 2px solid #eee;
+	border-bottom-left-radius: 0.25em;
+	border-top-left-radius: 0.25em;
+}
+.tab-container a:last-child {
+	border-right: 2px solid #eee;
+	border-bottom-right-radius: 0.25em;
+	border-top-right-radius: 0.25em;
+}
+</style>
