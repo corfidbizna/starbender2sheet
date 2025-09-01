@@ -39,7 +39,7 @@ export const partyDataSources: PartyDataSource = {
 	documentId: '1agznHO98JumWB896PpQZ3eJQGIJwEIivChTurlwu5H8',
 	sheets: {
 		weapons: '0',
-		buffs: '1800-yolo',
+		buffs: '1800',
 	},
 };
 
@@ -205,11 +205,22 @@ export default function useCharacterData(characterId: string) {
 			};
 		},
 		getWeaponsTable(): NetworkDataState<Weapon> {
-			// TODO: Filter Weapons by character HERE
-			return getNetworkDataStateForSheet<Weapon>(
+			const {
+				data: weapons,
+				isLoading: weaponsLoading,
+				refresh: refreshWeapons,
+			} = getNetworkDataStateForSheet<Weapon>(
 				partyDataSources.documentId,
 				partyDataSources.sheets.weapons,
 			);
+			const filteredWeapons = computed<Weapon[]>(() => {
+				return weapons.value.filter((item) => item[characterId as CharacterNames]);
+			});
+			return {
+				data: filteredWeapons,
+				isLoading: weaponsLoading,
+				refresh: refreshWeapons,
+			};
 		},
 	};
 }

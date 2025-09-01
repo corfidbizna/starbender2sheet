@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import useCharacterData, { type CharacterNames, type Weapon } from '@/composables/useCharacterData';
 import WeaponItemRow from './WeaponItemRow.vue';
 import useFilter from '@/composables/useFilter';
@@ -8,14 +7,9 @@ const props = defineProps<{
 	characterId: CharacterNames;
 }>();
 const { getWeaponsTable } = useCharacterData(props.characterId);
-// const weapons = ref<Weapon[]>([defaultWeapon]);
-// getWeaponsTable().then((table) => (weapons.value = table));
 const { data: weapons, isLoading: weaponsLoading, refresh: refreshWeapons } = getWeaponsTable();
-const weaponsFilteredByCharacter = computed<Weapon[]>(() => {
-	return weapons.value.filter((item) => item[props.characterId]);
-});
 const { queryValue, filteredData } = useFilter<Weapon, string>({
-	listUnfiltered: weaponsFilteredByCharacter,
+	listUnfiltered: weapons,
 	filter: { dataType: 'string', fieldName: 'Name' },
 	shouldExclude: false,
 });
