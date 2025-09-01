@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import useCharacterData, {
 	type CharacterDataSource,
 	characterDataSources,
 	type CharacterNames,
-	type Weapon,
 } from '@/composables/useCharacterData';
 import WeaponTable from '@/components/WeaponTable.vue';
 // import WeaponItemRow from './WeaponItemRow.vue';

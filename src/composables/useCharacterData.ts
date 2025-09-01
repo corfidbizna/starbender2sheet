@@ -1,4 +1,4 @@
-import { ref, type Ref } from 'vue';
+import { computed, ref, type Ref } from 'vue';
 
 export type CharacterDataSource = {
 	label: string;
@@ -125,17 +125,17 @@ export type Weapon = {
 export type CharacterNames = 'aurora' | 'kara' | 'mark' | 'lewis';
 
 const unwrapJSONPRegex = /google\.visualization\.Query\.setResponse\((.+)\);/;
-const getSheetForCharacter = async <T>(
+const getSheetForCharacter = <T>(
 	characterId: string,
 	sheetName: SheetNames,
-): Promise<T[]> => {
+): NetworkDataState<T> => {
 	const character = characterDataSources[characterId];
 	if (!character) {
 		throw new Error(`Invalid Character ID: ${characterId}`);
 	}
 	const { documentId, sheets } = character;
 	const sheetKey = sheets[sheetName];
-	return getSheet(documentId, sheetKey);
+	return getNetworkDataStateForSheet(documentId, sheetKey);
 };
 type NetworkDataState<T> = {
 	data: Ref<T[]>;
@@ -190,19 +190,22 @@ const getSheet = async <T>(documentId: string, sheetKey: string): Promise<T[]> =
 };
 export default function useCharacterData(characterId: string) {
 	return {
-		getStatsTable(): Promise<StatsTableItem[]> {
-			// Since this involves a network call, "Promise" means "do this when you have the data."
-			const filterTableItemsWithNoName = (list: StatsTableItem[]) => {
-				// Removes items if there's nothing in the name field.
-				return list.filter((item) => !!item.Name);
-			};
-			return getSheetForCharacter<StatsTableItem>(characterId, 'skills').then(
-				// vv This is a "callback function" that will run when the promise resolves.
-				// vv Doesn't need parens for some reason???
-				filterTableItemsWithNoName,
+		getStatsTable() {
+			const { data, isLoading, refresh } = getSheetForCharacter<StatsTableItem>(
+				characterId,
+				'skills',
 			);
+			return {
+				data: computed<StatsTableItem[]>(() => {
+					// Removes items if there's nothing in the name field.
+					return data.value.filter((item) => !!item.Name);
+				}),
+				isLoading,
+				refresh,
+			};
 		},
 		getWeaponsTable(): NetworkDataState<Weapon> {
+			// TODO: Filter Weapons by character HERE
 			return getNetworkDataStateForSheet<Weapon>(
 				partyDataSources.documentId,
 				partyDataSources.sheets.weapons,

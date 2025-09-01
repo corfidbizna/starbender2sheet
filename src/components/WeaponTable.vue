@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import useCharacterData, { type CharacterNames, type Weapon } from '@/composables/useCharacterData';
 import WeaponItemRow from './WeaponItemRow.vue';
 import useFilter from '@/composables/useFilter';
@@ -8,34 +8,6 @@ const props = defineProps<{
 	characterId: CharacterNames;
 }>();
 const { getWeaponsTable } = useCharacterData(props.characterId);
-const defaultWeapon = {
-	aurora: false,
-	kara: true,
-	mark: false,
-	lewis: false,
-	Name: 'Test Gun',
-	Flavortext: '"Flavortext goes here."',
-	Rarity: 'Common',
-	Element: 'Kinetic',
-	WeaponClass: 'Sidearm',
-	AttackType: 'Bullet',
-	HitType: 'AC',
-	HitBonus: 0,
-	CritRange: 2,
-	CritMult: 2,
-	Damage: '12d6+(8*STR)',
-	DamageType: 'Kinetic',
-	RangeType: 'Melee',
-	Range: 1,
-	Shape: '',
-	Duration: 0,
-	Handed: 2,
-	Ammo: 1,
-	AmmoCapacity: 20,
-	AmmoType: 'kinetic ammo',
-	IsMagic: false,
-	Perks: '',
-};
 // const weapons = ref<Weapon[]>([defaultWeapon]);
 // getWeaponsTable().then((table) => (weapons.value = table));
 const { data: weapons, isLoading: weaponsLoading, refresh: refreshWeapons } = getWeaponsTable();

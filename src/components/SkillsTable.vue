@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import useCharacterData, { type StatsTableItem } from '@/composables/useCharacterData';
 import SkillItemRow from './SkillItemRow.vue';
 import useFilter from '@/composables/useFilter';
@@ -8,10 +7,9 @@ const props = defineProps<{
 	characterId: string;
 }>();
 const { getStatsTable } = useCharacterData(props.characterId);
-const data = ref<StatsTableItem[]>([]);
-getStatsTable().then((table) => (data.value = table));
+const { data: skills, isLoading: skillsLoading, refresh: refreshSkills } = getStatsTable();
 const { queryValue, filteredData } = useFilter<StatsTableItem, string>({
-	listUnfiltered: data,
+	listUnfiltered: skills,
 	filter: { dataType: 'string', fieldName: 'Name' },
 	shouldExclude: false,
 });
@@ -27,8 +25,13 @@ const { queryValue, filteredData } = useFilter<StatsTableItem, string>({
 					v-model="queryValue"
 				/>
 			</label>
+			<button @click="refreshSkills">Reload Skills</button>
 		</div>
-		<div class="scroll-box">
+		<div v-if="skillsLoading"><h1>Skills are loading</h1></div>
+		<div
+			v-else
+			class="scroll-box"
+		>
 			<table>
 				<thead>
 					<tr>
