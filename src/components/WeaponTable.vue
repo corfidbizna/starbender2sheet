@@ -36,8 +36,9 @@ const defaultWeapon = {
 	IsMagic: false,
 	Perks: '',
 };
-const weapons = ref<Weapon[]>([defaultWeapon]);
-getWeaponsTable().then((table) => (weapons.value = table));
+// const weapons = ref<Weapon[]>([defaultWeapon]);
+// getWeaponsTable().then((table) => (weapons.value = table));
+const { data: weapons, isLoading: weaponsLoading, refresh: refreshWeapons } = getWeaponsTable();
 const weaponsFilteredByCharacter = computed<Weapon[]>(() => {
 	return weapons.value.filter((item) => item[props.characterId]);
 });
@@ -57,8 +58,13 @@ const { queryValue, filteredData } = useFilter<Weapon, string>({
 					v-model="queryValue"
 				/>
 			</label>
+			<button @click="refreshWeapons">Reload Weapons</button>
 		</div>
-		<div class="scroll-box">
+		<div v-if="weaponsLoading"><h1>Weapons are loading</h1></div>
+		<div
+			v-else
+			class="scroll-box"
+		>
 			<table>
 				<tbody>
 					<WeaponItemRow

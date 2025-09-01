@@ -15,8 +15,7 @@ const props = defineProps<CharacterProps>();
 const character = computed<CharacterDataSource>(() => characterDataSources[props.characterId]);
 
 const { getWeaponsTable } = useCharacterData(props.characterId);
-const weapons = ref<Weapon[]>([]);
-getWeaponsTable().then((table) => (weapons.value = table));
+const { data: weapons } = getWeaponsTable();
 </script>
 
 <template>

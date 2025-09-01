@@ -1,3 +1,5 @@
+import { ref, type Ref } from 'vue';
+
 export type CharacterDataSource = {
 	label: string;
 	documentId: string;
@@ -135,6 +137,41 @@ const getSheetForCharacter = async <T>(
 	const sheetKey = sheets[sheetName];
 	return getSheet(documentId, sheetKey);
 };
+type NetworkDataState<T> = {
+	data: Ref<T[]>;
+	isLoading: Ref<boolean>;
+	refresh: VoidFunction;
+};
+
+let sheetCache: Record<string, NetworkDataState<unknown>> = {};
+export const refreshCaches = () => (sheetCache = {});
+const getNetworkDataStateForSheet = <T>(
+	documentId: string,
+	sheetKey: string,
+): NetworkDataState<T> => {
+	const cacheKey = documentId + ',' + sheetKey;
+	if (sheetCache[cacheKey]) {
+		// Return early if cached.
+		return sheetCache[cacheKey] as NetworkDataState<T>;
+	}
+	const data = ref<T[]>([]) as Ref<T[]>;
+	const isLoading = ref<boolean>(true);
+	const refresh = () => {
+		isLoading.value = true;
+		getSheet<T>(documentId, sheetKey).then((networkResult) => {
+			data.value = networkResult;
+			isLoading.value = false;
+		});
+	};
+	refresh();
+	const result: NetworkDataState<T> = {
+		data,
+		isLoading,
+		refresh,
+	};
+	sheetCache[cacheKey] = result;
+	return result;
+};
 const getSheet = async <T>(documentId: string, sheetKey: string): Promise<T[]> => {
 	const source = `https://docs.google.com/spreadsheets/d/${documentId}/gviz/tq?gid=${sheetKey}`;
 
@@ -151,7 +188,6 @@ const getSheet = async <T>(documentId: string, sheetKey: string): Promise<T[]> =
 	// console.log('flattened', flattened);
 	return flattened as T[];
 };
-
 export default function useCharacterData(characterId: string) {
 	return {
 		getStatsTable(): Promise<StatsTableItem[]> {
@@ -166,8 +202,11 @@ export default function useCharacterData(characterId: string) {
 				filterTableItemsWithNoName,
 			);
 		},
-		getWeaponsTable(): Promise<Weapon[]> {
-			return getSheet<Weapon>(partyDataSources.documentId, partyDataSources.sheets.weapons);
+		getWeaponsTable(): NetworkDataState<Weapon> {
+			return getNetworkDataStateForSheet<Weapon>(
+				partyDataSources.documentId,
+				partyDataSources.sheets.weapons,
+			);
 		},
 	};
 }
