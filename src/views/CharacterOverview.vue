@@ -49,31 +49,32 @@ const character = computed<CharacterDataSource | undefined>(
 <style scoped>
 .tab-container {
 	text-align: center;
+	display: flex;
+	width: 100%;
 }
 a {
 	display: inline-block;
-	padding: 0.5em 0.75em;
-	width: 140px;
+	flex: 1;
+	padding: 0.5em 0.5em;
+	padding-top: 1em;
+	width: 100px;
 	text-align: center;
 	text-decoration: none;
-	color: #000;
-	background-image: linear-gradient(to bottom, #bbb 0%, #ccc 30%, #bbb 70%, #aaa 100%);
-	border: 0.5px solid #eee;
-	border-top: 2px solid #eee;
-	border-bottom: 2px solid #eee;
+	color: #fff;
+	background-color: #4448;
+	border: 0px solid #eee;
 }
 .router-link-active {
 	font-weight: 800;
-	background-image: none;
-	background-color: white;
+	border-bottom: 4px solid #fff;
 }
 .tab-container a:first-child {
-	border-left: 2px solid #eee;
+	/* border-left: 2px solid #eee; */
 	border-bottom-left-radius: 0.25em;
 	border-top-left-radius: 0.25em;
 }
 .tab-container a:last-child {
-	border-right: 2px solid #eee;
+	/* border-right: 2px solid #eee; */
 	border-bottom-right-radius: 0.25em;
 	border-top-right-radius: 0.25em;
 }

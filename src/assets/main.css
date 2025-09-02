@@ -6,7 +6,15 @@
 }
 
 body {
-	background-color: #444;
-	color: #ccc;
+	background-size: cover;
+	background-attachment: fixed;
+	background-position: center;
+	background-image:
+		url('/src/assets/bg00.png'), radial-gradient(circle at 50% 10%, #fff8, #ddd0),
+		linear-gradient(12deg, #aa886633 20%, #aa886600 60%),
+		linear-gradient(-30deg, #2244aa1a 20%, #2244aa00 60%),
+		linear-gradient(4deg, #444 10%, #888 30%, #aaa 90%);
+	/* background-color: #888; */
+	color: #f8f8f8;
 	font-family: sans-serif;
 }

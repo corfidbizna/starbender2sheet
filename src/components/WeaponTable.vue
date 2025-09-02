@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import useCharacterData, { type CharacterNames, type Weapon } from '@/composables/useCharacterData';
 import WeaponItemRow from './WeaponItemRow.vue';
+import LoadingModal from './LoadingModal.vue';
 import useFilter from '@/composables/useFilter';
 
 const props = defineProps<{
@@ -16,7 +17,7 @@ const { queryValue, filteredData } = useFilter<Weapon, string>({
 </script>
 <template>
 	<div class="weapon-table">
-		<div>
+		<div class="search">
 			<label>
 				<span class="label">Filter by name: </span>
 				<input
@@ -26,7 +27,7 @@ const { queryValue, filteredData } = useFilter<Weapon, string>({
 			</label>
 			<button @click="refreshWeapons">Reload Weapons</button>
 		</div>
-		<div v-if="weaponsLoading"><h1>Weapons are loading</h1></div>
+		<div v-if="weaponsLoading"><LoadingModal /></div>
 		<div
 			v-else
 			class="scroll-box"
@@ -44,10 +45,13 @@ const { queryValue, filteredData } = useFilter<Weapon, string>({
 	</div>
 </template>
 <style scoped>
+.search {
+	padding: 0.25em;
+}
 .scroll-box {
 	overflow-y: scroll;
 	border: 2px solid #666;
-	border-radius: 0.5em;
+	border-radius: 1em;
 }
 table {
 	width: 100%;

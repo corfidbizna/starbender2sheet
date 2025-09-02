@@ -122,6 +122,9 @@ export type Weapon = {
 	IsMagic: boolean;
 	Perks?: string;
 };
+// export type SheetVar = {
+
+// };
 export type CharacterNames = 'aurora' | 'kara' | 'mark' | 'lewis';
 
 const unwrapJSONPRegex = /google\.visualization\.Query\.setResponse\((.+)\);/;
@@ -222,5 +225,8 @@ export default function useCharacterData(characterId: string) {
 				refresh: refreshWeapons,
 			};
 		},
+		// getVariableList(): string {
+		// 	return getSheet(partyDataSources.documentId, partyDataSources.sheets.variables);
+		// },
 	};
 }

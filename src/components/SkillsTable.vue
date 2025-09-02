@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import useCharacterData, { type StatsTableItem } from '@/composables/useCharacterData';
 import SkillItemRow from './SkillItemRow.vue';
+import LoadingModal from './LoadingModal.vue';
 import useFilter from '@/composables/useFilter';
 
 const props = defineProps<{
@@ -16,8 +17,7 @@ const { queryValue, filteredData } = useFilter<StatsTableItem, string>({
 </script>
 <template>
 	<div class="skills-table">
-		<h1>Stats for Character ID: {{ characterId }}</h1>
-		<div>
+		<div class="search">
 			<label>
 				<span class="label">Filter by name: </span>
 				<input
@@ -27,7 +27,9 @@ const { queryValue, filteredData } = useFilter<StatsTableItem, string>({
 			</label>
 			<button @click="refreshSkills">Reload Skills</button>
 		</div>
-		<div v-if="skillsLoading"><h1>Skills are loading</h1></div>
+		<div v-if="skillsLoading">
+			<LoadingModal />
+		</div>
 		<div
 			v-else
 			class="scroll-box"
@@ -54,6 +56,9 @@ const { queryValue, filteredData } = useFilter<StatsTableItem, string>({
 	</div>
 </template>
 <style scoped>
+.search {
+	padding: 0.25em;
+}
 .scroll-box {
 	/* max-height: 100px; */
 	overflow-y: scroll;

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import useCharacterData, {
+import {
 	type CharacterDataSource,
 	characterDataSources,
 	type CharacterNames,
@@ -12,9 +12,6 @@ type CharacterProps = {
 };
 const props = defineProps<CharacterProps>();
 const character = computed<CharacterDataSource>(() => characterDataSources[props.characterId]);
-
-const { getWeaponsTable } = useCharacterData(props.characterId);
-const { data: weapons } = getWeaponsTable();
 </script>
 
 <template>
@@ -22,7 +19,6 @@ const { data: weapons } = getWeaponsTable();
 		<div>
 			<h1>Equipment for {{ character.label }}</h1>
 			<WeaponTable :character-id="characterId"></WeaponTable>
-			<pre>{{ weapons }}</pre>
 		</div>
 	</div>
 </template>
