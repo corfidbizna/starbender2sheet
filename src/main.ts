@@ -1,5 +1,5 @@
 import './assets/main.css';
-import './genericsParty.ts';
+// import './genericsParty.ts';
 
 import { createApp } from 'vue';
 import App from './App.vue';
