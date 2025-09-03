@@ -23,3 +23,15 @@ import { characterDataSources } from '@/composables/useCharacterData';
 		</ul>
 	</main>
 </template>
+<style scoped>
+h1 {
+	text-align: center;
+	font-size: 1.5em;
+}
+li {
+	text-align: center;
+	font-size: 1em;
+	text-decoration: none;
+	vertical-align: center;
+}
+</style>

@@ -35,8 +35,15 @@ const colorsRarity = (rarity: string): string => {
 			:style="'background-color: ' + colorsRarity(Rarity)"
 		>
 			<h1>{{ Name }}</h1>
-			<h2>{{ Rarity }} {{ Element }} {{ WeaponClass }}</h2>
-			<h2 class="flavortext">{{ Flavortext }}</h2>
+			<caption>
+				{{
+					Element.toUpperCase()
+				}}
+				{{
+					WeaponClass.toUpperCase()
+				}}
+			</caption>
+			<div class="flavortext">{{ Flavortext }}</div>
 		</div>
 		<div class="weapon-content">
 			<div class="weapon-cells">
@@ -80,13 +87,17 @@ h1 {
 	font-size: 1.3em;
 	font-weight: 800;
 	padding: 0;
-	padding-left: 1.4em;
-	margin: 0.5em 0;
+	padding-left: 50px;
+	margin: 0;
+	margin-top: 0.5em;
 }
-h2 {
+caption {
 	margin: 0.25em 0;
+	padding-left: 50px;
 	font-weight: 400;
 	font-size: 1em;
+	display: block;
+	text-align: left;
 }
 .weapon-row {
 	padding: 0.25em;

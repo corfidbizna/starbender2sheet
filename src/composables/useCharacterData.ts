@@ -86,6 +86,38 @@ const columnsToFieldNames = (parsed: GVizSheetResponse): Record<string, unknown>
 		return result;
 	});
 };
+export type CharacterStat<T> = {
+	key: string;
+	label: string;
+	value: T;
+	comments?: string;
+};
+export const stats: Record<string, CharacterStat<string | number>> = {
+	str: {
+		key: 'str',
+		label: 'Strength',
+		value: 6,
+	},
+	dex: {
+		key: 'dex',
+		label: 'Dexterity',
+		value: 10,
+	},
+	con: {
+		key: 'dex',
+		label: 'Constitution',
+		value: 7,
+	},
+};
+// const processCharacterStats = (
+// 	stats: CharacterStat<unknown>[],
+// ): Record<string, CharacterStat<unknown>> => {
+// 	const result: Record<string, CharacterStat<unknown>> = {};
+// 	stats.forEach((item) => {
+// 		result[item.key] = item;
+// 	});
+// 	return result;
+// };
 
 export type StatsTableItem = {
 	Bonus: number;
@@ -151,6 +183,7 @@ export const refreshCaches = () => (sheetCache = {});
 const getNetworkDataStateForSheet = <T>(
 	documentId: string,
 	sheetKey: string,
+	// todo: how to process the parameter before working with it.
 ): NetworkDataState<T> => {
 	const cacheKey = documentId + ',' + sheetKey;
 	if (sheetCache[cacheKey]) {
@@ -225,8 +258,17 @@ export default function useCharacterData(characterId: string) {
 				refresh: refreshWeapons,
 			};
 		},
-		// getVariableList(): string {
-		// 	return getSheet(partyDataSources.documentId, partyDataSources.sheets.variables);
+		// getVariableTable() {
+		// 	const character = characterDataSources[characterId];
+		// 	if (!character) {
+		// 		throw new Error(`Invalid Character ID: ${characterId}`);
+		// 	}
+		// 	const { documentId, sheets } = character;
+		// 	const sheetKey = sheets.variables;
+		// 	const result = getSheet<CharacterStat<unknown>>(documentId, sheetKey).then(
+		// 		processCharacterStats,
+		// 	);
+		// 	return result;
 		// },
 	};
 }

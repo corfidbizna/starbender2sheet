@@ -17,6 +17,12 @@ const router = createRouter({
 			component: () => import('../views/CharacterOverview.vue'),
 			children: [
 				{
+					path: 'gameplay',
+					name: 'characterGameplay',
+					props: true,
+					component: () => import('../views/CharacterGameplay.vue'),
+				},
+				{
 					path: 'skills',
 					name: 'characterSkills',
 					props: true,
@@ -27,6 +33,12 @@ const router = createRouter({
 					name: 'characterEquipment',
 					props: true,
 					component: () => import('../views/CharacterEquipment.vue'),
+				},
+				{
+					path: 'lore',
+					name: 'characterLore',
+					props: true,
+					component: () => import('../views/CharacterLore.vue'),
 				},
 			],
 		},

@@ -19,6 +19,8 @@ defineProps({
 const character = computed<CharacterDataSource | undefined>(
 	() => characterDataSources[props.characterId],
 );
+// const { getVariableTable } = useCharacterData(props.characterId);
+// getVariableTable().then(console.log);
 </script>
 
 <template>
@@ -27,9 +29,17 @@ const character = computed<CharacterDataSource | undefined>(
 			<h1>Invalid character ID: {{ characterId }}</h1>
 		</div>
 		<div v-else>
+			<div class="chara-info">
+				<div>Kara</div>
+				<div>Hunter</div>
+				<div>Void</div>
+				<div>Roas</div>
+			</div>
 			<h1>This is a page about {{ character.label }}</h1>
 			<div class="tab-container">
-				<a>Gameplay</a>
+				<RouterLink :to="{ name: 'characterGameplay', params: { characterId } }"
+					>Gameplay</RouterLink
+				>
 				<RouterLink :to="{ name: 'characterSkills', params: { characterId } }"
 					>Skills</RouterLink
 				>
@@ -38,7 +48,9 @@ const character = computed<CharacterDataSource | undefined>(
 					>Loadout</RouterLink
 				>
 				<a>Seasonal Artifact</a>
-				<a>Lore</a>
+				<RouterLink :to="{ name: 'characterLore', params: { characterId } }"
+					>Lore</RouterLink
+				>
 				<a>Settings</a>
 			</div>
 
@@ -47,6 +59,12 @@ const character = computed<CharacterDataSource | undefined>(
 	</div>
 </template>
 <style scoped>
+.chara-info {
+	position: absolute;
+	top: 1em;
+	right: 2em;
+	font-size: 1.25em;
+}
 .tab-container {
 	text-align: center;
 	display: flex;
