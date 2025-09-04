@@ -17,6 +17,10 @@ const router = createRouter({
 			component: () => import('../views/CharacterOverview.vue'),
 			children: [
 				{
+					path: '/',
+					redirect: 'characterGameplay',
+				},
+				{
 					path: 'gameplay',
 					name: 'characterGameplay',
 					props: true,

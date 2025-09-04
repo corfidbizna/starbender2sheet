@@ -25,18 +25,22 @@ const character = computed<CharacterDataSource | undefined>(
 
 <template>
 	<div class="CharacterOverview">
-		<div v-if="!character">
-			<h1>Invalid character ID: {{ characterId }}</h1>
-		</div>
-		<div v-else>
-			<div class="chara-info">
-				<div>Kara</div>
-				<div>Hunter</div>
-				<div>Void</div>
-				<div>Roas</div>
+		<header class="banner">
+			<RouterLink :to="{ name: 'home' }"
+				><img src="/src/assets/icons/slot_tricorn.png"
+			/></RouterLink>
+			<div class="logo">
+				<h1>STARBENDER 2</h1>
+				<h2>Season of Collapse</h2>
 			</div>
-			<h1>This is a page about {{ character.label }}</h1>
-			<div class="tab-container">
+			<div v-if="!character">
+				<h1>Invalid character ID: {{ characterId }}</h1>
+			</div>
+			<nav
+				v-else
+				class="tab-container"
+			>
+				<!-- <h1>This is a page about {{ character.label }}</h1> -->
 				<RouterLink :to="{ name: 'characterGameplay', params: { characterId } }"
 					>Gameplay</RouterLink
 				>
@@ -51,49 +55,76 @@ const character = computed<CharacterDataSource | undefined>(
 				<RouterLink :to="{ name: 'characterLore', params: { characterId } }"
 					>Lore</RouterLink
 				>
-				<a>Settings</a>
-			</div>
-
-			<router-view />
-		</div>
+				<a>⚙</a>
+			</nav>
+		</header>
+		<router-view class="content" />
 	</div>
 </template>
-<style scoped>
-.chara-info {
-	position: absolute;
-	top: 1em;
-	right: 2em;
-	font-size: 1.25em;
+<style>
+.banner {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 4em;
+	background-image: url('https://wallpapershigh.com/wp-content/uploads/destiny-2-logo-5.webp');
+	background-size: cover;
+	background-color: #444;
+	border-bottom: 2px solid #444;
+	display: flex;
 }
+.banner header {
+	max-height: 100vh;
+	place-items: center;
+	padding-bottom: 0.5em;
+	margin: 0;
+}
+.banner h1 {
+	font-size: 1.4em;
+	margin: 0;
+}
+.banner h2 {
+	font-size: 1em;
+	font-weight: 100;
+	margin: 0;
+	text-align: left;
+	border: none;
+}
+.banner .logo {
+	background: none;
+	padding: 0;
+	margin: 0;
+	width: inherit;
+	place-content: center;
+}
+
 .tab-container {
 	text-align: center;
 	display: flex;
-	width: 100%;
+	/* background-color: #4448; */
+	border-radius: 0.25em;
+	justify-content: right;
+	height: 3em;
+	margin-top: 0.5em;
 }
-a {
-	display: inline-block;
-	flex: 1;
+.tab-container a {
+	flex: 0;
+	place-content: center;
 	padding: 0.5em 0.5em;
-	padding-top: 1em;
-	width: 100px;
+	padding-top: 0.75em;
+	margin: 0 0.5em;
 	text-align: center;
 	text-decoration: none;
 	color: #fff;
-	background-color: #4448;
-	border: 0px solid #eee;
+	border-bottom: 4px solid #0000;
+	padding: 0 1em;
 }
-.router-link-active {
+.tab-container .router-link-active {
 	font-weight: 800;
 	border-bottom: 4px solid #fff;
 }
-.tab-container a:first-child {
-	/* border-left: 2px solid #eee; */
-	border-bottom-left-radius: 0.25em;
-	border-top-left-radius: 0.25em;
-}
-.tab-container a:last-child {
-	/* border-right: 2px solid #eee; */
-	border-bottom-right-radius: 0.25em;
-	border-top-right-radius: 0.25em;
+.content {
+	padding-top: 4em;
 }
 </style>

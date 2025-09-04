@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router';
+// import { RouterLink, RouterView } from 'vue-router';
 </script>
 
 <template>
-	<header>
+	<!-- <header>
 		<nav>
 			<RouterLink :to="{ name: 'home' }"
 				><img
@@ -12,8 +12,7 @@ import { RouterLink, RouterView } from 'vue-router';
 			/></RouterLink>
 		</nav>
 		<h1>STARBENDER 2: Season of Collapse</h1>
-	</header>
-
+	</header> -->
 	<RouterView />
 </template>
 
@@ -23,6 +22,8 @@ h1 {
 }
 header {
 	max-height: 100vh;
+	display: flex;
+	place-items: top;
 }
 
 .logo {
@@ -48,7 +49,7 @@ nav a {
 	display: inline-block;
 	padding-left: 1rem;
 }
-
+/*
 @media (min-width: 1024px) {
 	header {
 		display: flex;
@@ -65,9 +66,6 @@ nav a {
 		text-align: left;
 		margin-left: -1rem;
 		font-size: 1rem;
-
-		/* padding: 1rem 0; */
-		/* margin-top: 1rem; */
 	}
-}
+} */
 </style>
