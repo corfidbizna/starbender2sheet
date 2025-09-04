@@ -58,7 +58,7 @@ const makeBar = (min: number, max: number, value: number, value2?: number): stri
 </template>
 <style scoped>
 div {
-	margin: 0.25em;
+	margin: 0.5em;
 }
 table {
 	width: 100%;

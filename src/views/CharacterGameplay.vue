@@ -36,6 +36,25 @@ const testActionsInfo = <StatBoxInfo>{
 		{ label: 'Reflex', value: 1 },
 	],
 };
+const testAmmoInfo = <StatBoxInfo>{
+	label: 'Ammo',
+	data: [
+		{ label: 'Kinetic Ammo', value: 0 },
+		{ label: 'Energy Ammo', value: 19 },
+		{ label: 'Heavy Ammo', value: 8 },
+	],
+};
+const testEnergyInfo = <StatBoxInfo>{
+	label: 'Energy',
+	data: [
+		{ label: 'Super Energy', value: 45 },
+		{ label: 'Class Energy', value: 7 },
+		{ label: 'Melee Energy', value: 14 },
+		{ label: 'Grenade Energy', value: 14 },
+		{ label: 'Universal Energy', value: 42 },
+		{ label: 'Rerolls', value: 3 },
+	],
+};
 </script>
 <template>
 	<div>
@@ -52,18 +71,26 @@ const testActionsInfo = <StatBoxInfo>{
 				<div><StatBarsBox v-bind="testActionsInfo" /></div>
 				<h2>Derived Information</h2>
 				<div>Movement per move: 30ft.</div>
-				<div>Reach: 30ft.</div>
+				<div>Reach: 5ft.</div>
 				<div>Size: Medium</div>
 				<div>Carrying Capacity: 660lbs.</div>
+			</div>
+			<div class="stat-column-c">
+				<div><StatBarsBox v-bind="testAmmoInfo" /></div>
+				<div><StatBarsBox v-bind="testEnergyInfo" /></div>
 			</div>
 		</div>
 	</div>
 </template>
 <style>
 .stat-column-a,
-.stat-column-b {
+.stat-column-b,
+.stat-column-c {
 	width: 20%;
 	display: inline-block;
 	vertical-align: top;
+}
+.stat-column-c {
+	width: 25%;
 }
 </style>

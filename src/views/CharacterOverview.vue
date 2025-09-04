@@ -30,7 +30,7 @@ const character = computed<CharacterDataSource | undefined>(
 				><img src="/src/assets/icons/slot_tricorn.png"
 			/></RouterLink>
 			<div class="logo">
-				<h1>STARBENDER 2</h1>
+				<h1>STARBENDER 2</h1>
 				<h2>Season of Collapse</h2>
 			</div>
 			<div v-if="!character">
