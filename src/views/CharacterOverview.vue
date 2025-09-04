@@ -19,8 +19,6 @@ defineProps({
 const character = computed<CharacterDataSource | undefined>(
 	() => characterDataSources[props.characterId],
 );
-// const { getVariableTable } = useCharacterData(props.characterId);
-// getVariableTable().then(console.log);
 </script>
 
 <template>

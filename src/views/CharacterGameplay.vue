@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { type CharacterDataSource, characterDataSources } from '@/composables/useCharacterData';
+import useCharacterData, {
+	type CharacterDataSource,
+	type CharacterStat,
+	type CharacterStatKey,
+	characterDataSources,
+} from '@/composables/useCharacterData';
 import StatBarsBox, { type StatBoxInfo } from '@/components/StatBarsBox.vue';
 type CharacterProps = {
 	characterId: string;
@@ -9,50 +14,36 @@ const props = defineProps<CharacterProps>();
 const character = computed<CharacterDataSource | undefined>(
 	() => characterDataSources[props.characterId],
 );
-const testStatInfo = <StatBoxInfo>{
-	label: 'Ability Scores',
-	data: [
-		{ label: 'Strength', value: 6 },
-		{ label: 'Dexterity', value: 10 },
-		{ label: 'Constitution', value: 7 },
-		{ label: 'Intelligence', value: 1 },
-		{ label: 'Will', value: 0 },
-		{ label: 'Charisma', value: 4 },
-	],
+const { getStats } = useCharacterData(props.characterId);
+const { data: stats, isLoading: statsLoading, refresh: refreshStats } = getStats();
+
+const makeComputedOfStats = (label: string, keys: CharacterStatKey[]): (() => StatBoxInfo) => {
+	return (): StatBoxInfo => {
+		const statsValue = stats.value;
+		return {
+			label,
+			data: keys.map((key) => statsValue[key] as CharacterStat<number>),
+		};
+	};
 };
-const testSavesInfo = <StatBoxInfo>{
-	label: 'Saving Throws',
-	data: [
-		{ label: 'Fortitude', value: 10 },
-		{ label: 'Reflex', value: 13 },
-		{ label: 'Will', value: 2 },
-	],
-};
-const testActionsInfo = <StatBoxInfo>{
-	label: 'Actions',
-	data: [
-		{ label: 'Movement', value: 2 },
-		{ label: 'Attack', value: 2 },
-		{ label: 'Reflex', value: 1 },
-	],
-};
+const statInfo = computed<StatBoxInfo>(
+	makeComputedOfStats('Ability Scores', ['str', 'dex', 'con', 'int', 'wil', 'cha']),
+);
+const savesInfo = computed<StatBoxInfo>(
+	makeComputedOfStats('Saving Throws', ['fort', 'ref', 'wil']),
+);
+const actionsInfo = computed<StatBoxInfo>(
+	makeComputedOfStats('Action', ['actionMoves', 'actionAttacks', 'actionReactions']),
+);
+const energyInfo = computed<StatBoxInfo>(
+	makeComputedOfStats('Energy', ['eSuper', 'eClass', 'eMelee', 'eGrenade', 'eUniversal']),
+);
 const testAmmoInfo = <StatBoxInfo>{
 	label: 'Ammo',
 	data: [
-		{ label: 'Kinetic Ammo', value: 0 },
-		{ label: 'Energy Ammo', value: 19 },
-		{ label: 'Heavy Ammo', value: 8 },
-	],
-};
-const testEnergyInfo = <StatBoxInfo>{
-	label: 'Energy',
-	data: [
-		{ label: 'Super Energy', value: 45 },
-		{ label: 'Class Energy', value: 7 },
-		{ label: 'Melee Energy', value: 14 },
-		{ label: 'Grenade Energy', value: 14 },
-		{ label: 'Universal Energy', value: 42 },
-		{ label: 'Rerolls', value: 3 },
+		{ label: 'Kinetic Ammo', value: 0 },
+		{ label: 'Energy Ammo', value: 19 },
+		{ label: 'Heavy Ammo', value: 8 },
 	],
 };
 </script>
@@ -61,14 +52,18 @@ const testEnergyInfo = <StatBoxInfo>{
 		<div v-if="!character">
 			<h1>Invalid character ID: {{ characterId }}</h1>
 		</div>
+		<div v-else-if="statsLoading">
+			<h1>Loafing</h1>
+		</div>
 		<div v-else>
 			<h1>Gameplay for {{ character.label }}</h1>
+			<p><button @click="refreshStats">Refresh Stats</button></p>
 			<div class="stat-column-a">
-				<div><StatBarsBox v-bind="testStatInfo" /></div>
-				<div><StatBarsBox v-bind="testSavesInfo" /></div>
+				<div><StatBarsBox v-bind="statInfo" /></div>
+				<div><StatBarsBox v-bind="savesInfo" /></div>
 			</div>
 			<div class="stat-column-b">
-				<div><StatBarsBox v-bind="testActionsInfo" /></div>
+				<div><StatBarsBox v-bind="actionsInfo" /></div>
 				<h2>Derived Information</h2>
 				<div>Movement per move: 30ft.</div>
 				<div>Reach: 5ft.</div>
@@ -77,7 +72,7 @@ const testEnergyInfo = <StatBoxInfo>{
 			</div>
 			<div class="stat-column-c">
 				<div><StatBarsBox v-bind="testAmmoInfo" /></div>
-				<div><StatBarsBox v-bind="testEnergyInfo" /></div>
+				<div><StatBarsBox v-bind="energyInfo" /></div>
 			</div>
 		</div>
 	</div>

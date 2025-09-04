@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import useCharacterData, { type StatsTableItem } from '@/composables/useCharacterData';
+import useCharacterData, { type SkillsTableItem } from '@/composables/useCharacterData';
 import SkillItemRow from './SkillItemRow.vue';
 import LoadingModal from './LoadingModal.vue';
 import useFilter from '@/composables/useFilter';
@@ -7,9 +7,9 @@ import useFilter from '@/composables/useFilter';
 const props = defineProps<{
 	characterId: string;
 }>();
-const { getStatsTable } = useCharacterData(props.characterId);
-const { data: skills, isLoading: skillsLoading, refresh: refreshSkills } = getStatsTable();
-const { queryValue, filteredData } = useFilter<StatsTableItem, string>({
+const { getSkillsTable } = useCharacterData(props.characterId);
+const { data: skills, isLoading: skillsLoading, refresh: refreshSkills } = getSkillsTable();
+const { queryValue, filteredData } = useFilter<SkillsTableItem, string>({
 	listUnfiltered: skills,
 	filter: { dataType: 'string', fieldName: 'Name' },
 	shouldExclude: false,

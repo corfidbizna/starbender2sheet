@@ -1,13 +1,10 @@
 <script setup lang="ts">
+import type { CharacterStat } from '@/composables/useCharacterData';
 import { computed } from 'vue';
 
-type StatGroup = {
-	label: string;
-	value: number;
-};
 export type StatBoxInfo = {
 	label: string;
-	data: StatGroup[];
+	data: CharacterStat<number>[];
 };
 const props = defineProps<StatBoxInfo>();
 // const rangeMin = computed<number>((): number => {
@@ -71,6 +68,7 @@ tr {
 	text-align: right;
 	padding: 0 0.5em;
 	max-width: fit-content;
+	white-space: nowrap;
 }
 .value {
 	font-weight: 800;

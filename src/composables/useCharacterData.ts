@@ -92,7 +92,66 @@ export type CharacterStat<T> = {
 	value: T;
 	comments?: string;
 };
-export const stats: Record<string, CharacterStat<string | number>> = {
+export type CharacterStats = {
+	str: CharacterStat<number>;
+	dex: CharacterStat<number>;
+	con: CharacterStat<number>;
+	int: CharacterStat<number>;
+	wis: CharacterStat<number>;
+	cha: CharacterStat<number>;
+	strScore: CharacterStat<number>;
+	dexScore: CharacterStat<number>;
+	conScore: CharacterStat<number>;
+	intScore: CharacterStat<number>;
+	wisScore: CharacterStat<number>;
+	chaScore: CharacterStat<number>;
+	name: CharacterStat<string>;
+	race: CharacterStat<string>;
+	class: CharacterStat<string>;
+	cpl: CharacterStat<number>;
+	colorHair: CharacterStat<string>;
+	colorEye: CharacterStat<string>;
+	height: CharacterStat<string>;
+	weight: CharacterStat<string>;
+	gClass: CharacterStat<string>;
+	gSubclass: CharacterStat<string>;
+	ghost: CharacterStat<string>;
+	description: CharacterStat<string>;
+	hp: CharacterStat<number>;
+	skill: CharacterStat<number>;
+	fort: CharacterStat<number>;
+	ref: CharacterStat<number>;
+	wil: CharacterStat<number>;
+	bab: CharacterStat<number>;
+	bdb: CharacterStat<number>;
+	ac: CharacterStat<number>;
+	acTouch: CharacterStat<number>;
+	acFF: CharacterStat<number>;
+	acTFF: CharacterStat<number>;
+	dr: CharacterStat<number>;
+	drFF: CharacterStat<number>;
+	attackMelee: CharacterStat<number>;
+	attackUnarmed: CharacterStat<number>;
+	attackRanged: CharacterStat<number>;
+	attackPrecision: CharacterStat<number>;
+	size: CharacterStat<number>;
+	reach: CharacterStat<number>;
+	moveDist: CharacterStat<number>;
+	weightCurrent: CharacterStat<number>;
+	weightCapacity: CharacterStat<number>;
+	encumbered: CharacterStat<number>;
+	encumberedAllowed: CharacterStat<boolean>;
+	actionAttacks: CharacterStat<number>;
+	actionReactions: CharacterStat<number>;
+	actionMoves: CharacterStat<number>;
+	eSuper: CharacterStat<number>;
+	eMelee: CharacterStat<number>;
+	eGrenade: CharacterStat<number>;
+	eClass: CharacterStat<number>;
+	eUniversal: CharacterStat<number>;
+};
+export type CharacterStatKey = keyof CharacterStats;
+export const abilityScores: Partial<CharacterStats> = {
 	str: {
 		key: 'str',
 		label: 'Strength',
@@ -109,17 +168,16 @@ export const stats: Record<string, CharacterStat<string | number>> = {
 		value: 7,
 	},
 };
-// const processCharacterStats = (
-// 	stats: CharacterStat<unknown>[],
-// ): Record<string, CharacterStat<unknown>> => {
-// 	const result: Record<string, CharacterStat<unknown>> = {};
-// 	stats.forEach((item) => {
-// 		result[item.key] = item;
-// 	});
-// 	return result;
-// };
 
-export type StatsTableItem = {
+const processCharacterStats = (stats: CharacterStat<unknown>[]): CharacterStats => {
+	const result: Record<string, CharacterStat<unknown>> = {};
+	stats.forEach((item) => {
+		result[item.key] = item;
+	});
+	return result as CharacterStats;
+};
+
+export type SkillsTableItem = {
 	Bonus: number;
 	Name: string;
 	Score: string;
@@ -226,13 +284,13 @@ const getSheet = async <T>(documentId: string, sheetKey: string): Promise<T[]> =
 };
 export default function useCharacterData(characterId: string) {
 	return {
-		getStatsTable() {
-			const { data, isLoading, refresh } = getSheetForCharacter<StatsTableItem>(
+		getSkillsTable() {
+			const { data, isLoading, refresh } = getSheetForCharacter<SkillsTableItem>(
 				characterId,
 				'skills',
 			);
 			return {
-				data: computed<StatsTableItem[]>(() => {
+				data: computed<SkillsTableItem[]>(() => {
 					// Removes items if there's nothing in the name field.
 					return data.value.filter((item) => !!item.Name);
 				}),
@@ -258,17 +316,16 @@ export default function useCharacterData(characterId: string) {
 				refresh: refreshWeapons,
 			};
 		},
-		// getVariableTable() {
-		// 	const character = characterDataSources[characterId];
-		// 	if (!character) {
-		// 		throw new Error(`Invalid Character ID: ${characterId}`);
-		// 	}
-		// 	const { documentId, sheets } = character;
-		// 	const sheetKey = sheets.variables;
-		// 	const result = getSheet<CharacterStat<unknown>>(documentId, sheetKey).then(
-		// 		processCharacterStats,
-		// 	);
-		// 	return result;
-		// },
+		getStats() {
+			const { data, isLoading, refresh } = getSheetForCharacter<CharacterStat<unknown>>(
+				characterId,
+				'variables',
+			);
+			return {
+				data: computed<CharacterStats>(() => processCharacterStats(data.value)),
+				isLoading,
+				refresh,
+			};
+		},
 	};
 }
