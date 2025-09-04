@@ -2,11 +2,11 @@
 import { computed } from 'vue';
 import useCharacterData, {
 	type CharacterDataSource,
-	type CharacterStat,
-	type CharacterStatKey,
+	type StatBoxInfo,
 	characterDataSources,
+	makeComputedOfStats,
 } from '@/composables/useCharacterData';
-import StatBarsBox, { type StatBoxInfo } from '@/components/StatBarsBox.vue';
+import StatBarsBox from '@/components/StatBarsBox.vue';
 type CharacterProps = {
 	characterId: string;
 };
@@ -17,26 +17,17 @@ const character = computed<CharacterDataSource | undefined>(
 const { getStats } = useCharacterData(props.characterId);
 const { data: stats, isLoading: statsLoading, refresh: refreshStats } = getStats();
 
-const makeComputedOfStats = (label: string, keys: CharacterStatKey[]): (() => StatBoxInfo) => {
-	return (): StatBoxInfo => {
-		const statsValue = stats.value;
-		return {
-			label,
-			data: keys.map((key) => statsValue[key] as CharacterStat<number>),
-		};
-	};
-};
 const statInfo = computed<StatBoxInfo>(
-	makeComputedOfStats('Ability Scores', ['str', 'dex', 'con', 'int', 'wil', 'cha']),
+	makeComputedOfStats(stats, 'Ability Scores', ['str', 'dex', 'con', 'int', 'wil', 'cha']),
 );
 const savesInfo = computed<StatBoxInfo>(
-	makeComputedOfStats('Saving Throws', ['fort', 'ref', 'wil']),
+	makeComputedOfStats(stats, 'Saving Throws', ['fort', 'ref', 'wil']),
 );
 const actionsInfo = computed<StatBoxInfo>(
-	makeComputedOfStats('Action', ['actionMoves', 'actionAttacks', 'actionReactions']),
+	makeComputedOfStats(stats, 'Action', ['actionMoves', 'actionAttacks', 'actionReactions']),
 );
 const energyInfo = computed<StatBoxInfo>(
-	makeComputedOfStats('Energy', ['eSuper', 'eClass', 'eMelee', 'eGrenade', 'eUniversal']),
+	makeComputedOfStats(stats, 'Energy', ['eSuper', 'eClass', 'eMelee', 'eGrenade', 'eUniversal']),
 );
 const testAmmoInfo = <StatBoxInfo>{
 	label: 'Ammo',

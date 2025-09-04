@@ -1,4 +1,4 @@
-import { computed, ref, type Ref } from 'vue';
+import { computed, ref, type Ref, type ComputedRef } from 'vue';
 
 export type CharacterDataSource = {
 	label: string;
@@ -149,6 +149,23 @@ export type CharacterStats = {
 	eGrenade: CharacterStat<number>;
 	eClass: CharacterStat<number>;
 	eUniversal: CharacterStat<number>;
+};
+export type StatBoxInfo = {
+	label: string;
+	data: CharacterStat<number>[];
+};
+export const makeComputedOfStats = (
+	stats: ComputedRef<CharacterStats>,
+	label: string,
+	keys: CharacterStatKey[],
+): (() => StatBoxInfo) => {
+	return (): StatBoxInfo => {
+		const statsValue = stats.value;
+		return {
+			label,
+			data: keys.map((key) => statsValue[key] as CharacterStat<number>),
+		};
+	};
 };
 export type CharacterStatKey = keyof CharacterStats;
 export const abilityScores: Partial<CharacterStats> = {

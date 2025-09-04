@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import type { CharacterStat } from '@/composables/useCharacterData';
 import { computed } from 'vue';
+import type { StatBoxInfo } from '@/composables/useCharacterData';
 
-export type StatBoxInfo = {
-	label: string;
-	data: CharacterStat<number>[];
-};
 const props = defineProps<StatBoxInfo>();
 // const rangeMin = computed<number>((): number => {
 // 	let min = Infinity;
@@ -45,9 +41,7 @@ const makeBar = (min: number, max: number, value: number, value2?: number): stri
 				<td
 					class="bar"
 					:style="makeBar(0, rangeMax, stat.value)"
-				>
-					 
-				</td>
+				></td>
 				<td class="value">{{ stat.value }}</td>
 			</tr>
 		</table>
