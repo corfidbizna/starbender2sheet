@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { type Weapon } from '@/composables/useCharacterData';
+// import DGlyph from './DGlyph.vue';
 
 const props = defineProps<Weapon>();
 const getCritDisplay = (): string => {
@@ -34,6 +35,7 @@ const colorsRarity = (rarity: string): string => {
 			class="weapon-header"
 			:style="'background-color: ' + colorsRarity(Rarity)"
 		>
+			<!-- <DGlyph v-bind="'Bow'" /> -->
 			<h1>{{ Name }}</h1>
 			<caption>
 				{{

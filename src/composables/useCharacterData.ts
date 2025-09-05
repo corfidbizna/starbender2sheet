@@ -112,7 +112,7 @@ export type CharacterStats = {
 	colorHair: CharacterStat<string>;
 	colorEye: CharacterStat<string>;
 	height: CharacterStat<string>;
-	weight: CharacterStat<string>;
+	weight: CharacterStat<number>;
 	gClass: CharacterStat<string>;
 	gSubclass: CharacterStat<string>;
 	ghost: CharacterStat<string>;

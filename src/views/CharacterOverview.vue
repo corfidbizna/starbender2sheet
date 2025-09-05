@@ -22,7 +22,7 @@ const character = computed<CharacterDataSource | undefined>(
 </script>
 
 <template>
-	<div class="CharacterOverview">
+	<div class="character-overview">
 		<header class="banner">
 			<RouterLink :to="{ name: 'home' }"
 				><img src="/src/assets/icons/slot_tricorn.png"
@@ -50,10 +50,11 @@ const character = computed<CharacterDataSource | undefined>(
 					>Loadout</RouterLink
 				>
 				<a>Seasonal Artifact</a>
+				<RouterLink :to="{ name: 'questList', params: { characterId } }">Quests</RouterLink>
 				<RouterLink :to="{ name: 'characterLore', params: { characterId } }"
 					>Lore</RouterLink
 				>
-				<a>⚙</a>
+				<RouterLink :to="{ name: 'settings', params: { characterId } }">⚙</RouterLink>
 			</nav>
 		</header>
 		<router-view class="content" />

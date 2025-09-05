@@ -7,6 +7,7 @@ import useCharacterData, {
 	makeComputedOfStats,
 } from '@/composables/useCharacterData';
 import StatBarsBox from '@/components/StatBarsBox.vue';
+import LoadingModal from '@/components/LoadingModal.vue';
 type CharacterProps = {
 	characterId: string;
 };
@@ -44,7 +45,7 @@ const testAmmoInfo = <StatBoxInfo>{
 			<h1>Invalid character ID: {{ characterId }}</h1>
 		</div>
 		<div v-else-if="statsLoading">
-			<h1>Loafing</h1>
+			<LoadingModal />
 		</div>
 		<div v-else>
 			<h1>Gameplay for {{ character.label }}</h1>
@@ -56,10 +57,10 @@ const testAmmoInfo = <StatBoxInfo>{
 			<div class="stat-column-b">
 				<div><StatBarsBox v-bind="actionsInfo" /></div>
 				<h2>Derived Information</h2>
-				<div>Movement per move: 30ft.</div>
-				<div>Reach: 5ft.</div>
+				<div>Movement per move: {{ stats.moveDist.value }} ft.</div>
+				<div>Reach: {{ stats.reach.value }} ft.</div>
 				<div>Size: Medium</div>
-				<div>Carrying Capacity: 660lbs.</div>
+				<div>Carrying Capacity: {{ stats.weightCapacity.value }} lbs.</div>
 			</div>
 			<div class="stat-column-c">
 				<div><StatBarsBox v-bind="testAmmoInfo" /></div>

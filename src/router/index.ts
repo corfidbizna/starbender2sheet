@@ -39,10 +39,22 @@ const router = createRouter({
 					component: () => import('../views/CharacterEquipment.vue'),
 				},
 				{
+					path: 'quests',
+					name: 'questList',
+					props: true,
+					component: () => import('../views/QuestList.vue'),
+				},
+				{
 					path: 'lore',
 					name: 'characterLore',
 					props: true,
 					component: () => import('../views/CharacterLore.vue'),
+				},
+				{
+					path: 'settings',
+					name: 'settings',
+					props: true,
+					component: () => import('../views/SettingsList.vue'),
 				},
 			],
 		},
