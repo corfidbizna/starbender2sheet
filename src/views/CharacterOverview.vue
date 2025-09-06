@@ -45,7 +45,9 @@ const character = computed<CharacterDataSource | undefined>(
 				<RouterLink :to="{ name: 'characterSkills', params: { characterId } }"
 					>Skills</RouterLink
 				>
-				<a>Buffs</a>
+				<RouterLink :to="{ name: 'characterBuffs', params: { characterId } }"
+					>Buffs</RouterLink
+				>
 				<RouterLink :to="{ name: 'characterEquipment', params: { characterId } }"
 					>Loadout</RouterLink
 				>
@@ -54,7 +56,11 @@ const character = computed<CharacterDataSource | undefined>(
 				<RouterLink :to="{ name: 'characterLore', params: { characterId } }"
 					>Lore</RouterLink
 				>
-				<RouterLink :to="{ name: 'settings', params: { characterId } }">⚙</RouterLink>
+				<RouterLink
+					:to="{ name: 'settings', params: { characterId } }"
+					class="d-glyph"
+					></RouterLink
+				>
 			</nav>
 		</header>
 		<router-view class="content" />
@@ -106,6 +112,7 @@ const character = computed<CharacterDataSource | undefined>(
 	justify-content: right;
 	height: 3em;
 	margin-top: 0.5em;
+	padding-right: 0.75em;
 }
 .tab-container a {
 	flex: 0;

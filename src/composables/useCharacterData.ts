@@ -1,5 +1,10 @@
 import { computed, ref, type Ref, type ComputedRef } from 'vue';
 
+// ==================================================================================================
+// Sheet Types
+// ==================================================================================================
+
+// The sheet IDs for characters and their sheets' subsheets.
 export type CharacterDataSource = {
 	label: string;
 	documentId: string;
@@ -8,6 +13,7 @@ export type CharacterDataSource = {
 		variables: string;
 	};
 };
+// The sheet IDs for the party and DM-managed sheets. These won't vary per character.
 export type PartyDataSource = {
 	documentId: string;
 	sheets: {
@@ -15,8 +21,14 @@ export type PartyDataSource = {
 		buffs: string;
 	};
 };
+// Gets the names of all the characters' subsheets and makes a type for every item.
 type SheetNames = keyof CharacterDataSource['sheets'];
 
+// ==================================================================================================
+// Sheet Data
+// ==================================================================================================
+
+// Character Sheet IDs (add new characters here)
 export const characterDataSources: Record<string, CharacterDataSource> = {
 	kara: {
 		label: 'Kara',
@@ -35,6 +47,7 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 		},
 	},
 };
+// Party Sheet IDs
 export const partyDataSources: PartyDataSource = {
 	documentId: '1agznHO98JumWB896PpQZ3eJQGIJwEIivChTurlwu5H8',
 	sheets: {
@@ -42,6 +55,9 @@ export const partyDataSources: PartyDataSource = {
 		buffs: '1800',
 	},
 };
+// A list of all character names, used as keys in certian dynamic situations
+// and thus needs to be a type for TypeScript reasons.
+export type CharacterNames = 'aurora' | 'kara' | 'mark' | 'lewis';
 
 export type GVizSheetResponse = {
 	version: string;
@@ -73,6 +89,8 @@ export type ColumnValue = {
 	f?: string;
 };
 
+// Function to make the data gathered from a spreadsheet into a shape where
+// colum headers are fields in an object.
 const columnsToFieldNames = (parsed: GVizSheetResponse): Record<string, unknown>[] => {
 	const cols = parsed.table.cols;
 	return parsed.table.rows.map((row) => {
@@ -86,12 +104,15 @@ const columnsToFieldNames = (parsed: GVizSheetResponse): Record<string, unknown>
 		return result;
 	});
 };
+
+// The type describing the components of a character stat.
 export type CharacterStat<T> = {
 	key: string;
 	label: string;
 	value: T;
 	comments?: string;
 };
+// The type that defines the nature of all character stats.
 export type CharacterStats = {
 	str: CharacterStat<number>;
 	dex: CharacterStat<number>;
@@ -150,10 +171,16 @@ export type CharacterStats = {
 	eClass: CharacterStat<number>;
 	eUniversal: CharacterStat<number>;
 };
+
+export type CharacterStatKey = keyof CharacterStats;
+
+// The type to be handed to a `StatBoxInfo` component, used for making
+// horizontal bar graphs of numerical character stats.
 export type StatBoxInfo = {
 	label: string;
 	data: CharacterStat<number>[];
 };
+//
 export const makeComputedOfStats = (
 	stats: ComputedRef<CharacterStats>,
 	label: string,
@@ -167,7 +194,6 @@ export const makeComputedOfStats = (
 		};
 	};
 };
-export type CharacterStatKey = keyof CharacterStats;
 export const abilityScores: Partial<CharacterStats> = {
 	str: {
 		key: 'str',
@@ -194,6 +220,7 @@ const processCharacterStats = (stats: CharacterStat<unknown>[]): CharacterStats 
 	return result as CharacterStats;
 };
 
+// The type describing a character's skill.
 export type SkillsTableItem = {
 	Bonus: number;
 	Name: string;
@@ -201,6 +228,7 @@ export type SkillsTableItem = {
 	Focused: boolean;
 	Notes: string | null;
 };
+// The type describing a weapon
 export type Weapon = {
 	aurora: boolean;
 	kara: boolean;
@@ -229,10 +257,6 @@ export type Weapon = {
 	IsMagic: boolean;
 	Perks?: string;
 };
-// export type SheetVar = {
-
-// };
-export type CharacterNames = 'aurora' | 'kara' | 'mark' | 'lewis';
 
 const unwrapJSONPRegex = /google\.visualization\.Query\.setResponse\((.+)\);/;
 const getSheetForCharacter = <T>(

@@ -23,9 +23,6 @@ const makeBar = (min: number, max: number, value: number, value2?: number): stri
 	const colorEmpty = '#fff3';
 	const firstBoundaryPos = ((value - min) / (max - min)) * 100; //2-0 / 10-0
 	const secondBoundaryPos = ((value2 || 0 - min) / (max - min)) * 100;
-	console.log(
-		`background-image: linear-gradient(90deg, ${colorValue1} ${firstBoundaryPos}%, ${colorValue2} ${firstBoundaryPos}%, ${colorValue2} ${secondBoundaryPos}%, ${colorEmpty} ${secondBoundaryPos}%);`,
-	);
 	return `background-image: linear-gradient(90deg, ${colorValue1} ${firstBoundaryPos}%, ${colorValue2} ${firstBoundaryPos}%, ${colorValue2} ${secondBoundaryPos}%, ${colorEmpty} ${secondBoundaryPos}%);`;
 };
 </script>

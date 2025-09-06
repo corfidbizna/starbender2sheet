@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { type Weapon } from '@/composables/useCharacterData';
-// import DGlyph from './DGlyph.vue';
+import DGlyph from './DGlyph.vue';
 
 const props = defineProps<Weapon>();
 const getCritDisplay = (): string => {
@@ -35,16 +35,18 @@ const colorsRarity = (rarity: string): string => {
 			class="weapon-header"
 			:style="'background-color: ' + colorsRarity(Rarity)"
 		>
-			<!-- <DGlyph v-bind="'Bow'" /> -->
-			<h1>{{ Name }}</h1>
-			<caption>
-				{{
-					Element.toUpperCase()
-				}}
-				{{
-					WeaponClass.toUpperCase()
-				}}
-			</caption>
+			<div class="gun-icon"><DGlyph v-bind="{ name: WeaponClass }" /></div>
+			<div class="gun-titles">
+				<h1>{{ Name }}</h1>
+				<caption>
+					{{
+						Element.toUpperCase()
+					}}
+					{{
+						WeaponClass.toUpperCase()
+					}}
+				</caption>
+			</div>
 			<div class="flavortext">{{ Flavortext }}</div>
 		</div>
 		<div class="weapon-content">
@@ -85,17 +87,26 @@ const colorsRarity = (rarity: string): string => {
 	</div>
 </template>
 <style scoped>
+.gun-icon {
+	font-size: 2em;
+	display: inline-block;
+	padding-right: 0.25em;
+	margin-right: 0.25em;
+	text-shadow: none;
+	border-right: 2px solid #fffd;
+}
+.gun-titles {
+	display: inline-block;
+}
 h1 {
 	font-size: 1.3em;
 	font-weight: 800;
 	padding: 0;
-	padding-left: 50px;
 	margin: 0;
 	margin-top: 0.5em;
 }
 caption {
 	margin: 0.25em 0;
-	padding-left: 50px;
 	font-weight: 400;
 	font-size: 1em;
 	display: block;
@@ -110,15 +121,7 @@ caption {
 }
 .weapon-header {
 	padding: 0.2em;
-	padding-left: 1em;
 	border-radius: 0.25em;
-}
-.weapon-header * {
-	text-shadow:
-		1px 1px 0px #0008,
-		-1px 1px 0px #0008,
-		1px -1px 0px #0008,
-		-1px -1px 0px #0008;
 }
 .flavortext {
 	font-style: italic;

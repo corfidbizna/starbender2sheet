@@ -1,4 +1,12 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const identifyUnicodeSymbols = (start: number, length: number) => {
+	const strings = [];
+	for (let i = start; i < start + length; i++) {
+		strings.push(String.fromCharCode(i) + ' :: ' + i);
+	}
+	return strings.join('\n');
+};
+</script>
 <template>
 	<div>
 		<div>
@@ -30,6 +38,8 @@
 				<td><input type="checkbox" /></td>
 			</tr>
 		</table>
+		<pre class="d-glyph">{{ identifyUnicodeSymbols(57344, 500) }}</pre>
+		<pre class="d-glyph">{{ identifyUnicodeSymbols(61000, 500) }}</pre>
 	</div>
 </template>
 <style scoped>

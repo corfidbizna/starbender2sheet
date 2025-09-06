@@ -12,30 +12,28 @@ const glyphMap = {
 	Shotgun: '',
 	'Sniper Rifle': '',
 	'Fusion Rifle': '',
-	'Breech-loading Grenade Launcher': '',
+	'Breech-Loading Grenade Launcher': '',
 	'Trace Rifle': '',
 	Glaive: '',
 	// Heavy
 	'Rocket Launcher': '',
-	'Heavy Grenade Launcher': '',
+	'Drum-loading Grenade Launcher': '',
 	'Linear Fusion Rifle': '',
 	Sword: '',
 	'Machine Gun': '',
 };
-export type FontEntries = keyof typeof glyphMap;
-const props = defineProps<FontEntries>();
-const getGlyph = (text: FontEntries): string => {
-	Object.keys(glyphMap).forEach((key) => {
-		if (text === key) {
-			return glyphMap[key];
-		}
-	});
-	return '';
+type FontEntries = keyof typeof glyphMap;
+type Glyph = {
+	name: string;
+};
+const props = defineProps<Glyph>();
+const lookupGlyph = (text: string): string => {
+	return glyphMap[text as FontEntries] || '';
 };
 </script>
 <template>
-	<div class="destiny-symbols">{{ getGlyph(props) }}</div>
-	<div>Bow Graphic</div>
+	<div class="destiny-symbols">{{ lookupGlyph(props.name) }}</div>
+	<!-- <div>{{ props.name }}</div> -->
 </template>
 <style>
 .destiny-symbols {

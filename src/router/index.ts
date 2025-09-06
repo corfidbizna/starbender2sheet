@@ -33,6 +33,12 @@ const router = createRouter({
 					component: () => import('../views/CharacterSkills.vue'),
 				},
 				{
+					path: 'buffs',
+					name: 'characterBuffs',
+					props: true,
+					component: () => import('../views/CharacterBuffs.vue'),
+				},
+				{
 					path: 'equipment',
 					name: 'characterEquipment',
 					props: true,
