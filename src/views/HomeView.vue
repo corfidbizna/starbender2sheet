@@ -20,7 +20,7 @@ import { characterDataSources } from '@/composables/useCharacterData';
 			>
 				<RouterLink
 					:to="{
-						name: 'characterOverview',
+						name: 'characterGameplay',
 						params: {
 							characterId,
 						},

@@ -12,16 +12,12 @@ const router = createRouter({
 		},
 		{
 			path: '/character/:characterId',
-			name: 'characterOverview',
+			name: 'characterOverviewDontManuallyRouteToMeRouteToMyChildren',
 			props: true,
 			component: () => import('../views/CharacterOverview.vue'),
 			children: [
 				{
-					path: '/',
-					redirect: 'characterGameplay',
-				},
-				{
-					path: 'gameplay',
+					path: '',
 					name: 'characterGameplay',
 					props: true,
 					component: () => import('../views/CharacterGameplay.vue'),
