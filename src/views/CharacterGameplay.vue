@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import useCharacterData, {
 	type StatBoxInfo,
+	type StatBoxField,
 	makeComputedOfStats,
 } from '@/composables/useCharacterData';
 import StatBarsBox from '@/components/StatBarsBox.vue';
@@ -13,6 +14,9 @@ const props = defineProps<CharacterProps>();
 
 const { character, getStats } = useCharacterData(props.characterId);
 const { data: stats, isLoading: statsLoading, refresh: refreshStats } = getStats();
+
+const { getSkillsTable } = useCharacterData(props.characterId);
+const { data: skills, isLoading: skillsLoading, refresh: refreshSkills } = getSkillsTable();
 
 const statInfo = computed<StatBoxInfo>(
 	makeComputedOfStats(stats, 'Ability Scores', ['str', 'dex', 'con', 'int', 'wil', 'cha']),
@@ -26,6 +30,16 @@ const actionsInfo = computed<StatBoxInfo>(
 const energyInfo = computed<StatBoxInfo>(
 	makeComputedOfStats(stats, 'Energy', ['eSuper', 'eClass', 'eMelee', 'eGrenade', 'eUniversal']),
 );
+const skillsInfo = computed<StatBoxInfo>(() => {
+	const fieldArray = <StatBoxField[]>[];
+	skills.value.forEach((skill) => {
+		fieldArray.push({ label: skill.Name, value: skill.Bonus });
+	});
+	return {
+		label: 'Skills',
+		data: fieldArray,
+	};
+});
 const testAmmoInfo = <StatBoxInfo>{
 	label: 'Ammo',
 	data: [
@@ -40,12 +54,21 @@ const testAmmoInfo = <StatBoxInfo>{
 		class="CharacterGameplay"
 		v-if="character"
 	>
-		<div v-if="statsLoading">
+		<div v-if="statsLoading || skillsLoading">
 			<LoadingModal />
 		</div>
 		<div v-else>
 			<h1>Gameplay for {{ character.label }}</h1>
-			<p><button @click="refreshStats">Refresh Stats</button></p>
+			<p>
+				<button
+					@click="
+						refreshStats();
+						refreshSkills();
+					"
+				>
+					Refresh Info
+				</button>
+			</p>
 			<div class="stat-column-a">
 				<div><StatBarsBox v-bind="statInfo" /></div>
 				<div><StatBarsBox v-bind="savesInfo" /></div>
@@ -62,6 +85,7 @@ const testAmmoInfo = <StatBoxInfo>{
 				<div><StatBarsBox v-bind="testAmmoInfo" /></div>
 				<div><StatBarsBox v-bind="energyInfo" /></div>
 			</div>
+			<div style="height: 10em"><StatBarsBox v-bind="skillsInfo" /></div>
 		</div>
 	</div>
 </template>

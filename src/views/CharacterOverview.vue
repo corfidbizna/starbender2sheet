@@ -22,11 +22,14 @@ const { character } = useCharacterData(props.characterId);
 <template>
 	<div class="character-overview">
 		<header class="banner">
-			<RouterLink :to="{ name: 'home' }">
-				<div class="logo">
-					<div>
-						<img src="/src/assets/icons/slot_tricorn.png" />
-					</div>
+			<RouterLink
+				:to="{ name: 'home' }"
+				class="logo"
+			>
+				<div class="icon">
+					<img src="/src/assets/icons/slot_tricorn.png" />
+				</div>
+				<div class="icon">
 					<h1>STARBENDER 2</h1>
 					<h2>Season of Collapse</h2>
 				</div>
@@ -35,7 +38,6 @@ const { character } = useCharacterData(props.characterId);
 				v-if="character"
 				class="tab-container"
 			>
-				<!-- <h1>This is a page about {{ character.label }}</h1> -->
 				<RouterLink :to="{ name: 'characterGameplay', params: { characterId } }"
 					>Gameplay</RouterLink
 				>
@@ -83,12 +85,6 @@ const { character } = useCharacterData(props.characterId);
 	border-bottom: 2px solid #444;
 	display: flex;
 }
-.banner header {
-	max-height: 100vh;
-	place-items: center;
-	padding-bottom: 0.5em;
-	margin: 0;
-}
 .banner h1 {
 	font-size: 1.4em;
 	margin: 0;
@@ -100,20 +96,23 @@ const { character } = useCharacterData(props.characterId);
 	text-align: left;
 	border: none;
 }
-.banner .logo {
+.logo {
 	background: none;
 	padding: 0;
 	margin: 0;
 	width: inherit;
-	place-content: center;
+}
+.icon {
+	display: inline-block;
+	vertical-align: middle;
+	color: #fff;
 }
 
 .tab-container {
-	text-align: center;
+	text-align: right;
 	display: flex;
 	/* background-color: #4448; */
 	border-radius: 0.25em;
-	justify-content: right;
 	height: 3em;
 	margin-top: 0.5em;
 	padding-right: 0.75em;
@@ -129,6 +128,12 @@ const { character } = useCharacterData(props.characterId);
 	color: #fff;
 	border-bottom: 4px solid #0000;
 	padding: 0 1em;
+}
+.visible-text {
+	position: absolute;
+	font-weight: 100;
+	color: #ffff;
+	transform: translateX(-100%);
 }
 .tab-container .router-link-active {
 	font-weight: 800;

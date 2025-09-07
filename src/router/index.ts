@@ -17,7 +17,7 @@ const router = createRouter({
 			component: () => import('../views/CharacterOverview.vue'),
 			children: [
 				{
-					path: '',
+					path: 'gameplay',
 					name: 'characterGameplay',
 					props: true,
 					component: () => import('../views/CharacterGameplay.vue'),
