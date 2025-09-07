@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { type CharacterDataSource, characterDataSources } from '@/composables/useCharacterData';
+import useCharacterData from '@/composables/useCharacterData';
 type CharacterProps = {
 	characterId: string;
 };
@@ -16,26 +15,24 @@ defineProps({
 	characterId: String, // <- note that this is the JS string class
 })
 */
-const character = computed<CharacterDataSource | undefined>(
-	() => characterDataSources[props.characterId],
-);
+
+const { character } = useCharacterData(props.characterId);
 </script>
 
 <template>
 	<div class="character-overview">
 		<header class="banner">
-			<RouterLink :to="{ name: 'home' }"
-				><img src="/src/assets/icons/slot_tricorn.png"
-			/></RouterLink>
-			<div class="logo">
-				<h1>STARBENDER 2</h1>
-				<h2>Season of Collapse</h2>
-			</div>
-			<div v-if="!character">
-				<h1>Invalid character ID: {{ characterId }}</h1>
-			</div>
+			<RouterLink :to="{ name: 'home' }">
+				<div class="logo">
+					<div>
+						<img src="/src/assets/icons/slot_tricorn.png" />
+					</div>
+					<h1>STARBENDER 2</h1>
+					<h2>Season of Collapse</h2>
+				</div>
+			</RouterLink>
 			<nav
-				v-else
+				v-if="character"
 				class="tab-container"
 			>
 				<!-- <h1>This is a page about {{ character.label }}</h1> -->
@@ -63,7 +60,14 @@ const character = computed<CharacterDataSource | undefined>(
 				>
 			</nav>
 		</header>
-		<router-view class="content" />
+
+		<div v-if="!character">
+			<h1>Invalid character ID: {{ characterId }}</h1>
+		</div>
+		<router-view
+			v-else
+			class="content"
+		/>
 	</div>
 </template>
 <style>

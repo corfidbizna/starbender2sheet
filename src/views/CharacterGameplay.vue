@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import useCharacterData, {
-	type CharacterDataSource,
 	type StatBoxInfo,
-	characterDataSources,
 	makeComputedOfStats,
 } from '@/composables/useCharacterData';
 import StatBarsBox from '@/components/StatBarsBox.vue';
@@ -12,10 +10,8 @@ type CharacterProps = {
 	characterId: string;
 };
 const props = defineProps<CharacterProps>();
-const character = computed<CharacterDataSource | undefined>(
-	() => characterDataSources[props.characterId],
-);
-const { getStats } = useCharacterData(props.characterId);
+
+const { character, getStats } = useCharacterData(props.characterId);
 const { data: stats, isLoading: statsLoading, refresh: refreshStats } = getStats();
 
 const statInfo = computed<StatBoxInfo>(
@@ -40,11 +36,11 @@ const testAmmoInfo = <StatBoxInfo>{
 };
 </script>
 <template>
-	<div>
-		<div v-if="!character">
-			<h1>Invalid character ID: {{ characterId }}</h1>
-		</div>
-		<div v-else-if="statsLoading">
+	<div
+		class="CharacterGameplay"
+		v-if="character"
+	>
+		<div v-if="statsLoading">
 			<LoadingModal />
 		</div>
 		<div v-else>
@@ -57,10 +53,10 @@ const testAmmoInfo = <StatBoxInfo>{
 			<div class="stat-column-b">
 				<div><StatBarsBox v-bind="actionsInfo" /></div>
 				<h2>Derived Information</h2>
-				<div>Movement per move: {{ stats.moveDist.value }} ft.</div>
-				<div>Reach: {{ stats.reach.value }} ft.</div>
+				<div>Movement per move: {{ stats.moveDist }} ft.</div>
+				<div>Reach: {{ stats.reach }} ft.</div>
 				<div>Size: Medium</div>
-				<div>Carrying Capacity: {{ stats.weightCapacity.value }} lbs.</div>
+				<div>Carrying Capacity: {{ stats.weightCapacity }} lbs.</div>
 			</div>
 			<div class="stat-column-c">
 				<div><StatBarsBox v-bind="testAmmoInfo" /></div>

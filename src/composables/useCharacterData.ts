@@ -52,7 +52,7 @@ export const partyDataSources: PartyDataSource = {
 	documentId: '1agznHO98JumWB896PpQZ3eJQGIJwEIivChTurlwu5H8',
 	sheets: {
 		weapons: '0',
-		buffs: '1800',
+		buffs: '1462505437',
 	},
 };
 // A list of all character names, used as keys in certian dynamic situations
@@ -105,81 +105,115 @@ const columnsToFieldNames = (parsed: GVizSheetResponse): Record<string, unknown>
 	});
 };
 
-// The type describing the components of a character stat.
-export type CharacterStat<T> = {
-	key: string;
-	label: string;
-	value: T;
-	comments?: string;
-};
 // The type that defines the nature of all character stats.
 export type CharacterStats = {
-	str: CharacterStat<number>;
-	dex: CharacterStat<number>;
-	con: CharacterStat<number>;
-	int: CharacterStat<number>;
-	wis: CharacterStat<number>;
-	cha: CharacterStat<number>;
-	strScore: CharacterStat<number>;
-	dexScore: CharacterStat<number>;
-	conScore: CharacterStat<number>;
-	intScore: CharacterStat<number>;
-	wisScore: CharacterStat<number>;
-	chaScore: CharacterStat<number>;
-	name: CharacterStat<string>;
-	race: CharacterStat<string>;
-	class: CharacterStat<string>;
-	cpl: CharacterStat<number>;
-	colorHair: CharacterStat<string>;
-	colorEye: CharacterStat<string>;
-	height: CharacterStat<string>;
-	weight: CharacterStat<number>;
-	gClass: CharacterStat<string>;
-	gSubclass: CharacterStat<string>;
-	ghost: CharacterStat<string>;
-	description: CharacterStat<string>;
-	hp: CharacterStat<number>;
-	skill: CharacterStat<number>;
-	fort: CharacterStat<number>;
-	ref: CharacterStat<number>;
-	wil: CharacterStat<number>;
-	bab: CharacterStat<number>;
-	bdb: CharacterStat<number>;
-	ac: CharacterStat<number>;
-	acTouch: CharacterStat<number>;
-	acFF: CharacterStat<number>;
-	acTFF: CharacterStat<number>;
-	dr: CharacterStat<number>;
-	drFF: CharacterStat<number>;
-	attackMelee: CharacterStat<number>;
-	attackUnarmed: CharacterStat<number>;
-	attackRanged: CharacterStat<number>;
-	attackPrecision: CharacterStat<number>;
-	size: CharacterStat<number>;
-	reach: CharacterStat<number>;
-	moveDist: CharacterStat<number>;
-	weightCurrent: CharacterStat<number>;
-	weightCapacity: CharacterStat<number>;
-	encumbered: CharacterStat<number>;
-	encumberedAllowed: CharacterStat<boolean>;
-	actionAttacks: CharacterStat<number>;
-	actionReactions: CharacterStat<number>;
-	actionMoves: CharacterStat<number>;
-	eSuper: CharacterStat<number>;
-	eMelee: CharacterStat<number>;
-	eGrenade: CharacterStat<number>;
-	eClass: CharacterStat<number>;
-	eUniversal: CharacterStat<number>;
+	str: number;
+	dex: number;
+	con: number;
+	int: number;
+	wis: number;
+	cha: number;
+	strScore: number;
+	dexScore: number;
+	conScore: number;
+	intScore: number;
+	wisScore: number;
+	chaScore: number;
+	cpl: number;
+	weight: number;
+	hp: number;
+	skill: number;
+	fort: number;
+	ref: number;
+	wil: number;
+	bab: number;
+	bdb: number;
+	ac: number;
+	acTouch: number;
+	acFF: number;
+	acTFF: number;
+	dr: number;
+	drFF: number;
+	attackMelee: number;
+	attackUnarmed: number;
+	attackRanged: number;
+	attackPrecision: number;
+	size: number;
+	reach: number;
+	moveDist: number;
+	weightCurrent: number;
+	weightCapacity: number;
+	encumbered: number;
+	actionAttacks: number;
+	actionReactions: number;
+	actionMoves: number;
+	eSuper: number;
+	eMelee: number;
+	eGrenade: number;
+	eClass: number;
+	eUniversal: number;
 };
 
 export type CharacterStatKey = keyof CharacterStats;
+export const labelMap: Record<CharacterStatKey, string> = {
+	str: 'Strength',
+	dex: 'Dexterity',
+	con: 'Constitution',
+	int: 'Intelligence',
+	wis: 'Wisdom',
+	cha: 'Charisma',
+	strScore: 'Strength Score',
+	dexScore: 'Dexterity Score',
+	conScore: 'constitution Score',
+	intScore: 'Intelligence Score',
+	wisScore: 'Wisdom Score',
+	chaScore: 'Charisma Score',
+	cpl: 'Character Progression Level',
+	weight: 'Weight',
+	hp: 'Hit Points',
+	skill: 'Skill',
+	fort: 'Fortitude',
+	ref: 'Reflex',
+	wil: 'Will',
+	bab: 'Base Attack Bonus',
+	bdb: 'Base Defense Bonus',
+	ac: 'Armor Class',
+	acTouch: 'Touch Armor Class',
+	acFF: 'Flat-footed Armor Class',
+	acTFF: 'Touch Flat-Footed Armor Class',
+	dr: 'Damage Reduction',
+	drFF: 'Flat-Footed Damage Reduction',
+	attackMelee: 'Melee Attack',
+	attackUnarmed: 'Unarmed Attack',
+	attackRanged: 'Ranged Attack',
+	attackPrecision: 'Precision Damage',
+	size: 'Size',
+	reach: 'Base Reach',
+	moveDist: 'Move Distance',
+	weightCurrent: 'Current Weight',
+	weightCapacity: 'Carrying Capacity',
+	encumbered: 'Encumbered Status',
+	actionAttacks: 'Attacks',
+	actionReactions: 'Reactions',
+	actionMoves: 'Moves',
+	eSuper: 'Super Energy',
+	eMelee: 'Melee Energy',
+	eGrenade: 'Grenade Energy',
+	eClass: 'Class Energy',
+	eUniversal: 'Universal Energy',
+};
 
 // The type to be handed to a `StatBoxInfo` component, used for making
 // horizontal bar graphs of numerical character stats.
 export type StatBoxInfo = {
 	label: string;
-	data: CharacterStat<number>[];
+	data: StatBoxField[];
 };
+export type StatBoxField = {
+	label: string;
+	value: number;
+};
+
 //
 export const makeComputedOfStats = (
 	stats: ComputedRef<CharacterStats>,
@@ -190,34 +224,13 @@ export const makeComputedOfStats = (
 		const statsValue = stats.value;
 		return {
 			label,
-			data: keys.map((key) => statsValue[key] as CharacterStat<number>),
+			data: keys.map((key) => ({
+				key,
+				label: labelMap[key],
+				value: statsValue[key],
+			})),
 		};
 	};
-};
-export const abilityScores: Partial<CharacterStats> = {
-	str: {
-		key: 'str',
-		label: 'Strength',
-		value: 6,
-	},
-	dex: {
-		key: 'dex',
-		label: 'Dexterity',
-		value: 10,
-	},
-	con: {
-		key: 'dex',
-		label: 'Constitution',
-		value: 7,
-	},
-};
-
-const processCharacterStats = (stats: CharacterStat<unknown>[]): CharacterStats => {
-	const result: Record<string, CharacterStat<unknown>> = {};
-	stats.forEach((item) => {
-		result[item.key] = item;
-	});
-	return result as CharacterStats;
 };
 
 // The type describing a character's skill.
@@ -325,6 +338,9 @@ const getSheet = async <T>(documentId: string, sheetKey: string): Promise<T[]> =
 };
 export default function useCharacterData(characterId: string) {
 	return {
+		character: computed<CharacterDataSource | undefined>(
+			() => characterDataSources[characterId],
+		),
 		getSkillsTable() {
 			const { data, isLoading, refresh } = getSheetForCharacter<SkillsTableItem>(
 				characterId,
@@ -357,13 +373,27 @@ export default function useCharacterData(characterId: string) {
 				refresh: refreshWeapons,
 			};
 		},
+		getPartyBuffs(): NetworkDataState<unknown> {
+			const { data, isLoading, refresh } = getNetworkDataStateForSheet<unknown>(
+				partyDataSources.documentId,
+				partyDataSources.sheets.buffs,
+			);
+			// const filteredWeapons = computed<Weapon[]>(() => {
+			// 	return weapons.value.filter((item) => item[characterId as CharacterNames]);
+			// });
+			return {
+				data,
+				isLoading,
+				refresh,
+			};
+		},
 		getStats() {
-			const { data, isLoading, refresh } = getSheetForCharacter<CharacterStat<unknown>>(
+			const { data, isLoading, refresh } = getSheetForCharacter<CharacterStats>(
 				characterId,
 				'variables',
 			);
 			return {
-				data: computed<CharacterStats>(() => processCharacterStats(data.value)),
+				data: computed<CharacterStats>(() => data.value[0] || {}),
 				isLoading,
 				refresh,
 			};

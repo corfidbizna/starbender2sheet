@@ -1,21 +1,15 @@
 <script setup lang="ts">
-import { type CharacterDataSource, characterDataSources } from '@/composables/useCharacterData';
-import { computed } from 'vue';
+import useCharacterData from '@/composables/useCharacterData';
 
 type CharacterProps = {
 	characterId: string;
 };
 const props = defineProps<CharacterProps>();
-const character = computed<CharacterDataSource | undefined>(
-	() => characterDataSources[props.characterId],
-);
+const { character } = useCharacterData(props.characterId);
 </script>
 <template>
-	<div v-if="!character">
-		<h1>Invalid character ID: {{ characterId }}</h1>
-	</div>
 	<div
-		v-else
+		v-if="character"
 		class="centered"
 	>
 		<h1>{{ character.label }}, the Void Hunter</h1>
