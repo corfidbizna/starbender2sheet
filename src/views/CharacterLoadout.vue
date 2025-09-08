@@ -34,9 +34,8 @@ const { character } = useCharacterData(props.characterId);
 	display: flex;
 }
 .stacked-nav {
-	top: 10px;
+	top: 66px;
 	position: fixed;
-	vertical-align: top;
 	min-height: 100vh;
 	border-right: 2px solid #fff8;
 	margin-right: 1em;
