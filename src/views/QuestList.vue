@@ -1,18 +1,48 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import QuestBox from '@/components/QuestBox.vue';
+import useCharacterData, { type Quest } from '@/composables/useCharacterData';
+import LoadingModal from '@/components/LoadingModal.vue';
+type CharacterProps = {
+	characterId: string;
+};
+const props = defineProps<CharacterProps>();
+const { getQuests } = useCharacterData(props.characterId);
+const { data: questList, isLoading: questListIsLoading, refresh: refreshQuests } = getQuests();
+const quests = computed<Quest[]>(() => {
+	return questList.value.filter((quest) => {
+		return quest.isMajor;
+	});
+});
+const bounties = computed<Quest[]>(() => {
+	return questList.value.filter((quest) => {
+		return !quest.isMajor;
+	});
+});
 </script>
 <template>
-	<div>
+	<div v-if="questListIsLoading">
+		<LoadingModal />
+	</div>
+	<div v-else>
 		<h1>Quest List</h1>
+		<button @click="refreshQuests()">Refresh quests</button>
 		<div class="quest-list">
 			<div class="column-a">
 				<h2>Quests</h2>
-				<QuestBox />
-				<QuestBox />
+				<QuestBox
+					v-for="quest in quests"
+					:key="quest.name"
+					v-bind="quest"
+				/>
 			</div>
 			<div class="column-b">
 				<h2>Bounties</h2>
-				<QuestBox />
+				<QuestBox
+					v-for="quest in bounties"
+					:key="quest.name"
+					v-bind="quest"
+				/>
 			</div>
 		</div>
 	</div>

@@ -19,6 +19,7 @@ export type PartyDataSource = {
 	sheets: {
 		weapons: string;
 		buffs: string;
+		quests: string;
 	};
 };
 // Gets the names of all the characters' subsheets and makes a type for every item.
@@ -53,6 +54,7 @@ export const partyDataSources: PartyDataSource = {
 	sheets: {
 		weapons: '0',
 		buffs: '1462505437',
+		quests: '745911680',
 	},
 };
 // A list of all character names, used as keys in certian dynamic situations
@@ -153,7 +155,6 @@ export type CharacterStats = {
 	eClass: number;
 	eUniversal: number;
 };
-
 export type CharacterStatKey = keyof CharacterStats;
 export const labelMap: Record<CharacterStatKey, string> = {
 	str: 'Strength',
@@ -270,6 +271,15 @@ export type Weapon = {
 	IsMagic: boolean;
 	Perks?: string;
 };
+// The type describing a quest info block.
+export type Quest = {
+	name: string;
+	iconURL: string;
+	isMajor: boolean;
+	description: string;
+	progressValue: number;
+	progressMax: number;
+};
 
 const unwrapJSONPRegex = /google\.visualization\.Query\.setResponse\((.+)\);/;
 const getSheetForCharacter = <T>(
@@ -372,6 +382,20 @@ export default function useCharacterData(characterId: string) {
 				isLoading: weaponsLoading,
 				refresh: refreshWeapons,
 			};
+		},
+		getQuests(): NetworkDataState<Quest> {
+			const {
+				data: quests,
+				isLoading: questsLoading,
+				refresh: refreshQuests,
+			} = getNetworkDataStateForSheet<Quest>(
+				partyDataSources.documentId,
+				partyDataSources.sheets.quests,
+			);
+			const filteredQuests = computed<Quest[]>(() => {
+				return quests.value.filter((item) => item.name);
+			});
+			return { data: filteredQuests, isLoading: questsLoading, refresh: refreshQuests };
 		},
 		getPartyBuffs(): NetworkDataState<unknown> {
 			const { data, isLoading, refresh } = getNetworkDataStateForSheet<unknown>(

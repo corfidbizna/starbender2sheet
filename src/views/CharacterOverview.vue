@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import useCharacterData from '@/composables/useCharacterData';
+import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
 type CharacterProps = {
-	characterId: string;
+	characterId: CharacterNames;
 };
 const props = defineProps<CharacterProps>();
 /*
@@ -47,7 +47,7 @@ const { character } = useCharacterData(props.characterId);
 				<RouterLink :to="{ name: 'characterBuffs', params: { characterId } }"
 					>Buffs</RouterLink
 				>
-				<RouterLink :to="{ name: 'characterEquipment', params: { characterId } }"
+				<RouterLink :to="{ name: 'characterLoadout', params: { characterId } }"
 					>Loadout</RouterLink
 				>
 				<a>Seasonal Artifact</a>
@@ -73,10 +73,11 @@ const { character } = useCharacterData(props.characterId);
 	</div>
 </template>
 <style>
+/* .character-overview {
+	margin: 0.5em;
+} */
 .banner {
 	position: fixed;
-	top: 0;
-	left: 0;
 	width: 100vw;
 	height: 4em;
 	background-image: url('https://wallpapershigh.com/wp-content/uploads/destiny-2-logo-5.webp');
@@ -122,7 +123,7 @@ const { character } = useCharacterData(props.characterId);
 	place-content: center;
 	padding: 0.5em 0.5em;
 	padding-top: 0.75em;
-	margin: 0 0.5em;
+	margin: 0 0.25em;
 	text-align: center;
 	text-decoration: none;
 	color: #fff;
@@ -140,6 +141,8 @@ const { character } = useCharacterData(props.characterId);
 	border-bottom: 4px solid #fff;
 }
 .content {
+	/* flex: 1 1 auto; */
 	padding-top: 4em;
+	margin: 0 0.5em;
 }
 </style>

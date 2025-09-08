@@ -35,10 +35,30 @@ const router = createRouter({
 					component: () => import('../views/CharacterBuffs.vue'),
 				},
 				{
-					path: 'equipment',
-					name: 'characterEquipment',
+					path: 'loadout',
+					name: 'characterLoadout',
 					props: true,
-					component: () => import('../views/CharacterEquipment.vue'),
+					component: () => import('../views/CharacterLoadout.vue'),
+					children: [
+						{
+							path: 'weapons',
+							name: 'characterWeapons',
+							props: true,
+							component: () => import('../views/CharacterLoadoutWeapons.vue'),
+						},
+						{
+							path: 'armor',
+							name: 'characterArmor',
+							props: true,
+							component: () => import('../views/CharacterLoadoutArmor.vue'),
+						},
+						{
+							path: 'class',
+							name: 'characterClass',
+							props: true,
+							component: () => import('../views/CharacterLoadoutClass.vue'),
+						},
+					],
 				},
 				{
 					path: 'quests',

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
-import SkillsTable from '@/components/SkillsTable.vue';
+import type { CharacterNames } from '@/composables/useCharacterData';
+import useCharacterData from '@/composables/useCharacterData';
+
 type CharacterProps = {
 	characterId: CharacterNames;
 };
@@ -12,7 +13,6 @@ const { character } = useCharacterData(props.characterId);
 		class="CharacterSkills"
 		v-if="character"
 	>
-		<h1>Skills for {{ character.label }}</h1>
-		<SkillsTable :character-id="characterId"></SkillsTable>
+		<h1>Class Ability configuration for {{ character.label }}</h1>
 	</div>
 </template>

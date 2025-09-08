@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import useCharacterData from '@/composables/useCharacterData';
+import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
 
 type CharacterProps = {
-	characterId: string;
+	characterId: CharacterNames;
 };
 const props = defineProps<CharacterProps>();
 const { character } = useCharacterData(props.characterId);
