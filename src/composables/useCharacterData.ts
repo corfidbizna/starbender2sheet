@@ -1,4 +1,4 @@
-import type { PartyBuffInfo } from '@/business_logic/buffs';
+import type { BuffInfo, PartyBuffInfo } from '@/business_logic/buffs';
 import { computed, ref, type Ref, type ComputedRef } from 'vue';
 
 // ==================================================================================================
@@ -12,6 +12,7 @@ export type CharacterDataSource = {
 	sheets: {
 		skills: string;
 		variables: string;
+		buffs: string;
 	};
 };
 // The sheet IDs for the party and DM-managed sheets. These won't vary per character.
@@ -38,6 +39,7 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 		sheets: {
 			skills: '544688264',
 			variables: '249151624',
+			buffs: '-1',
 		},
 	},
 	aurora: {
@@ -46,6 +48,7 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 		sheets: {
 			skills: '544688264',
 			variables: '0',
+			buffs: '-1',
 		},
 	},
 };
@@ -398,22 +401,36 @@ export default function useCharacterData(characterId: string) {
 			});
 			return { data: filteredQuests, isLoading: questsLoading, refresh: refreshQuests };
 		},
-		getPartyBuffs(): NetworkDataState<PartyBuffInfo> {
+		getPartyBuffs(): NetworkDataState<BuffInfo> {
 			const {
-				data: buffs,
-				isLoading,
-				refresh,
+				data: partyBuffs,
+				isLoading: partyBuffsLoading,
+				refresh: refreshPartyBuffs,
 			} = getNetworkDataStateForSheet<PartyBuffInfo>(
 				partyDataSources.documentId,
 				partyDataSources.sheets.buffs,
 			);
-			const filteredBuffs = computed<PartyBuffInfo[]>(() => {
-				return buffs.value.filter((item) => item[characterId as CharacterNames]);
+			const {
+				data: playerBuffs,
+				isLoading: playerBuffsLoading,
+				refresh: refreshPlayerBuffs,
+			} = getSheetForCharacter<BuffInfo>(characterId, 'buffs');
+			const filteredBuffs = computed<BuffInfo[]>(() => {
+				const filteredPartyBuffs: BuffInfo[] = partyBuffs.value.filter(
+					(item) => item[characterId as CharacterNames],
+				);
+				return [...filteredPartyBuffs, ...playerBuffs.value];
+			});
+			const isLoading = computed<boolean>(() => {
+				return playerBuffsLoading.value || partyBuffsLoading.value;
 			});
 			return {
 				data: filteredBuffs,
 				isLoading,
-				refresh,
+				refresh: () => {
+					refreshPartyBuffs();
+					refreshPlayerBuffs();
+				},
 			};
 		},
 		getStats() {
