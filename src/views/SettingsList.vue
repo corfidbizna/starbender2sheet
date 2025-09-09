@@ -47,12 +47,6 @@ const identifyUnicodeSymbols = (start: number, length: number) => {
 	display: flex;
 	align-items: center;
 }
-h2 {
-	text-align: left;
-	text-transform: uppercase;
-	font-weight: 100;
-	margin-top: 1em;
-}
 table {
 	border-spacing: 0 4px;
 }

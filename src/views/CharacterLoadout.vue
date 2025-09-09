@@ -48,6 +48,7 @@ const { character } = useCharacterData(props.characterId);
 }
 .stacked-nav .router-link-exact-active {
 	background-color: #fff4;
+	border-color: #ffff;
 }
 .loadout-contents {
 	flex: 1;

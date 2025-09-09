@@ -49,7 +49,6 @@ const { queryValue, filteredData } = useFilter<Weapon, string>({
 	padding: 0.25em;
 }
 .scroll-box {
-	overflow-y: scroll;
 	border: 2px solid #666;
 	border-radius: 1em;
 }

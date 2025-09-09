@@ -73,11 +73,12 @@ const { character } = useCharacterData(props.characterId);
 	</div>
 </template>
 <style>
-/* .character-overview {
-	margin: 0.5em;
-} */
+.character-overview {
+	display: flex;
+	flex-flow: column;
+	height: 100vh;
+}
 .banner {
-	position: fixed;
 	width: 100vw;
 	height: 4em;
 	background-image: url('https://wallpapershigh.com/wp-content/uploads/destiny-2-logo-5.webp');
@@ -85,6 +86,7 @@ const { character } = useCharacterData(props.characterId);
 	background-color: #444;
 	border-bottom: 2px solid #444;
 	display: flex;
+	flex: 0 0 auto;
 }
 .banner h1 {
 	font-size: 1.4em;
@@ -112,7 +114,6 @@ const { character } = useCharacterData(props.characterId);
 .tab-container {
 	text-align: right;
 	display: flex;
-	/* background-color: #4448; */
 	border-radius: 0.25em;
 	height: 3em;
 	margin-top: 0.5em;
@@ -126,7 +127,7 @@ const { character } = useCharacterData(props.characterId);
 	margin: 0 0.25em;
 	text-align: center;
 	text-decoration: none;
-	color: #fff;
+	color: #fffa;
 	border-bottom: 4px solid #0000;
 	padding: 0 1em;
 }
@@ -137,12 +138,12 @@ const { character } = useCharacterData(props.characterId);
 	transform: translateX(-100%);
 }
 .tab-container .router-link-active {
-	font-weight: 800;
+	color: #fff;
 	border-bottom: 4px solid #fff;
 }
 .content {
-	/* flex: 1 1 auto; */
-	padding-top: 4em;
-	margin: 0 0.5em;
+	flex: 1 1 auto;
+	padding: 0 0.5em;
+	overflow-y: scroll;
 }
 </style>

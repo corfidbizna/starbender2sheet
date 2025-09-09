@@ -99,4 +99,170 @@ describe('Behaviors of getBuffEffects', () => {
 			},
 		]);
 	});
+	test('Depends on another stat', () => {
+		const buff: BuffInfo = {
+			name: 'Buffs Something Based on Another Stat',
+			type: 'Buff',
+			isStacking: false,
+			description: 'Buffs strength by dexterity mod.',
+			effects: 'str +1*dex',
+		};
+		const result = getBuffEffects(buff, testCharacterSimple);
+		expect(result).toEqual([
+			{
+				source: 'Buffs Something Based on Another Stat',
+				effectedStat: 'str',
+				amount: testCharacterSimple.dex,
+			},
+		]);
+	});
+	test('Depends on another stat but worse', () => {
+		const buff: BuffInfo = {
+			name: 'Buffs Something Based on Another Stat Two-Way',
+			type: 'Buff',
+			isStacking: false,
+			description: 'Buffs strength by dexterity mod and vice versa.',
+			effects: 'str +1*dex, dex +1*str',
+		};
+		const result = getBuffEffects(buff, testCharacterSimple);
+		expect(result).toEqual([
+			{
+				source: 'Buffs Something Based on Another Stat Two-Way',
+				effectedStat: 'str',
+				amount: testCharacterSimple.dex,
+			},
+			{
+				source: 'Buffs Something Based on Another Stat Two-Way',
+				effectedStat: 'dex',
+				amount: testCharacterSimple.str,
+			},
+		]);
+	});
+	test('Multiplies magnitude based on stacks', () => {
+		const buff: BuffInfo = {
+			name: 'Buff Strength based on Dex and Stack Size',
+			type: 'Buff',
+			isStacking: true,
+			stacks: 3,
+			effects: 'str +1*dex*stacks',
+		};
+		const result = getBuffEffects(buff, testCharacterSimple);
+		expect(result).toEqual([
+			{
+				source: 'Buff Strength based on Dex and Stack Size',
+				effectedStat: 'str',
+				amount: testCharacterSimple.dex * (buff.stacks || 1),
+			},
+		]);
+	});
+	test('Multiplies some magnitudes based on stacks', () => {
+		const buff: BuffInfo = {
+			name: 'Buff Strength and Dex based on Stack Size',
+			type: 'Buff',
+			isStacking: true,
+			stacks: 3,
+			effects: 'str +10, dex +stacks',
+		};
+		const result = getBuffEffects(buff, testCharacterSimple);
+		expect(result).toEqual([
+			{
+				source: buff.name,
+				effectedStat: 'str',
+				amount: 10,
+			},
+			{
+				source: buff.name,
+				effectedStat: 'dex',
+				amount: buff.stacks || 0,
+			},
+		]);
+	});
+	test('Multiplies some magnitudes based on stacks ver 2', () => {
+		const buff: BuffInfo = {
+			name: 'Buff Strength and Dex based on Stack Size',
+			type: 'Buff',
+			isStacking: true,
+			stacks: 3,
+			effects: 'str +10, dex +1*stacks',
+		};
+		const result = getBuffEffects(buff, testCharacterSimple);
+		expect(result).toEqual([
+			{
+				source: buff.name,
+				effectedStat: 'str',
+				amount: 10,
+			},
+			{
+				source: buff.name,
+				effectedStat: 'dex',
+				amount: buff.stacks || 0,
+			},
+		]);
+	});
+	test('Negative stack magnitude, no helper', () => {
+		const buff: BuffInfo = {
+			name: 'Buff Strength and Dex based on Stack Size',
+			type: 'Buff',
+			isStacking: true,
+			stacks: 3,
+			effects: 'str -stacks',
+		};
+		const result = getBuffEffects(buff, testCharacterSimple);
+		expect(result).toEqual([
+			{
+				source: buff.name,
+				effectedStat: 'str',
+				amount: -(buff.stacks || 0),
+			},
+		]);
+	});
+	test('Adds 5 to nowhere', () => {
+		const buff: BuffInfo = {
+			name: 'Adds 5 to nowhere',
+			type: 'Debuff',
+			isStacking: false,
+			effects: '+5',
+		};
+
+		expect(() => {
+			getBuffEffects(buff, testCharacterSimple);
+		}).toThrowError('Buff must have a target!');
+	});
+	test('A buff that multiplies the base', () => {
+		const buff: BuffInfo = {
+			name: 'Multiply Dex by 3',
+			type: 'Buff',
+			isStacking: false,
+			effects: 'dex *3',
+		};
+		const result = getBuffEffects(buff, testCharacterSimple);
+		expect(result).toEqual([
+			{
+				source: buff.name,
+				effectedStat: 'dex',
+				amount: testCharacterSimple.dex * 2,
+			},
+		]);
+	});
+	test('Buffing the same stat twice', () => {
+		const buff: BuffInfo = {
+			name: 'Buffs Strength by 5 and -3',
+			type: 'Buff',
+			isStacking: false,
+			effects: 'str +5, str -3',
+		};
+		const result = getBuffEffects(buff, testCharacterSimple);
+		expect(result).toEqual([
+			{
+				source: buff.name,
+				effectedStat: 'str',
+				amount: 5,
+			},
+			{
+				source: buff.name,
+				effectedStat: 'str',
+				amount: -3,
+			},
+		]);
+	});
 });

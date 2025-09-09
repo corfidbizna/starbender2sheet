@@ -42,6 +42,7 @@ h1 {
 h2 {
 	width: 80vw;
 	margin-left: 10vw;
+	text-align: center;
 }
 header {
 	display: block;
