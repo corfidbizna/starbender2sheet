@@ -1,3 +1,4 @@
+import type { PartyBuffInfo } from '@/business_logic/buffs';
 import { computed, ref, type Ref, type ComputedRef } from 'vue';
 
 // ==================================================================================================
@@ -397,16 +398,20 @@ export default function useCharacterData(characterId: string) {
 			});
 			return { data: filteredQuests, isLoading: questsLoading, refresh: refreshQuests };
 		},
-		getPartyBuffs(): NetworkDataState<unknown> {
-			const { data, isLoading, refresh } = getNetworkDataStateForSheet<unknown>(
+		getPartyBuffs(): NetworkDataState<PartyBuffInfo> {
+			const {
+				data: buffs,
+				isLoading,
+				refresh,
+			} = getNetworkDataStateForSheet<PartyBuffInfo>(
 				partyDataSources.documentId,
 				partyDataSources.sheets.buffs,
 			);
-			// const filteredWeapons = computed<Weapon[]>(() => {
-			// 	return weapons.value.filter((item) => item[characterId as CharacterNames]);
-			// });
+			const filteredBuffs = computed<PartyBuffInfo[]>(() => {
+				return buffs.value.filter((item) => item[characterId as CharacterNames]);
+			});
 			return {
-				data,
+				data: filteredBuffs,
 				isLoading,
 				refresh,
 			};

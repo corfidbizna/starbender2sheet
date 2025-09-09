@@ -2,18 +2,21 @@ import type { CharacterStatKey, CharacterStats } from '@/composables/useCharacte
 
 type BuffTypes = 'Buff' | 'Debuff' | 'Story Buff';
 export type BuffInfo = {
-	aurora?: boolean;
-	kara?: boolean;
-	mark?: boolean;
-	lewis?: boolean;
 	name: string;
 	type: BuffTypes;
 	isStacking?: boolean;
 	stackMax?: number;
 	stacks?: number;
+	roundsRemaining?: number;
 	description?: string;
 	effects?: string;
 	isPassive?: boolean;
+};
+export type PartyBuffInfo = BuffInfo & {
+	aurora: boolean;
+	kara: boolean;
+	mark: boolean;
+	lewis: boolean;
 };
 
 export type CharacterStatsBuffed = CharacterStats & {

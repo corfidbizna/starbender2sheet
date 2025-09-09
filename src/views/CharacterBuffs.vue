@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import useCharacterData, { type StatBoxInfo } from '@/composables/useCharacterData';
 import LoadingModal from '@/components/LoadingModal.vue';
 import StatBarsBox from '@/components/StatBarsBox.vue';
-// import type { BuffInfo } from '@/business_logic/buffs';
+import useBuffs from '@/composables/useBuffs';
 
 type CharacterProps = {
 	characterId: string;
@@ -16,80 +16,8 @@ const {
 	isLoading: partyBuffsLoading,
 	refresh: refreshPartyBuffs,
 } = getPartyBuffs();
+const { flatBuffArray } = useBuffs(stats, partyBuffs);
 
-// const testBuffs: BuffInfo[] = [
-// 	{
-// 		name: 'Base Strength',
-// 		type: 'Buff',
-// 		isStacking: false,
-// 		stackMax: 0,
-// 		stacks: 0,
-// 		description: 'Increases the base value of Strength by 5.',
-// 		effects: '^str +5',
-// 		expectedResult:
-// 			'Strength: ' +
-// 			stats.value.str.value +
-// 			' => ' +
-// 			(stats.value.str.value + 5) +
-// 			'\nSomething that uses strength: ' +
-// 			(stats.value.str.value + 8) +
-// 			' => ' +
-// 			(stats.value.str.value + 8 + 5),
-// 	},
-// 	{
-// 		name: 'Surface Strength',
-// 		type: 'Buff',
-// 		stacking: false,
-// 		stackMax: 0,
-// 		stacks: 0,
-// 		description: 'Increases the base value of Strength by 2.',
-// 		effects: 'str +2',
-// 		isActive: false,
-// 		expectedResult:
-// 			'Strength: ' +
-// 			stats.value.str.value +
-// 			' => ' +
-// 			(stats.value.str.value + 2) +
-// 			'\nSomething that uses strength: ' +
-// 			(stats.value.str.value + 8) +
-// 			' => ' +
-// 			(stats.value.str.value + 8),
-// 	},
-// 	{
-// 		name: 'Multi-Buff',
-// 		type: 'Debuff',
-// 		stacking: false,
-// 		stackMax: 0,
-// 		stacks: 0,
-// 		description: 'Increases AC but reduces strength.',
-// 		effects: '^str -4, ^ac +4',
-// 		isActive: false,
-// 		expectedResult:
-// 			'Strength: ' +
-// 			stats.value.str.value +
-// 			' => ' +
-// 			(stats.value.str.value - 4) +
-// 			'\nAC: ' +
-// 			stats.value.ac.value +
-// 			' => ' +
-// 			(stats.value.ac.value + 4),
-// 	},
-// 	// {
-// 	// 	name: 'Stacking Buff',
-// 	// 	type: 'Buff',
-// 	// 	stacking: true,
-// 	// 	stackMax: 10,
-// 	// 	stacks: 0,
-// 	// 	description: 'Increases constitution by 1 per stack.',
-// 	// 	effects: 'con +1*stacks',
-// 	// 	isActive: false,
-// 	// 	expectedResult:
-// 	// 		'Constitution: ' +
-// 	// 		stats.value.con.value +
-// 	// 		' => ' +
-// 	// 		(stats.value.con.value + 1 * stacks),
-// 	// },
-// ];
 const buffedStatsGroup = computed<StatBoxInfo>(() => {
 	const data = stats.value;
 	return {
@@ -116,10 +44,10 @@ const buffedStatsGroup = computed<StatBoxInfo>(() => {
 			class="buff-test"
 		>
 			<div>Test buffs for {{ character.label }}</div>
-			<h1>stats</h1>
-			<pre>{{ stats }}</pre>
 			<h1>partyBuffs</h1>
 			<pre>{{ partyBuffs }}</pre>
+			<h1>flatBuffArray</h1>
+			<pre>{{ flatBuffArray }}</pre>
 			<div>
 				<button
 					@click="
