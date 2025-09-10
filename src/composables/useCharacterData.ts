@@ -39,7 +39,7 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 		sheets: {
 			skills: '544688264',
 			variables: '249151624',
-			buffs: '-1',
+			buffs: '1723104523',
 		},
 	},
 	aurora: {

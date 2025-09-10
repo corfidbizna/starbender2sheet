@@ -4,6 +4,7 @@ import useCharacterData, { type StatBoxInfo } from '@/composables/useCharacterDa
 import LoadingModal from '@/components/LoadingModal.vue';
 import StatBarsBox from '@/components/StatBarsBox.vue';
 import useBuffs from '@/composables/useBuffs';
+import BuffItemRow from '@/components/BuffItemRow.vue';
 
 type CharacterProps = {
 	characterId: string;
@@ -16,7 +17,7 @@ const {
 	isLoading: partyBuffsLoading,
 	refresh: refreshPartyBuffs,
 } = getPartyBuffs();
-const { flatBuffArray } = useBuffs(stats, partyBuffs);
+const { flatBuffArray, talliedBuffs } = useBuffs(stats, partyBuffs);
 
 const buffedStatsGroup = computed<StatBoxInfo>(() => {
 	const data = stats.value;
@@ -30,6 +31,9 @@ const buffedStatsGroup = computed<StatBoxInfo>(() => {
 		],
 	};
 });
+// const talliedBuffs2 = computed(() => {
+// 	return tallyBuffs(flatBuffArray.value);
+// });
 </script>
 <template>
 	<div
@@ -43,11 +47,14 @@ const buffedStatsGroup = computed<StatBoxInfo>(() => {
 			v-else
 			class="buff-test"
 		>
+			<BuffItemRow v-bind="partyBuffs[0]" />
 			<div>Test buffs for {{ character.label }}</div>
 			<h1>partyBuffs</h1>
 			<pre>{{ partyBuffs }}</pre>
 			<h1>flatBuffArray</h1>
 			<pre>{{ flatBuffArray }}</pre>
+			<h1>talliedBuffs</h1>
+			<pre>{{ talliedBuffs }}</pre>
 			<div>
 				<button
 					@click="
@@ -58,32 +65,11 @@ const buffedStatsGroup = computed<StatBoxInfo>(() => {
 					Refresh Bufs & Stats
 				</button>
 			</div>
-			<!-- <div
-				class="buff-block"
-				v-for="buff in testBuffs"
-				:key="buff.name"
-			>
-				<div class="buff-box">
-					<input type="checkbox" />
-					<div class="buff-contents">
-						<p>{{ buff.name }}: {{ buff.description }}</p>
-						<pre>{{ buff.effects }}</pre>
-						<h2></h2>
-						<pre>{{ buff.expectedResult }}</pre>
-					</div>
-				</div>
-			</div> -->
 			<StatBarsBox v-bind="buffedStatsGroup" />
 		</div>
 	</div>
 </template>
 <style>
-.buff-block {
-	display: block;
-	background-color: #4444;
-	margin: 1em;
-	border-radius: 0.25em;
-}
 .buff-box input {
 	vertical-align: top;
 }

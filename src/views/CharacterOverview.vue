@@ -127,9 +127,14 @@ const { character } = useCharacterData(props.characterId);
 	margin: 0 0.25em;
 	text-align: center;
 	text-decoration: none;
+	transition: color 0.3s;
 	color: #fffa;
 	border-bottom: 4px solid #0000;
 	padding: 0 1em;
+}
+.tab-container a:hover {
+	transition: color 0.3s;
+	color: #fff;
 }
 .visible-text {
 	position: absolute;

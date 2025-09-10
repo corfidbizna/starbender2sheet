@@ -7,6 +7,7 @@ export type BuffInfo = {
 	isStacking?: boolean;
 	stackMax?: number;
 	stacks?: number;
+	duration?: number;
 	roundsRemaining?: number;
 	description?: string;
 	effects?: string;
@@ -19,24 +20,23 @@ export type PartyBuffInfo = BuffInfo & {
 	lewis: boolean;
 };
 
-export type CharacterStatsBuffed = CharacterStats & {
-	strBuffed: number;
-};
-
 export type BuffEffect = {
 	source: string;
-	effectedStat: CharacterStatKey;
+	affectedStat: CharacterStatKey;
 	amount: number;
+};
+export type BuffSummary = {
+	total: number;
+	summary: string;
+};
+export type CharacterBuffSummary = {
+	[Property in keyof CharacterStats as `${Property}BuffSummary`]?: BuffSummary;
 };
 export const getBuffEffects = (buff: BuffInfo, stats: CharacterStats): BuffEffect[] => {
 	if (!buff.effects) {
 		return [];
 	}
 	return buff.effects.split(', ').map((effect): BuffEffect => {
-		// Example: `str +1*dex*stacks`√
-		// Example: `str +10, dex +1*stacks`√
-		// Example: `+5`
-		// Example: `dex *2`
 		const [affectedStat, amount] = effect.split(/\s+/);
 		if (!amount) {
 			throw new Error('Buff must have a target!');
@@ -77,8 +77,25 @@ export const getBuffEffects = (buff: BuffInfo, stats: CharacterStats): BuffEffec
 		}
 		return {
 			source: buff.name,
-			effectedStat: affectedStat as CharacterStatKey,
+			affectedStat: affectedStat as CharacterStatKey,
 			amount: result,
 		};
 	});
+};
+export const tallyBuffs = (buffs: BuffEffect[], stats: CharacterStats) => {
+	const result = {} as CharacterBuffSummary;
+	buffs.forEach((buff) => {
+		const key = (buff.affectedStat + 'BuffSummary') as keyof CharacterBuffSummary;
+		if (stats[buff.affectedStat] === undefined) {
+			console.error('Invalid stat provided: ' + buff.affectedStat);
+			return;
+		}
+		if (!result[key]) {
+			result[key] = { total: buff.amount, summary: buff.source + ' ' + buff.amount };
+		} else {
+			result[key].total += buff.amount;
+			result[key].summary += '\n' + buff.source + ' ' + buff.amount;
+		}
+	});
+	return result;
 };
