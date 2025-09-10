@@ -5,6 +5,7 @@ import LoadingModal from '@/components/LoadingModal.vue';
 import StatBarsBox from '@/components/StatBarsBox.vue';
 import useBuffs from '@/composables/useBuffs';
 import BuffItemRow from '@/components/BuffItemRow.vue';
+import BuffActivator from '@/components/BuffActivator.vue';
 
 type CharacterProps = {
 	characterId: string;
@@ -31,9 +32,6 @@ const buffedStatsGroup = computed<StatBoxInfo>(() => {
 		],
 	};
 });
-// const talliedBuffs2 = computed(() => {
-// 	return tallyBuffs(flatBuffArray.value);
-// });
 </script>
 <template>
 	<div
@@ -48,24 +46,7 @@ const buffedStatsGroup = computed<StatBoxInfo>(() => {
 			class="buff-test"
 		>
 			<BuffItemRow v-bind="partyBuffs[0]" />
-			<div>Test buffs for {{ character.label }}</div>
-			<h1>partyBuffs</h1>
-			<pre>{{ partyBuffs }}</pre>
-			<h1>flatBuffArray</h1>
-			<pre>{{ flatBuffArray }}</pre>
-			<h1>talliedBuffs</h1>
-			<pre>{{ talliedBuffs }}</pre>
-			<div>
-				<button
-					@click="
-						refreshStats();
-						refreshPartyBuffs();
-					"
-				>
-					Refresh Bufs & Stats
-				</button>
-			</div>
-			<StatBarsBox v-bind="buffedStatsGroup" />
+			<BuffActivator :character-id="characterId" />
 		</div>
 	</div>
 </template>

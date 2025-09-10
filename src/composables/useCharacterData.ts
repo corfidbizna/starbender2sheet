@@ -351,7 +351,7 @@ const getSheet = async <T>(documentId: string, sheetKey: string): Promise<T[]> =
 	return flattened as T[];
 };
 export default function useCharacterData(characterId: string) {
-	return {
+	const composable = {
 		character: computed<CharacterDataSource | undefined>(
 			() => characterDataSources[characterId],
 		),
@@ -433,6 +433,23 @@ export default function useCharacterData(characterId: string) {
 				},
 			};
 		},
+		getActivatedPartyBuffs() {
+			const namesOfActivatedBuffs = ref<string[]>([]);
+			const { data: partyBuffs, isLoading, refresh } = composable.getPartyBuffs();
+			return {
+				namesOfActivatedBuffs,
+				activatablePartyBuffs: computed<BuffInfo[]>(() =>
+					partyBuffs.value.filter((buff) => !buff.isPassive),
+				),
+				activatedPartyBuffs: computed<BuffInfo[]>(() => {
+					const addThese = namesOfActivatedBuffs.value;
+					const buffs = partyBuffs.value;
+					return buffs.filter((buff) => buff.isPassive || addThese.includes(buff.name));
+				}),
+				isLoading,
+				refresh,
+			};
+		},
 		getStats() {
 			const { data, isLoading, refresh } = getSheetForCharacter<CharacterStats>(
 				characterId,
@@ -445,4 +462,5 @@ export default function useCharacterData(characterId: string) {
 			};
 		},
 	};
+	return composable;
 }
