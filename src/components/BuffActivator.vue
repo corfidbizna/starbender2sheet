@@ -1,20 +1,14 @@
 <script setup lang="ts">
 import useCharacterData from '@/composables/useCharacterData';
-import LoadingModal from './LoadingModal.vue';
 
 type CharacterProps = {
 	characterId: string;
 };
 const props = defineProps<CharacterProps>();
 
-const { getActivatedPartyBuffs } = useCharacterData(props.characterId);
-const {
-	namesOfActivatedBuffs,
-	activatablePartyBuffs,
-	activatedPartyBuffs: buffs,
-	isLoading: buffsLoading,
-	refresh: refreshBuffs,
-} = getActivatedPartyBuffs();
+const { namesOfActivatedBuffs, activatablePartyBuffs, refreshBuffs } = useCharacterData(
+	props.characterId,
+);
 </script>
 <template>
 	<div class="buff-activator">
@@ -35,8 +29,6 @@ const {
 			</label>
 		</div>
 		<pre>namesOfActivatedBuffs: {{ namesOfActivatedBuffs }}</pre>
-		<pre>buffs: {{ buffs }}</pre>
-		<pre>activatablePartyBuffs: {{ activatablePartyBuffs }}</pre>
 	</div>
 </template>
 <style scoped>

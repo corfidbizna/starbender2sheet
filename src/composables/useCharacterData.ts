@@ -350,23 +350,76 @@ const getSheet = async <T>(documentId: string, sheetKey: string): Promise<T[]> =
 	// console.log('flattened', flattened);
 	return flattened as T[];
 };
-export default function useCharacterData(characterId: string) {
+function useCharacterDataUncached(characterId: string) {
+	// SKILLS START
+	const {
+		data: skillsThatNeedToBeFiltered,
+		isLoading: skillsLoading,
+		refresh: skillsRefresh,
+	} = getSheetForCharacter<SkillsTableItem>(characterId, 'skills');
+	const skills = computed<SkillsTableItem[]>(() => {
+		// Removes items if there's nothing in the name field.
+		return skillsThatNeedToBeFiltered.value.filter((item) => !!item.Name);
+	});
+	// SKILLS END
+
+	// BUFFS START
+	const {
+		data: allPartyBuffs,
+		isLoading: partyBuffsLoading,
+		refresh: refreshPartyBuffs,
+	} = getNetworkDataStateForSheet<PartyBuffInfo>(
+		partyDataSources.documentId,
+		partyDataSources.sheets.buffs,
+	);
+	const {
+		data: playerBuffs,
+		isLoading: playerBuffsLoading,
+		refresh: refreshPlayerBuffs,
+	} = getSheetForCharacter<BuffInfo>(characterId, 'buffs');
+
+	const partyBuffs = computed<BuffInfo[]>(() => {
+		const filteredPartyBuffs: BuffInfo[] = allPartyBuffs.value.filter(
+			(item) => item[characterId as CharacterNames],
+		);
+		return [...filteredPartyBuffs, ...playerBuffs.value];
+	});
+	const buffsLoading = computed<boolean>(() => {
+		return playerBuffsLoading.value || partyBuffsLoading.value;
+	});
+	const refreshBuffs = () => {
+		refreshPartyBuffs();
+		refreshPlayerBuffs();
+	};
+
+	const namesOfActivatedBuffs = ref<string[]>([]);
+	const activatablePartyBuffs = computed<BuffInfo[]>(() =>
+		partyBuffs.value.filter((buff) => !buff.isPassive),
+	);
+	const activatedPartyBuffs = computed<BuffInfo[]>(() => {
+		const addThese = namesOfActivatedBuffs.value;
+		const buffs = partyBuffs.value;
+		return buffs.filter((buff) => buff.isPassive || addThese.includes(buff.name));
+	});
+	// BUFFS END
+
 	const composable = {
 		character: computed<CharacterDataSource | undefined>(
 			() => characterDataSources[characterId],
 		),
+		namesOfActivatedBuffs,
+		activatablePartyBuffs,
+		activatedPartyBuffs,
+		skills,
+		skillsLoading,
+		buffsLoading,
+		refreshBuffs,
+		skillsRefresh,
 		getSkillsTable() {
-			const { data, isLoading, refresh } = getSheetForCharacter<SkillsTableItem>(
-				characterId,
-				'skills',
-			);
 			return {
-				data: computed<SkillsTableItem[]>(() => {
-					// Removes items if there's nothing in the name field.
-					return data.value.filter((item) => !!item.Name);
-				}),
-				isLoading,
-				refresh,
+				data: skills,
+				isLoading: skillsLoading,
+				refresh: skillsRefresh,
 			};
 		},
 		getWeaponsTable(): NetworkDataState<Weapon> {
@@ -401,55 +454,6 @@ export default function useCharacterData(characterId: string) {
 			});
 			return { data: filteredQuests, isLoading: questsLoading, refresh: refreshQuests };
 		},
-		getPartyBuffs(): NetworkDataState<BuffInfo> {
-			const {
-				data: partyBuffs,
-				isLoading: partyBuffsLoading,
-				refresh: refreshPartyBuffs,
-			} = getNetworkDataStateForSheet<PartyBuffInfo>(
-				partyDataSources.documentId,
-				partyDataSources.sheets.buffs,
-			);
-			const {
-				data: playerBuffs,
-				isLoading: playerBuffsLoading,
-				refresh: refreshPlayerBuffs,
-			} = getSheetForCharacter<BuffInfo>(characterId, 'buffs');
-			const filteredBuffs = computed<BuffInfo[]>(() => {
-				const filteredPartyBuffs: BuffInfo[] = partyBuffs.value.filter(
-					(item) => item[characterId as CharacterNames],
-				);
-				return [...filteredPartyBuffs, ...playerBuffs.value];
-			});
-			const isLoading = computed<boolean>(() => {
-				return playerBuffsLoading.value || partyBuffsLoading.value;
-			});
-			return {
-				data: filteredBuffs,
-				isLoading,
-				refresh: () => {
-					refreshPartyBuffs();
-					refreshPlayerBuffs();
-				},
-			};
-		},
-		getActivatedPartyBuffs() {
-			const namesOfActivatedBuffs = ref<string[]>([]);
-			const { data: partyBuffs, isLoading, refresh } = composable.getPartyBuffs();
-			return {
-				namesOfActivatedBuffs,
-				activatablePartyBuffs: computed<BuffInfo[]>(() =>
-					partyBuffs.value.filter((buff) => !buff.isPassive),
-				),
-				activatedPartyBuffs: computed<BuffInfo[]>(() => {
-					const addThese = namesOfActivatedBuffs.value;
-					const buffs = partyBuffs.value;
-					return buffs.filter((buff) => buff.isPassive || addThese.includes(buff.name));
-				}),
-				isLoading,
-				refresh,
-			};
-		},
 		getStats() {
 			const { data, isLoading, refresh } = getSheetForCharacter<CharacterStats>(
 				characterId,
@@ -462,5 +466,20 @@ export default function useCharacterData(characterId: string) {
 			};
 		},
 	};
+	return composable;
+}
+
+const characterDataComposableForEachCharacter: Record<
+	string,
+	ReturnType<typeof useCharacterDataUncached>
+> = {};
+export default function useCharacterData(
+	characterId: string,
+): ReturnType<typeof useCharacterDataUncached> {
+	if (characterDataComposableForEachCharacter[characterId]) {
+		return characterDataComposableForEachCharacter[characterId];
+	}
+	const composable = useCharacterDataUncached(characterId);
+	characterDataComposableForEachCharacter[characterId] = composable;
 	return composable;
 }
