@@ -233,6 +233,7 @@ export const makeComputedOfStats = (
 				key,
 				label: labelMap[key],
 				value: statsValue[key],
+				value2: 10,
 			})),
 		};
 	};
