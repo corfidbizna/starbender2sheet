@@ -7,7 +7,6 @@ type Filter<T> = {
 type UseFilterArgs<T> = {
 	listUnfiltered: Ref<T[]>;
 	filter: Filter<T>;
-	shouldExclude: boolean;
 };
 const isValueEmpty = (dataType: DataTypes, value: unknown): boolean => {
 	if (value === undefined) {
@@ -21,12 +20,16 @@ const isValueEmpty = (dataType: DataTypes, value: unknown): boolean => {
 	}
 	return false;
 };
+type FilterResults<T> = { includes: T[]; excludes: T[] };
 export default function useFilter<T, X>(config: UseFilterArgs<T>) {
-	const { listUnfiltered, filter, shouldExclude } = config;
+	const { listUnfiltered, filter } = config;
 	const queryValue = ref<X>();
+	const invertFilter = ref<boolean>(false);
 	return {
 		queryValue,
-		filteredData: computed<T[]>(() => {
+		invertFilter,
+		filteredData: computed<FilterResults<T>>(() => {
+			const inverted = invertFilter.value;
 			const list = listUnfiltered.value;
 			let currentValue: X | undefined = queryValue.value;
 			const isEmpty = isValueEmpty(filter.dataType, currentValue);
@@ -34,16 +37,9 @@ export default function useFilter<T, X>(config: UseFilterArgs<T>) {
 				(currentValue as string) = (currentValue + '').trim().toLocaleLowerCase();
 			}
 			if (isEmpty) {
-				return list;
+				return { includes: list, excludes: [] };
 			}
 
-			// const filterFunctionExclusive =
-			// 	filter.dataType === 'string'
-			// 		? (item: T) => item[filter.fieldName]
-			// 		: (item: T) =>
-			// 				(item[filter.fieldName] + '')
-			// 					.toLocaleLowerCase()
-			// 					.includes(currentValue as string) === currentValue;
 			const filterFunctionInclusive =
 				filter.dataType === 'string'
 					? (item: T) =>
@@ -51,10 +47,16 @@ export default function useFilter<T, X>(config: UseFilterArgs<T>) {
 								.toLocaleLowerCase()
 								.includes(currentValue as string)
 					: (item: T) => item[filter.fieldName] === currentValue;
-			// if (shouldExclude) {
-			// 	return list.filter(filterFunctionExclusive);
-			// }
-			return list.filter(filterFunctionInclusive);
+
+			return list.reduce(
+				(acc: FilterResults<T>, item) => {
+					const test = filterFunctionInclusive(item) !== inverted;
+					const dest = test ? 'includes' : 'excludes';
+					acc[dest].push(item);
+					return acc;
+				},
+				{ includes: [], excludes: [] },
+			);
 		}),
 	};
 }

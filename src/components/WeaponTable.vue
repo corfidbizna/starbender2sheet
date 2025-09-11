@@ -8,10 +8,9 @@ const props = defineProps<{
 	characterId: CharacterNames;
 }>();
 const { weapons, weaponsLoading, weaponsRefresh } = useCharacterData(props.characterId);
-const { queryValue, filteredData } = useFilter<Weapon, string>({
+const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 	listUnfiltered: weapons,
 	filter: { dataType: 'string', fieldName: 'Name' },
-	shouldExclude: false,
 });
 </script>
 <template>
@@ -24,6 +23,13 @@ const { queryValue, filteredData } = useFilter<Weapon, string>({
 					v-model="queryValue"
 				/>
 			</label>
+			<label>
+				<span class="label">Invert: </span>
+				<input
+					type="checkbox"
+					v-model="invertFilter"
+				/>
+			</label>
 			<button @click="weaponsRefresh">Reload Weapons</button>
 		</div>
 		<div v-if="weaponsLoading"><LoadingModal /></div>
@@ -34,9 +40,15 @@ const { queryValue, filteredData } = useFilter<Weapon, string>({
 			<table>
 				<tbody>
 					<WeaponItemRow
-						v-for="weapon in filteredData"
+						v-for="weapon in filteredData.includes"
 						:key="weapon.Name"
 						v-bind="weapon"
+					/>
+					<WeaponItemRow
+						v-for="weapon in filteredData.excludes"
+						:key="weapon.Name"
+						v-bind="weapon"
+						class="filtered"
 					/>
 				</tbody>
 			</table>
@@ -71,5 +83,9 @@ td {
 .bonus,
 .score {
 	max-width: 1rem;
+}
+
+.filtered {
+	opacity: 0.2;
 }
 </style>

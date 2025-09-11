@@ -8,10 +8,9 @@ const props = defineProps<{
 	characterId: string;
 }>();
 const { skills, skillsLoading, skillsRefresh } = useCharacterData(props.characterId);
-const { queryValue, filteredData } = useFilter<SkillsTableItem, string>({
+const { queryValue, invertFilter, filteredData } = useFilter<SkillsTableItem, string>({
 	listUnfiltered: skills,
 	filter: { dataType: 'string', fieldName: 'Name' },
-	shouldExclude: false,
 });
 </script>
 <template>
@@ -22,6 +21,13 @@ const { queryValue, filteredData } = useFilter<SkillsTableItem, string>({
 				<input
 					type="text"
 					v-model="queryValue"
+				/>
+			</label>
+			<label>
+				<span class="label">Invert: </span>
+				<input
+					type="checkbox"
+					v-model="invertFilter"
 				/>
 			</label>
 			<button @click="skillsRefresh">Reload Skills</button>
@@ -45,9 +51,15 @@ const { queryValue, filteredData } = useFilter<SkillsTableItem, string>({
 				</thead>
 				<tbody>
 					<SkillItemRow
-						v-for="skill in filteredData"
+						v-for="skill in filteredData.includes"
 						:key="skill.Name"
 						v-bind="skill"
+					/>
+					<SkillItemRow
+						v-for="skill in filteredData.excludes"
+						:key="skill.Name"
+						v-bind="skill"
+						class="filtered"
 					/>
 				</tbody>
 			</table>
@@ -84,5 +96,8 @@ td {
 .bonus,
 .score {
 	max-width: 1rem;
+}
+.filtered {
+	opacity: 0.2;
 }
 </style>

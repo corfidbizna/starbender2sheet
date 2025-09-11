@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import useCharacterData, { type StatBoxInfo } from '@/composables/useCharacterData';
 import LoadingModal from '@/components/LoadingModal.vue';
-import useBuffs from '@/composables/useBuffs';
 import BuffItemRow from '@/components/BuffItemRow.vue';
 import BuffActivator from '@/components/BuffActivator.vue';
 
@@ -9,29 +8,9 @@ type CharacterProps = {
 	characterId: string;
 };
 const props = defineProps<CharacterProps>();
-const {
-	character,
-	stats,
-	statsLoading,
-	statsRefresh,
-	activatedPartyBuffs,
-	buffsLoading,
-	buffsRefresh,
-} = useCharacterData(props.characterId);
-const { flatBuffArray, talliedBuffs } = useBuffs(stats, activatedPartyBuffs);
-
-// const buffedStatsGroup = computed<StatBoxInfo>(() => {
-// 	const data = stats.value;
-// 	return {
-// 		label: 'Buffed Stats',
-// 		data: [
-// 			{ label: 'Strength', value: data.str },
-// 			{ label: 'Strength-Dependent Stat', value: data.str + 8 },
-// 			{ label: 'AC', value: data.ac },
-// 			{ label: 'Constitution', value: data.con },
-// 		],
-// 	};
-// });
+const { character, statsLoading, activatedPartyBuffs, buffsLoading } = useCharacterData(
+	props.characterId,
+);
 </script>
 <template>
 	<div
