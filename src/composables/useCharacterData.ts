@@ -217,6 +217,7 @@ export type StatBoxInfo = {
 export type StatBoxField = {
 	label: string;
 	value: number;
+	value2?: number;
 };
 
 //

@@ -13,7 +13,7 @@ const props = defineProps<StatBoxInfo>();
 const rangeMax = computed<number>((): number => {
 	let max = -Infinity;
 	props.data.forEach((item) => {
-		max = Math.max(max, item.value);
+		max = Math.max(max, item.value, item.value2 || item.value);
 	});
 	return max;
 });
@@ -28,9 +28,9 @@ const makeBar = (min: number, max: number, value: number, value2?: number): stri
 
 const stats = computed<{ label: string; bar: string; value: number }[]>(() => {
 	const max = rangeMax.value;
-	return props.data.map(({ label, value }) => ({
+	return props.data.map(({ label, value, value2 }) => ({
 		label,
-		bar: makeBar(0, max, value),
+		bar: makeBar(0, max, value, value2),
 		value,
 	}));
 });
