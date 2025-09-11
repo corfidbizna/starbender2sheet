@@ -12,20 +12,45 @@ type CharacterProps = {
 };
 const props = defineProps<CharacterProps>();
 
-const { character, stats, statsLoading, statsRefresh, skills, skillsLoading, skillsRefresh } =
-	useCharacterData(props.characterId);
+const {
+	character,
+	stats,
+	buffsTallied,
+	statsLoading,
+	statsRefresh,
+	skills,
+	skillsLoading,
+	skillsRefresh,
+} = useCharacterData(props.characterId);
 
 const statInfo = computed<StatBoxInfo>(
-	makeComputedOfStats(stats, 'Ability Scores', ['str', 'dex', 'con', 'int', 'wil', 'cha']),
+	makeComputedOfStats(stats, buffsTallied, 'Ability Scores', [
+		'str',
+		'dex',
+		'con',
+		'int',
+		'wis',
+		'cha',
+	]),
 );
 const savesInfo = computed<StatBoxInfo>(
-	makeComputedOfStats(stats, 'Saving Throws', ['fort', 'ref', 'wil']),
+	makeComputedOfStats(stats, buffsTallied, 'Saving Throws', ['fort', 'ref', 'wil']),
 );
 const actionsInfo = computed<StatBoxInfo>(
-	makeComputedOfStats(stats, 'Action', ['actionMoves', 'actionAttacks', 'actionReactions']),
+	makeComputedOfStats(stats, buffsTallied, 'Action', [
+		'actionMoves',
+		'actionAttacks',
+		'actionReactions',
+	]),
 );
 const energyInfo = computed<StatBoxInfo>(
-	makeComputedOfStats(stats, 'Energy', ['eSuper', 'eClass', 'eMelee', 'eGrenade', 'eUniversal']),
+	makeComputedOfStats(stats, buffsTallied, 'Energy', [
+		'eSuper',
+		'eClass',
+		'eMelee',
+		'eGrenade',
+		'eUniversal',
+	]),
 );
 const skillsInfo = computed<StatBoxInfo>(() => {
 	const fieldArray = <StatBoxField[]>[];

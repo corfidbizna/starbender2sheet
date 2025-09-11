@@ -6,9 +6,8 @@ type CharacterProps = {
 };
 const props = defineProps<CharacterProps>();
 
-const { namesOfActivatedBuffs, activatablePartyBuffs, buffsRefresh } = useCharacterData(
-	props.characterId,
-);
+const { namesOfActivatedBuffs, activatablePartyBuffs, buffsTallied, buffsRefresh } =
+	useCharacterData(props.characterId);
 </script>
 <template>
 	<div class="buff-activator">
@@ -29,6 +28,7 @@ const { namesOfActivatedBuffs, activatablePartyBuffs, buffsRefresh } = useCharac
 			</label>
 		</div>
 		<pre>namesOfActivatedBuffs: {{ namesOfActivatedBuffs }}</pre>
+		<pre>buffsTallied: {{ buffsTallied }}</pre>
 	</div>
 </template>
 <style scoped>

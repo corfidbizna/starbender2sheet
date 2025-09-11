@@ -1,4 +1,11 @@
-import type { BuffInfo, PartyBuffInfo } from '@/business_logic/buffs';
+import {
+	getBuffEffects,
+	tallyBuffs,
+	type BuffEffect,
+	type BuffInfo,
+	type CharacterBuffSummary,
+	type PartyBuffInfo,
+} from '@/business_logic/buffs';
 import { computed, ref, type Ref, type ComputedRef } from 'vue';
 
 // ==================================================================================================
@@ -223,18 +230,20 @@ export type StatBoxField = {
 //
 export const makeComputedOfStats = (
 	stats: ComputedRef<CharacterStats>,
+	tally: ComputedRef<CharacterBuffSummary>,
 	label: string,
 	keys: CharacterStatKey[],
 ): (() => StatBoxInfo) => {
 	return (): StatBoxInfo => {
 		const statsValue = stats.value;
+		const buffsValue = tally.value;
 		return {
 			label,
 			data: keys.map((key) => ({
 				key,
 				label: labelMap[key],
 				value: statsValue[key],
-				value2: 10,
+				value2: buffsValue[key]?.total,
 			})),
 		};
 	};
@@ -409,6 +418,15 @@ function useCharacterDataUncached(characterId: string) {
 		const buffs = partyBuffs.value;
 		return buffs.filter((buff) => buff.isPassive || addThese.includes(buff.name));
 	});
+
+	const buffArrayFlat = computed<BuffEffect[]>(() => {
+		const characterStats = stats.value;
+		const buffs = activatedPartyBuffs.value;
+		return buffs.map((buff) => getBuffEffects(buff, characterStats)).flat();
+	});
+	const buffsTallied = computed<CharacterBuffSummary>(() => {
+		return tallyBuffs(buffArrayFlat.value, stats.value);
+	});
 	// BUFFS END
 
 	// ==================================================================================================
@@ -458,6 +476,8 @@ function useCharacterDataUncached(characterId: string) {
 		namesOfActivatedBuffs,
 		activatablePartyBuffs,
 		activatedPartyBuffs,
+		buffArrayFlat,
+		buffsTallied,
 		buffsLoading,
 		buffsRefresh,
 		// Skills

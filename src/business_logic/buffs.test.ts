@@ -72,7 +72,7 @@ describe('Behaviors of getBuffEffects', () => {
 		expect(result).toEqual([
 			{
 				source: 'Buff Strength',
-				effectedStat: 'str',
+				affectedStat: 'str',
 				amount: 5,
 			},
 		]);
@@ -89,12 +89,12 @@ describe('Behaviors of getBuffEffects', () => {
 		expect(result).toEqual([
 			{
 				source: 'Debuff Strength & Dexterity',
-				effectedStat: 'str',
+				affectedStat: 'str',
 				amount: -5,
 			},
 			{
 				source: 'Debuff Strength & Dexterity',
-				effectedStat: 'dex',
+				affectedStat: 'dex',
 				amount: -7,
 			},
 		]);
@@ -111,7 +111,7 @@ describe('Behaviors of getBuffEffects', () => {
 		expect(result).toEqual([
 			{
 				source: 'Buffs Something Based on Another Stat',
-				effectedStat: 'str',
+				affectedStat: 'str',
 				amount: testCharacterSimple.dex,
 			},
 		]);
@@ -128,12 +128,12 @@ describe('Behaviors of getBuffEffects', () => {
 		expect(result).toEqual([
 			{
 				source: 'Buffs Something Based on Another Stat Two-Way',
-				effectedStat: 'str',
+				affectedStat: 'str',
 				amount: testCharacterSimple.dex,
 			},
 			{
 				source: 'Buffs Something Based on Another Stat Two-Way',
-				effectedStat: 'dex',
+				affectedStat: 'dex',
 				amount: testCharacterSimple.str,
 			},
 		]);
@@ -150,7 +150,7 @@ describe('Behaviors of getBuffEffects', () => {
 		expect(result).toEqual([
 			{
 				source: 'Buff Strength based on Dex and Stack Size',
-				effectedStat: 'str',
+				affectedStat: 'str',
 				amount: testCharacterSimple.dex * (buff.stacks || 1),
 			},
 		]);
@@ -167,12 +167,12 @@ describe('Behaviors of getBuffEffects', () => {
 		expect(result).toEqual([
 			{
 				source: buff.name,
-				effectedStat: 'str',
+				affectedStat: 'str',
 				amount: 10,
 			},
 			{
 				source: buff.name,
-				effectedStat: 'dex',
+				affectedStat: 'dex',
 				amount: buff.stacks || 0,
 			},
 		]);
@@ -189,12 +189,12 @@ describe('Behaviors of getBuffEffects', () => {
 		expect(result).toEqual([
 			{
 				source: buff.name,
-				effectedStat: 'str',
+				affectedStat: 'str',
 				amount: 10,
 			},
 			{
 				source: buff.name,
-				effectedStat: 'dex',
+				affectedStat: 'dex',
 				amount: buff.stacks || 0,
 			},
 		]);
@@ -211,7 +211,7 @@ describe('Behaviors of getBuffEffects', () => {
 		expect(result).toEqual([
 			{
 				source: buff.name,
-				effectedStat: 'str',
+				affectedStat: 'str',
 				amount: -(buff.stacks || 0),
 			},
 		]);
@@ -239,7 +239,7 @@ describe('Behaviors of getBuffEffects', () => {
 		expect(result).toEqual([
 			{
 				source: buff.name,
-				effectedStat: 'dex',
+				affectedStat: 'dex',
 				amount: testCharacterSimple.dex * 2,
 			},
 		]);
@@ -255,12 +255,12 @@ describe('Behaviors of getBuffEffects', () => {
 		expect(result).toEqual([
 			{
 				source: buff.name,
-				effectedStat: 'str',
+				affectedStat: 'str',
 				amount: 5,
 			},
 			{
 				source: buff.name,
-				effectedStat: 'str',
+				affectedStat: 'str',
 				amount: -3,
 			},
 		]);

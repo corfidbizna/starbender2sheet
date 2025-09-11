@@ -30,7 +30,7 @@ export type BuffSummary = {
 	summary: string;
 };
 export type CharacterBuffSummary = {
-	[Property in keyof CharacterStats as `${Property}BuffSummary`]?: BuffSummary;
+	[Property in keyof CharacterStats]?: BuffSummary;
 };
 export const getBuffEffects = (buff: BuffInfo, stats: CharacterStats): BuffEffect[] => {
 	if (!buff.effects) {
@@ -85,13 +85,16 @@ export const getBuffEffects = (buff: BuffInfo, stats: CharacterStats): BuffEffec
 export const tallyBuffs = (buffs: BuffEffect[], stats: CharacterStats) => {
 	const result = {} as CharacterBuffSummary;
 	buffs.forEach((buff) => {
-		const key = (buff.affectedStat + 'BuffSummary') as keyof CharacterBuffSummary;
+		const key = buff.affectedStat as keyof CharacterBuffSummary;
 		if (stats[buff.affectedStat] === undefined) {
 			console.error('Invalid stat provided: ' + buff.affectedStat);
 			return;
 		}
 		if (!result[key]) {
-			result[key] = { total: buff.amount, summary: buff.source + ' ' + buff.amount };
+			result[key] = {
+				total: stats[key] + buff.amount,
+				summary: buff.source + ' ' + buff.amount,
+			};
 		} else {
 			result[key].total += buff.amount;
 			result[key].summary += '\n' + buff.source + ' ' + buff.amount;
