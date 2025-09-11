@@ -22,7 +22,7 @@ const isValueEmpty = (dataType: DataTypes, value: unknown): boolean => {
 	return false;
 };
 export default function useFilter<T, X>(config: UseFilterArgs<T>) {
-	const { listUnfiltered, filter } = config;
+	const { listUnfiltered, filter, shouldExclude } = config;
 	const queryValue = ref<X>();
 	return {
 		queryValue,
@@ -36,14 +36,25 @@ export default function useFilter<T, X>(config: UseFilterArgs<T>) {
 			if (isEmpty) {
 				return list;
 			}
-			const filterFunction =
+
+			// const filterFunctionExclusive =
+			// 	filter.dataType === 'string'
+			// 		? (item: T) => item[filter.fieldName]
+			// 		: (item: T) =>
+			// 				(item[filter.fieldName] + '')
+			// 					.toLocaleLowerCase()
+			// 					.includes(currentValue as string) === currentValue;
+			const filterFunctionInclusive =
 				filter.dataType === 'string'
 					? (item: T) =>
 							(item[filter.fieldName] + '')
 								.toLocaleLowerCase()
 								.includes(currentValue as string)
 					: (item: T) => item[filter.fieldName] === currentValue;
-			return list.filter(filterFunction);
+			// if (shouldExclude) {
+			// 	return list.filter(filterFunctionExclusive);
+			// }
+			return list.filter(filterFunctionInclusive);
 		}),
 	};
 }

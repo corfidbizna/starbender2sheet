@@ -12,11 +12,8 @@ type CharacterProps = {
 };
 const props = defineProps<CharacterProps>();
 
-const { character, getStats } = useCharacterData(props.characterId);
-const { data: stats, isLoading: statsLoading, refresh: refreshStats } = getStats();
-
-const { getSkillsTable } = useCharacterData(props.characterId);
-const { data: skills, isLoading: skillsLoading, refresh: refreshSkills } = getSkillsTable();
+const { character, stats, statsLoading, statsRefresh, skills, skillsLoading, skillsRefresh } =
+	useCharacterData(props.characterId);
 
 const statInfo = computed<StatBoxInfo>(
 	makeComputedOfStats(stats, 'Ability Scores', ['str', 'dex', 'con', 'int', 'wil', 'cha']),
@@ -62,8 +59,8 @@ const testAmmoInfo = <StatBoxInfo>{
 			<p>
 				<button
 					@click="
-						refreshStats();
-						refreshSkills();
+						statsRefresh();
+						skillsRefresh();
 					"
 				>
 					Refresh Info

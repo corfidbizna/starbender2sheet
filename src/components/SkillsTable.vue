@@ -7,8 +7,7 @@ import useFilter from '@/composables/useFilter';
 const props = defineProps<{
 	characterId: string;
 }>();
-const { getSkillsTable } = useCharacterData(props.characterId);
-const { data: skills, isLoading: skillsLoading, refresh: refreshSkills } = getSkillsTable();
+const { skills, skillsLoading, skillsRefresh } = useCharacterData(props.characterId);
 const { queryValue, filteredData } = useFilter<SkillsTableItem, string>({
 	listUnfiltered: skills,
 	filter: { dataType: 'string', fieldName: 'Name' },
@@ -25,7 +24,7 @@ const { queryValue, filteredData } = useFilter<SkillsTableItem, string>({
 					v-model="queryValue"
 				/>
 			</label>
-			<button @click="refreshSkills">Reload Skills</button>
+			<button @click="skillsRefresh">Reload Skills</button>
 		</div>
 		<div v-if="skillsLoading">
 			<LoadingModal />

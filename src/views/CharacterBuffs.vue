@@ -9,10 +9,15 @@ type CharacterProps = {
 	characterId: string;
 };
 const props = defineProps<CharacterProps>();
-const { character, getStats, activatedPartyBuffs, buffsLoading, refreshBuffs } = useCharacterData(
-	props.characterId,
-);
-const { data: stats, isLoading: statsLoading, refresh: refreshStats } = getStats();
+const {
+	character,
+	stats,
+	statsLoading,
+	statsRefresh,
+	activatedPartyBuffs,
+	buffsLoading,
+	buffsRefresh,
+} = useCharacterData(props.characterId);
 const { flatBuffArray, talliedBuffs } = useBuffs(stats, activatedPartyBuffs);
 
 // const buffedStatsGroup = computed<StatBoxInfo>(() => {

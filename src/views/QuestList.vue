@@ -7,26 +7,25 @@ type CharacterProps = {
 	characterId: string;
 };
 const props = defineProps<CharacterProps>();
-const { getQuests } = useCharacterData(props.characterId);
-const { data: questList, isLoading: questListIsLoading, refresh: refreshQuests } = getQuests();
+const { quests: allQuests, questsLoading, questsRefresh } = useCharacterData(props.characterId);
 const quests = computed<Quest[]>(() => {
-	return questList.value.filter((quest) => {
+	return allQuests.value.filter((quest) => {
 		return quest.isMajor;
 	});
 });
 const bounties = computed<Quest[]>(() => {
-	return questList.value.filter((quest) => {
+	return allQuests.value.filter((quest) => {
 		return !quest.isMajor;
 	});
 });
 </script>
 <template>
-	<div v-if="questListIsLoading">
+	<div v-if="questsLoading">
 		<LoadingModal />
 	</div>
 	<div v-else>
 		<h1>Quest List</h1>
-		<button @click="refreshQuests()">Refresh quests</button>
+		<button @click="questsRefresh()">Refresh quests</button>
 		<div class="quest-list">
 			<div class="column-a">
 				<h2>Quests</h2>

@@ -6,13 +6,13 @@ type CharacterProps = {
 };
 const props = defineProps<CharacterProps>();
 
-const { namesOfActivatedBuffs, activatablePartyBuffs, refreshBuffs } = useCharacterData(
+const { namesOfActivatedBuffs, activatablePartyBuffs, buffsRefresh } = useCharacterData(
 	props.characterId,
 );
 </script>
 <template>
 	<div class="buff-activator">
-		<div><button @click="refreshBuffs">Refresh Buffs</button></div>
+		<div><button @click="buffsRefresh">Refresh Buffs</button></div>
 		<div>
 			<label
 				class="buff-label"

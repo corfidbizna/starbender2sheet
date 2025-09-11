@@ -351,6 +351,11 @@ const getSheet = async <T>(documentId: string, sheetKey: string): Promise<T[]> =
 	return flattened as T[];
 };
 function useCharacterDataUncached(characterId: string) {
+	const character = computed<CharacterDataSource | undefined>(
+		() => characterDataSources[characterId],
+	);
+
+	// ==================================================================================================
 	// SKILLS START
 	const {
 		data: skillsThatNeedToBeFiltered,
@@ -363,6 +368,7 @@ function useCharacterDataUncached(characterId: string) {
 	});
 	// SKILLS END
 
+	// ==================================================================================================
 	// BUFFS START
 	const {
 		data: allPartyBuffs,
@@ -387,7 +393,7 @@ function useCharacterDataUncached(characterId: string) {
 	const buffsLoading = computed<boolean>(() => {
 		return playerBuffsLoading.value || partyBuffsLoading.value;
 	});
-	const refreshBuffs = () => {
+	const buffsRefresh = () => {
 		refreshPartyBuffs();
 		refreshPlayerBuffs();
 	};
@@ -403,68 +409,71 @@ function useCharacterDataUncached(characterId: string) {
 	});
 	// BUFFS END
 
+	// ==================================================================================================
+	// WEAPONS START
+	const {
+		data: weaponsForFiltering,
+		isLoading: weaponsLoading,
+		refresh: weaponsRefresh,
+	} = getNetworkDataStateForSheet<Weapon>(
+		partyDataSources.documentId,
+		partyDataSources.sheets.weapons,
+	);
+	const weapons = computed<Weapon[]>(() => {
+		return weaponsForFiltering.value.filter((item) => item[characterId as CharacterNames]);
+	});
+	// WEAPONS END
+
+	// ==================================================================================================
+	// QUESTS START
+	const {
+		data: questsThatNeedToBeFiltered,
+		isLoading: questsLoading,
+		refresh: questsRefresh,
+	} = getNetworkDataStateForSheet<Quest>(
+		partyDataSources.documentId,
+		partyDataSources.sheets.quests,
+	);
+	const quests = computed<Quest[]>(() => {
+		return questsThatNeedToBeFiltered.value.filter((item) => item.name);
+	});
+	// QUESTS END
+
+	// ==================================================================================================
+	// STATS START
+	const {
+		data: statsArray,
+		isLoading: statsLoading,
+		refresh: statsRefresh,
+	} = getSheetForCharacter<CharacterStats>(characterId, 'variables');
+	const stats = computed<CharacterStats>(() => statsArray.value[0] || {});
+	// STATS
+
 	const composable = {
-		character: computed<CharacterDataSource | undefined>(
-			() => characterDataSources[characterId],
-		),
+		// Characters
+		character,
+		// Buffs
 		namesOfActivatedBuffs,
 		activatablePartyBuffs,
 		activatedPartyBuffs,
+		buffsLoading,
+		buffsRefresh,
+		// Skills
 		skills,
 		skillsLoading,
-		buffsLoading,
-		refreshBuffs,
 		skillsRefresh,
-		getSkillsTable() {
-			return {
-				data: skills,
-				isLoading: skillsLoading,
-				refresh: skillsRefresh,
-			};
-		},
-		getWeaponsTable(): NetworkDataState<Weapon> {
-			const {
-				data: weapons,
-				isLoading: weaponsLoading,
-				refresh: refreshWeapons,
-			} = getNetworkDataStateForSheet<Weapon>(
-				partyDataSources.documentId,
-				partyDataSources.sheets.weapons,
-			);
-			const filteredWeapons = computed<Weapon[]>(() => {
-				return weapons.value.filter((item) => item[characterId as CharacterNames]);
-			});
-			return {
-				data: filteredWeapons,
-				isLoading: weaponsLoading,
-				refresh: refreshWeapons,
-			};
-		},
-		getQuests(): NetworkDataState<Quest> {
-			const {
-				data: quests,
-				isLoading: questsLoading,
-				refresh: refreshQuests,
-			} = getNetworkDataStateForSheet<Quest>(
-				partyDataSources.documentId,
-				partyDataSources.sheets.quests,
-			);
-			const filteredQuests = computed<Quest[]>(() => {
-				return quests.value.filter((item) => item.name);
-			});
-			return { data: filteredQuests, isLoading: questsLoading, refresh: refreshQuests };
-		},
-		getStats() {
-			const { data, isLoading, refresh } = getSheetForCharacter<CharacterStats>(
-				characterId,
-				'variables',
-			);
-			return {
-				data: computed<CharacterStats>(() => data.value[0] || {}),
-				isLoading,
-				refresh,
-			};
-		},
+		// Weapons
+		weapons,
+		weaponsLoading,
+		weaponsRefresh,
+		// Quests
+		quests,
+		questsLoading,
+		questsRefresh,
+		// Stats
+		stats,
+		statsLoading,
+		statsRefresh,
 	};
 	return composable;
 }
