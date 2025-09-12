@@ -18,20 +18,36 @@ const rangeMax = computed<number>((): number => {
 	return max;
 });
 const makeBar = (min: number, max: number, value: number, value2?: number): string => {
-	const colorValue1 = '#ffff';
-	const colorValue2 = '#eb3f';
+	const colors = {
+		gold: '#eb3f',
+		green: '#afaf',
+		red: '#fa9f',
+	};
+	const realValue2 = value2 === undefined ? value : value2 || 0;
+	const color1 = '#ffff';
+	const color2 = realValue2 > value ? colors.green : colors.red;
 	const colorEmpty = '#fff3';
-	const firstBoundaryPos = ((value - min) / (max - min)) * 100; //2-0 / 10-0
-	const secondBoundaryPos = ((value2 || 0 - min) / (max - min)) * 100;
-	return `background-image: linear-gradient(90deg, ${colorValue1} ${firstBoundaryPos}%, ${colorValue2} ${firstBoundaryPos}%, ${colorValue2} ${secondBoundaryPos}%, ${colorEmpty} ${secondBoundaryPos}%);`;
+	const firstBoundaryPos = ((value - min) / (max - min)) * 100;
+	const secondBoundaryPos = ((realValue2 - min) / (max - min)) * 100;
+	const lowBoundaryPos = Math.max(Math.min(firstBoundaryPos, secondBoundaryPos), 0);
+	const highBoundaryPos = Math.max(firstBoundaryPos, secondBoundaryPos, 0);
+	return `background-image: linear-gradient(90deg, ${color1} ${lowBoundaryPos}%, ${color2} ${lowBoundaryPos}%, ${color2} ${highBoundaryPos}%, ${colorEmpty} ${highBoundaryPos}%);`;
 };
 
-const stats = computed<{ label: string; bar: string; value: number }[]>(() => {
+const stats = computed<{ label: string; hovertext: string; bar: string; value: number }[]>(() => {
 	const max = rangeMax.value;
-	return props.data.map(({ label, value, value2 }) => ({
+	return props.data.map(({ label, hovertext, value, value2 }) => ({
 		label,
+		hovertext:
+			label +
+			': ' +
+			value +
+			(value2 != undefined
+				? ' base, ' + (value2 != undefined ? value2 : value) + ' total'
+				: '') +
+			(hovertext ? '\n' + hovertext : ''),
 		bar: makeBar(0, max, value, value2),
-		value,
+		value: value2 || value,
 	}));
 });
 </script>
@@ -42,6 +58,7 @@ const stats = computed<{ label: string; bar: string; value: number }[]>(() => {
 			<tr
 				v-for="stat in stats"
 				:key="stat.label"
+				:title="stat.hovertext"
 			>
 				<td class="label">{{ stat.label }}</td>
 				<td

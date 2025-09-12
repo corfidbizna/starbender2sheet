@@ -54,7 +54,7 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 		documentId: '12vonRcFzriWY5AjLmueqbjd6DCQCJpqiLJkDpZEDgNU',
 		sheets: {
 			skills: '544688264',
-			variables: '0',
+			variables: '1217161183',
 			buffs: '-1',
 		},
 	},
@@ -223,6 +223,7 @@ export type StatBoxInfo = {
 };
 export type StatBoxField = {
 	label: string;
+	hovertext?: string;
 	value: number;
 	value2?: number;
 };
@@ -242,6 +243,7 @@ export const makeComputedOfStats = (
 			data: keys.map((key) => ({
 				key,
 				label: labelMap[key],
+				hovertext: buffsValue[key]?.summary,
 				value: statsValue[key],
 				value2: buffsValue[key]?.total,
 			})),

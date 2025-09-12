@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import useCharacterData, { type StatBoxInfo } from '@/composables/useCharacterData';
+import useCharacterData from '@/composables/useCharacterData';
 import LoadingModal from '@/components/LoadingModal.vue';
 import BuffItemRow from '@/components/BuffItemRow.vue';
 import BuffActivator from '@/components/BuffActivator.vue';
@@ -25,8 +25,8 @@ const { character, statsLoading, activatedPartyBuffs, buffsLoading } = useCharac
 			class="buff-test"
 		>
 			<BuffItemRow v-bind="activatedPartyBuffs[0]" />
-			<pre>activatedPartyBuffs: {{ activatedPartyBuffs }}</pre>
 			<BuffActivator :character-id="characterId" />
+			<pre>activatedPartyBuffs: {{ activatedPartyBuffs }}</pre>
 		</div>
 	</div>
 </template>
