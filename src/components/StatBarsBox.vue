@@ -47,7 +47,7 @@ const stats = computed<{ label: string; hovertext: string; bar: string; value: n
 				: '') +
 			(hovertext ? '\n' + hovertext : ''),
 		bar: makeBar(0, max, value, value2),
-		value: value2 || value,
+		value: value2 != undefined ? value2 : value,
 	}));
 });
 </script>
