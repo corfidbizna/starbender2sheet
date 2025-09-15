@@ -21,6 +21,12 @@ const glyphMap = {
 	'Linear Fusion Rifle': '',
 	Sword: '',
 	'Machine Gun': '',
+	// Elements
+	Solar: '',
+	Arc: '',
+	Void: '',
+	Stasis: '',
+	Strand: '',
 };
 type FontEntries = keyof typeof glyphMap;
 type Glyph = {

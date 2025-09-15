@@ -31,6 +31,17 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 				/>
 			</label>
 			<button @click="weaponsRefresh">Reload Weapons</button>
+			<label for="sort-by"> Sort by:</label>
+			<select
+				name="sort"
+				id="sort-by"
+			>
+				<option value="Name">Name</option>
+				<option value="AverageDamage">Average Damage</option>
+				<option value="Rarity">Rarity</option>
+				<option value="Element">Element</option>
+				<option value="AmmoType">Ammo Type</option>
+			</select>
 		</div>
 		<div v-if="weaponsLoading"><LoadingModal /></div>
 		<div
@@ -59,13 +70,11 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 .search {
 	padding: 0.25em;
 }
-.scroll-box {
-	border: 2px solid #666;
-	border-radius: 1em;
-}
+/* .scroll-box {
+	border: 4px solid #0008;
+} */
 table {
 	width: 100%;
-	/* border-collapse: collapse; */
 }
 thead {
 	position: sticky;

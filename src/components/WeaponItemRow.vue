@@ -28,6 +28,24 @@ const colorsRarity = (rarity: string): string => {
 	}
 	return '#c2bdb4';
 };
+const colorsElement = (element: string): string => {
+	if (element === 'Solar') {
+		return '#F16F27';
+	}
+	if (element === 'Void') {
+		return '#B283CC';
+	}
+	if (element === 'Arc') {
+		return '#7AECF3';
+	}
+	if (element === 'Stasis') {
+		return '#4D87FF';
+	}
+	if (element === 'Strand') {
+		return '#35E366';
+	}
+	return '#FFFFFF'; // Kinetic
+};
 </script>
 <template>
 	<div class="weapon-row">
@@ -38,14 +56,16 @@ const colorsRarity = (rarity: string): string => {
 			<div class="gun-icon"><DGlyph v-bind="{ name: WeaponClass }" /></div>
 			<div class="gun-titles">
 				<h1>{{ Name }}</h1>
-				<caption>
-					{{
-						Element.toUpperCase()
-					}}
-					{{
-						WeaponClass.toUpperCase()
-					}}
-				</caption>
+				<h2>
+					<DGlyph
+						v-if="Element != 'Kinetic'"
+						v-bind="{ name: Element }"
+						class="element-glyph"
+						:style="'color: ' + colorsElement(Element)"
+					/>
+					{{ Element.toUpperCase() }}
+					{{ WeaponClass.toUpperCase() }}
+				</h2>
 			</div>
 			<div class="flavortext">{{ Flavortext }}</div>
 		</div>
@@ -87,6 +107,13 @@ const colorsRarity = (rarity: string): string => {
 	</div>
 </template>
 <style scoped>
+.weapon-row {
+	font-size: 0.8em;
+	margin: 0.5em 0;
+	/* background-color: #555; */
+	background-blend-mode: multiply;
+	/* border: 2px solid #fffa; */
+}
 .gun-icon {
 	font-size: 2em;
 	display: inline-block;
@@ -98,6 +125,10 @@ const colorsRarity = (rarity: string): string => {
 .gun-titles {
 	display: inline-block;
 }
+.element-glyph {
+	display: inline-block;
+	font-size: 0.9em;
+}
 h1 {
 	font-size: 1.3em;
 	font-weight: 800;
@@ -105,23 +136,16 @@ h1 {
 	margin: 0;
 	margin-top: 0.5em;
 }
-caption {
+h2 {
 	margin: 0.25em 0;
 	font-weight: 400;
 	font-size: 1em;
 	display: block;
-	text-align: left;
-}
-.weapon-row {
-	padding: 0.25em;
-	margin: 0.25em;
-	background-color: #555;
-	background-blend-mode: multiply;
-	border-radius: 0.5em;
+	padding: 0;
+	border: none;
 }
 .weapon-header {
 	padding: 0.2em;
-	border-radius: 0.25em;
 }
 .flavortext {
 	font-style: italic;
@@ -137,10 +161,9 @@ caption {
 	font-size: 0.9em;
 	padding: 0.5em;
 	flex: 1;
-	margin: 2px;
-	background-color: #444;
-	background-blend-mode: multiply;
-	border-bottom-left-radius: 0.25em;
+	/* margin: 2px; */
+	background-color: #0008;
+	/* background-blend-mode: multiply; */
 }
 .weapon-stat-label {
 	flex: 1;

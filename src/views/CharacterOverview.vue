@@ -31,7 +31,7 @@ const { character } = useCharacterData(props.characterId);
 				</div>
 				<div class="icon">
 					<h1>STARBENDER 2</h1>
-					<h2>Season of Collapse</h2>
+					<h2>Season of Reckoning</h2>
 				</div>
 			</RouterLink>
 			<nav
