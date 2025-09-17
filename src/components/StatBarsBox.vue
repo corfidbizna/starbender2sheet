@@ -66,6 +66,7 @@ const stats = computed<{ label: string; hovertext: string; bar: string; value: n
 					:style="stat.bar"
 				></td>
 				<td class="value">{{ stat.value }}</td>
+				<button></button>
 			</tr>
 		</table>
 	</div>
@@ -94,5 +95,21 @@ tr {
 	/* background-image: linear-gradient(90deg, #ffff 55%, #eb3f 55%, #eb3f 60%, #fff3 60%); */
 	margin: 4px;
 	width: 100%;
+}
+button {
+	height: 1.25em;
+	color: #fff;
+	text-decoration: none;
+	border: 1px solid #fff8;
+	background: #0001;
+	transition: background 0.1s;
+	font-family: 'Destiny Symbols Common';
+}
+button:hover {
+	background: #fff1;
+	transition: background 0.1s;
+}
+button:active {
+	background: #fff8;
 }
 </style>

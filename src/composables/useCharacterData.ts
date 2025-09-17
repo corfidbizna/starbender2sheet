@@ -280,6 +280,7 @@ export type Weapon = {
 	RangeType: string;
 	Range: number;
 	Handed: number;
+	Size?: number;
 	Shape?: string;
 	Duration?: number;
 	Ammo: number;

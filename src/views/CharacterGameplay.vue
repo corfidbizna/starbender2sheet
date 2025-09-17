@@ -33,6 +33,9 @@ const statInfo = computed<StatBoxInfo>(
 		'cha',
 	]),
 );
+// const statInfo = computed<StatBoxInfo>(
+
+// );
 const savesInfo = computed<StatBoxInfo>(
 	makeComputedOfStats(stats, buffsTallied, 'Saving Throws', ['fort', 'ref', 'wil']),
 );
@@ -107,7 +110,7 @@ const testAmmoInfo = <StatBoxInfo>{
 				<div><StatBarsBox v-bind="testAmmoInfo" /></div>
 				<div><StatBarsBox v-bind="energyInfo" /></div>
 			</div>
-			<div style="height: 10em"><StatBarsBox v-bind="skillsInfo" /></div>
+			<div style="height: 10em; width: 30em"><StatBarsBox v-bind="skillsInfo" /></div>
 		</div>
 	</div>
 </template>
