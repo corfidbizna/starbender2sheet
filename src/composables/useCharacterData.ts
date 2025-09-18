@@ -118,7 +118,14 @@ const columnsToFieldNames = (parsed: GVizSheetResponse): Record<string, unknown>
 	});
 };
 
-// The type that defines the nature of all character stats.
+// ==================================================================================================
+// Character Stuff
+// ==================================================================================================
+
+// Generic Stuff
+type Elements = 'Kinetic' | 'Solar' | 'Void' | 'Arc' | 'Stasis' | 'Strand' | 'Prismatic';
+
+// Character Stats, as pulled from the sheet.
 export type CharacterStats = {
 	str: number;
 	dex: number;
@@ -259,6 +266,28 @@ export type SkillsTableItem = {
 	Focused: boolean;
 	Notes: string | null;
 };
+
+// Weapon Types
+type WeaponRarities = 'Common' | 'Uncommon' | 'Rare' | 'Legendary' | 'Exotic';
+type WeaponClasses =
+	| 'Bow'
+	| 'Auto Rifle'
+	| 'Pulse Rifle'
+	| 'Scout Rifle'
+	| 'Hand Cannon'
+	| 'Submachine Gun'
+	| 'Sidearm'
+	| 'Shotgun'
+	| 'Sniper Rifle'
+	| 'Fusion Rifle'
+	| 'Breech-Loading Grenade Launcher'
+	| 'Trace Rifle'
+	| 'Glaive'
+	| 'Rocket Launcher'
+	| 'Drum-Loading Grenade Launcher'
+	| 'Linear Fusion Rifle'
+	| 'Sword'
+	| 'Machine Gun';
 // The type describing a weapon
 export type Weapon = {
 	aurora: boolean;
@@ -267,16 +296,16 @@ export type Weapon = {
 	lewis: boolean;
 	Name: string;
 	Flavortext?: string;
-	Rarity: string;
-	Element: string; // <-- Please change the "DamageType" at the beginning of the list to "Element" on the sheet!!!
-	WeaponClass: string;
+	Rarity: WeaponRarities;
+	Element: Elements;
+	WeaponClass: WeaponClasses;
 	AttackType: string;
 	HitType: string;
 	HitBonus: number;
 	CritRange?: number;
 	CritMult?: number;
 	Damage: string;
-	DamageType: string;
+	DamageType: Elements;
 	RangeType: string;
 	Range: number;
 	Handed: number;

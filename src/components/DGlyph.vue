@@ -17,7 +17,7 @@ const glyphMap = {
 	Glaive: '',
 	// Heavy
 	'Rocket Launcher': '',
-	'Drum-loading Grenade Launcher': '',
+	'Drum-Loading Grenade Launcher': '',
 	'Linear Fusion Rifle': '',
 	Sword: '',
 	'Machine Gun': '',
