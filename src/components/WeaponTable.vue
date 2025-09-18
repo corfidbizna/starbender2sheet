@@ -3,13 +3,42 @@ import useCharacterData, { type CharacterNames, type Weapon } from '@/composable
 import WeaponItemRow from './WeaponItemRow.vue';
 import LoadingModal from './LoadingModal.vue';
 import useFilter from '@/composables/useFilter';
+import { computed, ref } from 'vue';
 
+const sortList: Record<string, string> = {
+	Name: 'Name',
+	Rarity: 'Rarity',
+	Element: 'Element',
+};
+type weaponKeys = keyof Weapon;
+const sortBy = ref<string>('Name');
 const props = defineProps<{
 	characterId: CharacterNames;
 }>();
 const { weapons, weaponsLoading, weaponsRefresh } = useCharacterData(props.characterId);
+const sortedWeapons = computed<Weapon[]>(() => {
+	const weaponsForSort = weapons.value.slice();
+	// if (!(sortBy as weaponKeys)) {
+	// 	throw new Error(`The sort key (${sortBy}) was not a valid key of Weapon!`)
+	// }
+	const sortKey = sortBy.value as weaponKeys;
+	return weaponsForSort.sort((a, b) => {
+		const aSortKey = a[sortKey];
+		const bSortKey = b[sortKey];
+		if (aSortKey === undefined || bSortKey === undefined) {
+			return 0;
+		}
+		if (aSortKey > bSortKey) {
+			return 1;
+		}
+		if (aSortKey < bSortKey) {
+			return -1;
+		}
+		return 0;
+	});
+});
 const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
-	listUnfiltered: weapons,
+	listUnfiltered: sortedWeapons,
 	filter: { dataType: 'string', fieldName: 'Name' },
 });
 </script>
@@ -35,12 +64,15 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 			<select
 				name="sort"
 				id="sort-by"
+				v-model="sortBy"
 			>
-				<option value="Name">Name</option>
-				<option value="AverageDamage">Average Damage</option>
-				<option value="Rarity">Rarity</option>
-				<option value="Element">Element</option>
-				<option value="AmmoType">Ammo Type</option>
+				<option
+					v-for="item in Object.keys(sortList)"
+					:key="item"
+					:value="item"
+				>
+					{{ item }}
+				</option>
 			</select>
 		</div>
 		<div v-if="weaponsLoading"><LoadingModal /></div>
