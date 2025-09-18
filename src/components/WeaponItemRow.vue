@@ -56,32 +56,38 @@ const colorsElement = (element: string): string => {
 			class="weapon-header"
 			:style="'background-color: ' + colorsRarity(Rarity)"
 		>
-			<div class="gun-icon"><DGlyph v-bind="{ name: WeaponClass }" /></div>
-			<div class="gun-titles">
-				<h1>
-					<DGlyph
-						v-if="Element != 'Kinetic'"
-						v-bind="{ name: Element }"
-						class="element-glyph"
-						:style="'color: ' + colorsElement(Element)"
-					/>
-					<img
-						v-else
-						class="kinetic-icon"
-						src="/src/assets/svgs/Kenetic.svg"
-					/>
-					{{ Name }}
-				</h1>
-				<h2>
-					{{ Element.toUpperCase() }}
-					{{ WeaponClass.toUpperCase() }}
-				</h2>
+			<div class="weapon-titles">
+				<div class="gun-icon"><DGlyph v-bind="{ name: WeaponClass }" /></div>
+				<div class="gun-titles">
+					<h1>
+						<DGlyph
+							v-if="Element != 'Kinetic'"
+							v-bind="{ name: Element }"
+							class="element-glyph"
+							:style="'color: ' + colorsElement(Element)"
+						/>
+						<img
+							v-else
+							class="kinetic-icon"
+							src="/src/assets/svgs/Kenetic.svg"
+						/>
+						{{ Name }}
+					</h1>
+					<h2>
+						{{ Element.toUpperCase() }}
+						{{ WeaponClass.toUpperCase() }}
+					</h2>
+				</div>
+				<div
+					v-if="Flavortext"
+					class="flavortext"
+				>
+					{{ Flavortext }}
+				</div>
 			</div>
-			<div
-				v-if="Flavortext"
-				class="flavortext"
-			>
-				{{ Flavortext }}
+			<div class="action-buttons">
+				<button>Hit</button>
+				<button>Dmg</button>
 			</div>
 		</div>
 		<div class="weapon-content">
@@ -173,6 +179,12 @@ h2 {
 	font-weight: 100;
 	font-size: 0.85em;
 	margin: 0.5em 0;
+}
+.weapon-titles {
+	display: inline-block;
+}
+.action-buttons {
+	float: right;
 }
 .weapon-content {
 	display: flex;

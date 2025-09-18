@@ -6,12 +6,19 @@ import useFilter from '@/composables/useFilter';
 import { computed, ref } from 'vue';
 
 const sortList: Record<string, string> = {
+	// Dropdown Option: statKey,
 	Name: 'Name',
+	'Weapon Class': 'WeaponClass',
 	Rarity: 'Rarity',
 	Element: 'Element',
+	Handedness: 'Handed',
 };
 type weaponKeys = keyof Weapon;
 const sortBy = ref<string>('Name');
+const sortAscending = ref<boolean>(true);
+const toggleSortAscending = () => {
+	sortAscending.value = !sortAscending.value;
+};
 const props = defineProps<{
 	characterId: CharacterNames;
 }>();
@@ -23,16 +30,16 @@ const sortedWeapons = computed<Weapon[]>(() => {
 	// }
 	const sortKey = sortBy.value as weaponKeys;
 	return weaponsForSort.sort((a, b) => {
-		const aSortKey = a[sortKey];
-		const bSortKey = b[sortKey];
+		const aSortKey = a[sortKey] || '';
+		const bSortKey = b[sortKey] || '';
 		if (aSortKey === undefined || bSortKey === undefined) {
 			return 0;
 		}
 		if (aSortKey > bSortKey) {
-			return 1;
+			return sortAscending.value ? 1 : -1;
 		}
 		if (aSortKey < bSortKey) {
-			return -1;
+			return sortAscending.value ? -1 : 1;
 		}
 		return 0;
 	});
@@ -69,11 +76,14 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 				<option
 					v-for="item in Object.keys(sortList)"
 					:key="item"
-					:value="item"
+					:value="sortList[item]"
 				>
 					{{ item }}
 				</option>
 			</select>
+			<button @click="toggleSortAscending">
+				<span v-if="sortAscending">↓</span><span v-else>↑</span>
+			</button>
 		</div>
 		<div v-if="weaponsLoading"><LoadingModal /></div>
 		<div
