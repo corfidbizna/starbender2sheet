@@ -33,11 +33,22 @@ const { namesOfActivatedBuffs, activatablePartyBuffs, buffsTallied, buffsRefresh
 					:value="buff.name"
 					v-model="namesOfActivatedBuffs"
 				/>
-				<div>
-					<span>{{ buff.name }}</span>
-					<span>{{ buff.stacks }}{{ buff.stackMax }}</span>
+				<div class="contents">
+					<div class="buff-header">
+						<span class="name">{{ buff.name }}</span>
+						<span
+							class="duration"
+							v-if="buff.roundsRemaining"
+							>{{ buff.roundsRemaining }} rounds remaining</span
+						>
+						<span
+							class="stacks"
+							v-if="buff.stacks"
+							>{{ buff.stacks }}⁄{{ buff.stackMax }}</span
+						>
+					</div>
+					<div>{{ buff.description }}</div>
 				</div>
-				<div>{{ buff.description }}</div>
 			</label>
 		</div>
 		<pre>namesOfActivatedBuffs: {{ namesOfActivatedBuffs }}</pre>
@@ -53,10 +64,35 @@ const { namesOfActivatedBuffs, activatablePartyBuffs, buffsTallied, buffsRefresh
 	background-color: #0004;
 }
 .buff-label {
-	display: block;
+	display: flex;
 	width: 80vw;
-	padding: 8px;
+	padding: 0.25em;
 	margin: 2px;
 	border: 2px solid #333;
+}
+.buff-label input {
+	margin-right: 0.5em;
+	width: 1.5em;
+	height: 1.5em;
+	display: inline;
+}
+.buff-label .contents {
+	display: inline;
+}
+.buff-header {
+	display: block;
+}
+.buff-label .name {
+	text-align: left;
+	font-weight: bold;
+	margin-right: auto;
+}
+.buff-label .duration {
+	text-align: center;
+	margin: 0 auto;
+}
+.buff-label .stacks {
+	text-align: right;
+	margin-left: auto;
 }
 </style>

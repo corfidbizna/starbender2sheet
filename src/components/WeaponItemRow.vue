@@ -97,14 +97,14 @@ const colorsElement = (element: string): string => {
 					<div>Crit</div>
 					<div>Damage</div>
 					<div>Ammo</div>
-					<div></div>
+					<div>Magazine</div>
 				</div>
 				<div class="weapon-stat-data">
 					<div>{{ AttackType }} - {{ HitBonus }} v. {{ HitType }}</div>
 					<div>{{ getCritDisplay() }}</div>
 					<div>{{ getDamageDisplay() }}</div>
 					<div>{{ Ammo }}</div>
-					<div>36/50 {{ AmmoType }}</div>
+					<div>{{ AmmoCapacity }} {{ AmmoType }}</div>
 				</div>
 			</div>
 			<div class="weapon-cells">

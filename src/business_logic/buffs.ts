@@ -4,6 +4,7 @@ type BuffTypes = 'Buff' | 'Debuff' | 'Story Buff';
 export type BuffInfo = {
 	name: string;
 	type: BuffTypes;
+	category?: string;
 	isStacking?: boolean;
 	stackMax?: number;
 	stacks?: number;
