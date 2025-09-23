@@ -1,4 +1,4 @@
-import type { CharacterStatKey, CharacterStats } from '@/composables/useCharacterData';
+import type { StatsCalculatedKey, StatsCalculated } from '@/composables/useCharacterData';
 
 type BuffTypes = 'Buff' | 'Debuff' | 'Story Buff';
 export type BuffInfo = {
@@ -23,7 +23,7 @@ export type PartyBuffInfo = BuffInfo & {
 
 export type BuffEffect = {
 	source: string;
-	affectedStat: CharacterStatKey;
+	affectedStat: StatsCalculatedKey;
 	amount: number;
 };
 export type BuffSummary = {
@@ -31,9 +31,9 @@ export type BuffSummary = {
 	summary: string;
 };
 export type CharacterBuffSummary = {
-	[Property in keyof CharacterStats]?: BuffSummary;
+	[Property in keyof StatsCalculated]?: BuffSummary;
 };
-export const getBuffEffects = (buff: BuffInfo, stats: CharacterStats): BuffEffect[] => {
+export const getBuffEffects = (buff: BuffInfo, stats: StatsCalculated): BuffEffect[] => {
 	if (!buff.effects) {
 		return [];
 	}
@@ -61,9 +61,9 @@ export const getBuffEffects = (buff: BuffInfo, stats: CharacterStats): BuffEffec
 			} else {
 				// Should be either the name of a stat or a typo
 				if (item[0] === '-') {
-					return -Number(stats[item as CharacterStatKey] || 0);
+					return -Number(stats[item as StatsCalculatedKey] || 0);
 				} else {
-					return Number(stats[item as CharacterStatKey] || 0);
+					return Number(stats[item as StatsCalculatedKey] || 0);
 				}
 			}
 		});
@@ -72,18 +72,18 @@ export const getBuffEffects = (buff: BuffInfo, stats: CharacterStats): BuffEffec
 		});
 		let result: number;
 		if (multFlag) {
-			result = stats[affectedStat as CharacterStatKey] * (Number(magnitude) - 1);
+			result = stats[affectedStat as StatsCalculatedKey] * (Number(magnitude) - 1);
 		} else {
 			result = Number(magnitude);
 		}
 		return {
 			source: buff.name,
-			affectedStat: affectedStat as CharacterStatKey,
+			affectedStat: affectedStat as StatsCalculatedKey,
 			amount: result,
 		};
 	});
 };
-export const tallyBuffs = (buffs: BuffEffect[], stats: CharacterStats) => {
+export const tallyBuffs = (buffs: BuffEffect[], stats: StatsCalculated) => {
 	const result = {} as CharacterBuffSummary;
 	buffs.forEach((buff) => {
 		const key = buff.affectedStat as keyof CharacterBuffSummary;

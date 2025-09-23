@@ -5,12 +5,12 @@ type Sort<T> = {
 	fieldName: keyof T;
 	dataType: DataTypes;
 };
-type UseSortArgs<T> = {
+export type UseSortArgs<T> = {
 	listUnsorted: Ref<T[]>;
 	sort: Sort<T>;
 };
 
-const isValueEmpty = (dataType: DataTypes, value: unknown): boolean => {
+export const isValueEmpty = (dataType: DataTypes, value: unknown): boolean => {
 	if (value === undefined) {
 		return true;
 	}
@@ -22,7 +22,7 @@ const isValueEmpty = (dataType: DataTypes, value: unknown): boolean => {
 	}
 	return false;
 };
-
+/*
 export default function useSorter<T, X>(config: UseSortArgs<T>) {
 	/*	[ ] Take the input list and the name of the stat.
 		[ ] See if the incoming sort-by keys is in the
@@ -32,7 +32,7 @@ export default function useSorter<T, X>(config: UseSortArgs<T>) {
 			[ ] string: sort alphabetically
 			[ ] number: sort numerically
 			[ ] boolean: true first(?)
-	*/
+	//
 	const { listUnsorted, sortByStat } = config;
 	const queryValue = ref<X>();
 	const isAscending = ref<boolean>(false);
@@ -47,3 +47,4 @@ export default function useSorter<T, X>(config: UseSortArgs<T>) {
 		}),
 	};
 }
+*/

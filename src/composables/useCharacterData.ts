@@ -124,15 +124,236 @@ const columnsToFieldNames = (parsed: GVizSheetResponse): Record<string, unknown>
 
 // Generic Stuff
 type Elements = 'Kinetic' | 'Solar' | 'Void' | 'Arc' | 'Stasis' | 'Strand' | 'Prismatic';
+type SizeEffect = {
+	name: string;
+	ac: number;
+	stealth: number;
+	carryingCapacity: number;
+	reach: number;
+	fly: number;
+	toHit: number;
+};
+const sizeMap: Record<string, SizeEffect> = {
+	'-4': {
+		name: 'Fine',
+		ac: 8,
+		stealth: 16,
+		carryingCapacity: 0.125,
+		reach: 1,
+		fly: 8,
+		toHit: 8,
+	},
+	'-3': {
+		name: 'Diminuitive',
+		ac: 4,
+		stealth: 12,
+		carryingCapacity: 0.25,
+		reach: 2,
+		fly: 6,
+		toHit: 4,
+	},
+	'-2': {
+		name: 'Tiny',
+		ac: 2,
+		stealth: 8,
+		carryingCapacity: 0.5,
+		reach: 2.5,
+		fly: 4,
+		toHit: 2,
+	},
+	'-1': {
+		name: 'Small',
+		ac: 1,
+		stealth: 4,
+		carryingCapacity: 0.75,
+		reach: 5,
+		fly: 2,
+		toHit: 1,
+	},
+	'0': {
+		name: 'Medium',
+		ac: 0,
+		stealth: 0,
+		carryingCapacity: 1,
+		reach: 5,
+		fly: 0,
+		toHit: 0,
+	},
+	'1': {
+		name: 'Large',
+		ac: -1,
+		stealth: -2,
+		carryingCapacity: 2,
+		reach: 10,
+		fly: -1,
+		toHit: -1,
+	},
+	'2': {
+		name: 'Huge',
+		ac: -2,
+		stealth: -8,
+		carryingCapacity: 4,
+		reach: 15,
+		fly: -4,
+		toHit: -2,
+	},
+	'3': {
+		name: 'Gargantuan',
+		ac: -4,
+		stealth: -12,
+		carryingCapacity: 8,
+		reach: 20,
+		fly: -6,
+		toHit: -4,
+	},
+	'4': {
+		name: 'Colossal',
+		ac: -8,
+		stealth: -16,
+		carryingCapacity: 16,
+		reach: 30,
+		fly: -8,
+		toHit: -8,
+	},
+	'5': {
+		name: 'Colossal+',
+		ac: -16,
+		stealth: -20,
+		carryingCapacity: 32,
+		reach: 40,
+		fly: -10,
+		toHit: -16,
+	},
+};
+console.log('sizeMap', sizeMap);
 
-// Character Stats, as pulled from the sheet.
-export type CharacterStats = {
+// Character Stats, as imported from the sheet.
+type StatSheet = {
+	// Character info
+	cpl: number;
+	name: string;
+	race: string;
+	class: string;
+	colorHair: string;
+	colorEye: string;
+	height: string;
+	weight: number;
+	guardianClass: string;
+	guardianSubclass: string;
+	nameGhost: string;
+	// Raw ability scores
+	strScore: number;
+	dexScore: number;
+	conScore: number;
+	intScore: number;
+	wisScore: number;
+	chaScore: number;
+	// Investment per level, to be mixed later based on CPL and other math
+	hpPerLevel: number;
+	skillTotal: number;
+	fortPerLevel: number;
+	refPerLevel: number;
+	willPerLevel: number;
+	babPerLevel: number;
+	bdbPerLevel: number;
+	// Action ecomony
+	// QUESTION: how to quantify extra actions, like weapon attack actions.
+	attacks: number;
+	reactions: number;
+	moves: number;
+	// Energies
+	energySuper: number;
+	energyMelee: number;
+	energyGrenade: number;
+	energyClass: number;
+	// Misc
+	size: number;
+};
+export type StatSheetKey = keyof StatSheet;
+
+export type StatsCalculated = {
+	actionsMoveLand: number;
+	actionsMoveSwim: number;
+	actionsMoveFly: number;
+	actionsMoveClimb: number;
+	ac: number;
+	acFF: number;
+	acTouch: number;
+	acFFTouch: number;
+	dr: number;
+	drFF: number;
+	capacityCarrying: number;
+	capacityKinetic: number;
+	capacitySpecial: number;
+	capacityHeavy: number;
+	energyMelee: number;
+	energyGrenade: number;
+	energySuper: number;
+	energyClass: number;
+	rerolls: number;
+	slotsArmorHead: number;
+	slotsArmorArm: number;
+	slotsArmorChest: number;
+	slotsArmorLegs: number;
+	slotsArmorClass: number;
+	slotsArmorFull: number;
+	slotsArmorExotic: number;
+	slotsAspects: number;
+	slotsFragments: number;
+	capacityArmorCharge: number;
+	toHitRanged: number;
+	toHitMelee: number;
+	toHitSpell: number;
+	damageMelee: number;
+	damageRanged: number;
+	damageSpell: number;
+	damagePrecision: number;
+	strSave: number;
+	dexSave: number;
+	conSave: number;
+	intSave: number;
+	wisSave: number;
+	chaSave: number;
+	strSkillCheck: number;
+	dexSkillCheck: number;
+	conSkillCheck: number;
+	intSkillCheck: number;
+	wisSkillCheck: number;
+	chaSkillCheck: number;
+	strSkills: number;
+	dexSkills: number;
+	conSkills: number;
+	intSkills: number;
+	wisSkills: number;
+	chaSkills: number;
+	initiative: number;
+	ref: number;
+	fort: number;
+	will: number;
+	hpMax: number;
+	hpTempMax: number;
+	hpShieldMax: number;
+	hpShieldType: number;
+	skillFocus: number;
+	energyUniversal: number;
+	armor: number;
+	armorNatural: number;
+	armorShield: number;
+	armorDeflection: number;
+	armorDodge: number;
+	attack: number;
+	defense: number;
 	str: number;
 	dex: number;
 	con: number;
 	int: number;
 	wis: number;
 	cha: number;
+	rolls: number;
+	actionsAttack: number;
+	actionsMove: number;
+	actionsReaction: number;
+	actionsBonus: number;
 	strScore: number;
 	dexScore: number;
 	conScore: number;
@@ -140,192 +361,132 @@ export type CharacterStats = {
 	wisScore: number;
 	chaScore: number;
 	cpl: number;
-	weight: number;
-	hp: number;
-	skill: number;
-	fort: number;
-	ref: number;
-	wil: number;
-	bab: number;
-	bdb: number;
-	ac: number;
-	acTouch: number;
-	acFF: number;
-	acTFF: number;
-	dr: number;
-	drFF: number;
-	attackMelee: number;
-	attackUnarmed: number;
-	attackRanged: number;
-	attackPrecision: number;
+	weightBase: number;
+	weightCurrent: number;
+	weightTotal: number;
 	size: number;
 	reach: number;
-	moveDist: number;
-	weightCurrent: number;
-	weightCapacity: number;
-	encumbered: number;
-	actionAttacks: number;
-	actionReactions: number;
-	actionMoves: number;
-	eSuper: number;
-	eMelee: number;
-	eGrenade: number;
-	eClass: number;
-	eUniversal: number;
+	encumberance: number;
+	babPerLevel: number;
+	bdbPerLevel: number;
+	hpPerLevel: number;
+	fortPerLevel: number;
+	refPerLevel: number;
+	willPerLevel: number;
 };
-export type CharacterStatKey = keyof CharacterStats;
-export const labelMap: Record<CharacterStatKey, string> = {
-	str: 'Strength',
-	dex: 'Dexterity',
-	con: 'Constitution',
-	int: 'Intelligence',
-	wis: 'Wisdom',
-	cha: 'Charisma',
-	strScore: 'Strength Score',
-	dexScore: 'Dexterity Score',
-	conScore: 'constitution Score',
-	intScore: 'Intelligence Score',
-	wisScore: 'Wisdom Score',
-	chaScore: 'Charisma Score',
-	cpl: 'Character Progression Level',
-	weight: 'Weight',
-	hp: 'Hit Points',
-	skill: 'Skill',
-	fort: 'Fortitude',
-	ref: 'Reflex',
-	wil: 'Will',
-	bab: 'Base Attack Bonus',
-	bdb: 'Base Defense Bonus',
-	ac: 'Armor Class',
-	acTouch: 'Touch Armor Class',
-	acFF: 'Flat-footed Armor Class',
-	acTFF: 'Touch Flat-Footed Armor Class',
-	dr: 'Damage Reduction',
-	drFF: 'Flat-Footed Damage Reduction',
-	attackMelee: 'Melee Attack',
-	attackUnarmed: 'Unarmed Attack',
-	attackRanged: 'Ranged Attack',
-	attackPrecision: 'Precision Damage',
+export type StatsCalculatedKey = keyof StatsCalculated;
+export const labelMap: Record<StatsCalculatedKey, string> = {
+	actionsMoveLand: 'Move (Base Land)',
+	actionsMoveSwim: 'Move (Swim)',
+	actionsMoveFly: 'Move (Fly)',
+	actionsMoveClimb: 'Move (Climb)',
+	ac: 'AC',
+	acFF: 'FF AC',
+	acTouch: 'Touch AC',
+	acFFTouch: 'FF Touch AC',
+	dr: 'DR',
+	drFF: 'FF DR',
+	capacityCarrying: 'Carrying Capacity',
+	capacityKinetic: 'Kinetic Ammo Capacity',
+	capacitySpecial: 'Special Ammo Capacity',
+	capacityHeavy: 'Heavy Ammo Capacity',
+	energyMelee: 'Melee Energy',
+	energyGrenade: 'Grenade Energy',
+	energySuper: 'Super Energy',
+	energyClass: 'Class Energy',
+	rerolls: 'Rerolls',
+	slotsArmorHead: 'Head Slot',
+	slotsArmorArm: 'Arms Slot',
+	slotsArmorChest: 'Chest Slot',
+	slotsArmorLegs: 'Legs Slot',
+	slotsArmorClass: 'Class Slot',
+	slotsArmorFull: 'Armor Slot',
+	slotsArmorExotic: 'Exotic  Slot',
+	slotsAspects: 'Aspect Slot',
+	slotsFragments: 'Fragment Slot',
+	capacityArmorCharge: 'Max Armor Charge',
+	toHitRanged: 'Ranged to hit',
+	toHitMelee: 'Melee to hit',
+	toHitSpell: 'Spell to hit',
+	damageMelee: 'Melee Damage Bonus',
+	damageRanged: 'Ranged Damage Bonus',
+	damageSpell: 'Spell Damage Bonus',
+	damagePrecision: 'Precision Damage Bonus',
+	strSave: 'Str Save DC',
+	dexSave: 'Dex Save DC',
+	conSave: 'Con Save DC',
+	intSave: 'Int Save DC',
+	wisSave: 'Wis Save DC',
+	chaSave: 'Cha Save DC',
+	strSkillCheck: 'Skill Str Roll',
+	dexSkillCheck: 'Skill Dex Roll',
+	conSkillCheck: 'Skill Con Roll',
+	intSkillCheck: 'Skill Int Roll',
+	wisSkillCheck: 'Skill Wis Roll',
+	chaSkillCheck: 'Skill Cha Roll',
+	strSkills: 'Str Skills',
+	dexSkills: 'Dex Skills',
+	conSkills: 'Con Skills',
+	intSkills: 'Int Skills',
+	wisSkills: 'Wis Skills',
+	chaSkills: 'Cha Skills',
+	initiative: 'Initiative',
+	ref: 'Ref Save',
+	fort: 'Fort Save',
+	will: 'Will Save',
+	hpMax: 'Max HP',
+	hpTempMax: 'Max Temp HP',
+	hpShieldMax: 'Max Shield HP',
+	hpShieldType: 'Shield Type',
+	skillFocus: 'Skill Focus',
+	energyUniversal: 'Max Universal Energy ',
+	armor: 'Armor',
+	armorNatural: 'Natural Armor',
+	armorShield: 'Shield',
+	armorDeflection: 'Deflection',
+	armorDodge: 'Dodge',
+	attack: 'Base Attack',
+	defense: 'Base Defense',
+	str: 'Str Mod',
+	dex: 'Dex Mod',
+	con: 'Con Mod',
+	int: 'Int Mod',
+	wis: 'Wis Mod',
+	cha: 'Cha Mod',
+	rolls: 'Rolls',
+	actionsAttack: 'Attack Action',
+	actionsMove: 'Movement Action',
+	actionsReaction: 'Reaction',
+	actionsBonus: 'Bonus Action',
+	strScore: 'Str Score',
+	dexScore: 'Dex Score',
+	conScore: 'Con Score',
+	intScore: 'Int Score',
+	wisScore: 'Wis Score',
+	chaScore: 'Cha Score',
+	cpl: 'CPL',
+	weightBase: 'Base Character Weight',
+	weightCurrent: 'Weight Carried',
+	weightTotal: 'Total Character Weight',
 	size: 'Size',
-	reach: 'Base Reach',
-	moveDist: 'Move Distance',
-	weightCurrent: 'Current Weight',
-	weightCapacity: 'Carrying Capacity',
-	encumbered: 'Encumbered Status',
-	actionAttacks: 'Attacks',
-	actionReactions: 'Reactions',
-	actionMoves: 'Moves',
-	eSuper: 'Super Energy',
-	eMelee: 'Melee Energy',
-	eGrenade: 'Grenade Energy',
-	eClass: 'Class Energy',
-	eUniversal: 'Universal Energy',
+	reach: 'Reach',
+	encumberance: 'Encumberance',
+	babPerLevel: 'Level Up Base Attack',
+	bdbPerLevel: 'Level Up Base Defense',
+	hpPerLevel: 'Level Up HP',
+	fortPerLevel: 'Level Up Fort',
+	refPerLevel: 'Level Up Ref',
+	willPerLevel: 'Level Up Will',
 };
+export const labelToStatName: Record<string, string> = {};
+// Object.entries(labelMap).forEach((stringPair) => labelToStatName[stringPair[1].toLocaleLowerCase()] = stringPair[0]);
+// These two lines ^^^^ vvvv do the same work.
+Object.entries(labelMap).forEach(
+	([stat, label]) => (labelToStatName[label.toLocaleLowerCase()] = stat),
+);
+console.log('labelToStatName', labelToStatName);
 
-// All character stats, as listed by Pool-kun.
-export type AllBuffableStats = {
-	'Move (Base Land)': number;
-	'Move (Swim)': number;
-	'Move (Fly)': number;
-	'Move (Climb)': number;
-	AC: number;
-	'FF AC': number;
-	'Touch AC': number;
-	'FF Touch AC': number;
-	DR: number;
-	'FF DR': number;
-	'Carrying Capacity': number;
-	'Kinetic Ammo Capacity': number;
-	'Special Ammo Capacity': number;
-	'Heavy Ammo Capacity': number;
-	'Melee Energy': number;
-	'Grenade Energy': number;
-	'Super Energy': number;
-	'Class Energy': number;
-	Rerolls: number;
-	'Head Slot': number;
-	'Arms Slot': number;
-	'Chest Slot': number;
-	'Legs Slot': number;
-	'Class Slot': number;
-	'Armor Slot': number;
-	'Exotic  Slot': number;
-	'Aspect Slot': number;
-	'Fragment Slot': number;
-	'Max Armor Charge': number;
-	'Ranged to hit': number;
-	'Melee to hit': number;
-	'Spell to hit': number;
-	'Melee Damage Bonus': number;
-	'Ranged Damage Bonus': number;
-	'Spell Damage Bonus': number;
-	'Precision Damage Bonus': number;
-	'Str Save DC': number;
-	'Dex Save DC': number;
-	'Con Save DC': number;
-	'Int Save DC': number;
-	'Wis Save DC': number;
-	'Cha Save DC': number;
-	'Skill Str Roll': number;
-	'Skill Dex Roll': number;
-	'Skill Con Roll': number;
-	'Skill Int Roll': number;
-	'Skill Wis Roll': number;
-	'Skill Cha Roll': number;
-	'Skill list (List of each skill)': number;
-	'Str Skills': number;
-	'Dex Skills': number;
-	'Con Skills': number;
-	'Int Skills': number;
-	'Wis Skills': number;
-	'Cha Skills': number;
-	Initiative: number;
-	'Ref Save': number;
-	'Fort Save': number;
-	'Max HP': number;
-	'Max Temp HP': number;
-	'Max Shield HP': number;
-	'Shield Type': number;
-	'Skill Focus': number;
-	'Max Universal Energy ': number;
-	Armor: number;
-	'Natural Armor': number;
-	Shield: number;
-	Deflection: number;
-	Dodge: number;
-	'Base Attack': number;
-	'Base Defense': number;
-	'Str Mod': number;
-	'Dex Mod': number;
-	'Con Mod': number;
-	'Int Mod': number;
-	'Wis Mod': number;
-	'Cha Mod': number;
-	Rolls: number;
-	'Attack Action': number;
-	'Movement Action': number;
-	Reaction: number;
-	'Bonus Action': number;
-	'Str Score': number;
-	'Dex Score': number;
-	'Con Score': number;
-	'Int Score': number;
-	'Wis Score': number;
-	'Cha Score': number;
-	CPL: number;
-	'Base Character Weight': number;
-	'Weight Carried': number;
-	'Total Character Weight': number;
-	Size: number;
-	Reach: number;
-	Encumberance: number;
-	'Level Up Base Attack': number;
-	'Level Up Base Defense': number;
-	'Level Up HP': number;
-	'Level Up Fort': number;
-	'Level Up Ref': number;
-	'Level Up Will': number;
-};
+// Character Stat Destinations
 
 // The type to be handed to a `StatBoxInfo` component, used for making
 // horizontal bar graphs of numerical character stats.
@@ -342,10 +503,10 @@ export type StatBoxField = {
 
 //
 export const makeComputedOfStats = (
-	stats: ComputedRef<CharacterStats>,
+	stats: ComputedRef<StatsCalculated>,
 	tally: ComputedRef<CharacterBuffSummary>,
 	label: string,
-	keys: CharacterStatKey[],
+	keys: StatsCalculatedKey[],
 ): (() => StatBoxInfo) => {
 	return (): StatBoxInfo => {
 		const statsValue = stats.value;
@@ -602,8 +763,8 @@ function useCharacterDataUncached(characterId: string) {
 		data: statsArray,
 		isLoading: statsLoading,
 		refresh: statsRefresh,
-	} = getSheetForCharacter<CharacterStats>(characterId, 'variables');
-	const stats = computed<CharacterStats>(() => statsArray.value[0] || {});
+	} = getSheetForCharacter<StatsCalculated>(characterId, 'variables');
+	const stats = computed<StatsCalculated>(() => statsArray.value[0] || {});
 	// STATS
 
 	const composable = {

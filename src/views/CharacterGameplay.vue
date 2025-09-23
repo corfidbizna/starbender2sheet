@@ -37,22 +37,22 @@ const statInfo = computed<StatBoxInfo>(
 
 // );
 const savesInfo = computed<StatBoxInfo>(
-	makeComputedOfStats(stats, buffsTallied, 'Saving Throws', ['fort', 'ref', 'wil']),
+	makeComputedOfStats(stats, buffsTallied, 'Saving Throws', ['fort', 'ref', 'will']),
 );
 const actionsInfo = computed<StatBoxInfo>(
 	makeComputedOfStats(stats, buffsTallied, 'Action', [
-		'actionMoves',
-		'actionAttacks',
-		'actionReactions',
+		'actionsMove',
+		'actionsAttack',
+		'actionsReaction',
 	]),
 );
 const energyInfo = computed<StatBoxInfo>(
 	makeComputedOfStats(stats, buffsTallied, 'Energy', [
-		'eSuper',
-		'eClass',
-		'eMelee',
-		'eGrenade',
-		'eUniversal',
+		'energySuper',
+		'energyClass',
+		'energyMelee',
+		'energyGrenade',
+		'energyUniversal',
 	]),
 );
 const skillsInfo = computed<StatBoxInfo>(() => {
@@ -101,10 +101,10 @@ const testAmmoInfo = <StatBoxInfo>{
 			<div class="stat-column-b">
 				<div><StatBarsBox v-bind="actionsInfo" /></div>
 				<h2>Derived Information</h2>
-				<div>Movement per move: {{ stats.moveDist }} ft.</div>
+				<div>Movement per move: 300000 ft.</div>
 				<div>Reach: {{ stats.reach }} ft.</div>
 				<div>Size: Medium</div>
-				<div>Carrying Capacity: {{ stats.weightCapacity }} lbs.</div>
+				<div>Carrying Capacity: {{ stats.capacityCarrying }} lbs.</div>
 			</div>
 			<div class="stat-column-c">
 				<div><StatBarsBox v-bind="testAmmoInfo" /></div>
