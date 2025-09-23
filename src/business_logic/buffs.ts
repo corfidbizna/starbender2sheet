@@ -103,3 +103,7 @@ export const tallyBuffs = (buffs: BuffEffect[], stats: StatsCalculated) => {
 	});
 	return result;
 };
+
+export const getStatsCalclated = (baseStats: StatSheet, lolidk: any): Partial<StatsCalculated> => {
+	return {};
+};

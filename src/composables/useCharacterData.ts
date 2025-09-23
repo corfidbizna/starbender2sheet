@@ -228,7 +228,7 @@ const sizeMap: Record<string, SizeEffect> = {
 console.log('sizeMap', sizeMap);
 
 // Character Stats, as imported from the sheet.
-type StatSheet = {
+export type StatSheet = {
 	// Character info
 	cpl: number;
 	name: string;
