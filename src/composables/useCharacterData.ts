@@ -45,7 +45,7 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 		documentId: '1RcSqD_99aJc-gOcmJTloZ-jItp2XOTiozjNvV-nzgSI',
 		sheets: {
 			skills: '544688264',
-			variables: '249151624',
+			variables: '711215743',
 			buffs: '1723104523',
 		},
 	},

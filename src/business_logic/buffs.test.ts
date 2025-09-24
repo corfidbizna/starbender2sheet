@@ -14,12 +14,12 @@ const testCharacterBaseStats: StatSheet = {
 	guardianClass: '',
 	guardianSubclass: '',
 	nameGhost: '',
-	strScore: 0,
-	dexScore: 0,
-	conScore: 0,
-	intScore: 0,
-	wisScore: 0,
-	chaScore: 0,
+	strScore: 1,
+	dexScore: 2,
+	conScore: 3,
+	intScore: 4,
+	wisScore: 5,
+	chaScore: 6,
 	hpPerLevel: 0,
 	skillTotal: 0,
 	fortPerLevel: 0,
@@ -163,7 +163,8 @@ describe('Behaviors of getBuffEffects', () => {
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
-				source: 'Buff Strength',
+				category: 'Misc',
+				sourceName: 'Buff Strength',
 				affectedStat: 'str',
 				amount: 5,
 			},
@@ -180,12 +181,14 @@ describe('Behaviors of getBuffEffects', () => {
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
-				source: 'Debuff Strength & Dexterity',
+				category: 'Misc',
+				sourceName: 'Debuff Strength & Dexterity',
 				affectedStat: 'str',
 				amount: -5,
 			},
 			{
-				source: 'Debuff Strength & Dexterity',
+				category: 'Misc',
+				sourceName: 'Debuff Strength & Dexterity',
 				affectedStat: 'dex',
 				amount: -7,
 			},
@@ -202,7 +205,8 @@ describe('Behaviors of getBuffEffects', () => {
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
-				source: 'Buffs Something Based on Another Stat',
+				category: 'Misc',
+				sourceName: 'Buffs Something Based on Another Stat',
 				affectedStat: 'str',
 				amount: testCharacterSimple.dex,
 			},
@@ -219,12 +223,14 @@ describe('Behaviors of getBuffEffects', () => {
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
-				source: 'Buffs Something Based on Another Stat Two-Way',
+				category: 'Misc',
+				sourceName: 'Buffs Something Based on Another Stat Two-Way',
 				affectedStat: 'str',
 				amount: testCharacterSimple.dex,
 			},
 			{
-				source: 'Buffs Something Based on Another Stat Two-Way',
+				category: 'Misc',
+				sourceName: 'Buffs Something Based on Another Stat Two-Way',
 				affectedStat: 'dex',
 				amount: testCharacterSimple.str,
 			},
@@ -241,7 +247,8 @@ describe('Behaviors of getBuffEffects', () => {
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
-				source: 'Buff Strength based on Dex and Stack Size',
+				category: 'Misc',
+				sourceName: 'Buff Strength based on Dex and Stack Size',
 				affectedStat: 'str',
 				amount: testCharacterSimple.dex * (buff.stacks || 1),
 			},
@@ -258,12 +265,14 @@ describe('Behaviors of getBuffEffects', () => {
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
-				source: buff.name,
+				category: 'Misc',
+				sourceName: buff.name,
 				affectedStat: 'str',
 				amount: 10,
 			},
 			{
-				source: buff.name,
+				category: 'Misc',
+				sourceName: buff.name,
 				affectedStat: 'dex',
 				amount: buff.stacks || 0,
 			},
@@ -280,12 +289,14 @@ describe('Behaviors of getBuffEffects', () => {
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
-				source: buff.name,
+				category: 'Misc',
+				sourceName: buff.name,
 				affectedStat: 'str',
 				amount: 10,
 			},
 			{
-				source: buff.name,
+				category: 'Misc',
+				sourceName: buff.name,
 				affectedStat: 'dex',
 				amount: buff.stacks || 0,
 			},
@@ -302,7 +313,8 @@ describe('Behaviors of getBuffEffects', () => {
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
-				source: buff.name,
+				category: 'Misc',
+				sourceName: buff.name,
 				affectedStat: 'str',
 				amount: -(buff.stacks || 0),
 			},
@@ -330,7 +342,8 @@ describe('Behaviors of getBuffEffects', () => {
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
-				source: buff.name,
+				category: 'Misc',
+				sourceName: buff.name,
 				affectedStat: 'dex',
 				amount: testCharacterSimple.dex * 2,
 			},
@@ -346,14 +359,58 @@ describe('Behaviors of getBuffEffects', () => {
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
-				source: buff.name,
+				category: 'Misc',
+				sourceName: buff.name,
 				affectedStat: 'str',
 				amount: 5,
 			},
 			{
-				source: buff.name,
+				category: 'Misc',
+				sourceName: buff.name,
 				affectedStat: 'str',
 				amount: -3,
+			},
+		]);
+	});
+	test('A buff of a specific category', () => {
+		const buff: BuffInfo = {
+			name: 'Buffs Strength by 10',
+			category: 'Netflix',
+			type: 'Buff',
+			isStacking: false,
+			effects: 'str +10',
+		};
+		const result = getBuffEffects(buff, testCharacterSimple);
+		expect(result).toEqual([
+			{
+				category: 'Netflix',
+				sourceName: buff.name,
+				affectedStat: 'str',
+				amount: 10,
+			},
+		]);
+	});
+	test('A buff whose effects contain a "Misc" component', () => {
+		const buff: BuffInfo = {
+			name: 'Buffs Strength by 5 and also Misc Dexterity by 5',
+			category: 'Netflix',
+			type: 'Buff',
+			isStacking: false,
+			effects: 'str +5, misc dex +5',
+		};
+		const result = getBuffEffects(buff, testCharacterSimple);
+		expect(result).toEqual([
+			{
+				category: 'Netflix',
+				sourceName: buff.name,
+				affectedStat: 'str',
+				amount: 5,
+			},
+			{
+				category: 'Misc',
+				sourceName: buff.name,
+				affectedStat: 'dex',
+				amount: 5,
 			},
 		]);
 	});
@@ -464,6 +521,6 @@ describe('getStatsCalclated', () => {
 			refPerLevel: 0,
 			willPerLevel: 0,
 		};
-		expect(getStatsCalclated(testCharacterBaseStats)).toMatchObject(expected);
+		expect(getStatsCalculated(testCharacterBaseStats)).toMatchObject(expected);
 	});
 });

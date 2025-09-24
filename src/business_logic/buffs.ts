@@ -22,7 +22,8 @@ export type PartyBuffInfo = BuffInfo & {
 };
 
 export type BuffEffect = {
-	source: string;
+	category: string;
+	sourceName: string;
 	affectedStat: StatsCalculatedKey;
 	amount: number;
 };
@@ -33,16 +34,33 @@ export type BuffSummary = {
 export type CharacterBuffSummary = {
 	[Property in keyof StatsCalculated]?: BuffSummary;
 };
+// Buffs will have a category, a name, and list of affected stats.
+// - The category should be output in the buff effects.
+// - Manually check for if the stat starts with "Misc " to make that the category instead.
+// - Manually check for if the stat is actually a skill. (If stats[destination] === undefined)
+//   - If the skill is also defined, then the buff didn't have a valid target.
+
 export const getBuffEffects = (buff: BuffInfo, stats: StatsCalculated): BuffEffect[] => {
 	if (!buff.effects) {
 		return [];
 	}
 	return buff.effects.split(', ').map((effect): BuffEffect => {
-		const [affectedStat, amount] = effect.split(/\s+/);
+		// Str Mod +2
+		// Str Mod +2*Dex Mod
+		// Str Mod +2*Dex Mod*stacks
+		// Str Mod +2*Dex Mod*-stacks
+		// Str Mod -2*stacks
+		const effectForSplit = effect.replace(/( )(?![A-Za-z])/g, '¶');
+		// Str Mod¶+2*Dex Mod
+		const [affectedStat, amount] = effectForSplit.split('¶');
 		if (!amount) {
 			throw new Error('Buff must have a target!');
 		}
 		// affectedStat = `str`, amount = `+1*dex*stacks`
+		let currentCategory = buff.category || 'Misc';
+		if (affectedStat.toLocaleLowerCase().slice(0, 4) === 'misc') {
+			currentCategory = 'Misc';
+		}
 		const splitAmount = amount.split('*');
 		let multFlag = false;
 		const newFactors = splitAmount.map((item) => {
@@ -77,8 +95,9 @@ export const getBuffEffects = (buff: BuffInfo, stats: StatsCalculated): BuffEffe
 			result = Number(magnitude);
 		}
 		return {
-			source: buff.name,
-			affectedStat: affectedStat as StatsCalculatedKey,
+			category: currentCategory,
+			sourceName: buff.name,
+			affectedStat: affectedStat.replace(/^[Mm]isc /, '') as StatsCalculatedKey,
 			amount: result,
 		};
 	});
@@ -94,11 +113,11 @@ export const tallyBuffs = (buffs: BuffEffect[], stats: StatsCalculated) => {
 		if (!result[key]) {
 			result[key] = {
 				total: stats[key] + buff.amount,
-				summary: buff.source + ' ' + buff.amount,
+				summary: buff.sourceName + ' ' + buff.amount,
 			};
 		} else {
 			result[key].total += buff.amount;
-			result[key].summary += '\n' + buff.source + ' ' + buff.amount;
+			result[key].summary += '\n' + buff.sourceName + ' ' + buff.amount;
 		}
 	});
 	return result;
