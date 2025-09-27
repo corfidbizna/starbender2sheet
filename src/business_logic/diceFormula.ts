@@ -38,6 +38,17 @@ const isLetterOrSpace = (ch: string) => /^[A-Za-z ]$/.test(ch);
 // A UnitNode is something that knows how to "become a number".
 abstract class UnitNode {
 	abstract evaluate(roller: (sides: number) => number, getStat: (name: string) => number): number;
+	/// Returns a string that can be used to create a DiceFormula equivalent to
+	/// this node (and any children it might have).
+	abstract stringify(): string;
+	/// Returns a version of this UnitNode (and any children it might have)
+	/// where all nodes that do not involve a DierollNode have been evaluated
+	/// and replaced with NumberNodes.
+	abstract evaluateExceptDice(getStat: (name: string) => number): UnitNode;
+	/// Returns true if this node, or any of its children, are a DierollNode.
+	involvesDice(): boolean {
+		return false;
+	}
 	static fromFormula(formula: any[]): UnitNode {
 		console.assert(formula.length % 2 === 1);
 		const nodes: UnitNode[] = [];
@@ -101,12 +112,21 @@ class DierollNode extends UnitNode {
 		this.sides = sides;
 		this.count = count;
 	}
-	evaluate(roller: (sides: number) => number, getStat: (name: string) => number): number {
+	evaluate(roller: (sides: number) => number): number {
 		let result = 0;
 		for (let n = 0; n < this.count; n++) {
 			result += roller(this.sides);
 		}
 		return result;
+	}
+	stringify(): string {
+		return this.count + 'd' + this.sides;
+	}
+	evaluateExceptDice(): UnitNode {
+		return this;
+	}
+	involvesDice(): boolean {
+		return true;
 	}
 }
 
@@ -116,8 +136,14 @@ class NumberNode extends UnitNode {
 		super();
 		this.value = value;
 	}
-	evaluate(roller: (sides: number) => number, getStat: (name: string) => number): number {
+	evaluate(): number {
 		return this.value;
+	}
+	stringify(): string {
+		return this.value + '';
+	}
+	evaluateExceptDice(): UnitNode {
+		return this;
 	}
 }
 
@@ -129,6 +155,12 @@ class StatNode extends UnitNode {
 	}
 	evaluate(roller: (sides: number) => number, getStat: (name: string) => number): number {
 		return getStat(this.name);
+	}
+	stringify(): string {
+		return this.name;
+	}
+	evaluateExceptDice(getStat: (name: string) => number): UnitNode {
+		return new NumberNode(getStat(this.name));
 	}
 }
 
@@ -163,6 +195,46 @@ class BinaryOpNode extends UnitNode {
 		const op = OPERATORS[this.operator];
 		return op(lhsValue, rhsValue);
 	}
+	stringify(): string {
+		let lhsString = this.lhs.stringify();
+		let rhsString = this.rhs.stringify();
+		// TODO: ask Meiko or Admiral the less clumsy way to do this
+		if (this.lhs instanceof BinaryOpNode) {
+			const lhsOp = this.lhs as BinaryOpNode;
+			if (OPERATOR_PRIORITIES[lhsOp.operator] < OPERATOR_PRIORITIES[this.operator]) {
+				lhsString = '(' + lhsString + ')';
+			}
+		}
+		if (this.rhs instanceof BinaryOpNode) {
+			const rhsOp = this.rhs as BinaryOpNode;
+			if (OPERATOR_PRIORITIES[rhsOp.operator] < OPERATOR_PRIORITIES[this.operator]) {
+				rhsString = '(' + rhsString + ')';
+			}
+		}
+		return lhsString + this.operator + rhsString;
+	}
+	involvesDice(): boolean {
+		return this.lhs.involvesDice() || this.rhs.involvesDice();
+	}
+	evaluateExceptDice(getStat: (name: string) => number): UnitNode {
+		let newLHS: NumberNode | undefined;
+		let newRHS: NumberNode | undefined;
+		if (!this.lhs.involvesDice()) {
+			newLHS = new NumberNode(this.lhs.evaluate(() => 0, getStat));
+		}
+		if (!this.rhs.involvesDice()) {
+			newRHS = new NumberNode(this.rhs.evaluate(() => 0, getStat));
+		}
+		if (!this.involvesDice()) {
+			return new NumberNode(
+				this.evaluate(() => {
+					throw new Error('UNREACHABLE');
+				}, getStat),
+			);
+		} else {
+			return new BinaryOpNode(newLHS || this.lhs, newRHS || this.rhs, this.operator);
+		}
+	}
 }
 
 class RepetitionNode extends UnitNode {
@@ -183,11 +255,40 @@ class RepetitionNode extends UnitNode {
 		}
 		return result * countSign;
 	}
+	stringify(): string {
+		return this.count.stringify() + '(' + this.wat.stringify() + ')';
+	}
+	involvesDice(): boolean {
+		return this.count.involvesDice() || this.wat.involvesDice();
+	}
+	evaluateExceptDice(getStat: (name: string) => number): UnitNode {
+		let newCount: NumberNode | undefined;
+		let newWat: NumberNode | undefined;
+		if (!this.count.involvesDice()) {
+			newCount = new NumberNode(this.count.evaluate(() => 0, getStat));
+		}
+		if (!this.wat.involvesDice()) {
+			newWat = new NumberNode(this.wat.evaluate(() => 0, getStat));
+		}
+		if (!this.involvesDice()) {
+			return new NumberNode(
+				this.evaluate(() => {
+					throw new Error('UNREACHABLE');
+				}, getStat),
+			);
+		} else {
+			return new RepetitionNode(newCount || this.count, newWat || this.wat);
+		}
+	}
 }
 
 export class DiceFormula {
 	tree: UnitNode;
-	constructor(formula: string) {
+	constructor(formula: UnitNode | string) {
+		if (formula instanceof UnitNode) {
+			this.tree = formula as UnitNode;
+			return;
+		}
 		const formulaStack: object[][] = [];
 		let currentFormula: object[] = [];
 		let pos = 0;
@@ -321,7 +422,7 @@ export class DiceFormula {
 		this.tree = UnitNode.fromFormula(currentFormula);
 	}
 	min(getStat: (name: string) => number): number {
-		return this.execute((_) => 1, getStat);
+		return this.execute(() => 1, getStat);
 	}
 	max(getStat: (name: string) => number): number {
 		return this.execute((sides) => sides, getStat);
@@ -339,6 +440,12 @@ export class DiceFormula {
 			(sides) => Math.min(Math.floor(Math.random() * sides + 1), sides),
 			getStat,
 		);
+	}
+	stringify(): string {
+		return this.tree.stringify();
+	}
+	evaluateExceptDice(getStat: (name: string) => number): DiceFormula {
+		return new DiceFormula(this.tree.evaluateExceptDice(getStat));
 	}
 	private execute(roller: (sides: number) => number, getStat: (name: string) => number): number {
 		return this.tree.evaluate(roller, getStat);
