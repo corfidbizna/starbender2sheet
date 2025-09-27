@@ -1,4 +1,9 @@
-import type { StatsCalculatedKey, StatsCalculated } from '@/composables/useCharacterData';
+import {
+	type StatsCalculatedKey,
+	type StatsCalculated,
+	labelToStatName,
+	type StatSheet,
+} from '@/composables/useCharacterData';
 
 type BuffTypes = 'Buff' | 'Debuff' | 'Story Buff';
 export type BuffInfo = {
@@ -78,10 +83,13 @@ export const getBuffEffects = (buff: BuffInfo, stats: StatsCalculated): BuffEffe
 				return -(buff.stacks || -1);
 			} else {
 				// Should be either the name of a stat or a typo
+				const statResult = Number(
+					stats[labelToStatName[item.toLocaleLowerCase()] as StatsCalculatedKey],
+				);
 				if (item[0] === '-') {
-					return -Number(stats[item as StatsCalculatedKey] || 0);
+					return -statResult;
 				} else {
-					return Number(stats[item as StatsCalculatedKey] || 0);
+					return statResult;
 				}
 			}
 		});
@@ -90,7 +98,9 @@ export const getBuffEffects = (buff: BuffInfo, stats: StatsCalculated): BuffEffe
 		});
 		let result: number;
 		if (multFlag) {
-			result = stats[affectedStat as StatsCalculatedKey] * (Number(magnitude) - 1);
+			result =
+				stats[labelToStatName[affectedStat.toLocaleLowerCase()] as StatsCalculatedKey] *
+				(Number(magnitude) - 1);
 		} else {
 			result = Number(magnitude);
 		}

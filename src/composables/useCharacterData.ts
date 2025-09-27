@@ -6,6 +6,7 @@ import {
 	type CharacterBuffSummary,
 	type PartyBuffInfo,
 } from '@/business_logic/buffs';
+import { DiceFormula, getStatByCharacter } from '@/business_logic/diceFormula';
 import { computed, ref, type Ref, type ComputedRef } from 'vue';
 
 // ==================================================================================================
@@ -133,7 +134,7 @@ type SizeEffect = {
 	fly: number;
 	toHit: number;
 };
-const sizeMap: Record<string, SizeEffect> = {
+const sizeMap: Record<number, SizeEffect> = {
 	'-4': {
 		name: 'Fine',
 		ac: 8,
@@ -225,7 +226,6 @@ const sizeMap: Record<string, SizeEffect> = {
 		toHit: -16,
 	},
 };
-console.log('sizeMap', sizeMap);
 
 // Character Stats, as imported from the sheet.
 export type StatSheet = {
@@ -250,12 +250,18 @@ export type StatSheet = {
 	chaScore: number;
 	// Investment per level, to be mixed later based on CPL and other math
 	hpPerLevel: number;
-	skillTotal: number;
+	skillFocus: number;
 	fortPerLevel: number;
 	refPerLevel: number;
 	willPerLevel: number;
 	babPerLevel: number;
 	bdbPerLevel: number;
+	// Armors
+	armor: number;
+	armorNatural: number;
+	armorShield: number;
+	armorDeflection: number;
+	armorDodge: number;
 	// Action ecomony
 	// QUESTION: how to quantify extra actions, like weapon attack actions.
 	attacks: number;
@@ -272,6 +278,11 @@ export type StatSheet = {
 export type StatSheetKey = keyof StatSheet;
 
 export type StatsCalculated = {
+	actionsMoveBaseLand: number;
+	actionsMoveBaseSwim: number;
+	actionsMoveBaseFly: number;
+	actionsMoveBaseClimb: number;
+	actionsMoveMult: number;
 	actionsMoveLand: number;
 	actionsMoveSwim: number;
 	actionsMoveFly: number;
@@ -280,6 +291,7 @@ export type StatsCalculated = {
 	acFF: number;
 	acTouch: number;
 	acFFTouch: number;
+	drBase: number;
 	dr: number;
 	drFF: number;
 	capacityCarrying: number;
@@ -341,8 +353,8 @@ export type StatsCalculated = {
 	armorShield: number;
 	armorDeflection: number;
 	armorDodge: number;
-	attack: number;
-	defense: number;
+	bab: number;
+	bdb: number;
 	str: number;
 	dex: number;
 	con: number;
@@ -376,6 +388,11 @@ export type StatsCalculated = {
 };
 export type StatsCalculatedKey = keyof StatsCalculated;
 export const labelMap: Record<StatsCalculatedKey, string> = {
+	actionsMoveBaseLand: 'Move Base Land',
+	actionsMoveBaseSwim: 'Move Base Swim',
+	actionsMoveBaseFly: 'Move Base Fly',
+	actionsMoveBaseClimb: 'Move Base Climb',
+	actionsMoveMult: 'Move Mult',
 	actionsMoveLand: 'Move (Base Land)',
 	actionsMoveSwim: 'Move (Swim)',
 	actionsMoveFly: 'Move (Fly)',
@@ -384,6 +401,7 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	acFF: 'FF AC',
 	acTouch: 'Touch AC',
 	acFFTouch: 'FF Touch AC',
+	drBase: 'Base DR',
 	dr: 'DR',
 	drFF: 'FF DR',
 	capacityCarrying: 'Carrying Capacity',
@@ -445,8 +463,8 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	armorShield: 'Shield',
 	armorDeflection: 'Deflection',
 	armorDodge: 'Dodge',
-	attack: 'Base Attack',
-	defense: 'Base Defense',
+	bab: 'Base Attack',
+	bdb: 'Base Defense',
 	str: 'Str Mod',
 	dex: 'Dex Mod',
 	con: 'Con Mod',
@@ -484,7 +502,6 @@ export const labelToStatName: Record<string, string> = {};
 Object.entries(labelMap).forEach(
 	([stat, label]) => (labelToStatName[label.toLocaleLowerCase()] = stat),
 );
-console.log('labelToStatName', labelToStatName);
 
 // Character Stat Destinations
 
@@ -503,13 +520,12 @@ export type StatBoxField = {
 
 //
 export const makeComputedOfStats = (
-	stats: ComputedRef<StatsCalculated>,
+	stats: StatsCalculated,
 	tally: ComputedRef<CharacterBuffSummary>,
 	label: string,
 	keys: StatsCalculatedKey[],
 ): (() => StatBoxInfo) => {
 	return (): StatBoxInfo => {
-		const statsValue = stats.value;
 		const buffsValue = tally.value;
 		return {
 			label,
@@ -517,7 +533,7 @@ export const makeComputedOfStats = (
 				key,
 				label: labelMap[key],
 				hovertext: buffsValue[key]?.summary,
-				value: statsValue[key],
+				value: stats[key],
 				value2: buffsValue[key]?.total,
 			})),
 		};
@@ -555,7 +571,7 @@ type WeaponClasses =
 	| 'Sword'
 	| 'Machine Gun';
 // The type describing a weapon
-export type Weapon = {
+export type ImportedWeapon = {
 	aurora: boolean;
 	kara: boolean;
 	mark: boolean;
@@ -583,6 +599,13 @@ export type Weapon = {
 	AmmoType: string;
 	IsMagic: boolean;
 	Perks?: string;
+};
+export type Weapon = ImportedWeapon & {
+	DamageFormula: DiceFormula;
+	DmgMin: number;
+	DmgMax: number;
+	DmgAvg: number;
+	NameShort: string;
 };
 // The type describing a quest info block.
 export type Quest = {
@@ -718,9 +741,8 @@ function useCharacterDataUncached(characterId: string) {
 	});
 
 	const buffArrayFlat = computed<BuffEffect[]>(() => {
-		const characterStats = stats.value;
 		const buffs = activatedPartyBuffs.value;
-		return buffs.map((buff) => getBuffEffects(buff, characterStats)).flat();
+		return buffs.map((buff) => getBuffEffects(buff, stats.value)).flat();
 	});
 	const buffsTallied = computed<CharacterBuffSummary>(() => {
 		return tallyBuffs(buffArrayFlat.value, stats.value);
@@ -738,7 +760,19 @@ function useCharacterDataUncached(characterId: string) {
 		partyDataSources.sheets.weapons,
 	);
 	const weapons = computed<Weapon[]>(() => {
-		return weaponsForFiltering.value.filter((item) => item[characterId as CharacterNames]);
+		const filteredWeapons = weaponsForFiltering.value.filter(
+			(item) => item[characterId as CharacterNames],
+		);
+		const statFunction = getStatByCharacter(stats.value);
+		return filteredWeapons.map((weapon) => {
+			const formula = new DiceFormula(weapon.Damage);
+			weapon.DamageFormula = formula;
+			weapon.DmgMin = formula.min(statFunction);
+			weapon.DmgMax = formula.max(statFunction);
+			weapon.DmgAvg = formula.mean(statFunction);
+			weapon.NameShort = formula.evaluateExceptDice(statFunction).stringify();
+			return weapon;
+		});
 	});
 	// WEAPONS END
 
@@ -763,9 +797,268 @@ function useCharacterDataUncached(characterId: string) {
 		data: statsArray,
 		isLoading: statsLoading,
 		refresh: statsRefresh,
-	} = getSheetForCharacter<StatsCalculated>(characterId, 'variables');
-	const stats = computed<StatsCalculated>(() => statsArray.value[0] || {});
-	// STATS
+	} = getSheetForCharacter<StatSheet>(characterId, 'variables');
+	const stats = computed<StatsCalculated>(() => {
+		const source = statsArray.value[0];
+		if (!source) {
+			return {
+				actionsMoveBaseLand: 0,
+				actionsMoveBaseSwim: 0,
+				actionsMoveBaseFly: 0,
+				actionsMoveBaseClimb: 0,
+				actionsMoveMult: 0,
+				actionsMoveLand: 0,
+				actionsMoveSwim: 0,
+				actionsMoveFly: 0,
+				actionsMoveClimb: 0,
+				ac: 0,
+				acFF: 0,
+				acTouch: 0,
+				acFFTouch: 0,
+				drBase: 0,
+				dr: 0,
+				drFF: 0,
+				capacityCarrying: 0,
+				capacityKinetic: 0,
+				capacitySpecial: 0,
+				capacityHeavy: 0,
+				energyMelee: 0,
+				energyGrenade: 0,
+				energySuper: 0,
+				energyClass: 0,
+				rerolls: 0,
+				slotsArmorHead: 0,
+				slotsArmorArm: 0,
+				slotsArmorChest: 0,
+				slotsArmorLegs: 0,
+				slotsArmorClass: 0,
+				slotsArmorFull: 0,
+				slotsArmorExotic: 0,
+				slotsAspects: 0,
+				slotsFragments: 0,
+				capacityArmorCharge: 0,
+				toHitRanged: 0,
+				toHitMelee: 0,
+				toHitSpell: 0,
+				damageMelee: 0,
+				damageRanged: 0,
+				damageSpell: 0,
+				damagePrecision: 0,
+				strSave: 0,
+				dexSave: 0,
+				conSave: 0,
+				intSave: 0,
+				wisSave: 0,
+				chaSave: 0,
+				strSkillCheck: 0,
+				dexSkillCheck: 0,
+				conSkillCheck: 0,
+				intSkillCheck: 0,
+				wisSkillCheck: 0,
+				chaSkillCheck: 0,
+				strSkills: 0,
+				dexSkills: 0,
+				conSkills: 0,
+				intSkills: 0,
+				wisSkills: 0,
+				chaSkills: 0,
+				initiative: 0,
+				ref: 0,
+				fort: 0,
+				will: 0,
+				hpMax: 0,
+				hpTempMax: 0,
+				hpShieldMax: 0,
+				hpShieldType: 0,
+				skillFocus: 0,
+				energyUniversal: 0,
+				armor: 0,
+				armorNatural: 0,
+				armorShield: 0,
+				armorDeflection: 0,
+				armorDodge: 0,
+				bab: 0,
+				bdb: 0,
+				str: 0,
+				dex: 0,
+				con: 0,
+				int: 0,
+				wis: 0,
+				cha: 0,
+				rolls: 0,
+				actionsAttack: 0,
+				actionsMove: 0,
+				actionsReaction: 0,
+				actionsBonus: 0,
+				strScore: 0,
+				dexScore: 0,
+				conScore: 0,
+				intScore: 0,
+				wisScore: 0,
+				chaScore: 0,
+				cpl: 0,
+				weightBase: 0,
+				weightCurrent: 0,
+				weightTotal: 0,
+				size: 0,
+				reach: 0,
+				encumberance: 0,
+				babPerLevel: 0,
+				bdbPerLevel: 0,
+				hpPerLevel: 0,
+				fortPerLevel: 0,
+				refPerLevel: 0,
+				willPerLevel: 0,
+			};
+		}
+		console.log('source: \n', source);
+		const result: StatsCalculated = {
+			actionsMoveBaseLand: 30,
+			actionsMoveBaseSwim: 0,
+			actionsMoveBaseFly: 0,
+			actionsMoveBaseClimb: 0,
+			actionsMoveMult: 1,
+			actionsMoveLand: 0,
+			actionsMoveSwim: 0,
+			actionsMoveFly: 0,
+			actionsMoveClimb: 0,
+			ac: 0,
+			acFF: 0,
+			acTouch: 0,
+			acFFTouch: 0,
+			drBase: 0,
+			dr: 0,
+			drFF: 0,
+			capacityCarrying: 0,
+			capacityKinetic: Infinity,
+			capacitySpecial: 18,
+			capacityHeavy: 8,
+			energyMelee: source.energyMelee,
+			energyGrenade: source.energyGrenade,
+			energySuper: source.energySuper,
+			energyClass: source.energyClass,
+			rerolls: 0,
+			slotsArmorHead: 3,
+			slotsArmorArm: 3,
+			slotsArmorChest: 3,
+			slotsArmorLegs: 3,
+			slotsArmorClass: 1,
+			slotsArmorFull: 1,
+			slotsArmorExotic: 1,
+			slotsAspects: 0,
+			slotsFragments: 0,
+			capacityArmorCharge: 0,
+			toHitRanged: 0,
+			toHitMelee: 0,
+			toHitSpell: 0,
+			damageMelee: 0,
+			damageRanged: 0,
+			damageSpell: 0,
+			damagePrecision: 0,
+			strSave: 0,
+			dexSave: 0,
+			conSave: 0,
+			intSave: 0,
+			wisSave: 0,
+			chaSave: 0,
+			strSkillCheck: 0,
+			dexSkillCheck: 0,
+			conSkillCheck: 0,
+			intSkillCheck: 0,
+			wisSkillCheck: 0,
+			chaSkillCheck: 0,
+			strSkills: 0,
+			dexSkills: 0,
+			conSkills: 0,
+			intSkills: 0,
+			wisSkills: 0,
+			chaSkills: 0,
+			initiative: 0,
+			ref: 0,
+			fort: 0,
+			will: 0,
+			hpMax: 0,
+			hpTempMax: 0,
+			hpShieldMax: 0,
+			hpShieldType: 0,
+			skillFocus: source.skillFocus,
+			energyUniversal: 0,
+			armor: source.armor,
+			armorNatural: source.armorNatural,
+			armorShield: source.armorShield,
+			armorDeflection: source.armorDeflection,
+			armorDodge: source.armorDodge,
+			bab: source.babPerLevel * source.cpl,
+			bdb: source.bdbPerLevel * source.cpl,
+			str: Math.floor((source.strScore - 10) / 2),
+			dex: Math.floor((source.dexScore - 10) / 2),
+			con: Math.floor((source.conScore - 10) / 2),
+			int: Math.floor((source.intScore - 10) / 2),
+			wis: Math.floor((source.wisScore - 10) / 2),
+			cha: Math.floor((source.chaScore - 10) / 2),
+			rolls: 0,
+			actionsAttack: source.attacks,
+			actionsMove: source.moves,
+			actionsReaction: source.reactions,
+			actionsBonus: 0,
+			strScore: source.strScore,
+			dexScore: source.dexScore,
+			conScore: source.conScore,
+			intScore: source.intScore,
+			wisScore: source.wisScore,
+			chaScore: source.chaScore,
+			cpl: source.cpl,
+			weightBase: 0, // ???
+			weightCurrent: 0, // ???
+			weightTotal: 0, // ???
+			size: source.size,
+			reach: sizeMap[source.size || 0].reach,
+			encumberance: 0, // ???
+			babPerLevel: source.babPerLevel,
+			bdbPerLevel: source.bdbPerLevel,
+			hpPerLevel: source.hpPerLevel,
+			fortPerLevel: source.fortPerLevel,
+			refPerLevel: source.refPerLevel,
+			willPerLevel: source.willPerLevel,
+		};
+		result.actionsMoveLand = result.actionsMoveBaseLand * result.actionsMoveMult;
+		result.actionsMoveSwim = result.actionsMoveBaseSwim * result.actionsMoveMult;
+		result.actionsMoveFly = result.actionsMoveBaseFly * result.actionsMoveMult;
+		result.actionsMoveClimb = result.actionsMoveBaseClimb * result.actionsMoveMult;
+		result.ac =
+			10 +
+			result.armor +
+			result.armorNatural +
+			result.armorShield +
+			result.armorDeflection +
+			result.armorDodge +
+			result.dex +
+			sizeMap[source.size || 0].ac;
+		result.acFF = 10 + result.armor + result.armorNatural + result.armorDeflection + result.bdb;
+		result.acTouch = 10 + result.armorDeflection + result.armorDodge + result.bdb + result.dex;
+		result.acFFTouch = 10 + result.armorDeflection + result.bdb + result.dex;
+		result.dr = result.armor + result.armorNatural + result.armorShield + result.drBase;
+		result.drFF = result.armor + result.armorNatural + result.drBase;
+		result.capacityCarrying = result.strScore * 30 * sizeMap[source.size || 0].carryingCapacity;
+		result.toHitRanged = result.bab + result.dex;
+		result.toHitMelee = result.bab + result.str;
+		result.toHitSpell = result.bab + result.cha;
+		result.strSave = 10 + Math.floor(result.cpl / 2) + result.str;
+		result.dexSave = 10 + Math.floor(result.cpl / 2) + result.dex;
+		result.conSave = 10 + Math.floor(result.cpl / 2) + result.con;
+		result.intSave = 10 + Math.floor(result.cpl / 2) + result.int;
+		result.wisSave = 10 + Math.floor(result.cpl / 2) + result.wis;
+		result.chaSave = 10 + Math.floor(result.cpl / 2) + result.cha;
+		result.initiative = result.dex;
+		result.ref = Math.floor(result.cpl * result.refPerLevel + result.dex);
+		result.fort = Math.floor(result.cpl * result.fortPerLevel + result.con);
+		result.will = Math.floor(result.cpl * result.willPerLevel + result.wis);
+		result.hpMax = (result.hpPerLevel + result.con) * result.cpl;
+		result.energyUniversal = Math.floor((2 + result.cha) * result.cpl);
+		console.log('result: \n', result);
+		return result;
+	});
+	// STATS END
 
 	const composable = {
 		// Characters

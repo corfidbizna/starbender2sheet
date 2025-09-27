@@ -21,12 +21,17 @@ const testCharacterBaseStats: StatSheet = {
 	wisScore: 5,
 	chaScore: 6,
 	hpPerLevel: 0,
-	skillTotal: 0,
+	skillFocus: 0,
 	fortPerLevel: 0,
 	refPerLevel: 0,
 	willPerLevel: 0,
 	babPerLevel: 0,
 	bdbPerLevel: 0,
+	armor: 0,
+	armorNatural: 0,
+	armorShield: 0,
+	armorDeflection: 0,
+	armorDodge: 0,
 	attacks: 0,
 	reactions: 0,
 	moves: 0,
@@ -53,6 +58,11 @@ const testCharacterSimple: StatsCalculated = {
 	cpl: 7,
 	ac: 10,
 	// No values from here down
+	actionsMoveBaseLand: 0,
+	actionsMoveBaseSwim: 0,
+	actionsMoveBaseFly: 0,
+	actionsMoveBaseClimb: 0,
+	actionsMoveMult: 0,
 	actionsMoveLand: 0,
 	actionsMoveSwim: 0,
 	actionsMoveFly: 0,
@@ -60,6 +70,7 @@ const testCharacterSimple: StatsCalculated = {
 	acFF: 0,
 	acTouch: 0,
 	acFFTouch: 0,
+	drBase: 0,
 	dr: 0,
 	drFF: 0,
 	capacityCarrying: 0,
@@ -121,8 +132,8 @@ const testCharacterSimple: StatsCalculated = {
 	armorShield: 0,
 	armorDeflection: 0,
 	armorDodge: 0,
-	attack: 0,
-	defense: 0,
+	bab: 0,
+	bdb: 0,
 	rolls: 0,
 	actionsAttack: 0,
 	actionsMove: 0,
@@ -158,14 +169,14 @@ describe('Behaviors of getBuffEffects', () => {
 			type: 'Buff',
 			isStacking: false,
 			description: 'Buffs strength by 5.',
-			effects: 'str +5',
+			effects: 'Str Mod +5',
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
 				category: 'Misc',
 				sourceName: 'Buff Strength',
-				affectedStat: 'str',
+				affectedStat: 'Str Mod',
 				amount: 5,
 			},
 		]);
@@ -176,20 +187,20 @@ describe('Behaviors of getBuffEffects', () => {
 			type: 'Debuff',
 			isStacking: false,
 			description: 'Debuffs strength and dexterity.',
-			effects: 'str -5, dex -7',
+			effects: 'Str Mod -5, Dex Mod -7',
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
 				category: 'Misc',
 				sourceName: 'Debuff Strength & Dexterity',
-				affectedStat: 'str',
+				affectedStat: 'Str Mod',
 				amount: -5,
 			},
 			{
 				category: 'Misc',
 				sourceName: 'Debuff Strength & Dexterity',
-				affectedStat: 'dex',
+				affectedStat: 'Dex Mod',
 				amount: -7,
 			},
 		]);
@@ -200,14 +211,14 @@ describe('Behaviors of getBuffEffects', () => {
 			type: 'Buff',
 			isStacking: false,
 			description: 'Buffs strength by dexterity mod.',
-			effects: 'str +1*dex',
+			effects: 'Str Mod +1*Dex Mod',
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
 				category: 'Misc',
 				sourceName: 'Buffs Something Based on Another Stat',
-				affectedStat: 'str',
+				affectedStat: 'Str Mod',
 				amount: testCharacterSimple.dex,
 			},
 		]);
@@ -218,20 +229,20 @@ describe('Behaviors of getBuffEffects', () => {
 			type: 'Buff',
 			isStacking: false,
 			description: 'Buffs strength by dexterity mod and vice versa.',
-			effects: 'str +1*dex, dex +1*str',
+			effects: 'Str Mod +1*Dex Mod, Dex Mod +1*Str Mod',
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
 				category: 'Misc',
 				sourceName: 'Buffs Something Based on Another Stat Two-Way',
-				affectedStat: 'str',
+				affectedStat: 'Str Mod',
 				amount: testCharacterSimple.dex,
 			},
 			{
 				category: 'Misc',
 				sourceName: 'Buffs Something Based on Another Stat Two-Way',
-				affectedStat: 'dex',
+				affectedStat: 'Dex Mod',
 				amount: testCharacterSimple.str,
 			},
 		]);
@@ -242,14 +253,14 @@ describe('Behaviors of getBuffEffects', () => {
 			type: 'Buff',
 			isStacking: true,
 			stacks: 3,
-			effects: 'str +1*dex*stacks',
+			effects: 'Str Mod +1*Dex Mod*stacks',
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
 				category: 'Misc',
 				sourceName: 'Buff Strength based on Dex and Stack Size',
-				affectedStat: 'str',
+				affectedStat: 'Str Mod',
 				amount: testCharacterSimple.dex * (buff.stacks || 1),
 			},
 		]);
@@ -260,20 +271,20 @@ describe('Behaviors of getBuffEffects', () => {
 			type: 'Buff',
 			isStacking: true,
 			stacks: 3,
-			effects: 'str +10, dex +stacks',
+			effects: 'Str Mod +10, Dex Mod +stacks',
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
 				category: 'Misc',
 				sourceName: buff.name,
-				affectedStat: 'str',
+				affectedStat: 'Str Mod',
 				amount: 10,
 			},
 			{
 				category: 'Misc',
 				sourceName: buff.name,
-				affectedStat: 'dex',
+				affectedStat: 'Dex Mod',
 				amount: buff.stacks || 0,
 			},
 		]);
@@ -284,20 +295,20 @@ describe('Behaviors of getBuffEffects', () => {
 			type: 'Buff',
 			isStacking: true,
 			stacks: 3,
-			effects: 'str +10, dex +1*stacks',
+			effects: 'Str Mod +10, Dex Mod +1*stacks',
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
 				category: 'Misc',
 				sourceName: buff.name,
-				affectedStat: 'str',
+				affectedStat: 'Str Mod',
 				amount: 10,
 			},
 			{
 				category: 'Misc',
 				sourceName: buff.name,
-				affectedStat: 'dex',
+				affectedStat: 'Dex Mod',
 				amount: buff.stacks || 0,
 			},
 		]);
@@ -308,14 +319,14 @@ describe('Behaviors of getBuffEffects', () => {
 			type: 'Buff',
 			isStacking: true,
 			stacks: 3,
-			effects: 'str -stacks',
+			effects: 'Str Mod -stacks',
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
 				category: 'Misc',
 				sourceName: buff.name,
-				affectedStat: 'str',
+				affectedStat: 'Str Mod',
 				amount: -(buff.stacks || 0),
 			},
 		]);
@@ -337,14 +348,14 @@ describe('Behaviors of getBuffEffects', () => {
 			name: 'Multiply Dex by 3',
 			type: 'Buff',
 			isStacking: false,
-			effects: 'dex *3',
+			effects: 'Dex Mod *3',
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
 				category: 'Misc',
 				sourceName: buff.name,
-				affectedStat: 'dex',
+				affectedStat: 'Dex Mod',
 				amount: testCharacterSimple.dex * 2,
 			},
 		]);
@@ -354,20 +365,20 @@ describe('Behaviors of getBuffEffects', () => {
 			name: 'Buffs Strength by 5 and -3',
 			type: 'Buff',
 			isStacking: false,
-			effects: 'str +5, str -3',
+			effects: 'Str Mod +5, Str Mod -3',
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
 				category: 'Misc',
 				sourceName: buff.name,
-				affectedStat: 'str',
+				affectedStat: 'Str Mod',
 				amount: 5,
 			},
 			{
 				category: 'Misc',
 				sourceName: buff.name,
-				affectedStat: 'str',
+				affectedStat: 'Str Mod',
 				amount: -3,
 			},
 		]);
@@ -378,14 +389,14 @@ describe('Behaviors of getBuffEffects', () => {
 			category: 'Netflix',
 			type: 'Buff',
 			isStacking: false,
-			effects: 'str +10',
+			effects: 'Str Mod +10',
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
 				category: 'Netflix',
 				sourceName: buff.name,
-				affectedStat: 'str',
+				affectedStat: 'Str Mod',
 				amount: 10,
 			},
 		]);
@@ -396,20 +407,20 @@ describe('Behaviors of getBuffEffects', () => {
 			category: 'Netflix',
 			type: 'Buff',
 			isStacking: false,
-			effects: 'str +5, misc dex +5',
+			effects: 'Str Mod +5, misc Dex Mod +5',
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
 			{
 				category: 'Netflix',
 				sourceName: buff.name,
-				affectedStat: 'str',
+				affectedStat: 'Str Mod',
 				amount: 5,
 			},
 			{
 				category: 'Misc',
 				sourceName: buff.name,
-				affectedStat: 'dex',
+				affectedStat: 'Dex Mod',
 				amount: 5,
 			},
 		]);
@@ -419,6 +430,11 @@ describe('Behaviors of getBuffEffects', () => {
 describe('getStatsCalclated', () => {
 	test('with no inputs, it should give all zeroes', () => {
 		const expected: StatsCalculated = {
+			actionsMoveBaseLand: 0,
+			actionsMoveBaseSwim: 0,
+			actionsMoveBaseFly: 0,
+			actionsMoveBaseClimb: 0,
+			actionsMoveMult: 0,
 			actionsMoveLand: 0,
 			actionsMoveSwim: 0,
 			actionsMoveFly: 0,
@@ -427,6 +443,7 @@ describe('getStatsCalclated', () => {
 			acFF: 0,
 			acTouch: 0,
 			acFFTouch: 0,
+			drBase: 0,
 			dr: 0,
 			drFF: 0,
 			capacityCarrying: 0,
@@ -488,8 +505,8 @@ describe('getStatsCalclated', () => {
 			armorShield: 0,
 			armorDeflection: 0,
 			armorDodge: 0,
-			attack: 0,
-			defense: 0,
+			bab: 0,
+			bdb: 0,
 			str: 0,
 			dex: 0,
 			con: 0,

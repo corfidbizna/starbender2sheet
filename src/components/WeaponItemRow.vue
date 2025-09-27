@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { type Weapon } from '@/composables/useCharacterData';
 import DGlyph from './DGlyph.vue';
+import CapacityBar from './CapacityBar.vue';
+import { DiceFormula } from '@/business_logic/diceFormula';
 
 const props = defineProps<Weapon>();
 const getCritDisplay = (): string => {
@@ -12,9 +14,6 @@ const getCritDisplay = (): string => {
 		return props.CritRange + delimiter + props.CritMult;
 	}
 	return 21 - props.CritRange + '-20' + delimiter + props.CritMult;
-};
-const getDamageDisplay = (): string => {
-	return props.Damage + ' ' + props.DamageType;
 };
 const colorsRarity = (rarity: string): string => {
 	if (rarity === 'Uncommon') {
@@ -49,6 +48,33 @@ const colorsElement = (element: string): string => {
 	}
 	return '#FFFFFF'; // Kinetic
 };
+const ammoImageSrc = () => {
+	const ammo = props.AmmoType.toLocaleLowerCase();
+	if (ammo.includes('energy') || ammo.includes('special')) {
+		return '/src/assets/svgs/ammo_special.svg';
+	}
+	if (ammo.includes('heavy')) {
+		return '/src/assets/svgs/ammo_heavy.svg';
+	}
+	return '/src/assets/svgs/ammo_primary.svg';
+};
+const colorsAmmo = (ammoType: string) => {
+	const alpha = 'ff';
+	if (ammoType.includes('energy') || ammoType.includes('special')) {
+		return '#7AF48B' + alpha;
+	}
+	if (ammoType.includes('heavy')) {
+		return '#B286FF' + alpha;
+	}
+	return '#ffff' + alpha;
+};
+const hitFormula = new DiceFormula('1d20+' + props.HitBonus);
+const rollDamage = () => {
+	console.log(props.DamageFormula.roll(() => 0));
+};
+const rollHit = () => {
+	console.log(hitFormula.roll(() => 0));
+};
 </script>
 <template>
 	<div class="weapon-row">
@@ -74,66 +100,106 @@ const colorsElement = (element: string): string => {
 						{{ Name }}
 					</h1>
 					<h2>
-						{{ Element.toUpperCase() }}
 						{{ WeaponClass.toUpperCase() }}
 					</h2>
 				</div>
-				<div
-					v-if="Flavortext"
-					class="flavortext"
-				>
-					{{ Flavortext }}
-				</div>
 			</div>
 			<div class="action-buttons">
-				<button>Hit</button>
-				<button>Dmg</button>
+				<button @click="rollHit">Hit</button>
+				<button @click="rollDamage">Dmg</button>
 			</div>
 		</div>
 		<div class="weapon-content">
-			<div class="weapon-cells">
-				<div class="weapon-stat-label">
-					<div>To Hit</div>
-					<div>Crit</div>
-					<div>Damage</div>
-					<div>Ammo</div>
-					<div>Magazine</div>
+			<div class="weapon-damage-info">
+				<div class="damage-main">
+					<DGlyph
+						v-if="Element != 'Kinetic'"
+						v-bind="{ name: Element }"
+						class="element-glyph"
+						:style="'color: ' + colorsElement(Element)"
+					/>
+					<img
+						v-else
+						class="kinetic-icon"
+						style="width: 37px; height: 37px"
+						src="/src/assets/svgs/Kenetic.svg"
+					/>
+					<span :style="'color: ' + colorsElement(Element)">{{ Damage }}</span>
 				</div>
-				<div class="weapon-stat-data">
-					<div>{{ AttackType }} - {{ HitBonus }} v. {{ HitType }}</div>
-					<div>{{ getCritDisplay() }}</div>
-					<div>{{ getDamageDisplay() }}</div>
-					<div>{{ Ammo }}</div>
-					<div>{{ AmmoCapacity }} {{ AmmoType }}</div>
+				<div class="damage-sub">
+					<span>Ammo: </span
+					><img
+						class="ammo-image"
+						:src="ammoImageSrc()"
+					/><CapacityBar v-bind="{ max: 10, current: 4, color: colorsAmmo(AmmoType) }" />
+					<span>{{ props.Ammo }} ⁄ {{ props.AmmoCapacity }}</span>
 				</div>
 			</div>
-			<div class="weapon-cells">
-				<div class="weapon-stat-label">
-					<div>Range</div>
-					<div>Shape</div>
-					<div>Duration</div>
-					<div>Handed</div>
+			<div class="weapon-details">
+				<div class="weapon-cells">
+					<div class="weapon-stat-label">
+						<div>Average Dmg</div>
+						<div>Min Dmg</div>
+						<div>Max Dmg</div>
+						<div>Attack Type</div>
+					</div>
+					<div class="weapon-stat-data">
+						<div>{{ DmgAvg }}</div>
+						<div>{{ DmgMin }}</div>
+						<div>{{ DmgMax }}</div>
+						<div>{{ AttackType }}</div>
+					</div>
 				</div>
-				<div class="weapon-stat-data">
-					<div>{{ RangeType }} {{ Range }}ft. </div>
-					<div v-if="Size">{{ Size }}ft. {{ Shape }} </div>
-					<div v-else>-- </div>
-					<div v-if="Duration">{{ Duration }} rounds</div>
-					<div v-else>--</div>
-					<div>{{ Handed }}-handed</div>
+				<div class="weapon-cells">
+					<div class="weapon-stat-label">
+						<div>To Hit</div>
+						<div>Crit</div>
+						<div>Ammo</div>
+						<div>Magazine</div>
+					</div>
+					<div class="weapon-stat-data">
+						<div>{{ HitBonus }} v. {{ HitType }}</div>
+						<div>{{ getCritDisplay() }}</div>
+						<div>{{ Ammo }}</div>
+						<div>{{ AmmoCapacity }} {{ AmmoType }}</div>
+					</div>
+				</div>
+				<div class="weapon-cells">
+					<div class="weapon-stat-label">
+						<div>Range</div>
+						<div>Shape</div>
+						<div>Duration</div>
+						<div>Handed</div>
+					</div>
+					<div class="weapon-stat-data">
+						<div>{{ RangeType }} {{ Range }}ft. </div>
+						<div v-if="Size">{{ Size }}ft. {{ Shape }} </div>
+						<div v-else>-- </div>
+						<div v-if="Duration">{{ Duration }} rounds</div>
+						<div v-else>--</div>
+						<div>{{ Handed }}-handed</div>
+					</div>
 				</div>
 			</div>
 			<div class="weapon-perks">
 				<pre>{{ Perks?.split('), ').map((item) => item + ')') }}</pre>
+				<pre>{{ NameShort }}</pre>
 			</div>
+			<div
+				class="flavortext"
+				v-if="Flavortext"
+			>
+				{{ Flavortext }}
+			</div>
+			<div class="weapon-footer"></div>
 		</div>
 	</div>
 </template>
 <style scoped>
 .weapon-row {
 	font-size: 0.9em;
-	margin: 0.5em 0;
-	max-width: 60em;
+	margin: 0.5em auto;
+	max-width: 40em;
 	background-blend-mode: multiply;
 	/* background-color: #555; */
 	/* border: 2px solid #fffa; */
@@ -174,12 +240,6 @@ h2 {
 .weapon-header {
 	padding: 0.25em;
 }
-.flavortext {
-	font-style: italic;
-	font-weight: 100;
-	font-size: 0.85em;
-	margin: 0.5em 0;
-}
 .weapon-titles {
 	display: inline-block;
 }
@@ -187,19 +247,46 @@ h2 {
 	float: right;
 }
 .weapon-content {
+	background-color: #0008;
+}
+.weapon-damage-info {
+	padding: 8px;
+	border-bottom: 2px solid #fff4;
+}
+.damage-main {
+	font-size: 2.8em;
+	font-weight: bold;
+	padding-right: 16px;
+	border-right: 2px solid #fff8;
+	display: inline-block;
+}
+.damage-sub {
+	display: inline-block;
+	width: fit-content;
+	margin: auto 0;
+	font-size: 0.8em;
+	padding-left: 16px;
+	white-space: nowrap;
+}
+.damage-sub * {
+	vertical-align: middle;
+}
+.ammo-image {
+	height: 1.25em;
+	/* vertical-align: bottom; */
+}
+.weapon-details {
 	display: flex;
+	border-bottom: 2px solid #fff4;
 }
 .weapon-cells {
 	display: flex;
 	font-size: 0.9em;
 	padding: 0.5em;
 	flex: 1.1;
-	/* margin: 2px; */
-	background-color: #0008;
-	/* background-blend-mode: multiply; */
+	flex-direction: row;
 }
 .weapon-stat-label {
-	flex: 1;
 	font-weight: 800;
 	text-align: right;
 	padding-right: 0.25em;
@@ -211,8 +298,20 @@ h2 {
 }
 .weapon-perks {
 	flex: 2;
-	max-height: 6em;
-	overflow-y: scroll;
+	/* max-height: 6em;
+	overflow-y: scroll; */
+}
+.flavortext {
+	font-style: italic;
+	font-weight: 100;
+	color: #fffa;
+	padding: 0.75em;
+	border-top: 2px solid #fff4;
+	border-bottom: 2px solid #fff4;
+}
+.weapon-footer {
+	height: 0.5em;
+	background: #000a;
 }
 .kinetic-icon {
 	width: 14px;

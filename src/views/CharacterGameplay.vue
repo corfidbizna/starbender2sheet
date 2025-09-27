@@ -24,7 +24,7 @@ const {
 } = useCharacterData(props.characterId);
 
 const statInfo = computed<StatBoxInfo>(
-	makeComputedOfStats(stats, buffsTallied, 'Ability Scores', [
+	makeComputedOfStats(stats.value, buffsTallied, 'Ability Scores', [
 		'str',
 		'dex',
 		'con',
@@ -37,17 +37,17 @@ const statInfo = computed<StatBoxInfo>(
 
 // );
 const savesInfo = computed<StatBoxInfo>(
-	makeComputedOfStats(stats, buffsTallied, 'Saving Throws', ['fort', 'ref', 'will']),
+	makeComputedOfStats(stats.value, buffsTallied, 'Saving Throws', ['fort', 'ref', 'will']),
 );
 const actionsInfo = computed<StatBoxInfo>(
-	makeComputedOfStats(stats, buffsTallied, 'Action', [
+	makeComputedOfStats(stats.value, buffsTallied, 'Action', [
 		'actionsMove',
 		'actionsAttack',
 		'actionsReaction',
 	]),
 );
 const energyInfo = computed<StatBoxInfo>(
-	makeComputedOfStats(stats, buffsTallied, 'Energy', [
+	makeComputedOfStats(stats.value, buffsTallied, 'Energy', [
 		'energySuper',
 		'energyClass',
 		'energyMelee',
