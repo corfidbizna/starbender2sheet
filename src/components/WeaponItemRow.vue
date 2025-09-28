@@ -134,56 +134,70 @@ const rollHit = () => {
 					><img
 						class="ammo-image"
 						:src="ammoImageSrc()"
-					/><CapacityBar v-bind="{ max: 10, current: 4, color: colorsAmmo(AmmoType) }" />
+					/><CapacityBar
+						v-bind="{ max: AmmoCapacity, current: Ammo, color: colorsAmmo(AmmoType) }"
+					/>
 					<span>{{ props.Ammo }} ⁄ {{ props.AmmoCapacity }}</span>
 				</div>
 			</div>
-			<div class="weapon-details">
-				<div class="weapon-cells">
-					<div class="weapon-stat-label">
-						<div>Average Dmg</div>
-						<div>Min Dmg</div>
-						<div>Max Dmg</div>
-						<div>Attack Type</div>
-					</div>
-					<div class="weapon-stat-data">
-						<div>{{ DmgAvg }}</div>
-						<div>{{ DmgMin }}</div>
-						<div>{{ DmgMax }}</div>
-						<div>{{ AttackType }}</div>
-					</div>
-				</div>
-				<div class="weapon-cells">
-					<div class="weapon-stat-label">
-						<div>To Hit</div>
-						<div>Crit</div>
-						<div>Ammo</div>
-						<div>Magazine</div>
-					</div>
-					<div class="weapon-stat-data">
-						<div>{{ HitBonus }} v. {{ HitType }}</div>
-						<div>{{ getCritDisplay() }}</div>
-						<div>{{ Ammo }}</div>
-						<div>{{ AmmoCapacity }} {{ AmmoType }}</div>
-					</div>
-				</div>
-				<div class="weapon-cells">
-					<div class="weapon-stat-label">
-						<div>Range</div>
-						<div>Shape</div>
-						<div>Duration</div>
-						<div>Handed</div>
-					</div>
-					<div class="weapon-stat-data">
-						<div>{{ RangeType }} {{ Range }}ft. </div>
-						<div v-if="Size">{{ Size }}ft. {{ Shape }} </div>
-						<div v-else>-- </div>
-						<div v-if="Duration">{{ Duration }} rounds</div>
-						<div v-else>--</div>
-						<div>{{ Handed }}-handed</div>
-					</div>
-				</div>
-			</div>
+			<table class="weapon-details">
+				<tbody class="weapon-cells">
+					<tr>
+						<td class="weapon-stat-label">Average Dmg</td>
+						<td class="weapon-stat-data alt">{{ DmgAvg }}</td>
+						<td class="weapon-stat-label">To Hit</td>
+						<td class="weapon-stat-data">{{ HitBonus }} v. {{ HitType }}</td>
+						<td class="weapon-stat-label">Range</td>
+						<td class="weapon-stat-data">{{ RangeType }} {{ Range }}ft. </td>
+					</tr>
+					<tr>
+						<td class="weapon-stat-label">Min Dmg</td>
+						<td class="weapon-stat-data">{{ DmgMin }}</td>
+						<td class="weapon-stat-label">Crit</td>
+						<td class="weapon-stat-data">{{ getCritDisplay() }}</td>
+						<td class="weapon-stat-label">Shape</td>
+						<td
+							v-if="Size"
+							class="weapon-stat-data"
+						>
+							{{ Size }}ft. {{ Shape }} 
+						</td>
+						<td
+							v-else
+							class="weapon-stat-data"
+						>
+							-- 
+						</td>
+					</tr>
+					<tr>
+						<td class="weapon-stat-label">Max Dmg</td>
+						<td class="weapon-stat-data">{{ DmgMax }}</td>
+						<td class="weapon-stat-label">Ammo</td>
+						<td class="weapon-stat-data">{{ Ammo }}</td>
+						<td class="weapon-stat-label">Duration</td>
+						<td
+							v-if="Duration"
+							class="weapon-stat-data"
+						>
+							{{ Duration }} rounds
+						</td>
+						<td
+							v-else
+							class="weapon-stat-data"
+						>
+							-- 
+						</td>
+					</tr>
+					<tr>
+						<td class="weapon-stat-label">Attack Type</td>
+						<td class="weapon-stat-data">{{ AttackType }}</td>
+						<td class="weapon-stat-label">Magazine</td>
+						<td class="weapon-stat-data">{{ AmmoCapacity }} {{ AmmoType }}</td>
+						<td class="weapon-stat-label">Handed</td>
+						<td class="weapon-stat-data">{{ Handed }}-handed</td>
+					</tr>
+				</tbody>
+			</table>
 			<div class="weapon-perks">
 				<pre>{{ Perks?.split('), ').map((item) => item + ')') }}</pre>
 			</div>
@@ -214,8 +228,6 @@ const rollHit = () => {
 	vertical-align: super;
 	margin: 0.1em;
 	/* border-right: 2px solid #fffd; */
-}
-.gun-titles {
 }
 .element-glyph {
 	display: inline-block;
@@ -271,7 +283,7 @@ h2 {
 	display: inline-block;
 	width: fit-content;
 	margin: auto 0;
-	font-size: 0.8em;
+	font-size: 1.2em;
 	padding-left: 16px;
 	white-space: nowrap;
 }
@@ -279,29 +291,29 @@ h2 {
 	vertical-align: middle;
 }
 .ammo-image {
-	height: 1.25em;
+	height: 2em;
 	/* vertical-align: bottom; */
 }
 .weapon-details {
-	display: flex;
 	border-bottom: 2px solid #fff4;
-}
-.weapon-cells {
-	display: flex;
+	border-spacing: 0;
+	table-layout: fixed;
+	width: 100%;
 	font-size: 0.9em;
-	padding: 0.5em;
-	flex: 1.1;
-	flex-direction: row;
+	padding: 8px;
 }
 .weapon-stat-label {
 	font-weight: 800;
 	text-align: right;
 	padding-right: 0.25em;
-	border-right: 1px solid #fffd;
+	border-right: 2px solid #fff8;
 	margin-right: 0.25em;
 }
 .weapon-stat-data {
-	flex: 2;
+	padding-left: 0.25em;
+}
+.weapon-stat-data.alt {
+	width: 7%;
 }
 .weapon-perks {
 	flex: 2;
