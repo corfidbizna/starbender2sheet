@@ -97,7 +97,7 @@ const rollHit = () => {
 							class="kinetic-icon"
 							src="/src/assets/svgs/Kenetic.svg"
 						/>
-						{{ Name }}
+						<span>{{ Name }}</span>
 					</h1>
 					<h2>
 						{{ WeaponClass.toUpperCase() }}
@@ -121,7 +121,6 @@ const rollHit = () => {
 					<img
 						v-else
 						class="kinetic-icon"
-						style="width: 37px; height: 37px"
 						src="/src/assets/svgs/Kenetic.svg"
 					/>
 					<span
@@ -217,7 +216,6 @@ const rollHit = () => {
 	/* border-right: 2px solid #fffd; */
 }
 .gun-titles {
-	display: inline-block;
 }
 .element-glyph {
 	display: inline-block;
@@ -225,7 +223,9 @@ const rollHit = () => {
 	vertical-align: top;
 }
 h1 {
+	display: flex;
 	font-size: 1.3em;
+	line-height: 1em;
 	font-weight: 800;
 	padding: 0;
 	margin: 0;
@@ -242,12 +242,14 @@ h2 {
 }
 .weapon-header {
 	padding: 0.25em;
+	display: flex;
 }
 .weapon-titles {
-	display: inline-block;
+	display: flex;
+	flex-grow: 1;
 }
 .action-buttons {
-	float: right;
+	flex-shrink: 0;
 }
 .weapon-content {
 	background-color: #0008;
@@ -255,13 +257,15 @@ h2 {
 .weapon-damage-info {
 	padding: 8px;
 	border-bottom: 2px solid #fff4;
+	display: flex;
 }
 .damage-main {
 	font-size: 2.8em;
+	line-height: 1em;
 	font-weight: bold;
 	padding-right: 16px;
 	border-right: 2px solid #fff8;
-	display: inline-block;
+	display: flex;
 }
 .damage-sub {
 	display: inline-block;
@@ -317,9 +321,8 @@ h2 {
 	background: #000a;
 }
 .kinetic-icon {
-	width: 14px;
-	height: 14px;
+	width: 1em;
+	height: 1em;
 	filter: invert(100%);
-	vertical-align: top;
 }
 </style>
