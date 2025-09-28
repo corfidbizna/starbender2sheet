@@ -520,7 +520,7 @@ export type StatBoxField = {
 
 //
 export const makeComputedOfStats = (
-	stats: StatsCalculated,
+	stats: ComputedRef<StatsCalculated>,
 	tally: ComputedRef<CharacterBuffSummary>,
 	label: string,
 	keys: StatsCalculatedKey[],
@@ -533,7 +533,7 @@ export const makeComputedOfStats = (
 				key,
 				label: labelMap[key],
 				hovertext: buffsValue[key]?.summary,
-				value: stats[key],
+				value: stats.value[key],
 				value2: buffsValue[key]?.total,
 			})),
 		};

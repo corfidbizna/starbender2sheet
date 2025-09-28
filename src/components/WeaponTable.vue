@@ -90,21 +90,17 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 			v-else
 			class="scroll-box"
 		>
-			<table>
-				<tbody>
-					<WeaponItemRow
-						v-for="weapon in filteredData.includes"
-						:key="weapon.Name"
-						v-bind="weapon"
-					/>
-					<WeaponItemRow
-						v-for="weapon in filteredData.excludes"
-						:key="weapon.Name"
-						v-bind="weapon"
-						class="filtered"
-					/>
-				</tbody>
-			</table>
+			<WeaponItemRow
+				v-for="weapon in filteredData.includes"
+				:key="weapon.Name"
+				v-bind="weapon"
+			/>
+			<WeaponItemRow
+				v-for="weapon in filteredData.excludes"
+				:key="weapon.Name"
+				v-bind="weapon"
+				class="filtered"
+			/>
 		</div>
 	</div>
 </template>
