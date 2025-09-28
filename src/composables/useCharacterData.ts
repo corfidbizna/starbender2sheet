@@ -605,7 +605,7 @@ export type Weapon = ImportedWeapon & {
 	DmgMin: number;
 	DmgMax: number;
 	DmgAvg: number;
-	NameShort: string;
+	DmgShort: string;
 };
 // The type describing a quest info block.
 export type Quest = {
@@ -770,7 +770,7 @@ function useCharacterDataUncached(characterId: string) {
 			weapon.DmgMin = formula.min(statFunction);
 			weapon.DmgMax = formula.max(statFunction);
 			weapon.DmgAvg = formula.mean(statFunction);
-			weapon.NameShort = formula.evaluateExceptDice(statFunction).stringify();
+			weapon.DmgShort = formula.evaluateExceptDice(statFunction).stringify();
 			return weapon;
 		});
 	});

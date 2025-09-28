@@ -124,7 +124,11 @@ const rollHit = () => {
 						style="width: 37px; height: 37px"
 						src="/src/assets/svgs/Kenetic.svg"
 					/>
-					<span :style="'color: ' + colorsElement(Element)">{{ Damage }}</span>
+					<span
+						:style="'color: ' + colorsElement(Element)"
+						:title="Damage"
+						>{{ DmgShort }}</span
+					>
 				</div>
 				<div class="damage-sub">
 					<span>Ammo: </span
@@ -183,7 +187,6 @@ const rollHit = () => {
 			</div>
 			<div class="weapon-perks">
 				<pre>{{ Perks?.split('), ').map((item) => item + ')') }}</pre>
-				<pre>{{ NameShort }}</pre>
 			</div>
 			<div
 				class="flavortext"
