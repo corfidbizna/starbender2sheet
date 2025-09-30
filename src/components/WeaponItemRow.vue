@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { type Weapon } from '@/composables/useCharacterData';
+import { updateLog } from '@/sharedState.ts';
+import useCharacterData, { type Weapon } from '@/composables/useCharacterData';
 import DGlyph from './DGlyph.vue';
 import CapacityBar from './CapacityBar.vue';
 import { DiceFormula } from '@/business_logic/diceFormula';
+import { ref } from 'vue';
 
-const props = defineProps<Weapon>();
+const props = defineProps<Weapon & { characterId: string }>();
+const { weaponAmmoUpdate } = useCharacterData(props.characterId);
 const getCritDisplay = (): string => {
 	if (!props.CritRange) {
 		return '--';
@@ -14,6 +17,9 @@ const getCritDisplay = (): string => {
 		return props.CritRange + delimiter + props.CritMult;
 	}
 	return 21 - props.CritRange + '-20' + delimiter + props.CritMult;
+};
+const getAmmoTypeDisplay = (): string => {
+	return props.AmmoType.split(' ')[0];
 };
 const colorsRarity = (rarity: string): string => {
 	if (rarity === 'Uncommon') {
@@ -66,14 +72,37 @@ const colorsAmmo = (ammoType: string) => {
 	if (ammoType.includes('heavy')) {
 		return '#B286FF' + alpha;
 	}
-	return '#ffff' + alpha;
+	return '#eeeeee' + alpha;
 };
-const hitFormula = new DiceFormula('1d20+' + props.HitBonus);
+const hitFormula = new DiceFormula('1d20');
 const rollDamage = () => {
-	console.log(props.DamageFormula.roll(() => 0));
+	const result = props.DamageFormula.roll(() => 0);
+	let string = props.Name + '\n  Damage: ' + result;
+	if (props.CritMult) {
+		string += '\n  Crit damage: ' + result * props.CritMult;
+	}
+	updateLog(string);
 };
 const rollHit = () => {
-	console.log(hitFormula.roll(() => 0));
+	const result = hitFormula.roll(() => 0);
+	let string = props.Name + '\n  Hit result: ' + (result + (props.HitBonus || 0));
+	if (result <= 1) {
+		string += '\n == Natural 1! ==';
+	}
+	if (result > 20 - (props.CritRange || 0)) {
+		string += '\n == Critical hit! ==';
+	}
+	updateLog(string);
+	fire();
+};
+const currentAmmo = ref<number>(props.AmmoCurrent);
+const fire = () => {
+	currentAmmo.value = weaponAmmoUpdate(props.Name, -props.Ammo);
+};
+const reload = () => {
+	updateLog('Reloaded ' + props.Name);
+	const difference = props.AmmoCapacity - props.AmmoCurrent;
+	currentAmmo.value = weaponAmmoUpdate(props.Name, difference);
 };
 </script>
 <template>
@@ -105,8 +134,8 @@ const rollHit = () => {
 				</div>
 			</div>
 			<div class="action-buttons">
-				<button @click="rollHit">Hit</button>
-				<button @click="rollDamage">Dmg</button>
+				<button @click="rollHit"><span class="glyph"></span><span>Hit</span></button>
+				<button @click="rollDamage"><span class="glyph"></span><span>Dmg</span></button>
 			</div>
 		</div>
 		<div class="weapon-content">
@@ -130,14 +159,21 @@ const rollHit = () => {
 					>
 				</div>
 				<div class="damage-sub">
-					<span>Ammo: </span
-					><img
+					<img
 						class="ammo-image"
 						:src="ammoImageSrc()"
-					/><CapacityBar
-						v-bind="{ max: AmmoCapacity, current: Ammo, color: colorsAmmo(AmmoType) }"
 					/>
-					<span>{{ props.Ammo }} ⁄ {{ props.AmmoCapacity }}</span>
+					<span class="ammo-type">{{ ' ' + getAmmoTypeDisplay() }}</span>
+					<CapacityBar
+						v-bind="{
+							max: AmmoCapacity,
+							current: currentAmmo,
+							color: colorsAmmo(AmmoType),
+						}"
+						class="ammo-bar"
+					/>
+					<span>{{ currentAmmo }} ⁄ {{ props.AmmoCapacity }}</span>
+					<button @click="reload()">↺</button>
 				</div>
 			</div>
 			<table class="weapon-details">
@@ -146,7 +182,7 @@ const rollHit = () => {
 						<td class="weapon-stat-label">Average Dmg</td>
 						<td class="weapon-stat-data alt">{{ DmgAvg }}</td>
 						<td class="weapon-stat-label">To Hit</td>
-						<td class="weapon-stat-data">{{ HitBonus }} v. {{ HitType }}</td>
+						<td class="weapon-stat-data">{{ HitBonus || 0 }} v. {{ HitType }}</td>
 						<td class="weapon-stat-label">Range</td>
 						<td class="weapon-stat-data">{{ RangeType }} {{ Range }}ft. </td>
 					</tr>
@@ -283,7 +319,7 @@ h2 {
 	display: inline-block;
 	width: fit-content;
 	margin: auto 0;
-	font-size: 1.2em;
+	font-size: 1.1em;
 	padding-left: 16px;
 	white-space: nowrap;
 }
@@ -293,6 +329,13 @@ h2 {
 .ammo-image {
 	height: 2em;
 	/* vertical-align: bottom; */
+}
+.ammo-type {
+	text-transform: uppercase;
+}
+.ammo-bar {
+	width: 5em;
+	margin: 0 0.3em;
 }
 .weapon-details {
 	border-bottom: 2px solid #fff4;
@@ -336,5 +379,23 @@ h2 {
 	width: 1em;
 	height: 1em;
 	filter: invert(100%);
+}
+button {
+	color: #fff;
+	text-decoration: none;
+	border: 1px solid #fff8;
+	background: #0003;
+	transition: background 0.1s;
+	margin: 3px;
+}
+button .glyph {
+	font-family: 'Destiny Symbols Common';
+}
+button:hover {
+	background: #fff1;
+	transition: background 0.1s;
+}
+button:active {
+	background: #fff8;
 }
 </style>

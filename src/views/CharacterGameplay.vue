@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import useCharacterData, {
 	type StatBoxInfo,
-	type StatBoxField,
+	type BarBoxStatField,
 	makeComputedOfStats,
 } from '@/composables/useCharacterData';
 import StatBarsBox from '@/components/StatBarsBox.vue';
@@ -53,7 +53,7 @@ const energyInfo = computed<StatBoxInfo>(
 	]),
 );
 const skillsInfo = computed<StatBoxInfo>(() => {
-	const fieldArray = <StatBoxField[]>[];
+	const fieldArray = <BarBoxStatField[]>[];
 	skills.value.forEach((skill) => {
 		fieldArray.push({ label: skill.Name, value: skill.Bonus });
 	});
@@ -98,9 +98,9 @@ const testAmmoInfo = <StatBoxInfo>{
 			<div class="stat-column-b">
 				<div><StatBarsBox v-bind="actionsInfo" /></div>
 				<h2>Derived Information</h2>
-				<div>Movement per move: 300000 ft.</div>
+				<div>Movement per move: {{ stats.actionsMoveBaseLand }} ft.</div>
 				<div>Reach: {{ stats.reach }} ft.</div>
-				<div>Size: Medium</div>
+				<div>Size: {{ stats.size }}</div>
 				<div>Carrying Capacity: {{ stats.capacityCarrying }} lbs.</div>
 			</div>
 			<div class="stat-column-c">

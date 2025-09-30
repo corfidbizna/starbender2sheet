@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+
 type CapacityBarInfo = {
 	max: number;
 	current: number;
@@ -6,24 +8,11 @@ type CapacityBarInfo = {
 	min?: number;
 };
 const props = defineProps<CapacityBarInfo>();
-const range = props.max - (props.min || 0);
-const color = props.color || '#f0f';
-const progress = (100 * (props.current - (props.min || 0))) / range;
-// const progress = () => {
-// 	const backgroundColor = '#fffa';
-// 	const progress = (100 * (props.current - (props.min || 0))) / range;
-// 	return (
-// 		'background-color: linear-gradient(90deg, ' +
-// 		props.color +
-// 		' ' +
-// 		progress +
-// 		'%, ' +
-// 		backgroundColor +
-// 		' ' +
-// 		progress +
-// 		';'
-// 	);
-// };
+const range = computed<number>(() => props.max - (props.min || 0));
+const color = computed<string>(() => props.color || '#f0f');
+const progress = computed<number>(() =>
+	Math.min(100, Math.max(0, (100 * (props.current - (props.min || 0))) / range.value)),
+);
 </script>
 <template>
 	<span class="container">
@@ -34,27 +23,32 @@ const progress = (100 * (props.current - (props.min || 0))) / range;
 		<span class="line"></span>
 		<span
 			class="remaining"
-			:style="'width: calc(' + (100 - progress) + '% - 1px);'"
+			:style="'width: calc(' + (100 - progress) + '% - 2px);'"
 		></span>
 	</span>
 </template>
 <style scoped>
 .container {
 	display: inline-block;
-	width: calc(100% - 1px);
+	width: calc(100% - 2px);
 	height: 1.2em;
 	margin: 2px;
 }
 .bar,
+.remaining,
+.line {
+	transition: width 0.15s;
+}
+.bar,
 .remaining {
 	display: inline-block;
-	height: calc(100% - 2px);
+	height: calc(100% - 4px);
 	margin-top: 1px;
 	margin-bottom: 1px;
 }
 .line {
 	display: inline-block;
-	width: 1px;
+	width: 2px;
 	height: 100%;
 	background-color: #fff;
 }

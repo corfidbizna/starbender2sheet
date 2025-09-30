@@ -509,9 +509,9 @@ Object.entries(labelMap).forEach(
 // horizontal bar graphs of numerical character stats.
 export type StatBoxInfo = {
 	label: string;
-	data: StatBoxField[];
+	data: BarBoxStatField[];
 };
-export type StatBoxField = {
+export type BarBoxStatField = {
 	label: string;
 	hovertext?: string;
 	value: number;
@@ -583,7 +583,7 @@ export type ImportedWeapon = {
 	WeaponClass: WeaponClasses;
 	AttackType: string;
 	HitType: string;
-	HitBonus: number;
+	HitBonus?: number;
 	CritRange?: number;
 	CritMult?: number;
 	Damage: string;
@@ -606,6 +606,7 @@ export type Weapon = ImportedWeapon & {
 	DmgMax: number;
 	DmgAvg: number;
 	DmgShort: string;
+	AmmoCurrent: number;
 };
 // The type describing a quest info block.
 export type Quest = {
@@ -771,9 +772,23 @@ function useCharacterDataUncached(characterId: string) {
 			weapon.DmgMax = formula.max(statFunction);
 			weapon.DmgAvg = formula.mean(statFunction);
 			weapon.DmgShort = formula.evaluateExceptDice(statFunction).stringify();
+			weapon.AmmoCurrent = weapon.AmmoCapacity;
 			return weapon;
 		});
 	});
+	const weaponAmmoUpdate = (name: string, changeAmount: number) => {
+		const targetWeapon: Weapon | undefined = weapons.value.find(
+			(weapon) => weapon.Name === name,
+		);
+		if (targetWeapon) {
+			targetWeapon.AmmoCurrent += changeAmount;
+			console.log('New weapon ammo count: ' + targetWeapon.AmmoCurrent);
+			return targetWeapon.AmmoCurrent;
+		} else {
+			console.log('The weapon ' + name + " didn't exist when we tried to change its ammo.");
+			return 0;
+		}
+	};
 	// WEAPONS END
 
 	// ==================================================================================================
@@ -1077,6 +1092,7 @@ function useCharacterDataUncached(characterId: string) {
 		skillsRefresh,
 		// Weapons
 		weapons,
+		weaponAmmoUpdate,
 		weaponsLoading,
 		weaponsRefresh,
 		// Quests

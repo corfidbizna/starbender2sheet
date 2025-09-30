@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { actionLog } from '@/sharedState.ts';
 import useCharacterData, { type CharacterNames, type Weapon } from '@/composables/useCharacterData';
 import WeaponItemRow from './WeaponItemRow.vue';
 import LoadingModal from './LoadingModal.vue';
@@ -12,6 +13,7 @@ const sortList: Record<string, string> = {
 	Rarity: 'Rarity',
 	Element: 'Element',
 	Handedness: 'Handed',
+	'Average Damage': 'DmgAvg',
 };
 type weaponKeys = keyof Weapon;
 const sortBy = ref<string>('Name');
@@ -50,88 +52,103 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 });
 </script>
 <template>
-	<div class="weapon-table">
-		<div class="search">
-			<label>
-				<span class="label">Filter by name: </span>
-				<input
-					type="text"
-					v-model="queryValue"
-				/>
-			</label>
-			<label>
-				<span class="label">Invert: </span>
-				<input
-					type="checkbox"
-					v-model="invertFilter"
-				/>
-			</label>
+	<div class="weapon-tab-container">
+		<span class="weapon-infos">
 			<button @click="weaponsRefresh">Reload Weapons</button>
-			<label for="sort-by"> Sort by:</label>
-			<select
-				name="sort"
-				id="sort-by"
-				v-model="sortBy"
-			>
-				<option
-					v-for="item in Object.keys(sortList)"
-					:key="item"
-					:value="sortList[item]"
+			<div class="search">
+				<label>
+					<span class="label">Filter by name: </span>
+					<input
+						type="text"
+						v-model="queryValue"
+					/>
+				</label>
+				<label>
+					<span class="label">Invert: </span>
+					<input
+						type="checkbox"
+						v-model="invertFilter"
+					/>
+				</label>
+			</div>
+			<div class="sort">
+				<label for="sort-by"> Sort by:</label>
+				<select
+					name="sort"
+					id="sort-by"
+					v-model="sortBy"
 				>
-					{{ item }}
-				</option>
-			</select>
-			<button @click="toggleSortAscending">
-				<span v-if="sortAscending">↓</span><span v-else>↑</span>
-			</button>
-		</div>
-		<div v-if="weaponsLoading"><LoadingModal /></div>
-		<div
-			v-else
-			class="scroll-box"
-		>
-			<WeaponItemRow
-				v-for="weapon in filteredData.includes"
-				:key="weapon.Name"
-				v-bind="weapon"
-			/>
-			<WeaponItemRow
-				v-for="weapon in filteredData.excludes"
-				:key="weapon.Name"
-				v-bind="weapon"
-				class="filtered"
-			/>
-		</div>
+					<option
+						v-for="item in Object.keys(sortList)"
+						:key="item"
+						:value="sortList[item]"
+					>
+						{{ item }}
+					</option>
+				</select>
+				<button @click="toggleSortAscending">
+					<span v-if="sortAscending">↓</span><span v-else>↑</span>
+				</button>
+			</div>
+			<textarea
+				v-model="actionLog"
+				readonly
+				class="action-log"
+			></textarea>
+		</span>
+		<span class="weapon-table">
+			<div v-if="weaponsLoading"><LoadingModal /></div>
+			<div
+				v-else
+				class="scroll-box"
+			>
+				<WeaponItemRow
+					v-for="weapon in filteredData.includes"
+					:key="weapon.Name"
+					v-bind="weapon"
+					:characterId="characterId"
+				/>
+				<WeaponItemRow
+					v-for="weapon in filteredData.excludes"
+					:key="weapon.Name"
+					v-bind="weapon"
+					:characterId="characterId"
+					class="filtered"
+				/>
+			</div>
+		</span>
 	</div>
 </template>
 <style scoped>
+.weapon-tab-container {
+	display: flex;
+}
+.weapon-infos {
+	display: flex;
+	flex-direction: column;
+	width: 18em;
+	margin-right: 20px;
+}
 .search {
 	padding: 0.25em;
 }
-/* .scroll-box {
-	border: 4px solid #0008;
-} */
-table {
-	width: 100%;
+.action-log {
+	color: #fff;
+	font-size: 0.8em;
+	resize: none;
+	border-color: #fff8;
+	background-color: #0004;
+	height: 100%;
 }
-thead {
-	position: sticky;
-	top: 0;
-	z-index: 1;
+.weapon-table {
+	display: inline;
+	width: auto;
 }
-th {
-	background-color: #333;
+.scroll-box {
+	overflow-y: scroll;
+	height: calc(100vh - 150px);
+	padding: 0 10px;
 }
-th,
-td {
-	border: 1px solid #666;
-	padding: 1px 4px;
-}
-.bonus,
-.score {
-	max-width: 1rem;
-}
-
 .filtered {
 	opacity: 0.2;
 }
