@@ -12,7 +12,6 @@ defineProps<SkillsTableItem>();
 		<td>{{ Name }}</td>
 		<td>{{ Score }}</td>
 		<td>{{ Focused }}</td>
-		<td>{{ Notes }}</td>
 	</tr>
 </template>
 <style scoped>

@@ -5,7 +5,7 @@ type CharacterProps = {
 	characterId: CharacterNames;
 };
 const props = defineProps<CharacterProps>();
-const { character, stats } = useCharacterData(props.characterId);
+const { character, stats, statsBase } = useCharacterData(props.characterId);
 </script>
 <template>
 	<div
@@ -14,75 +14,80 @@ const { character, stats } = useCharacterData(props.characterId);
 	>
 		<!-- <h1>{{ character.label }}, the Void Hunter</h1> -->
 		<table class="summary">
-			<tr>
-				<td colspan="2"><h2>Character</h2></td>
-			</tr>
-			<tr>
-				<td>Name:</td>
-				<td>{{ character.label }}</td>
-			</tr>
-			<tr>
-				<td>Race:</td>
-				<td>Human</td>
-			</tr>
-			<tr>
-				<td>Class:</td>
-				<td>Risen</td>
-			</tr>
-			<tr>
-				<td>Level:</td>
-				<td>7</td>
-			</tr>
-			<tr>
-				<td colspan="2"><h2>Appearance</h2></td>
-			</tr>
-			<tr>
-				<td>Hair Color:</td>
-				<td>Brown</td>
-			</tr>
-			<tr>
-				<td>Eye Color:</td>
-				<td>Blue</td>
-			</tr>
-			<tr>
-				<td>Height:</td>
-				<td>5'2"</td>
-			</tr>
-			<tr>
-				<td>Weight:</td>
-				<td>130 lbs.</td>
-			</tr>
-			<tr>
-				<td colspan="2"><h2>Guardian Stats</h2></td>
-			</tr>
-			<tr>
-				<td>Guardian Class:</td>
-				<td>Hunter</td>
-			</tr>
-			<tr>
-				<td>Subclass:</td>
-				<td>Solar</td>
-			</tr>
-			<tr>
-				<td>Ghost:</td>
-				<td>Roas</td>
-			</tr>
-			<tr>
-				<td colspan="2"><h2>Description</h2></td>
-			</tr>
-			<tr>
-				<td colspan="2">
-					<div>
-						Short for a teen, Kara has a boisterous personality. There's not much margin
-						between him knowing your name and being your friend. He's not the sharpest
-						bulb in the drawer—he left his brain cell behind in his original reality—but
-						he's keen in ways that you might not expect.
-					</div>
-				</td>
-			</tr>
+			<tbody>
+				<tr>
+					<td colspan="2"><h2>Character</h2></td>
+				</tr>
+				<tr>
+					<td>Name:</td>
+					<td>{{ character.label }}</td>
+				</tr>
+				<tr>
+					<td>Race:</td>
+					<td>{{ statsBase.race }}</td>
+				</tr>
+				<tr>
+					<td>Class:</td>
+					<td>{{ statsBase.class }}</td>
+				</tr>
+				<tr>
+					<td>Level:</td>
+					<td>{{ statsBase.cpl }}</td>
+				</tr>
+				<tr>
+					<td colspan="2"><h2>Appearance</h2></td>
+				</tr>
+				<tr>
+					<td>Hair Color:</td>
+					<td>{{ statsBase.colorHair }}</td>
+				</tr>
+				<tr>
+					<td>Eye Color:</td>
+					<td>{{ statsBase.colorEye }}</td>
+				</tr>
+				<tr>
+					<td>Height:</td>
+					<td>{{ statsBase.height }}</td>
+				</tr>
+				<tr>
+					<td>Weight:</td>
+					<td>{{ statsBase.weight }}</td>
+				</tr>
+				<tr>
+					<td colspan="2"><h2>Guardian Stats</h2></td>
+				</tr>
+				<tr>
+					<td>Guardian Class:</td>
+					<td>{{ statsBase.guardianClass }}</td>
+				</tr>
+				<tr>
+					<td>Subclass:</td>
+					<td>{{ statsBase.guardianSubclass }}</td>
+				</tr>
+				<tr>
+					<td>Ghost:</td>
+					<td>{{ statsBase.nameGhost }}</td>
+				</tr>
+				<tr>
+					<td colspan="2"><h2>Description</h2></td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<div>
+							Short for a teen, Kara has a boisterous personality. There's not much
+							margin between him knowing your name and being your friend. He's not the
+							sharpest bulb in the drawer—he left his brain cell behind in his
+							original reality—but he's keen in ways that you might not expect.
+						</div>
+					</td>
+				</tr>
+			</tbody>
 		</table>
 		<div class="preview">
-			<h1>{{ character.label }}, the Solar Hunter</h1>
+			<h1>
+				{{ character.label }}, the {{ statsBase.guardianSubclass }}
+				{{ statsBase.guardianClass }}
+			</h1>
 			<img
 				src="https://static.wikia.nocookie.net/kingdomhearts/images/0/00/Sora_KHIII_RM.png"
 			/>

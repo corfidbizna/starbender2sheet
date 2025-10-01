@@ -4,9 +4,12 @@ import useCharacterData, {
 	type StatBoxInfo,
 	type BarBoxStatField,
 	makeComputedOfStats,
+	type CapacityBoxStatField,
+	sizeMap,
 } from '@/composables/useCharacterData';
 import StatBarsBox from '@/components/StatBarsBox.vue';
 import LoadingModal from '@/components/LoadingModal.vue';
+import StatCapacityBox from '@/components/StatCapacityBox.vue';
 type CharacterProps = {
 	characterId: string;
 };
@@ -14,7 +17,9 @@ const props = defineProps<CharacterProps>();
 
 const {
 	character,
+	statsBase,
 	stats,
+	actionResources,
 	buffsTallied,
 	statsLoading,
 	statsRefresh,
@@ -23,6 +28,25 @@ const {
 	skillsRefresh,
 } = useCharacterData(props.characterId);
 
+const subclassColor = computed<string>(() => {
+	const subclass = statsBase.value.guardianSubclass;
+	if (subclass === 'Solar') {
+		return '#F16F27';
+	}
+	if (subclass === 'Void') {
+		return '#B283CC';
+	}
+	if (subclass === 'Arc') {
+		return '#7AECF3';
+	}
+	if (subclass === 'Stasis') {
+		return '#4D87FF';
+	}
+	if (subclass === 'Strand') {
+		return '#35E366';
+	}
+	return '#FFFFFF'; // Kinetic
+});
 const statInfo = computed<StatBoxInfo>(
 	makeComputedOfStats(stats, buffsTallied, 'Ability Scores', [
 		'str',
@@ -36,40 +60,102 @@ const statInfo = computed<StatBoxInfo>(
 const savesInfo = computed<StatBoxInfo>(
 	makeComputedOfStats(stats, buffsTallied, 'Saving Throws', ['fort', 'ref', 'will']),
 );
-const actionsInfo = computed<StatBoxInfo>(
-	makeComputedOfStats(stats, buffsTallied, 'Action', [
-		'actionsMove',
-		'actionsAttack',
-		'actionsReaction',
-	]),
-);
-const energyInfo = computed<StatBoxInfo>(
-	makeComputedOfStats(stats, buffsTallied, 'Energy', [
-		'energySuper',
-		'energyClass',
-		'energyMelee',
-		'energyGrenade',
-		'energyUniversal',
-	]),
-);
+const actionsCapacity = computed<CapacityBoxStatField[]>(() => {
+	return [
+		{
+			label: 'Moves',
+			stat: 'actionsMove',
+			max: stats.value.actionsMove,
+			current: actionResources.value.actionsMove,
+		},
+		{
+			label: 'Attacks',
+			stat: 'actionsAttack',
+			max: stats.value.actionsAttack,
+			current: actionResources.value.actionsAttack,
+		},
+		{
+			label: 'Reactions',
+			stat: 'actionsReaction',
+			max: stats.value.actionsReaction,
+			current: actionResources.value.actionsReaction,
+		},
+	];
+});
+const ammoCapacity = computed<CapacityBoxStatField[]>(() => {
+	return [
+		{
+			label: 'Kinetic',
+			stat: 'ammoKinetic',
+			color: '#eee',
+			max: stats.value.capacityKinetic,
+			current: actionResources.value.ammoKinetic,
+		},
+		{
+			label: 'Special',
+			stat: 'ammoSpecial',
+			color: '#7AF48B',
+			max: stats.value.capacitySpecial,
+			current: actionResources.value.ammoSpecial,
+		},
+		{
+			label: 'Heavy',
+			stat: 'ammoHeavy',
+			color: '#B286FF',
+			max: stats.value.capacityHeavy,
+			current: actionResources.value.ammoHeavy,
+		},
+	];
+});
+const energyCapacity = computed<CapacityBoxStatField[]>(() => {
+	return [
+		{
+			label: 'Super',
+			stat: 'energySuper',
+			color: subclassColor.value,
+			max: stats.value.energySuper,
+			current: actionResources.value.energySuper,
+		},
+		{
+			label: 'Class',
+			stat: 'energyClass',
+			color: subclassColor.value,
+			max: stats.value.energyClass,
+			current: actionResources.value.energyClass,
+		},
+		{
+			label: 'Melee',
+			stat: 'energyMelee',
+			color: subclassColor.value,
+			max: stats.value.energyMelee,
+			current: actionResources.value.energyMelee,
+		},
+		{
+			label: 'Grenade',
+			stat: 'energyGrenade',
+			color: subclassColor.value,
+			max: stats.value.energyGrenade,
+			current: actionResources.value.energyGrenade,
+		},
+		{
+			label: 'Universal',
+			stat: 'energyUniversal',
+			color: '#eee',
+			max: stats.value.energyUniversal,
+			current: actionResources.value.energyUniversal,
+		},
+	];
+});
 const skillsInfo = computed<StatBoxInfo>(() => {
 	const fieldArray = <BarBoxStatField[]>[];
 	skills.value.forEach((skill) => {
-		fieldArray.push({ label: skill.Name, value: skill.Bonus });
+		fieldArray.push({ label: skill.Name, stat: skill.Name, value: skill.Bonus });
 	});
 	return {
 		label: 'Skills',
 		data: fieldArray,
 	};
 });
-const testAmmoInfo = <StatBoxInfo>{
-	label: 'Ammo',
-	data: [
-		{ label: 'Kinetic Ammo', value: 0 },
-		{ label: 'Energy Ammo', value: 19 },
-		{ label: 'Heavy Ammo', value: 8 },
-	],
-};
 </script>
 <template>
 	<div
@@ -96,16 +182,54 @@ const testAmmoInfo = <StatBoxInfo>{
 				<div><StatBarsBox v-bind="savesInfo" /></div>
 			</div>
 			<div class="stat-column-b">
-				<div><StatBarsBox v-bind="actionsInfo" /></div>
-				<h2>Derived Information</h2>
-				<div>Movement per move: {{ stats.actionsMoveBaseLand }} ft.</div>
-				<div>Reach: {{ stats.reach }} ft.</div>
-				<div>Size: {{ stats.size }}</div>
-				<div>Carrying Capacity: {{ stats.capacityCarrying }} lbs.</div>
+				<StatCapacityBox
+					v-bind="{
+						label: 'Actions',
+						data: actionsCapacity,
+					}"
+					:characterId="characterId"
+				/>
+				<table>
+					<caption>
+						<h2>Derived Information</h2>
+					</caption>
+					<tr>
+						<td class="stat-label">Movement per move</td>
+						<td class="stat-value">{{ stats.actionsMoveBaseLand }} ft.</td>
+					</tr>
+					<tr>
+						<td class="stat-label">Reach</td>
+						<td class="stat-value">{{ stats.reach }} ft.</td>
+					</tr>
+					<tr>
+						<td class="stat-label">Size</td>
+						<td class="stat-value">{{ sizeMap[stats.size].name }}</td>
+					</tr>
+					<tr>
+						<td class="stat-label">Carrying Capacity</td>
+						<td class="stat-value">{{ stats.capacityCarrying }} lbs.</td>
+					</tr>
+				</table>
 			</div>
 			<div class="stat-column-c">
-				<div><StatBarsBox v-bind="testAmmoInfo" /></div>
-				<div><StatBarsBox v-bind="energyInfo" /></div>
+				<div>
+					<StatCapacityBox
+						v-bind="{
+							label: 'Ammo',
+							data: ammoCapacity,
+						}"
+						:characterId="characterId"
+					/>
+				</div>
+				<div>
+					<StatCapacityBox
+						v-bind="{
+							label: 'Energy',
+							data: energyCapacity,
+						}"
+						:characterId="characterId"
+					/>
+				</div>
 			</div>
 			<div style="height: 10em; width: 30em"><StatBarsBox v-bind="skillsInfo" /></div>
 		</div>
@@ -121,5 +245,15 @@ const testAmmoInfo = <StatBoxInfo>{
 }
 .stat-column-c {
 	width: 25%;
+}
+.stat-label {
+	text-align: right;
+	white-space: nowrap;
+}
+.stat-value {
+	text-align: right;
+	white-space: nowrap;
+	font-weight: bold;
+	width: 100%;
 }
 </style>

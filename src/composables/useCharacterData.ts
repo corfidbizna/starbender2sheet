@@ -134,7 +134,7 @@ type SizeEffect = {
 	fly: number;
 	toHit: number;
 };
-const sizeMap: Record<number, SizeEffect> = {
+export const sizeMap: Record<number, SizeEffect> = {
 	'-4': {
 		name: 'Fine',
 		ac: 8,
@@ -513,9 +513,22 @@ export type StatBoxInfo = {
 };
 export type BarBoxStatField = {
 	label: string;
+	stat: string;
 	hovertext?: string;
 	value: number;
 	value2?: number;
+};
+export type CapacityBoxInfo = {
+	label: string;
+	data: CapacityBoxStatField[];
+};
+export type CapacityBoxStatField = {
+	label: string;
+	stat: string;
+	color?: string;
+	hovertext?: string;
+	max: number;
+	current: number;
 };
 
 //
@@ -532,6 +545,46 @@ export const makeComputedOfStats = (
 			data: keys.map((key) => ({
 				key,
 				label: labelMap[key],
+				stat: key,
+				hovertext: buffsValue[key]?.summary,
+				value: stats.value[key],
+				value2: buffsValue[key]?.total,
+			})),
+		};
+	};
+};
+
+// The type and destination of character stats that describe "capacities" rather than straight-up values.
+export type ActionResource = {
+	actionMoves: number;
+	actionAttacks: number;
+	actionReactions: number;
+	actionOthers: number;
+	ammoKinetic: number;
+	ammoSpecial: number;
+	ammoHeavy: number;
+	energySuper: number;
+	energyMelee: number;
+	energyGrenade: number;
+	energyClass: number;
+	energyUniversal: number;
+};
+
+//
+export const makeComputedOfCapacities = (
+	stats: ComputedRef<StatsCalculated>,
+	tally: ComputedRef<CharacterBuffSummary>,
+	label: string,
+	keys: StatsCalculatedKey[],
+): (() => StatBoxInfo) => {
+	return (): StatBoxInfo => {
+		const buffsValue = tally.value;
+		return {
+			label,
+			data: keys.map((key) => ({
+				key,
+				label: labelMap[key],
+				stat: key,
 				hovertext: buffsValue[key]?.summary,
 				value: stats.value[key],
 				value2: buffsValue[key]?.total,
@@ -546,7 +599,6 @@ export type SkillsTableItem = {
 	Name: string;
 	Score: string;
 	Focused: boolean;
-	Notes: string | null;
 };
 
 // Weapon Types
@@ -813,6 +865,7 @@ function useCharacterDataUncached(characterId: string) {
 		isLoading: statsLoading,
 		refresh: statsRefresh,
 	} = getSheetForCharacter<StatSheet>(characterId, 'variables');
+	const statsBase = computed<StatSheet>(() => statsArray.value[0]);
 	const stats = computed<StatsCalculated>(() => {
 		const source = statsArray.value[0];
 		if (!source) {
@@ -945,7 +998,7 @@ function useCharacterDataUncached(characterId: string) {
 			dr: 0,
 			drFF: 0,
 			capacityCarrying: 0,
-			capacityKinetic: Infinity,
+			capacityKinetic: 0,
 			capacitySpecial: 18,
 			capacityHeavy: 8,
 			energyMelee: source.energyMelee,
@@ -1073,6 +1126,23 @@ function useCharacterDataUncached(characterId: string) {
 		console.log('result: \n', result);
 		return result;
 	});
+	const actionResources = ref<Record<string, number>>({
+		actionsMove: stats.value.actionsMove,
+		actionsAttack: stats.value.actionsAttack,
+		actionsReaction: stats.value.actionsReaction,
+		actionsOther: stats.value.actionsBonus,
+		ammoKinetic: stats.value.capacityKinetic,
+		ammoSpecial: stats.value.capacitySpecial,
+		ammoHeavy: stats.value.capacityHeavy,
+		energySuper: stats.value.energySuper,
+		energyMelee: stats.value.energyMelee,
+		energyGrenade: stats.value.energyGrenade,
+		energyClass: stats.value.energyClass,
+		energyUniversal: stats.value.energyUniversal,
+	});
+	const actionResourceUpdate = (destination: keyof ActionResource, amount: number) => {
+		actionResources.value[destination] += amount;
+	};
 	// STATS END
 
 	const composable = {
@@ -1100,6 +1170,9 @@ function useCharacterDataUncached(characterId: string) {
 		questsLoading,
 		questsRefresh,
 		// Stats
+		statsBase,
+		actionResources,
+		actionResourceUpdate,
 		stats,
 		statsLoading,
 		statsRefresh,

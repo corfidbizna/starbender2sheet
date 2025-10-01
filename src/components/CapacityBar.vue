@@ -15,10 +15,13 @@ const progress = computed<number>(() =>
 );
 </script>
 <template>
-	<span class="container">
+	<span
+		class="container"
+		v-if="props.max > 0"
+	>
 		<span
 			class="bar"
-			:style="'width: ' + progress + '%; background-color: ' + color"
+			:style="'width: calc(' + progress + '% - 2px); background-color: ' + color"
 		></span>
 		<span class="line"></span>
 		<span
@@ -26,6 +29,11 @@ const progress = computed<number>(() =>
 			:style="'width: calc(' + (100 - progress) + '% - 2px);'"
 		></span>
 	</span>
+	<span
+		v-else
+		class="blank"
+		:style="'width: 100%; background-color: ' + color"
+	></span>
 </template>
 <style scoped>
 .container {
@@ -43,8 +51,8 @@ const progress = computed<number>(() =>
 .remaining {
 	display: inline-block;
 	height: calc(100% - 4px);
-	margin-top: 1px;
-	margin-bottom: 1px;
+	margin-top: 2px;
+	margin-bottom: 2px;
 }
 .line {
 	display: inline-block;
@@ -54,5 +62,10 @@ const progress = computed<number>(() =>
 }
 .remaining {
 	background-color: #fff4;
+}
+.blank {
+	height: 1em;
+	display: inline-block;
+	margin: 2px;
 }
 </style>

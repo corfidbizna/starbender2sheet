@@ -82,7 +82,7 @@ const hitFormula = new DiceFormula('1d20');
 const rollDamage = () => {
 	const result = props.DamageFormula.roll(() => 0);
 	let string = props.Name + '\n  Damage: ' + result;
-	if (props.CritMult) {
+	if (props.CritMult && props.CritMult > 1) {
 		string += '\n  Crit damage: ' + result * props.CritMult;
 	}
 	updateLog(string);
@@ -355,9 +355,11 @@ h2 {
 	padding-right: 0.25em;
 	border-right: 2px solid #fff8;
 	margin-right: 0.25em;
+	white-space: nowrap;
 }
 .weapon-stat-data {
 	padding-left: 0.25em;
+	white-space: nowrap;
 }
 .weapon-stat-data.alt {
 	width: 7%;

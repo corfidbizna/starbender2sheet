@@ -66,7 +66,7 @@ const stats = computed<{ label: string; hovertext: string; bar: string; value: n
 					:style="stat.bar"
 				></td>
 				<td class="value">{{ stat.value }}</td>
-				<button></button>
+				<td><button></button></td>
 			</tr>
 		</table>
 	</div>
@@ -77,6 +77,7 @@ div {
 }
 table {
 	width: 100%;
+	border-spacing: 1px;
 }
 tr {
 	width: 100%;
@@ -97,6 +98,7 @@ tr {
 	width: 100%;
 }
 button {
+	margin: 0;
 	height: 1.25em;
 	color: #fff;
 	text-decoration: none;
