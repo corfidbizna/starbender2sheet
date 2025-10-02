@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { StatBoxInfo } from '@/composables/useCharacterData';
+import { DiceFormula } from '@/business_logic/diceFormula';
+import { updateLog } from '@/sharedState';
+import { computed } from 'vue';
 
 const props = defineProps<StatBoxInfo>();
 // const rangeMin = computed<number>((): number => {
@@ -50,6 +52,15 @@ const stats = computed<{ label: string; hovertext: string; bar: string; value: n
 		value: value2 != undefined ? value2 : value,
 	}));
 });
+const rollStat = (label: string, value: number) => {
+	const formula = new DiceFormula('1d20+' + value);
+	const result = formula.roll(() => 0);
+	let string = 'Roll: ' + label + '\n  Hit result: ' + result;
+	if (result <= 1 + value) {
+		string += '\n == Natural 1! ==';
+	}
+	updateLog(string);
+};
 </script>
 <template>
 	<div>
@@ -66,7 +77,7 @@ const stats = computed<{ label: string; hovertext: string; bar: string; value: n
 					:style="stat.bar"
 				></td>
 				<td class="value">{{ stat.value }}</td>
-				<td><button></button></td>
+				<td><button @click="rollStat(stat.label, stat.value)"></button></td>
 			</tr>
 		</table>
 	</div>

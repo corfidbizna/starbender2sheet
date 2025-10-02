@@ -34,10 +34,11 @@ export type BuffEffect = {
 };
 export type BuffSummary = {
 	total: number;
+	categories: Record<string, number>;
 	summary: string;
 };
 export type CharacterBuffSummary = {
-	[Property in keyof StatsCalculated]?: BuffSummary;
+	[Property in StatsCalculatedKey]?: BuffSummary;
 };
 // Buffs will have a category, a name, and list of affected stats.
 // - The category should be output in the buff effects.
@@ -98,6 +99,7 @@ export const getBuffEffects = (buff: BuffInfo, stats: StatsCalculated): BuffEffe
 		});
 		let result: number;
 		if (multFlag) {
+			console.log("Hey!  Multiplies of this nature aren't properly supported anymore!!!");
 			result =
 				stats[labelToStatName[affectedStat.toLocaleLowerCase()] as StatsCalculatedKey] *
 				(Number(magnitude) - 1);
@@ -107,27 +109,60 @@ export const getBuffEffects = (buff: BuffInfo, stats: StatsCalculated): BuffEffe
 		return {
 			category: currentCategory,
 			sourceName: buff.name,
-			affectedStat: affectedStat.replace(/^[Mm]isc /, '') as StatsCalculatedKey,
+			affectedStat: labelToStatName[
+				affectedStat.replace(/^[Mm]isc /, '').toLocaleLowerCase()
+			] as StatsCalculatedKey,
 			amount: result,
 		};
 	});
 };
 export const tallyBuffs = (buffs: BuffEffect[], stats: StatsCalculated) => {
+	// Note: the destionation needs to be filtered through the labels-whatever to get the actual stat key name.
 	const result = {} as CharacterBuffSummary;
 	buffs.forEach((buff) => {
-		const key = buff.affectedStat as keyof CharacterBuffSummary;
-		if (stats[buff.affectedStat] === undefined) {
+		const key = buff.affectedStat.toLocaleLowerCase() as StatsCalculatedKey;
+		if (stats[key] === undefined) {
+			// If the destination stat doesn't exist...
 			console.error('Invalid stat provided: ' + buff.affectedStat);
 			return;
 		}
 		if (!result[key]) {
+			// If there isn't alreay buff accumulation happening...
 			result[key] = {
-				total: stats[key] + buff.amount,
+				total: stats[key],
+				categories: {},
 				summary: buff.sourceName + ' ' + buff.amount,
 			};
+			result[key].categories[buff.category] = buff.amount;
 		} else {
-			result[key].total += buff.amount;
+			// Destination exists and buff accumulation has started.
+			if (buff.category !== 'Misc') {
+				result[key].categories[buff.category] = Math.max(
+					buff.amount || -Infinity,
+					result[key].categories[buff.category] || -Infinity,
+				);
+			} else {
+				result[key].categories[buff.category] =
+					(buff.amount || 0) + (result[key].categories[buff.category] || 0);
+			}
 			result[key].summary += '\n' + buff.sourceName + ' ' + buff.amount;
+		}
+	});
+	const destinations = Object.keys(result);
+	destinations.forEach((destination) => {
+		// console.log(
+		// 	'destination: ' + destination + '\nstat: ' + stats[destination as StatsCalculatedKey],
+		// );
+		const currentStat = result[destination as StatsCalculatedKey];
+		if (currentStat) {
+			const keys = Object.keys(currentStat?.categories || {});
+			if (keys.length > 0) {
+				keys.forEach((key) => {
+					if (currentStat !== undefined) {
+						currentStat.total += currentStat.categories[key];
+					}
+				});
+			}
 		}
 	});
 	return result;

@@ -10,6 +10,7 @@ import useCharacterData, {
 import StatBarsBox from '@/components/StatBarsBox.vue';
 import LoadingModal from '@/components/LoadingModal.vue';
 import StatCapacityBox from '@/components/StatCapacityBox.vue';
+import { actionLog } from '@/sharedState';
 type CharacterProps = {
 	characterId: string;
 };
@@ -47,7 +48,7 @@ const subclassColor = computed<string>(() => {
 	}
 	return '#FFFFFF'; // Kinetic
 });
-const statInfo = computed<StatBoxInfo>(
+const infoAbilityScores = computed<StatBoxInfo>(
 	makeComputedOfStats(stats, buffsTallied, 'Ability Scores', [
 		'str',
 		'dex',
@@ -57,9 +58,41 @@ const statInfo = computed<StatBoxInfo>(
 		'cha',
 	]),
 );
-const savesInfo = computed<StatBoxInfo>(
+const infoDefenseMods = computed<StatBoxInfo>(
+	makeComputedOfStats(stats, buffsTallied, 'Defense Mods', [
+		'ac',
+		'acTouch',
+		'acFF',
+		'acFFTouch',
+		'dr',
+		'drFF',
+	]),
+);
+const infoSaves = computed<StatBoxInfo>(
 	makeComputedOfStats(stats, buffsTallied, 'Saving Throws', ['fort', 'ref', 'will']),
 );
+const incrementTurn = () => {
+	const source = stats.value;
+	const resource = actionResources.value;
+	// Energy Regen
+	// I need to implement regen rate, then replace the 1s with the regen rate.
+	if (resource.energySuper < stats.value.energySuper) {
+		resource.energySuper += 1;
+	}
+	if (resource.energyClass < stats.value.energyClass) {
+		resource.energyClass += 1;
+	}
+	if (resource.energyMelee < stats.value.energyMelee) {
+		resource.energyMelee += 1;
+	}
+	if (resource.energyGrenade < stats.value.energyGrenade) {
+		resource.energyGrenade += 1;
+	}
+	// Action Refresh
+	resource.actionsMove += source.actionsMove - resource.actionsMove;
+	resource.actionsAttack += source.actionsAttack - resource.actionsAttack;
+	resource.actionsReaction += source.actionsReaction - resource.actionsReaction;
+};
 const actionsCapacity = computed<CapacityBoxStatField[]>(() => {
 	return [
 		{
@@ -166,20 +199,30 @@ const skillsInfo = computed<StatBoxInfo>(() => {
 			<LoadingModal />
 		</div>
 		<div v-else>
-			<h1>Gameplay for {{ character.label }}</h1>
-			<p>
-				<button
-					@click="
-						statsRefresh();
-						skillsRefresh();
-					"
-				>
-					Refresh Info
-				</button>
-			</p>
+			<div>
+				<h1>Gameplay for {{ character.label }}</h1>
+				<div>
+					<button
+						@click="
+							statsRefresh();
+							skillsRefresh();
+						"
+					>
+						Refresh Info
+					</button>
+					<button @click="incrementTurn">Increment Turn</button>
+				</div>
+			</div>
+			<div>
+				<textarea
+					v-model="actionLog"
+					readonly
+					class="action-log"
+				></textarea>
+			</div>
 			<div class="stat-column-a">
-				<div><StatBarsBox v-bind="statInfo" /></div>
-				<div><StatBarsBox v-bind="savesInfo" /></div>
+				<div><StatBarsBox v-bind="infoAbilityScores" /></div>
+				<div><StatBarsBox v-bind="infoSaves" /></div>
 			</div>
 			<div class="stat-column-b">
 				<StatCapacityBox
@@ -189,6 +232,7 @@ const skillsInfo = computed<StatBoxInfo>(() => {
 					}"
 					:characterId="characterId"
 				/>
+				<div><StatBarsBox v-bind="infoDefenseMods" /></div>
 				<table>
 					<caption>
 						<h2>Derived Information</h2>
@@ -242,6 +286,7 @@ const skillsInfo = computed<StatBoxInfo>(() => {
 	width: 20%;
 	display: inline-block;
 	vertical-align: top;
+	margin: 4px;
 }
 .stat-column-c {
 	width: 25%;

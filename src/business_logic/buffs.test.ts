@@ -425,6 +425,24 @@ describe('Behaviors of getBuffEffects', () => {
 			},
 		]);
 	});
+	test('Buffing Natural Armor real quick', () => {
+		const buff: BuffInfo = {
+			name: '',
+			category: 'Armor',
+			type: 'Buff',
+			isStacking: false,
+			effects: 'Natural Armor +3',
+		};
+		const result = getBuffEffects(buff, testCharacterSimple);
+		expect(result).toEqual([
+			{
+				category: 'Armor',
+				sourceName: buff.name,
+				affectedStat: 'Natural Armor',
+				amount: 3,
+			},
+		]);
+	});
 });
 
 describe('getStatsCalclated', () => {

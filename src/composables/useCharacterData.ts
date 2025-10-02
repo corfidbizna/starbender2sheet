@@ -502,6 +502,48 @@ export const labelToStatName: Record<string, string> = {};
 Object.entries(labelMap).forEach(
 	([stat, label]) => (labelToStatName[label.toLocaleLowerCase()] = stat),
 );
+export const statsDistribute = (source: StatsCalculated) => {
+	source.str = Math.floor((source.strScore - 10) / 2);
+	source.dex = Math.floor((source.dexScore - 10) / 2);
+	source.con = Math.floor((source.conScore - 10) / 2);
+	source.int = Math.floor((source.intScore - 10) / 2);
+	source.wis = Math.floor((source.wisScore - 10) / 2);
+	source.cha = Math.floor((source.chaScore - 10) / 2);
+	source.actionsMoveLand = source.actionsMoveBaseLand * source.actionsMoveMult;
+	source.actionsMoveSwim = source.actionsMoveBaseSwim * source.actionsMoveMult;
+	source.actionsMoveFly = source.actionsMoveBaseFly * source.actionsMoveMult;
+	source.actionsMoveClimb = source.actionsMoveBaseClimb * source.actionsMoveMult;
+	source.ac =
+		10 +
+		source.armor +
+		source.armorNatural +
+		source.armorShield +
+		source.armorDeflection +
+		source.armorDodge +
+		source.dex +
+		sizeMap[source.size || 0].ac;
+	source.acFF = 10 + source.armor + source.armorNatural + source.armorDeflection + source.bdb;
+	source.acTouch = 10 + source.armorDeflection + source.armorDodge + source.bdb + source.dex;
+	source.acFFTouch = 10 + source.armorDeflection + source.bdb + source.dex;
+	source.dr = source.armor + source.armorNatural + source.armorShield + source.drBase;
+	source.drFF = source.armor + source.armorNatural + source.drBase;
+	source.capacityCarrying = source.strScore * 30 * sizeMap[source.size || 0].carryingCapacity;
+	source.toHitRanged = source.bab + source.dex;
+	source.toHitMelee = source.bab + source.str;
+	source.toHitSpell = source.bab + source.cha;
+	source.strSave = 10 + Math.floor(source.cpl / 2) + source.str;
+	source.dexSave = 10 + Math.floor(source.cpl / 2) + source.dex;
+	source.conSave = 10 + Math.floor(source.cpl / 2) + source.con;
+	source.intSave = 10 + Math.floor(source.cpl / 2) + source.int;
+	source.wisSave = 10 + Math.floor(source.cpl / 2) + source.wis;
+	source.chaSave = 10 + Math.floor(source.cpl / 2) + source.cha;
+	source.initiative = source.dex;
+	source.ref = Math.floor(source.cpl * source.refPerLevel + source.dex);
+	source.fort = Math.floor(source.cpl * source.fortPerLevel + source.con);
+	source.will = Math.floor(source.cpl * source.willPerLevel + source.wis);
+	source.hpMax = (source.hpPerLevel + source.con) * source.cpl;
+	source.energyUniversal = Math.floor((2 + source.cha) * source.cpl);
+};
 
 // Character Stat Destinations
 
@@ -834,10 +876,9 @@ function useCharacterDataUncached(characterId: string) {
 		);
 		if (targetWeapon) {
 			targetWeapon.AmmoCurrent += changeAmount;
-			console.log('New weapon ammo count: ' + targetWeapon.AmmoCurrent);
 			return targetWeapon.AmmoCurrent;
 		} else {
-			console.log('The weapon ' + name + " didn't exist when we tried to change its ammo.");
+			console.error('The weapon ' + name + " didn't exist when we tried to change its ammo.");
 			return 0;
 		}
 	};
@@ -865,9 +906,14 @@ function useCharacterDataUncached(characterId: string) {
 		isLoading: statsLoading,
 		refresh: statsRefresh,
 	} = getSheetForCharacter<StatSheet>(characterId, 'variables');
-	const statsBase = computed<StatSheet>(() => statsArray.value[0]);
+	const statsImported = computed<StatSheet>(() => statsArray.value[0]);
 	const stats = computed<StatsCalculated>(() => {
-		const source = statsArray.value[0];
+		const source = statsImported.value;
+		// const bakedBuffs = buffsTallied.value;
+		const buff = (name: keyof StatsCalculated) => {
+			return 0;
+			// return bakedBuffs[name]?.total || 0;
+		};
 		if (!source) {
 			return {
 				actionsMoveBaseLand: 0,
@@ -979,151 +1025,117 @@ function useCharacterDataUncached(characterId: string) {
 				willPerLevel: 0,
 			};
 		}
-		console.log('source: \n', source);
+		// Buff tallying goes here
 		const result: StatsCalculated = {
-			actionsMoveBaseLand: 30,
-			actionsMoveBaseSwim: 0,
-			actionsMoveBaseFly: 0,
-			actionsMoveBaseClimb: 0,
-			actionsMoveMult: 1,
-			actionsMoveLand: 0,
-			actionsMoveSwim: 0,
-			actionsMoveFly: 0,
-			actionsMoveClimb: 0,
-			ac: 0,
-			acFF: 0,
-			acTouch: 0,
-			acFFTouch: 0,
-			drBase: 0,
-			dr: 0,
-			drFF: 0,
-			capacityCarrying: 0,
-			capacityKinetic: 0,
-			capacitySpecial: 18,
-			capacityHeavy: 8,
-			energyMelee: source.energyMelee,
-			energyGrenade: source.energyGrenade,
-			energySuper: source.energySuper,
-			energyClass: source.energyClass,
-			rerolls: 0,
-			slotsArmorHead: 3,
-			slotsArmorArm: 3,
-			slotsArmorChest: 3,
-			slotsArmorLegs: 3,
-			slotsArmorClass: 1,
-			slotsArmorFull: 1,
-			slotsArmorExotic: 1,
-			slotsAspects: 0,
-			slotsFragments: 0,
-			capacityArmorCharge: 0,
-			toHitRanged: 0,
-			toHitMelee: 0,
-			toHitSpell: 0,
-			damageMelee: 0,
-			damageRanged: 0,
-			damageSpell: 0,
-			damagePrecision: 0,
-			strSave: 0,
-			dexSave: 0,
-			conSave: 0,
-			intSave: 0,
-			wisSave: 0,
-			chaSave: 0,
-			strSkillCheck: 0,
-			dexSkillCheck: 0,
-			conSkillCheck: 0,
-			intSkillCheck: 0,
-			wisSkillCheck: 0,
-			chaSkillCheck: 0,
-			strSkills: 0,
-			dexSkills: 0,
-			conSkills: 0,
-			intSkills: 0,
-			wisSkills: 0,
-			chaSkills: 0,
-			initiative: 0,
-			ref: 0,
-			fort: 0,
-			will: 0,
-			hpMax: 0,
-			hpTempMax: 0,
-			hpShieldMax: 0,
-			hpShieldType: 0,
-			skillFocus: source.skillFocus,
-			energyUniversal: 0,
-			armor: source.armor,
-			armorNatural: source.armorNatural,
-			armorShield: source.armorShield,
-			armorDeflection: source.armorDeflection,
-			armorDodge: source.armorDodge,
-			bab: source.babPerLevel * source.cpl,
-			bdb: source.bdbPerLevel * source.cpl,
-			str: Math.floor((source.strScore - 10) / 2),
-			dex: Math.floor((source.dexScore - 10) / 2),
-			con: Math.floor((source.conScore - 10) / 2),
-			int: Math.floor((source.intScore - 10) / 2),
-			wis: Math.floor((source.wisScore - 10) / 2),
-			cha: Math.floor((source.chaScore - 10) / 2),
-			rolls: 0,
-			actionsAttack: source.attacks,
-			actionsMove: source.moves,
-			actionsReaction: source.reactions,
-			actionsBonus: 0,
-			strScore: source.strScore,
-			dexScore: source.dexScore,
-			conScore: source.conScore,
-			intScore: source.intScore,
-			wisScore: source.wisScore,
-			chaScore: source.chaScore,
-			cpl: source.cpl,
-			weightBase: 0, // ???
-			weightCurrent: 0, // ???
-			weightTotal: 0, // ???
-			size: source.size,
-			reach: sizeMap[source.size || 0].reach,
-			encumberance: 0, // ???
-			babPerLevel: source.babPerLevel,
-			bdbPerLevel: source.bdbPerLevel,
-			hpPerLevel: source.hpPerLevel,
-			fortPerLevel: source.fortPerLevel,
-			refPerLevel: source.refPerLevel,
-			willPerLevel: source.willPerLevel,
+			actionsMoveBaseLand: buff('actionsMoveBaseLand') + 30,
+			actionsMoveBaseSwim: buff('actionsMoveBaseSwim') + 0,
+			actionsMoveBaseFly: buff('actionsMoveBaseFly') + 0,
+			actionsMoveBaseClimb: buff('actionsMoveBaseClimb') + 0,
+			actionsMoveMult: buff('actionsMoveMult') + 1,
+			actionsMoveLand: buff('actionsMoveLand') + 0,
+			actionsMoveSwim: buff('actionsMoveSwim') + 0,
+			actionsMoveFly: buff('actionsMoveFly') + 0,
+			actionsMoveClimb: buff('actionsMoveClimb') + 0,
+			ac: buff('ac') + 0,
+			acFF: buff('acFF') + 0,
+			acTouch: buff('acTouch') + 0,
+			acFFTouch: buff('acFFTouch') + 0,
+			drBase: buff('drBase') + 0,
+			dr: buff('dr') + 0,
+			drFF: buff('drFF') + 0,
+			capacityCarrying: buff('capacityCarrying') + 0,
+			capacityKinetic: buff('capacityKinetic') + 0,
+			capacitySpecial: buff('capacitySpecial') + 18,
+			capacityHeavy: buff('capacityHeavy') + 8,
+			energyMelee: buff('energyMelee') + source.energyMelee,
+			energyGrenade: buff('energyGrenade') + source.energyGrenade,
+			energySuper: buff('energySuper') + source.energySuper,
+			energyClass: buff('energyClass') + source.energyClass,
+			rerolls: buff('rerolls') + 0,
+			slotsArmorHead: buff('slotsArmorHead') + 3,
+			slotsArmorArm: buff('slotsArmorArm') + 3,
+			slotsArmorChest: buff('slotsArmorChest') + 3,
+			slotsArmorLegs: buff('slotsArmorLegs') + 3,
+			slotsArmorClass: buff('slotsArmorClass') + 1,
+			slotsArmorFull: buff('slotsArmorFull') + 1,
+			slotsArmorExotic: buff('slotsArmorExotic') + 1,
+			slotsAspects: buff('slotsAspects') + 0,
+			slotsFragments: buff('slotsFragments') + 0,
+			capacityArmorCharge: buff('capacityArmorCharge') + 0,
+			toHitRanged: buff('toHitRanged') + 0,
+			toHitMelee: buff('toHitMelee') + 0,
+			toHitSpell: buff('toHitSpell') + 0,
+			damageMelee: buff('damageMelee') + 0,
+			damageRanged: buff('damageRanged') + 0,
+			damageSpell: buff('damageSpell') + 0,
+			damagePrecision: buff('damagePrecision') + 0,
+			strSave: buff('strSave') + 0,
+			dexSave: buff('dexSave') + 0,
+			conSave: buff('conSave') + 0,
+			intSave: buff('intSave') + 0,
+			wisSave: buff('wisSave') + 0,
+			chaSave: buff('chaSave') + 0,
+			strSkillCheck: buff('strSkillCheck') + 0,
+			dexSkillCheck: buff('dexSkillCheck') + 0,
+			conSkillCheck: buff('conSkillCheck') + 0,
+			intSkillCheck: buff('intSkillCheck') + 0,
+			wisSkillCheck: buff('wisSkillCheck') + 0,
+			chaSkillCheck: buff('chaSkillCheck') + 0,
+			strSkills: buff('strSkills') + 0,
+			dexSkills: buff('dexSkills') + 0,
+			conSkills: buff('conSkills') + 0,
+			intSkills: buff('intSkills') + 0,
+			wisSkills: buff('wisSkills') + 0,
+			chaSkills: buff('chaSkills') + 0,
+			initiative: buff('initiative') + 0,
+			ref: buff('ref') + 0,
+			fort: buff('fort') + 0,
+			will: buff('will') + 0,
+			hpMax: buff('hpMax') + 0,
+			hpTempMax: buff('hpTempMax') + 0,
+			hpShieldMax: buff('hpShieldMax') + 0,
+			hpShieldType: buff('hpShieldType') + 0,
+			skillFocus: buff('skillFocus') + source.skillFocus,
+			energyUniversal: buff('energyUniversal') + 0,
+			armor: buff('armor') + source.armor,
+			armorNatural: buff('armorNatural') + source.armorNatural,
+			armorShield: buff('armorShield') + source.armorShield,
+			armorDeflection: buff('armorDeflection') + source.armorDeflection,
+			armorDodge: buff('armorDodge') + source.armorDodge,
+			bab: buff('bab') + source.babPerLevel * source.cpl,
+			bdb: buff('bdb') + source.bdbPerLevel * source.cpl,
+			str: buff('str') + 0,
+			dex: buff('dex') + 0,
+			con: buff('con') + 0,
+			int: buff('int') + 0,
+			wis: buff('wis') + 0,
+			cha: buff('cha') + 0,
+			rolls: buff('rolls') + 0,
+			actionsAttack: buff('actionsAttack') + source.attacks,
+			actionsMove: buff('actionsMove') + source.moves,
+			actionsReaction: buff('actionsReaction') + source.reactions,
+			actionsBonus: buff('actionsBonus') + 0,
+			strScore: buff('strScore') + source.strScore,
+			dexScore: buff('dexScore') + source.dexScore,
+			conScore: buff('conScore') + source.conScore,
+			intScore: buff('intScore') + source.intScore,
+			wisScore: buff('wisScore') + source.wisScore,
+			chaScore: buff('chaScore') + source.chaScore,
+			cpl: buff('cpl') + source.cpl,
+			weightBase: buff('weightBase') + 0, // ???
+			weightCurrent: buff('weightCurrent') + 0, // ???
+			weightTotal: buff('weightTotal') + 0, // ???
+			size: buff('size') + source.size,
+			reach: buff('reach') + sizeMap[source.size || 0].reach,
+			encumberance: buff('encumberance') + 0, // ???
+			babPerLevel: buff('babPerLevel') + source.babPerLevel,
+			bdbPerLevel: buff('bdbPerLevel') + source.bdbPerLevel,
+			hpPerLevel: buff('hpPerLevel') + source.hpPerLevel,
+			fortPerLevel: buff('fortPerLevel') + source.fortPerLevel,
+			refPerLevel: buff('refPerLevel') + source.refPerLevel,
+			willPerLevel: buff('willPerLevel') + source.willPerLevel,
 		};
-		result.actionsMoveLand = result.actionsMoveBaseLand * result.actionsMoveMult;
-		result.actionsMoveSwim = result.actionsMoveBaseSwim * result.actionsMoveMult;
-		result.actionsMoveFly = result.actionsMoveBaseFly * result.actionsMoveMult;
-		result.actionsMoveClimb = result.actionsMoveBaseClimb * result.actionsMoveMult;
-		result.ac =
-			10 +
-			result.armor +
-			result.armorNatural +
-			result.armorShield +
-			result.armorDeflection +
-			result.armorDodge +
-			result.dex +
-			sizeMap[source.size || 0].ac;
-		result.acFF = 10 + result.armor + result.armorNatural + result.armorDeflection + result.bdb;
-		result.acTouch = 10 + result.armorDeflection + result.armorDodge + result.bdb + result.dex;
-		result.acFFTouch = 10 + result.armorDeflection + result.bdb + result.dex;
-		result.dr = result.armor + result.armorNatural + result.armorShield + result.drBase;
-		result.drFF = result.armor + result.armorNatural + result.drBase;
-		result.capacityCarrying = result.strScore * 30 * sizeMap[source.size || 0].carryingCapacity;
-		result.toHitRanged = result.bab + result.dex;
-		result.toHitMelee = result.bab + result.str;
-		result.toHitSpell = result.bab + result.cha;
-		result.strSave = 10 + Math.floor(result.cpl / 2) + result.str;
-		result.dexSave = 10 + Math.floor(result.cpl / 2) + result.dex;
-		result.conSave = 10 + Math.floor(result.cpl / 2) + result.con;
-		result.intSave = 10 + Math.floor(result.cpl / 2) + result.int;
-		result.wisSave = 10 + Math.floor(result.cpl / 2) + result.wis;
-		result.chaSave = 10 + Math.floor(result.cpl / 2) + result.cha;
-		result.initiative = result.dex;
-		result.ref = Math.floor(result.cpl * result.refPerLevel + result.dex);
-		result.fort = Math.floor(result.cpl * result.fortPerLevel + result.con);
-		result.will = Math.floor(result.cpl * result.willPerLevel + result.wis);
-		result.hpMax = (result.hpPerLevel + result.con) * result.cpl;
-		result.energyUniversal = Math.floor((2 + result.cha) * result.cpl);
-		console.log('result: \n', result);
+		statsDistribute(result);
 		return result;
 	});
 	const actionResources = ref<Record<string, number>>({
@@ -1170,7 +1182,7 @@ function useCharacterDataUncached(characterId: string) {
 		questsLoading,
 		questsRefresh,
 		// Stats
-		statsBase,
+		statsBase: statsImported,
 		actionResources,
 		actionResourceUpdate,
 		stats,
