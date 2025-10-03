@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest';
 import { type StatSheet, type StatsCalculated } from '@/composables/useCharacterData';
-import { getBuffEffects, type BuffInfo } from './buffs';
+import { getBuffEffects, buffsDistribute, type BuffInfo, tallyBuffs } from './buffs';
 
 const testCharacterBaseStats: StatSheet = {
 	cpl: 0,
@@ -176,7 +176,7 @@ describe('Behaviors of getBuffEffects', () => {
 			{
 				category: 'Misc',
 				sourceName: 'Buff Strength',
-				affectedStat: 'Str Mod',
+				affectedStat: 'str',
 				amount: 5,
 			},
 		]);
@@ -194,13 +194,13 @@ describe('Behaviors of getBuffEffects', () => {
 			{
 				category: 'Misc',
 				sourceName: 'Debuff Strength & Dexterity',
-				affectedStat: 'Str Mod',
+				affectedStat: 'str',
 				amount: -5,
 			},
 			{
 				category: 'Misc',
 				sourceName: 'Debuff Strength & Dexterity',
-				affectedStat: 'Dex Mod',
+				affectedStat: 'dex',
 				amount: -7,
 			},
 		]);
@@ -218,7 +218,7 @@ describe('Behaviors of getBuffEffects', () => {
 			{
 				category: 'Misc',
 				sourceName: 'Buffs Something Based on Another Stat',
-				affectedStat: 'Str Mod',
+				affectedStat: 'str',
 				amount: testCharacterSimple.dex,
 			},
 		]);
@@ -236,13 +236,13 @@ describe('Behaviors of getBuffEffects', () => {
 			{
 				category: 'Misc',
 				sourceName: 'Buffs Something Based on Another Stat Two-Way',
-				affectedStat: 'Str Mod',
+				affectedStat: 'str',
 				amount: testCharacterSimple.dex,
 			},
 			{
 				category: 'Misc',
 				sourceName: 'Buffs Something Based on Another Stat Two-Way',
-				affectedStat: 'Dex Mod',
+				affectedStat: 'dex',
 				amount: testCharacterSimple.str,
 			},
 		]);
@@ -260,7 +260,7 @@ describe('Behaviors of getBuffEffects', () => {
 			{
 				category: 'Misc',
 				sourceName: 'Buff Strength based on Dex and Stack Size',
-				affectedStat: 'Str Mod',
+				affectedStat: 'str',
 				amount: testCharacterSimple.dex * (buff.stacks || 1),
 			},
 		]);
@@ -278,13 +278,13 @@ describe('Behaviors of getBuffEffects', () => {
 			{
 				category: 'Misc',
 				sourceName: buff.name,
-				affectedStat: 'Str Mod',
+				affectedStat: 'str',
 				amount: 10,
 			},
 			{
 				category: 'Misc',
 				sourceName: buff.name,
-				affectedStat: 'Dex Mod',
+				affectedStat: 'dex',
 				amount: buff.stacks || 0,
 			},
 		]);
@@ -302,13 +302,13 @@ describe('Behaviors of getBuffEffects', () => {
 			{
 				category: 'Misc',
 				sourceName: buff.name,
-				affectedStat: 'Str Mod',
+				affectedStat: 'str',
 				amount: 10,
 			},
 			{
 				category: 'Misc',
 				sourceName: buff.name,
-				affectedStat: 'Dex Mod',
+				affectedStat: 'dex',
 				amount: buff.stacks || 0,
 			},
 		]);
@@ -326,7 +326,7 @@ describe('Behaviors of getBuffEffects', () => {
 			{
 				category: 'Misc',
 				sourceName: buff.name,
-				affectedStat: 'Str Mod',
+				affectedStat: 'str',
 				amount: -(buff.stacks || 0),
 			},
 		]);
@@ -355,7 +355,7 @@ describe('Behaviors of getBuffEffects', () => {
 			{
 				category: 'Misc',
 				sourceName: buff.name,
-				affectedStat: 'Dex Mod',
+				affectedStat: 'dex',
 				amount: testCharacterSimple.dex * 2,
 			},
 		]);
@@ -372,13 +372,13 @@ describe('Behaviors of getBuffEffects', () => {
 			{
 				category: 'Misc',
 				sourceName: buff.name,
-				affectedStat: 'Str Mod',
+				affectedStat: 'str',
 				amount: 5,
 			},
 			{
 				category: 'Misc',
 				sourceName: buff.name,
-				affectedStat: 'Str Mod',
+				affectedStat: 'str',
 				amount: -3,
 			},
 		]);
@@ -396,7 +396,7 @@ describe('Behaviors of getBuffEffects', () => {
 			{
 				category: 'Netflix',
 				sourceName: buff.name,
-				affectedStat: 'Str Mod',
+				affectedStat: 'str',
 				amount: 10,
 			},
 		]);
@@ -414,13 +414,13 @@ describe('Behaviors of getBuffEffects', () => {
 			{
 				category: 'Netflix',
 				sourceName: buff.name,
-				affectedStat: 'Str Mod',
+				affectedStat: 'str',
 				amount: 5,
 			},
 			{
 				category: 'Misc',
 				sourceName: buff.name,
-				affectedStat: 'Dex Mod',
+				affectedStat: 'dex',
 				amount: 5,
 			},
 		]);
@@ -438,10 +438,50 @@ describe('Behaviors of getBuffEffects', () => {
 			{
 				category: 'Armor',
 				sourceName: buff.name,
-				affectedStat: 'Natural Armor',
+				affectedStat: 'armorNatural',
 				amount: 3,
 			},
 		]);
+	});
+	test('Where does Natural Armor go?', () => {
+		const buff: BuffInfo = {
+			name: '',
+			category: 'Armor',
+			type: 'Buff',
+			isStacking: false,
+			effects: 'Natural Armor +2',
+		};
+		const result = getBuffEffects(buff, testCharacterSimple);
+		const tallied = tallyBuffs(result, testCharacterSimple);
+		expect(tallied).toEqual({
+			ac: {
+				categories: {},
+				summary: ' 2',
+				total: 12,
+			},
+			acFF: {
+				categories: {},
+				summary: ' 2',
+				total: 2,
+			},
+			armorNatural: {
+				categories: {
+					Armor: 2,
+				},
+				summary: ' 2',
+				total: 2,
+			},
+			dr: {
+				categories: {},
+				summary: ' 2',
+				total: 2,
+			},
+			drFF: {
+				categories: {},
+				summary: ' 2',
+				total: 2,
+			},
+		});
 	});
 });
 

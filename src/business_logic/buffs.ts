@@ -2,7 +2,6 @@ import {
 	type StatsCalculatedKey,
 	type StatsCalculated,
 	labelToStatName,
-	type StatSheet,
 } from '@/composables/useCharacterData';
 
 type BuffTypes = 'Buff' | 'Debuff' | 'Story Buff';
@@ -120,7 +119,7 @@ export const tallyBuffs = (buffs: BuffEffect[], stats: StatsCalculated) => {
 	// Note: the destionation needs to be filtered through the labels-whatever to get the actual stat key name.
 	const result = {} as CharacterBuffSummary;
 	buffs.forEach((buff) => {
-		const key = buff.affectedStat.toLocaleLowerCase() as StatsCalculatedKey;
+		const key = buff.affectedStat as StatsCalculatedKey;
 		if (stats[key] === undefined) {
 			// If the destination stat doesn't exist...
 			console.error('Invalid stat provided: ' + buff.affectedStat);
@@ -165,9 +164,123 @@ export const tallyBuffs = (buffs: BuffEffect[], stats: StatsCalculated) => {
 			}
 		}
 	});
-	return result;
+	return buffsDistribute(result, stats);
+	// return result;
 };
-
-export const getStatsCalclated = (baseStats: StatSheet, lolidk: any): Partial<StatsCalculated> => {
-	return {};
+export const buffsDistribute = (buffs: CharacterBuffSummary, stats: StatsCalculated) => {
+	const distributeAdditive = (
+		source: StatsCalculatedKey,
+		destinations: StatsCalculatedKey[],
+		stats: StatsCalculated,
+		ratio?: number,
+	) => {
+		destinations.forEach((destination) => {
+			console.log(buffs[destination]);
+			console.log(source + ' -> ' + destinations.join(', ') + '\n');
+			if (buffs[destination] !== undefined) {
+				buffs[destination].total += (ratio || 1) * (buffs[source]?.total || 0);
+				buffs[destination].summary += '\n' + buffs[source]?.summary || '';
+			} else {
+				buffs[destination] = {
+					total: stats[destination] + (ratio || 1) * (buffs[source]?.total || 0),
+					categories: {},
+					summary: buffs[source]?.summary || '',
+				};
+			}
+		});
+	};
+	const distributeMultiply = (
+		source: StatsCalculatedKey,
+		destinations: StatsCalculatedKey[],
+		stats: StatsCalculated,
+		ratio?: number,
+	) => {
+		destinations.forEach((destination) => {
+			if (buffs[destination]) {
+				buffs[destination].total +=
+					buffs[destination].total * (buffs[source]?.total || 1) * (ratio || 1);
+				buffs[destination].summary += '\n' + buffs[source]?.summary || '';
+			} else {
+				buffs[destination] = {
+					total: stats[destination] * (buffs[source]?.total || 1) * (ratio || 1),
+					categories: {},
+					summary: buffs[source]?.summary || '',
+				};
+			}
+		});
+	};
+	const buffKeys = Object.keys(buffs);
+	buffKeys.forEach((name) => {
+		if (name === 'actionsMoveMult') {
+			distributeMultiply(
+				'actionsMoveMult',
+				['actionsMoveLand', 'actionsMoveSwim', 'actionsMoveFly', 'actionsMoveClimb'],
+				stats,
+			);
+		} else if (name === 'drBase') {
+			distributeAdditive('drBase', ['dr', 'drFF'], stats);
+		} else if (name === 'damagePrecision') {
+			distributeAdditive(
+				'damagePrecision',
+				['damageMelee', 'damageSpell', 'damageRanged'],
+				stats,
+			);
+		} else if (name === 'armor') {
+			distributeAdditive('armor', ['ac', 'acFF', 'dr', 'drFF'], stats);
+		} else if (name === 'armorNatural') {
+			distributeAdditive('armorNatural', ['ac', 'acFF', 'dr', 'drFF'], stats);
+		} else if (name === 'armorShield') {
+			distributeAdditive('armorShield', ['ac', 'dr'], stats);
+		} else if (name === 'armorDeflection') {
+			distributeAdditive(
+				'armorDeflection',
+				['ac', 'acFF', 'acTouch', 'acFFTouch', 'dr', 'drFF'],
+				stats,
+			);
+		} else if (name === 'armorDodge') {
+			distributeAdditive('armorDodge', ['ac', 'acTouch'], stats);
+		} else if (name === 'bdb') {
+			distributeAdditive('bdb', ['ac', 'acFF', 'acTouch', 'acFFTouch'], stats);
+		} else if (name === 'dex') {
+			distributeAdditive('dex', ['ac', 'acTouch', 'initiative'], stats);
+		} else if (name === 'con') {
+			distributeAdditive('con', ['fort'], stats);
+			distributeAdditive('con', ['hpMax', 'hpTempMax'], stats, buffs.cpl?.total || stats.cpl);
+		} else if (name === 'int') {
+			distributeAdditive('int', ['skillFocus'], stats);
+		} else if (name === 'wis') {
+			distributeAdditive('wis', ['will'], stats);
+		} else if (name === 'cha') {
+			distributeAdditive('cha', ['energyUniversal'], stats, buffs.cpl?.total || stats.cpl);
+		} else if (name === 'strScore') {
+			distributeAdditive('strScore', ['str'], stats, 0.5);
+		} else if (name === 'dexScore') {
+			distributeAdditive('dexScore', ['dex'], stats, 0.5);
+		} else if (name === 'conScore') {
+			distributeAdditive('conScore', ['con'], stats, 0.5);
+		} else if (name === 'intScore') {
+			distributeAdditive('intScore', ['int'], stats, 0.5);
+		} else if (name === 'wisScore') {
+			distributeAdditive('wisScore', ['wis'], stats, 0.5);
+		} else if (name === 'chaScore') {
+			distributeAdditive('chaScore', ['cha'], stats, 0.5);
+		} else if (name === 'weightBase') {
+			distributeAdditive('weightBase', ['weightTotal'], stats);
+		} else if (name === 'weightCurrent') {
+			distributeAdditive('weightCurrent', ['weightTotal'], stats);
+		} else if (name === 'babPerLevel') {
+			distributeAdditive('babPerLevel', ['bab'], stats);
+		} else if (name === 'bdbPerLevel') {
+			distributeAdditive('bdbPerLevel', ['bdb'], stats);
+		} else if (name === 'hpPerLevel') {
+			distributeAdditive('hpPerLevel', ['hpMax'], stats);
+		} else if (name === 'fortPerLevel') {
+			distributeAdditive('fortPerLevel', ['fort'], stats);
+		} else if (name === 'refPerLevel') {
+			distributeAdditive('refPerLevel', ['ref'], stats);
+		} else if (name === 'willPerLevel') {
+			distributeAdditive('willPerLevel', ['will'], stats);
+		}
+	});
+	return buffs;
 };
