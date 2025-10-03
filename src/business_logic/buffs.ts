@@ -239,10 +239,18 @@ export const buffsDistribute = (buffs: CharacterBuffSummary, stats: StatsCalcula
 			);
 		} else if (name === 'armorDodge') {
 			distributeAdditive('armorDodge', ['ac', 'acTouch'], stats);
+		} else if (name === 'bab') {
+			distributeAdditive('bab', ['toHitMelee', 'toHitRanged'], stats);
 		} else if (name === 'bdb') {
 			distributeAdditive('bdb', ['ac', 'acFF', 'acTouch', 'acFFTouch'], stats);
+		} else if (name === 'str') {
+			distributeAdditive('str', ['toHitMelee', 'damageMelee'], stats);
 		} else if (name === 'dex') {
-			distributeAdditive('dex', ['ac', 'acTouch', 'initiative'], stats);
+			distributeAdditive(
+				'dex',
+				['toHitRanged', 'ac', 'acTouch', 'initiative', 'damageRanged'],
+				stats,
+			);
 		} else if (name === 'con') {
 			distributeAdditive('con', ['fort'], stats);
 			distributeAdditive('con', ['hpMax', 'hpTempMax'], stats, buffs.cpl?.total || stats.cpl);
@@ -251,7 +259,12 @@ export const buffsDistribute = (buffs: CharacterBuffSummary, stats: StatsCalcula
 		} else if (name === 'wis') {
 			distributeAdditive('wis', ['will'], stats);
 		} else if (name === 'cha') {
-			distributeAdditive('cha', ['energyUniversal'], stats, buffs.cpl?.total || stats.cpl);
+			distributeAdditive(
+				'cha',
+				['energyUniversal', 'toHitSpell', 'damageSpell'],
+				stats,
+				buffs.cpl?.total || stats.cpl,
+			);
 		} else if (name === 'strScore') {
 			distributeAdditive('strScore', ['str'], stats, 0.5);
 		} else if (name === 'dexScore') {

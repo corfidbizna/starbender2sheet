@@ -8,10 +8,10 @@ import svgAmmoPrimary from '@/assets/svgs/ammo_primary.svg?url';
 import svgAmmoSpecial from '@/assets/svgs/ammo_special.svg?url';
 import svgAmmoHeavy from '@/assets/svgs/ammo_heavy.svg?url';
 import iconKinetic from '@/assets/svgs/Kenetic.svg?url';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps<Weapon & { characterId: string }>();
-const { weaponAmmoUpdate } = useCharacterData(props.characterId);
+const { weaponAmmoUpdate, buffsTallied, stats } = useCharacterData(props.characterId);
 const getCritDisplay = (): string => {
 	if (!props.CritRange) {
 		return '--';
@@ -78,6 +78,30 @@ const colorsAmmo = (ammoType: string) => {
 	}
 	return '#eeeeee' + alpha;
 };
+const toHitCalc = computed<number>(() => {
+	let result = props.HitBonus || 0;
+	if (props.RangeType === 'Melee') {
+		result += buffsTallied.value.toHitMelee?.total || stats.value.toHitMelee;
+	} else if (props.RangeType === 'Ranged') {
+		result += buffsTallied.value.toHitRanged?.total || stats.value.toHitRanged;
+	} else if (props.RangeType === 'Spell') {
+		result += buffsTallied.value.toHitSpell?.total || stats.value.toHitSpell;
+	}
+	return result;
+});
+const damageBonus = computed<number>(() => {
+	let result = 0;
+	if (props.RangeType === 'Melee') {
+		result += buffsTallied.value.damageMelee?.total || stats.value.damageMelee;
+	} else if (props.RangeType === 'Ranged') {
+		result += buffsTallied.value.damageRanged?.total || stats.value.damageRanged;
+	} else if (props.RangeType === 'Spell') {
+		result += buffsTallied.value.damageSpell?.total || stats.value.damageSpell;
+	}
+	return (
+		result + (buffsTallied.value?.damagePrecision?.total || stats.value.damagePrecision || 0)
+	);
+});
 const hitFormula = new DiceFormula('1d20');
 const rollDamage = () => {
 	const result = props.DamageFormula.roll(() => 0);
@@ -89,7 +113,7 @@ const rollDamage = () => {
 };
 const rollHit = () => {
 	const result = hitFormula.roll(() => 0);
-	let string = props.Name + '\n  Hit result: ' + (result + (props.HitBonus || 0));
+	let string = props.Name + '\n  Hit result: ' + (result + toHitCalc.value);
 	if (result <= 1) {
 		string += '\n == Natural 1! ==';
 	}
@@ -186,7 +210,7 @@ const reload = () => {
 						<td class="weapon-stat-label">Average Dmg</td>
 						<td class="weapon-stat-data alt">{{ DmgAvg }}</td>
 						<td class="weapon-stat-label">To Hit</td>
-						<td class="weapon-stat-data">{{ HitBonus || 0 }} v. {{ HitType }}</td>
+						<td class="weapon-stat-data">{{ toHitCalc }} v. {{ HitType }}</td>
 						<td class="weapon-stat-label">Range</td>
 						<td class="weapon-stat-data">{{ RangeType }} {{ Range }}ft. </td>
 					</tr>

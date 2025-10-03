@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest';
 import { type StatSheet, type StatsCalculated } from '@/composables/useCharacterData';
-import { getBuffEffects, buffsDistribute, type BuffInfo, tallyBuffs } from './buffs';
+import { getBuffEffects, type BuffInfo, tallyBuffs } from './buffs';
 
 const testCharacterBaseStats: StatSheet = {
 	cpl: 0,
