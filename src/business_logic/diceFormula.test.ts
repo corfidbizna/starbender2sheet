@@ -240,6 +240,21 @@ describe('Dice Formula Stuff', () => {
 		const reformula = formula.evaluateExceptDice(getStat).stringify();
 		expect(reformula).toEqual('1d4+4');
 	});
+	test('Strings of additions', () => {
+		const formula = new DiceFormula('1d4+4+15');
+		const reformula = formula.evaluateExceptDice(getStat).stringify();
+		expect(reformula).toEqual('1d4+19');
+	});
+	test('4d8+8*Str Mod+Dex Mod', () => {
+		const formula = new DiceFormula('4d8+8*Str Mod+Dex Mod');
+		const evaluated = formula.evaluateExceptDice(getStat).stringify();
+		expect(evaluated).toEqual('4d8+90');
+	});
+	test('Strings of raw additions', () => {
+		const formula = new DiceFormula('5+5+5');
+		const reformula = formula.evaluateExceptDice(getStat).stringify();
+		expect(reformula).toEqual('15');
+	});
 	// test('1d6+Move (Base Land)', () => {
 	// 	// This has a stat with parenthesis in the name,
 	// 	// meaning it thinks 'Move' is a repetition and 'Base Land' is the thing inside

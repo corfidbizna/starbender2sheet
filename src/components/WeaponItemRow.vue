@@ -89,21 +89,22 @@ const toHitCalc = computed<number>(() => {
 	}
 	return result;
 });
-const damageBonus = computed<number>(() => {
-	let result = 0;
-	if (props.RangeType === 'Melee') {
-		result += buffsTallied.value.damageMelee?.total || stats.value.damageMelee;
-	} else if (props.RangeType === 'Ranged') {
-		result += buffsTallied.value.damageRanged?.total || stats.value.damageRanged;
-	} else if (props.RangeType === 'Spell') {
-		result += buffsTallied.value.damageSpell?.total || stats.value.damageSpell;
-	}
-	return (
-		result + (buffsTallied.value?.damagePrecision?.total || stats.value.damagePrecision || 0)
-	);
-});
+// const damageBonus = computed<number>(() => {
+// 	let result = 0;
+// 	if (props.RangeType === 'Melee') {
+// 		result += buffsTallied.value.damageMelee?.total || stats.value.damageMelee;
+// 	} else if (props.RangeType === 'Ranged') {
+// 		result += buffsTallied.value.damageRanged?.total || stats.value.damageRanged;
+// 	} else if (props.RangeType === 'Spell') {
+// 		result += buffsTallied.value.damageSpell?.total || stats.value.damageSpell;
+// 	}
+// 	return (
+// 		result + (buffsTallied.value?.damagePrecision?.total || stats.value.damagePrecision || 0)
+// 	);
+// });
 const hitFormula = new DiceFormula('1d20');
 const rollDamage = () => {
+	console.log(props.DamageFormula);
 	const result = props.DamageFormula.roll(() => 0);
 	let string = props.Name + '\n  Damage: ' + result;
 	if (props.CritMult && props.CritMult > 1) {

@@ -124,7 +124,16 @@ const columnsToFieldNames = (parsed: GVizSheetResponse): Record<string, unknown>
 // ==================================================================================================
 
 // Generic Stuff
-type Elements = 'Kinetic' | 'Solar' | 'Void' | 'Arc' | 'Stasis' | 'Strand' | 'Prismatic';
+export const elements = {
+	Kinetic: 0,
+	Solar: 1,
+	Arc: 2,
+	Void: 3,
+	Stasis: 4,
+	Strand: 5,
+	Prismatic: 6,
+};
+export type Element = keyof typeof elements;
 type SizeEffect = {
 	name: string;
 	ac: number;
@@ -521,13 +530,18 @@ export const statsDistribute = (source: StatsCalculated) => {
 		source.armorDeflection +
 		source.armorDodge +
 		source.dex +
+		source.bdb +
 		sizeMap[source.size || 0].ac;
 	source.acFF = 10 + source.armor + source.armorNatural + source.armorDeflection + source.bdb;
 	source.acTouch = 10 + source.armorDeflection + source.armorDodge + source.bdb + source.dex;
-	source.acFFTouch = 10 + source.armorDeflection + source.bdb + source.dex;
-	source.dr = source.armor + source.armorNatural + source.armorShield + source.drBase;
-	source.drFF = source.armor + source.armorNatural + source.drBase;
-	source.capacityCarrying = source.strScore * 30 * sizeMap[source.size || 0].carryingCapacity;
+	source.acFFTouch = 10 + source.armorDeflection + source.bdb;
+	source.dr =
+		source.armor + source.armorNatural + source.armorShield + source.drBase + source.con;
+	source.drFF = source.armor + source.armorNatural + source.drBase + source.con;
+	source.capacityCarrying =
+		25 *
+		Math.floor(Math.pow(4, Math.max(source.strScore / 10, 0))) *
+		sizeMap[source.size || 0].carryingCapacity;
 	source.toHitRanged = source.bab + source.dex;
 	source.toHitMelee = source.bab + source.str;
 	source.toHitSpell = source.bab + source.cha;
@@ -644,7 +658,14 @@ export type SkillsTableItem = {
 };
 
 // Weapon Types
-type WeaponRarities = 'Common' | 'Uncommon' | 'Rare' | 'Legendary' | 'Exotic';
+export const rarities = {
+	Common: 0,
+	Uncommon: 1,
+	Rare: 2,
+	Legendary: 3,
+	Exotic: 4,
+};
+export type Rarity = keyof typeof rarities;
 type WeaponClasses =
 	| 'Bow'
 	| 'Auto Rifle'
@@ -672,8 +693,8 @@ export type ImportedWeapon = {
 	lewis: boolean;
 	Name: string;
 	Flavortext?: string;
-	Rarity: WeaponRarities;
-	Element: Elements;
+	Rarity: Rarity;
+	Element: Element;
 	WeaponClass: WeaponClasses;
 	AttackType: string;
 	HitType: string;
@@ -681,7 +702,7 @@ export type ImportedWeapon = {
 	CritRange?: number;
 	CritMult?: number;
 	Damage: string;
-	DamageType: Elements;
+	DamageType: Element;
 	RangeType: string;
 	Range: number;
 	Handed: number;
@@ -815,7 +836,13 @@ function useCharacterDataUncached(characterId: string) {
 		const filteredPartyBuffs: BuffInfo[] = allPartyBuffs.value.filter(
 			(item) => item[characterId as CharacterNames],
 		);
-		return [...filteredPartyBuffs, ...playerBuffs.value];
+		const result = [...filteredPartyBuffs, ...playerBuffs.value];
+		return result.map((buff) => {
+			if (buff.isPassive) {
+				buff.active = true;
+			} else buff.active = false;
+			return buff;
+		});
 	});
 	const buffsLoading = computed<boolean>(() => {
 		return playerBuffsLoading.value || partyBuffsLoading.value;
@@ -960,6 +987,30 @@ function useCharacterDataUncached(characterId: string) {
 		statsDistribute(newStats);
 		return newStats;
 	});
+	const buffsStackUpdate = (name: string, changeAmount: number) => {
+		const targetBuff: BuffInfo | undefined = activatedPartyBuffs.value.find(
+			(buff) => buff.name === name,
+		);
+		if (targetBuff !== undefined) {
+			if (targetBuff?.isStacking) {
+				if (targetBuff.stacks !== undefined) {
+					targetBuff.stacks += changeAmount;
+				} else {
+					targetBuff.stacks = changeAmount;
+				}
+				return targetBuff.stacks;
+			}
+			console.error(
+				'The buff ' + name + " doesn't stack but we tried to change its stack amount.",
+			);
+			return 0;
+		} else {
+			console.error(
+				'The buff ' + name + " didn't exist when we tried to change its stack amount.",
+			);
+			return 0;
+		}
+	};
 	// BUFFS END
 
 	// ==================================================================================================
@@ -978,7 +1029,22 @@ function useCharacterDataUncached(characterId: string) {
 		);
 		const statFunction = getStatByCharacter(stats.value);
 		return filteredWeapons.map((weapon) => {
+			// const damageBonus = computed<number>(() => {
+			// 	let result = 0;
+			// 	if (weapon.RangeType === 'Melee') {
+			// 		result += buffsTallied.value.damageMelee?.total || stats.value.damageMelee;
+			// 	} else if (weapon.RangeType === 'Ranged') {
+			// 		result += buffsTallied.value.damageRanged?.total || stats.value.damageRanged;
+			// 	} else if (weapon.RangeType === 'Spell') {
+			// 		result += buffsTallied.value.damageSpell?.total || stats.value.damageSpell;
+			// 	}
+			// 	return (
+			// 		result +
+			// 		(buffsTallied.value?.damagePrecision?.total || stats.value.damagePrecision || 0)
+			// 	);
+			// });
 			const formula = new DiceFormula(weapon.Damage);
+			// const formula = new DiceFormula(weapon.Damage + '+' + damageBonus.value);
 			weapon.DamageFormula = formula;
 			weapon.DmgMin = formula.min(statFunction);
 			weapon.DmgMax = formula.max(statFunction);
@@ -1274,9 +1340,11 @@ function useCharacterDataUncached(characterId: string) {
 		// Characters
 		character,
 		// Buffs
+		buffs: partyBuffs,
 		namesOfActivatedBuffs,
 		activatablePartyBuffs,
 		activatedPartyBuffs,
+		buffsStackUpdate,
 		buffArrayFlat,
 		buffsTallied,
 		buffsAsStats,

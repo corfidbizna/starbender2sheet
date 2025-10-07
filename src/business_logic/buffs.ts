@@ -17,6 +17,7 @@ export type BuffInfo = {
 	description?: string;
 	effects?: string;
 	isPassive?: boolean;
+	active: boolean;
 };
 export type PartyBuffInfo = BuffInfo & {
 	aurora: boolean;
@@ -175,14 +176,36 @@ export const buffsDistribute = (buffs: CharacterBuffSummary, stats: StatsCalcula
 		ratio?: number,
 	) => {
 		destinations.forEach((destination) => {
-			console.log(buffs[destination]);
-			console.log(source + ' -> ' + destinations.join(', ') + '\n');
+			// console.log(buffs[destination]);
+			// console.log(source + ' -> ' + destinations.join(', ') + '\n');
 			if (buffs[destination] !== undefined) {
 				buffs[destination].total += (ratio || 1) * (buffs[source]?.total || 0);
 				buffs[destination].summary += '\n' + buffs[source]?.summary || '';
 			} else {
 				buffs[destination] = {
 					total: stats[destination] + (ratio || 1) * (buffs[source]?.total || 0),
+					categories: {},
+					summary: buffs[source]?.summary || '',
+				};
+			}
+		});
+	};
+	const distributeScore = (
+		source: StatsCalculatedKey,
+		destinations: StatsCalculatedKey[],
+		stats: StatsCalculated,
+	) => {
+		destinations.forEach((destination) => {
+			// console.log(buffs[destination]);
+			// console.log(source + ' -> ' + destinations.join(', ') + '\n');
+			const result = Math.floor(((buffs[source]?.total || 10) - 10) / 2);
+			if (buffs[destination] !== undefined) {
+				// Math.floor((source.strScore - 10) / 2)
+				buffs[destination].total += result - stats[destination];
+				buffs[destination].summary += '\n' + buffs[source]?.summary || '';
+			} else {
+				buffs[destination] = {
+					total: result,
 					categories: {},
 					summary: buffs[source]?.summary || '',
 				};
@@ -220,6 +243,9 @@ export const buffsDistribute = (buffs: CharacterBuffSummary, stats: StatsCalcula
 		} else if (name === 'drBase') {
 			distributeAdditive('drBase', ['dr', 'drFF'], stats);
 		} else if (name === 'damagePrecision') {
+			// Add a "precision" toggle on / off to modify weapon damage.
+			// Buffing "Precision Damage" buffs _this_ damage, not the weapon's base damage.
+			// Precision damage can be dice ∏_∏
 			distributeAdditive(
 				'damagePrecision',
 				['damageMelee', 'damageSpell', 'damageRanged'],
@@ -232,51 +258,44 @@ export const buffsDistribute = (buffs: CharacterBuffSummary, stats: StatsCalcula
 		} else if (name === 'armorShield') {
 			distributeAdditive('armorShield', ['ac', 'dr'], stats);
 		} else if (name === 'armorDeflection') {
-			distributeAdditive(
-				'armorDeflection',
-				['ac', 'acFF', 'acTouch', 'acFFTouch', 'dr', 'drFF'],
-				stats,
-			);
+			distributeAdditive('armorDeflection', ['ac', 'acFF', 'acTouch', 'acFFTouch'], stats);
 		} else if (name === 'armorDodge') {
 			distributeAdditive('armorDodge', ['ac', 'acTouch'], stats);
 		} else if (name === 'bab') {
-			distributeAdditive('bab', ['toHitMelee', 'toHitRanged'], stats);
+			distributeAdditive('bab', ['toHitMelee', 'toHitRanged', 'toHitSpell'], stats);
 		} else if (name === 'bdb') {
 			distributeAdditive('bdb', ['ac', 'acFF', 'acTouch', 'acFFTouch'], stats);
 		} else if (name === 'str') {
-			distributeAdditive('str', ['toHitMelee', 'damageMelee'], stats);
+			distributeAdditive('str', ['toHitMelee', 'damageMelee', 'strSave'], stats);
 		} else if (name === 'dex') {
 			distributeAdditive(
 				'dex',
-				['toHitRanged', 'ac', 'acTouch', 'initiative', 'damageRanged'],
+				['toHitRanged', 'ac', 'acTouch', 'initiative', 'dexSave', 'ref'],
 				stats,
 			);
 		} else if (name === 'con') {
-			distributeAdditive('con', ['fort'], stats);
+			distributeAdditive('con', ['fort', 'conSave', 'dr', 'drFF'], stats);
 			distributeAdditive('con', ['hpMax', 'hpTempMax'], stats, buffs.cpl?.total || stats.cpl);
 		} else if (name === 'int') {
-			distributeAdditive('int', ['skillFocus'], stats);
+			distributeAdditive('int', ['skillFocus', 'intSave'], stats);
 		} else if (name === 'wis') {
-			distributeAdditive('wis', ['will'], stats);
+			distributeAdditive('wis', ['will', 'wisSave'], stats);
 		} else if (name === 'cha') {
-			distributeAdditive(
-				'cha',
-				['energyUniversal', 'toHitSpell', 'damageSpell'],
-				stats,
-				buffs.cpl?.total || stats.cpl,
-			);
+			distributeAdditive('cha', ['toHitSpell', 'damageSpell', 'chaSave'], stats);
+			distributeAdditive('cha', ['energyUniversal'], stats, buffs.cpl?.total || stats.cpl);
 		} else if (name === 'strScore') {
-			distributeAdditive('strScore', ['str'], stats, 0.5);
+			distributeScore('strScore', ['str'], stats);
+			// Carrying Capacity goes here somehow ._.
 		} else if (name === 'dexScore') {
-			distributeAdditive('dexScore', ['dex'], stats, 0.5);
+			distributeScore('dexScore', ['dex'], stats);
 		} else if (name === 'conScore') {
-			distributeAdditive('conScore', ['con'], stats, 0.5);
+			distributeScore('conScore', ['con'], stats);
 		} else if (name === 'intScore') {
-			distributeAdditive('intScore', ['int'], stats, 0.5);
+			distributeScore('intScore', ['int'], stats);
 		} else if (name === 'wisScore') {
-			distributeAdditive('wisScore', ['wis'], stats, 0.5);
+			distributeScore('wisScore', ['wis'], stats);
 		} else if (name === 'chaScore') {
-			distributeAdditive('chaScore', ['cha'], stats, 0.5);
+			distributeScore('chaScore', ['cha'], stats);
 		} else if (name === 'weightBase') {
 			distributeAdditive('weightBase', ['weightTotal'], stats);
 		} else if (name === 'weightCurrent') {
@@ -286,7 +305,7 @@ export const buffsDistribute = (buffs: CharacterBuffSummary, stats: StatsCalcula
 		} else if (name === 'bdbPerLevel') {
 			distributeAdditive('bdbPerLevel', ['bdb'], stats);
 		} else if (name === 'hpPerLevel') {
-			distributeAdditive('hpPerLevel', ['hpMax'], stats);
+			distributeAdditive('hpPerLevel', ['hpMax', 'hpTempMax'], stats);
 		} else if (name === 'fortPerLevel') {
 			distributeAdditive('fortPerLevel', ['fort'], stats);
 		} else if (name === 'refPerLevel') {

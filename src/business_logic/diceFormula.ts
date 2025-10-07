@@ -262,14 +262,62 @@ class RepetitionNode extends UnitNode {
 		return this.count.involvesDice() || this.wat.involvesDice();
 	}
 	evaluateExceptDice(getStat: (name: string) => number): UnitNode {
-		let newCount: NumberNode | undefined;
-		let newWat: NumberNode | undefined;
+		let newCount: NumberNode | undefined | RepetitionNode | BinaryOpNode;
+		let newWat: NumberNode | undefined | RepetitionNode | BinaryOpNode;
+		// let newLHS: RepetitionNode | BinaryOpNode | undefined;
+		// let newRHS: RepetitionNode | BinaryOpNode | undefined;
+		//
 		if (!this.count.involvesDice()) {
 			newCount = new NumberNode(this.count.evaluate(() => 0, getStat));
+		} else if (this.count instanceof RepetitionNode) {
+			newCount = new RepetitionNode(
+				this.count.count.evaluateExceptDice(getStat),
+				this.count.wat.evaluateExceptDice(getStat),
+			);
+		} else if (this.count instanceof BinaryOpNode) {
+			newCount = new BinaryOpNode(
+				this.count.lhs.evaluateExceptDice(getStat),
+				this.count.rhs.evaluateExceptDice(getStat),
+				this.count.operator,
+			);
 		}
 		if (!this.wat.involvesDice()) {
 			newWat = new NumberNode(this.wat.evaluate(() => 0, getStat));
+		} else if (this.wat instanceof RepetitionNode) {
+			newWat = new RepetitionNode(
+				this.wat.count.evaluateExceptDice(getStat),
+				this.wat.wat.evaluateExceptDice(getStat),
+			);
+		} else if (this.wat instanceof BinaryOpNode) {
+			newWat = new BinaryOpNode(
+				this.wat.lhs.evaluateExceptDice(getStat),
+				this.wat.rhs.evaluateExceptDice(getStat),
+				this.wat.operator,
+			);
 		}
+		//
+		// if (this.count instanceof RepetitionNode) {
+		// 	let newChildCount: NumberNode | undefined;
+		// 	let newChildWat: NumberNode | undefined;
+		// 	if (!this.count.count.involvesDice()) {
+		// 		newChildCount = new NumberNode(this.count.count.evaluate(() => 0, getStat));
+		// 	}
+		// 	if (!this.count.wat.involvesDice()) {
+		// 		newChildWat = new NumberNode(this.count.wat.evaluate(() => 0, getStat));
+		// 	}
+		// 	newCount = new RepetitionNode(newChildCount || this.count.count, newChildWat || this.count.wat);
+		// }
+		// if (this.count instanceof BinaryOpNode) {
+		// 	let newChildLHS: NumberNode | undefined;
+		// 	let newChildRHS: NumberNode | undefined;
+		// 	if (!this.count.lhs.involvesDice()) {
+		// 		newChildLHS = new NumberNode(this.count.lhs.evaluate(() => 0, getStat));
+		// 	}
+		// 	if (!this.count.rhs.involvesDice()) {
+		// 		newChildRHS = new NumberNode(this.count.rhs.evaluate(() => 0, getStat));
+		// 	}
+		// 	newWat = new RepetitionNode(newChildLHS || this.count.lhs, newChildRHS || this.count.rhs);
+		// }
 		if (!this.involvesDice()) {
 			return new NumberNode(
 				this.evaluate(() => {

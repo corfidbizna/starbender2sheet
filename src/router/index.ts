@@ -37,6 +37,7 @@ const router = createRouter({
 				{
 					path: 'loadout',
 					name: 'characterLoadout',
+					redirect: 'loadout/weapons',
 					props: true,
 					component: () => import('../views/CharacterLoadout.vue'),
 					children: [

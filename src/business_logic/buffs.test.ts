@@ -159,6 +159,7 @@ describe('Behaviors of getBuffEffects', () => {
 			name: 'Cool sunglasses',
 			type: 'Buff',
 			description: 'Makes you look cool',
+			active: true,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([]);
@@ -170,6 +171,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: false,
 			description: 'Buffs strength by 5.',
 			effects: 'Str Mod +5',
+			active: true,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -188,6 +190,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: false,
 			description: 'Debuffs strength and dexterity.',
 			effects: 'Str Mod -5, Dex Mod -7',
+			active: true,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -212,6 +215,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: false,
 			description: 'Buffs strength by dexterity mod.',
 			effects: 'Str Mod +1*Dex Mod',
+			active: true,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -230,6 +234,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: false,
 			description: 'Buffs strength by dexterity mod and vice versa.',
 			effects: 'Str Mod +1*Dex Mod, Dex Mod +1*Str Mod',
+			active: true,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -254,6 +259,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: true,
 			stacks: 3,
 			effects: 'Str Mod +1*Dex Mod*stacks',
+			active: true,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -272,6 +278,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: true,
 			stacks: 3,
 			effects: 'Str Mod +10, Dex Mod +stacks',
+			active: true,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -296,6 +303,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: true,
 			stacks: 3,
 			effects: 'Str Mod +10, Dex Mod +1*stacks',
+			active: true,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -320,6 +328,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: true,
 			stacks: 3,
 			effects: 'Str Mod -stacks',
+			active: true,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -337,6 +346,7 @@ describe('Behaviors of getBuffEffects', () => {
 			type: 'Debuff',
 			isStacking: false,
 			effects: '+5',
+			active: true,
 		};
 
 		expect(() => {
@@ -349,6 +359,7 @@ describe('Behaviors of getBuffEffects', () => {
 			type: 'Buff',
 			isStacking: false,
 			effects: 'Dex Mod *3',
+			active: true,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -366,6 +377,7 @@ describe('Behaviors of getBuffEffects', () => {
 			type: 'Buff',
 			isStacking: false,
 			effects: 'Str Mod +5, Str Mod -3',
+			active: true,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -390,6 +402,7 @@ describe('Behaviors of getBuffEffects', () => {
 			type: 'Buff',
 			isStacking: false,
 			effects: 'Str Mod +10',
+			active: true,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -408,6 +421,7 @@ describe('Behaviors of getBuffEffects', () => {
 			type: 'Buff',
 			isStacking: false,
 			effects: 'Str Mod +5, misc Dex Mod +5',
+			active: true,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -432,6 +446,7 @@ describe('Behaviors of getBuffEffects', () => {
 			type: 'Buff',
 			isStacking: false,
 			effects: 'Natural Armor +3',
+			active: true,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -450,6 +465,7 @@ describe('Behaviors of getBuffEffects', () => {
 			type: 'Buff',
 			isStacking: false,
 			effects: 'Natural Armor +2',
+			active: true,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		const tallied = tallyBuffs(result, testCharacterSimple);
