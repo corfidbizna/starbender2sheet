@@ -15,7 +15,6 @@ const {
 	character,
 	stats,
 	statsLoading,
-	namesOfActivatedBuffs,
 	activatedPartyBuffs,
 	buffsTallied,
 	buffsLoading,
@@ -61,7 +60,7 @@ const activeBuffNames = computed<string>(() => {
 	const passiveBuffNames = activatedPartyBuffs.value.map((item) => {
 		return item.name;
 	});
-	const allNames = [...passiveBuffNames, ...namesOfActivatedBuffs.value];
+	const allNames = [...passiveBuffNames];
 	return allNames.sort().join(', ');
 });
 </script>

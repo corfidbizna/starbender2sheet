@@ -3,6 +3,7 @@ import {
 	type StatsCalculated,
 	labelToStatName,
 } from '@/composables/useCharacterData';
+import { computed, type ComputedRef } from 'vue';
 
 type BuffTypes = 'Buff' | 'Debuff' | 'Story Buff';
 export type BuffInfo = {
@@ -11,7 +12,7 @@ export type BuffInfo = {
 	category?: string;
 	isStacking?: boolean;
 	stackMax?: number;
-	stacks?: number;
+	stacks: number;
 	duration?: number;
 	roundsRemaining?: number;
 	description?: string;
@@ -49,72 +50,77 @@ export type CharacterBuffSummary = {
 export const getBuffEffects = (buff: BuffInfo, stats: StatsCalculated): BuffEffect[] => {
 	if (!buff.effects) {
 		return [];
-	}
-	return buff.effects.split(', ').map((effect): BuffEffect => {
-		// Str Mod +2
-		// Str Mod +2*Dex Mod
-		// Str Mod +2*Dex Mod*stacks
-		// Str Mod +2*Dex Mod*-stacks
-		// Str Mod -2*stacks
-		const effectForSplit = effect.replace(/( )(?![A-Za-z])/g, '¶');
-		// Str Mod¶+2*Dex Mod
-		const [affectedStat, amount] = effectForSplit.split('¶');
-		if (!amount) {
-			throw new Error('Buff must have a target!');
-		}
-		// affectedStat = `str`, amount = `+1*dex*stacks`
-		let currentCategory = buff.category || 'Misc';
-		if (affectedStat.toLocaleLowerCase().slice(0, 4) === 'misc') {
-			currentCategory = 'Misc';
-		}
-		const splitAmount = amount.split('*');
-		let multFlag = false;
-		const newFactors = splitAmount.map((item) => {
-			if (!item) {
-				multFlag = true;
-			} else if (Number(item)) {
-				// If the item was just a number
-				return Number(item);
-			} else if (item.replace('+', '') === 'stacks') {
-				// If the stacks has a plus in front of it
-				// or had nothing
-				return buff.stacks || 1;
-			} else if (item.replace('-', '') === 'stacks') {
-				// If the stacks was negative
-				return -(buff.stacks || -1);
-			} else {
-				// Should be either the name of a stat or a typo
-				const statResult = Number(
-					stats[labelToStatName[item.toLocaleLowerCase()] as StatsCalculatedKey],
-				);
-				if (item[0] === '-') {
-					return -statResult;
+	} else {
+		return buff.effects.split(', ').map((effect): BuffEffect => {
+			// Str Mod +2
+			// Str Mod +2*Dex Mod
+			// Str Mod +2*Dex Mod*stacks
+			// Str Mod +2*Dex Mod*-stacks
+			// Str Mod -2*stacks
+			const effectForSplit = effect.replace(/( )(?![A-Za-z])/g, '¶');
+			// Str Mod¶+2*Dex Mod
+			const [affectedStat, amount] = effectForSplit.split('¶');
+			if (!amount) {
+				throw new Error('Buff must have a target!');
+			}
+			// affectedStat = `str`, amount = `+1*dex*stacks`
+			let currentCategory = buff.category || 'Misc';
+			if (affectedStat.toLocaleLowerCase().slice(0, 4) === 'misc') {
+				currentCategory = 'Misc';
+			}
+			const splitAmount = amount.split('*');
+			let multFlag = false;
+			const newFactors = [];
+			for (let i = 0; i < splitAmount.length; i++) {
+				const item = splitAmount[i];
+				if (!item) {
+					multFlag = true;
+				} else if (Number(item)) {
+					// If the item was just a number
+					newFactors.push(Number(item));
+				} else if (item.replace('+', '') === 'stacks') {
+					// If the stacks has a plus in front of it
+					// or had nothing
+					newFactors.push(buff.stacks);
+				} else if (item.replace('-', '') === 'stacks') {
+					// If the stacks was negative
+					newFactors.push(-buff.stacks);
 				} else {
-					return statResult;
+					// Should be either the name of a stat or a typo
+					const statResult = Number(
+						stats[labelToStatName[item.toLocaleLowerCase()] as StatsCalculatedKey],
+					);
+					if (item[0] === '-') {
+						newFactors.push(-statResult);
+					} else {
+						newFactors.push(statResult);
+					}
 				}
 			}
+			const magnitude = newFactors.reduce((accumulator, currentValue) => {
+				return accumulator * (currentValue || 1);
+			}, 1);
+			let result: number;
+			if (multFlag) {
+				console.log(
+					"Hey!  Multiplies of this nature aren't properly supported anymore!!! Maybe???",
+				);
+				result =
+					stats[labelToStatName[affectedStat.toLocaleLowerCase()] as StatsCalculatedKey] *
+					(Number(magnitude) - 1);
+			} else {
+				result = Number(magnitude);
+			}
+			return {
+				category: currentCategory,
+				sourceName: buff.name,
+				affectedStat: labelToStatName[
+					affectedStat.replace(/^[Mm]isc /, '').toLocaleLowerCase()
+				] as StatsCalculatedKey,
+				amount: result,
+			};
 		});
-		const magnitude = newFactors.reduce((accumulator, currentValue) => {
-			return (accumulator || 1) * (currentValue || 1);
-		});
-		let result: number;
-		if (multFlag) {
-			console.log("Hey!  Multiplies of this nature aren't properly supported anymore!!!");
-			result =
-				stats[labelToStatName[affectedStat.toLocaleLowerCase()] as StatsCalculatedKey] *
-				(Number(magnitude) - 1);
-		} else {
-			result = Number(magnitude);
-		}
-		return {
-			category: currentCategory,
-			sourceName: buff.name,
-			affectedStat: labelToStatName[
-				affectedStat.replace(/^[Mm]isc /, '').toLocaleLowerCase()
-			] as StatsCalculatedKey,
-			amount: result,
-		};
-	});
+	}
 };
 export const tallyBuffs = (buffs: BuffEffect[], stats: StatsCalculated) => {
 	// Note: the destionation needs to be filtered through the labels-whatever to get the actual stat key name.

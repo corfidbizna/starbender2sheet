@@ -837,7 +837,16 @@ function useCharacterDataUncached(characterId: string) {
 			(item) => item[characterId as CharacterNames],
 		);
 		const result = [...filteredPartyBuffs, ...playerBuffs.value];
+		// for (let i = 0; i < result.length; i++) {
+		// 	result[i].stacks = ref<number>(490);
+		// 	if (result[i].isPassive) {
+		// 		result[i].active = true;
+		// 	} else result[i].active = false;
+		// 	return result;
+		// }
+		// return result;
 		return result.map((buff) => {
+			buff.stacks = 0;
 			if (buff.isPassive) {
 				buff.active = true;
 			} else buff.active = false;
@@ -863,8 +872,10 @@ function useCharacterDataUncached(characterId: string) {
 	});
 
 	const buffArrayFlat = computed<BuffEffect[]>(() => {
-		const buffs = activatedPartyBuffs.value;
-		return buffs.map((buff) => getBuffEffects(buff, stats.value)).flat();
+		const allBuffs = activatedPartyBuffs.value;
+		const result = allBuffs.map((buff) => getBuffEffects(buff, stats.value));
+		return result.flat();
+		// return buffs.map((buff) => getBuffEffects(buff, stats.value)).flat();
 	});
 	const buffsTallied = computed<CharacterBuffSummary>(() => {
 		return tallyBuffs(buffArrayFlat.value, stats.value);
@@ -987,29 +998,28 @@ function useCharacterDataUncached(characterId: string) {
 		statsDistribute(newStats);
 		return newStats;
 	});
-	const buffsStackUpdate = (name: string, changeAmount: number) => {
-		const targetBuff: BuffInfo | undefined = activatedPartyBuffs.value.find(
+	const buffsStackUpdate = (name: string, amount: number) => {
+		const targetBuff: BuffInfo | undefined = partyBuffs.value.find(
 			(buff) => buff.name === name,
 		);
 		if (targetBuff !== undefined) {
-			if (targetBuff?.isStacking) {
-				if (targetBuff.stacks !== undefined) {
-					targetBuff.stacks += changeAmount;
-				} else {
-					targetBuff.stacks = changeAmount;
-				}
+			// If the buff was found...
+			if (targetBuff.isStacking) {
+				// ...and it stacks...
+				targetBuff.stacks = amount;
 				return targetBuff.stacks;
 			}
+			// The buff doesn't stack.
 			console.error(
 				'The buff ' + name + " doesn't stack but we tried to change its stack amount.",
 			);
 			return 0;
-		} else {
-			console.error(
-				'The buff ' + name + " didn't exist when we tried to change its stack amount.",
-			);
-			return 0;
 		}
+		// The buff was not found.
+		console.error(
+			'The buff ' + name + " didn't exist when we tried to change its stack amount.",
+		);
+		return 0;
 	};
 	// BUFFS END
 

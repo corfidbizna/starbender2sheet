@@ -160,6 +160,7 @@ describe('Behaviors of getBuffEffects', () => {
 			type: 'Buff',
 			description: 'Makes you look cool',
 			active: true,
+			stacks: 0,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([]);
@@ -172,6 +173,7 @@ describe('Behaviors of getBuffEffects', () => {
 			description: 'Buffs strength by 5.',
 			effects: 'Str Mod +5',
 			active: true,
+			stacks: 0,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -191,6 +193,7 @@ describe('Behaviors of getBuffEffects', () => {
 			description: 'Debuffs strength and dexterity.',
 			effects: 'Str Mod -5, Dex Mod -7',
 			active: true,
+			stacks: 0,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -216,6 +219,7 @@ describe('Behaviors of getBuffEffects', () => {
 			description: 'Buffs strength by dexterity mod.',
 			effects: 'Str Mod +1*Dex Mod',
 			active: true,
+			stacks: 0,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -235,6 +239,7 @@ describe('Behaviors of getBuffEffects', () => {
 			description: 'Buffs strength by dexterity mod and vice versa.',
 			effects: 'Str Mod +1*Dex Mod, Dex Mod +1*Str Mod',
 			active: true,
+			stacks: 0,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -267,7 +272,7 @@ describe('Behaviors of getBuffEffects', () => {
 				category: 'Misc',
 				sourceName: 'Buff Strength based on Dex and Stack Size',
 				affectedStat: 'str',
-				amount: testCharacterSimple.dex * (buff.stacks || 1),
+				amount: testCharacterSimple.dex * buff.stacks,
 			},
 		]);
 	});
@@ -292,7 +297,7 @@ describe('Behaviors of getBuffEffects', () => {
 				category: 'Misc',
 				sourceName: buff.name,
 				affectedStat: 'dex',
-				amount: buff.stacks || 0,
+				amount: buff.stacks,
 			},
 		]);
 	});
@@ -317,7 +322,7 @@ describe('Behaviors of getBuffEffects', () => {
 				category: 'Misc',
 				sourceName: buff.name,
 				affectedStat: 'dex',
-				amount: buff.stacks || 0,
+				amount: buff.stacks,
 			},
 		]);
 	});
@@ -336,7 +341,7 @@ describe('Behaviors of getBuffEffects', () => {
 				category: 'Misc',
 				sourceName: buff.name,
 				affectedStat: 'str',
-				amount: -(buff.stacks || 0),
+				amount: -buff.stacks,
 			},
 		]);
 	});
@@ -347,6 +352,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: false,
 			effects: '+5',
 			active: true,
+			stacks: 0,
 		};
 
 		expect(() => {
@@ -360,6 +366,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: false,
 			effects: 'Dex Mod *3',
 			active: true,
+			stacks: 0,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -378,6 +385,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: false,
 			effects: 'Str Mod +5, Str Mod -3',
 			active: true,
+			stacks: 0,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -403,6 +411,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: false,
 			effects: 'Str Mod +10',
 			active: true,
+			stacks: 0,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -422,6 +431,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: false,
 			effects: 'Str Mod +5, misc Dex Mod +5',
 			active: true,
+			stacks: 0,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -447,6 +457,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: false,
 			effects: 'Natural Armor +3',
 			active: true,
+			stacks: 0,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		expect(result).toEqual([
@@ -466,6 +477,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: false,
 			effects: 'Natural Armor +2',
 			active: true,
+			stacks: 0,
 		};
 		const result = getBuffEffects(buff, testCharacterSimple);
 		const tallied = tallyBuffs(result, testCharacterSimple);
