@@ -321,6 +321,15 @@ export type StatsCalculated = {
 	slotsArmorExotic: number;
 	slotsAspects: number;
 	slotsFragments: number;
+	equipArmorHead: number;
+	equipArmorArm: number;
+	equipArmorChest: number;
+	equipArmorLegs: number;
+	equipArmorClass: number;
+	equipArmorFull: number;
+	equipArmorExotic: number;
+	equipAspects: number;
+	equipFragments: number;
 	capacityArmorCharge: number;
 	toHitRanged: number;
 	toHitMelee: number;
@@ -431,6 +440,15 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	slotsArmorExotic: 'Exotic  Slot',
 	slotsAspects: 'Aspect Slot',
 	slotsFragments: 'Fragment Slot',
+	equipArmorHead: 'Head Equipment',
+	equipArmorArm: 'Arm Equipment',
+	equipArmorChest: 'Chest Equipment',
+	equipArmorLegs: 'Legs Equipment',
+	equipArmorClass: 'Class Equipment',
+	equipArmorFull: 'Full Armor Equipment',
+	equipArmorExotic: 'Exotic Equipment',
+	equipAspects: 'number',
+	equipFragments: 'number',
 	capacityArmorCharge: 'Max Armor Charge',
 	toHitRanged: 'Ranged to hit',
 	toHitMelee: 'Melee to hit',
@@ -916,6 +934,15 @@ function useCharacterDataUncached(characterId: string) {
 			slotsArmorExotic: 0,
 			slotsAspects: 0,
 			slotsFragments: 0,
+			equipArmorHead: 0,
+			equipArmorArm: 0,
+			equipArmorChest: 0,
+			equipArmorLegs: 0,
+			equipArmorClass: 0,
+			equipArmorFull: 0,
+			equipArmorExotic: 0,
+			equipAspects: 0,
+			equipFragments: 0,
 			capacityArmorCharge: 0,
 			toHitRanged: 0,
 			toHitMelee: 0,
@@ -1139,6 +1166,15 @@ function useCharacterDataUncached(characterId: string) {
 				slotsArmorExotic: 0,
 				slotsAspects: 0,
 				slotsFragments: 0,
+				equipArmorHead: 0,
+				equipArmorArm: 0,
+				equipArmorChest: 0,
+				equipArmorLegs: 0,
+				equipArmorClass: 0,
+				equipArmorFull: 0,
+				equipArmorExotic: 0,
+				equipAspects: 0,
+				equipFragments: 0,
 				capacityArmorCharge: 0,
 				toHitRanged: 0,
 				toHitMelee: 0,
@@ -1248,6 +1284,15 @@ function useCharacterDataUncached(characterId: string) {
 			slotsArmorClass: 1,
 			slotsArmorFull: 1,
 			slotsArmorExotic: 1,
+			equipArmorHead: 0,
+			equipArmorArm: 0,
+			equipArmorChest: 0,
+			equipArmorLegs: 0,
+			equipArmorClass: 0,
+			equipArmorFull: 0,
+			equipArmorExotic: 0,
+			equipAspects: 0,
+			equipFragments: 0,
 			slotsAspects: 0,
 			slotsFragments: 0,
 			capacityArmorCharge: 0,
