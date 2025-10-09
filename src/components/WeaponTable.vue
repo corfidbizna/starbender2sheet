@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { actionLog } from '@/sharedState.ts';
-import useCharacterData, { type CharacterNames, type Weapon } from '@/composables/useCharacterData';
+import useCharacterData, {
+	elements,
+	rarities,
+	type CharacterNames,
+	type Weapon,
+} from '@/composables/useCharacterData';
 import WeaponItemRow from './WeaponItemRow.vue';
 import LoadingModal from './LoadingModal.vue';
 import useFilter from '@/composables/useFilter';
@@ -34,16 +39,24 @@ const sortedWeapons = computed<Weapon[]>(() => {
 	return weaponsForSort.sort((a, b) => {
 		const aSortKey = a[sortKey] || '';
 		const bSortKey = b[sortKey] || '';
-		if (aSortKey === undefined || bSortKey === undefined) {
+		if (sortKey === 'Rarity') {
+			const diff = rarities[a.Rarity] - rarities[b.Rarity];
+			return diff * (sortAscending.value ? 1 : -1);
+		} else if (sortKey === 'Element') {
+			const diff = elements[a.Element] - elements[b.Element];
+			return diff * (sortAscending.value ? 1 : -1);
+		} else {
+			if (aSortKey === undefined || bSortKey === undefined) {
+				return 0;
+			}
+			if (aSortKey > bSortKey) {
+				return sortAscending.value ? 1 : -1;
+			}
+			if (aSortKey < bSortKey) {
+				return sortAscending.value ? -1 : 1;
+			}
 			return 0;
 		}
-		if (aSortKey > bSortKey) {
-			return sortAscending.value ? 1 : -1;
-		}
-		if (aSortKey < bSortKey) {
-			return sortAscending.value ? -1 : 1;
-		}
-		return 0;
 	});
 });
 const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({

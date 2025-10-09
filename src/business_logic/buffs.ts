@@ -3,7 +3,6 @@ import {
 	type StatsCalculated,
 	labelToStatName,
 } from '@/composables/useCharacterData';
-import { computed, type ComputedRef } from 'vue';
 
 type BuffTypes = 'Buff' | 'Debuff' | 'Story Buff';
 export type BuffInfo = {
@@ -137,7 +136,12 @@ export const tallyBuffs = (buffs: BuffEffect[], stats: StatsCalculated) => {
 			result[key] = {
 				total: stats[key],
 				categories: {},
-				summary: buff.sourceName + ' ' + buff.amount,
+				summary:
+					buff.sourceName +
+					' ' +
+					('+' + buff.amount).replace('+-', '-') +
+					' ' +
+					buff.category,
 			};
 			result[key].categories[buff.category] = buff.amount;
 		} else {
@@ -151,7 +155,13 @@ export const tallyBuffs = (buffs: BuffEffect[], stats: StatsCalculated) => {
 				result[key].categories[buff.category] =
 					(buff.amount || 0) + (result[key].categories[buff.category] || 0);
 			}
-			result[key].summary += '\n' + buff.sourceName + ' ' + buff.amount;
+			result[key].summary +=
+				'\n' +
+				buff.sourceName +
+				' ' +
+				('+' + buff.amount).replace('+-', '-') +
+				' ' +
+				buff.category;
 		}
 	});
 	const destinations = Object.keys(result);
