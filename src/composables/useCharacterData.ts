@@ -1017,12 +1017,10 @@ function useCharacterDataUncached(characterId: string) {
 			refPerLevel: 0,
 			willPerLevel: 0,
 		};
-		const buffedStatNames = Object.keys(buffsTallied);
-		buffedStatNames.forEach((name) => {
-			newStats[name as StatsCalculatedKey] =
-				buffsTallied.value[name as StatsCalculatedKey]?.total || 0;
+		const statNames = Object.keys(newStats);
+		statNames.forEach((name) => {
+			newStats[name as StatsCalculatedKey] = getFinalStat(name as StatsCalculatedKey);
 		});
-		statsDistribute(newStats);
 		return newStats;
 	});
 	const buffsStackUpdate = (name: string, amount: number) => {
@@ -1064,24 +1062,25 @@ function useCharacterDataUncached(characterId: string) {
 		const filteredWeapons = weaponsForFiltering.value.filter(
 			(item) => item[characterId as CharacterNames],
 		);
-		const statFunction = getStatByCharacter(stats.value);
+		const statFunction = getStatByCharacter(buffsAsStats.value);
+		// const statFunction = getStatByCharacter(stats.value);
 		return filteredWeapons.map((weapon) => {
-			// const damageBonus = computed<number>(() => {
-			// 	let result = 0;
-			// 	if (weapon.RangeType === 'Melee') {
-			// 		result += buffsTallied.value.damageMelee?.total || stats.value.damageMelee;
-			// 	} else if (weapon.RangeType === 'Ranged') {
-			// 		result += buffsTallied.value.damageRanged?.total || stats.value.damageRanged;
-			// 	} else if (weapon.RangeType === 'Spell') {
-			// 		result += buffsTallied.value.damageSpell?.total || stats.value.damageSpell;
-			// 	}
-			// 	return (
-			// 		result +
-			// 		(buffsTallied.value?.damagePrecision?.total || stats.value.damagePrecision || 0)
-			// 	);
-			// });
-			const formula = new DiceFormula(weapon.Damage);
-			// const formula = new DiceFormula(weapon.Damage + '+' + damageBonus.value);
+			const damageBonus = computed<number>(() => {
+				let result = 0;
+				if (weapon.RangeType === 'Melee') {
+					result += getFinalStat('damageMelee');
+				} else if (weapon.RangeType === 'Ranged') {
+					result += getFinalStat('damageRanged');
+				} else if (weapon.RangeType === 'Spell') {
+					result += getFinalStat('damageSpell');
+				}
+				return result + (getFinalStat('damagePrecision') || 0);
+			});
+			// const formula = new DiceFormula(weapon.Damage);
+			const formula = new DiceFormula(weapon.Damage + '+' + damageBonus.value);
+			// const formula = new DiceFormula(
+			// 	weapon.Damage + '+' + damageBonus.value,
+			// ).evaluateExceptDice((name: string) => getFinalStat(name as StatsCalculatedKey));
 			weapon.DamageFormula = formula;
 			weapon.DmgMin = formula.min(statFunction);
 			weapon.DmgMax = formula.max(statFunction);
@@ -1103,6 +1102,9 @@ function useCharacterDataUncached(characterId: string) {
 			return 0;
 		}
 	};
+	// const weaponSlotA = ref('');
+	// const weaponSlotB = ref('');
+	// const weaponSlotC = ref('');
 	// WEAPONS END
 
 	// ==================================================================================================
@@ -1372,19 +1374,22 @@ function useCharacterDataUncached(characterId: string) {
 		statsDistribute(result);
 		return result;
 	});
+	const getFinalStat = (name: StatsCalculatedKey) => {
+		return buffsTallied.value[name]?.total || stats.value[name] || 0;
+	};
 	const actionResources = ref<Record<string, number>>({
-		actionsMove: stats.value.actionsMove,
-		actionsAttack: stats.value.actionsAttack,
-		actionsReaction: stats.value.actionsReaction,
-		actionsOther: stats.value.actionsBonus,
-		ammoKinetic: stats.value.capacityKinetic,
-		ammoSpecial: stats.value.capacitySpecial,
-		ammoHeavy: stats.value.capacityHeavy,
-		energySuper: stats.value.energySuper,
-		energyMelee: stats.value.energyMelee,
-		energyGrenade: stats.value.energyGrenade,
-		energyClass: stats.value.energyClass,
-		energyUniversal: stats.value.energyUniversal,
+		actionsMove: getFinalStat('actionsMove'),
+		actionsAttack: getFinalStat('actionsAttack'),
+		actionsReaction: getFinalStat('actionsReaction'),
+		actionsOther: getFinalStat('actionsBonus'),
+		ammoKinetic: getFinalStat('capacityKinetic'),
+		ammoSpecial: getFinalStat('capacitySpecial'),
+		ammoHeavy: getFinalStat('capacityHeavy'),
+		energySuper: getFinalStat('energySuper'),
+		energyMelee: getFinalStat('energyMelee'),
+		energyGrenade: getFinalStat('energyGrenade'),
+		energyClass: getFinalStat('energyClass'),
+		energyUniversal: getFinalStat('energyUniversal'),
 	});
 	const actionResourceUpdate = (destination: keyof ActionResource, amount: number) => {
 		actionResources.value[destination] += amount;
@@ -1422,6 +1427,7 @@ function useCharacterDataUncached(characterId: string) {
 		statsBase: statsImported,
 		actionResources,
 		actionResourceUpdate,
+		getFinalStat,
 		stats,
 		statsLoading,
 		statsRefresh,

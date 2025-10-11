@@ -138,6 +138,7 @@ const reload = () => {
 	<div class="weapon-row">
 		<div
 			class="weapon-header"
+			:class="Rarity.toLocaleLowerCase()"
 			:style="'background-color: ' + colorsRarity(Rarity)"
 		>
 			<div class="weapon-titles">
@@ -320,6 +321,9 @@ h2 {
 .weapon-header {
 	padding: 0.25em;
 	display: flex;
+}
+.weapon-header.common {
+	color: #000;
 }
 .weapon-titles {
 	display: flex;

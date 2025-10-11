@@ -18,10 +18,11 @@ const props = defineProps<CharacterProps>();
 
 const {
 	character,
+	buffsTallied,
 	statsBase,
 	stats,
 	actionResources,
-	buffsTallied,
+	getFinalStat,
 	statsLoading,
 	statsRefresh,
 	skills,
@@ -76,16 +77,16 @@ const incrementTurn = () => {
 	const resource = actionResources.value;
 	// Energy Regen
 	// I need to implement regen rate, then replace the 1s with the regen rate.
-	if (resource.energySuper < stats.value.energySuper) {
+	if (resource.energySuper < getFinalStat('energySuper')) {
 		resource.energySuper += 1;
 	}
-	if (resource.energyClass < stats.value.energyClass) {
+	if (resource.energyClass < getFinalStat('energyClass')) {
 		resource.energyClass += 1;
 	}
-	if (resource.energyMelee < stats.value.energyMelee) {
+	if (resource.energyMelee < getFinalStat('energyMelee')) {
 		resource.energyMelee += 1;
 	}
-	if (resource.energyGrenade < stats.value.energyGrenade) {
+	if (resource.energyGrenade < getFinalStat('energyGrenade')) {
 		resource.energyGrenade += 1;
 	}
 	// Action Refresh
@@ -98,19 +99,19 @@ const actionsCapacity = computed<CapacityBoxStatField[]>(() => {
 		{
 			label: 'Moves',
 			stat: 'actionsMove',
-			max: stats.value.actionsMove,
+			max: getFinalStat('actionsMove'),
 			current: actionResources.value.actionsMove,
 		},
 		{
 			label: 'Attacks',
 			stat: 'actionsAttack',
-			max: stats.value.actionsAttack,
+			max: getFinalStat('actionsAttack'),
 			current: actionResources.value.actionsAttack,
 		},
 		{
 			label: 'Reactions',
 			stat: 'actionsReaction',
-			max: stats.value.actionsReaction,
+			max: getFinalStat('actionsReaction'),
 			current: actionResources.value.actionsReaction,
 		},
 	];
@@ -121,21 +122,21 @@ const ammoCapacity = computed<CapacityBoxStatField[]>(() => {
 			label: 'Kinetic',
 			stat: 'ammoKinetic',
 			color: '#eee',
-			max: stats.value.capacityKinetic,
+			max: getFinalStat('capacityKinetic'),
 			current: actionResources.value.ammoKinetic,
 		},
 		{
 			label: 'Special',
 			stat: 'ammoSpecial',
 			color: '#7AF48B',
-			max: stats.value.capacitySpecial,
+			max: getFinalStat('capacitySpecial'),
 			current: actionResources.value.ammoSpecial,
 		},
 		{
 			label: 'Heavy',
 			stat: 'ammoHeavy',
 			color: '#B286FF',
-			max: stats.value.capacityHeavy,
+			max: getFinalStat('capacityHeavy'),
 			current: actionResources.value.ammoHeavy,
 		},
 	];
@@ -146,35 +147,35 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 			label: 'Super',
 			stat: 'energySuper',
 			color: subclassColor.value,
-			max: stats.value.energySuper,
+			max: getFinalStat('energySuper'),
 			current: actionResources.value.energySuper,
 		},
 		{
 			label: 'Class',
 			stat: 'energyClass',
 			color: subclassColor.value,
-			max: stats.value.energyClass,
+			max: getFinalStat('energyClass'),
 			current: actionResources.value.energyClass,
 		},
 		{
 			label: 'Melee',
 			stat: 'energyMelee',
 			color: subclassColor.value,
-			max: stats.value.energyMelee,
+			max: getFinalStat('energyMelee'),
 			current: actionResources.value.energyMelee,
 		},
 		{
 			label: 'Grenade',
 			stat: 'energyGrenade',
 			color: subclassColor.value,
-			max: stats.value.energyGrenade,
+			max: getFinalStat('energyGrenade'),
 			current: actionResources.value.energyGrenade,
 		},
 		{
 			label: 'Universal',
 			stat: 'energyUniversal',
 			color: '#eee',
-			max: stats.value.energyUniversal,
+			max: getFinalStat('energyUniversal'),
 			current: actionResources.value.energyUniversal,
 		},
 	];
@@ -239,19 +240,19 @@ const skillsInfo = computed<StatBoxInfo>(() => {
 					</caption>
 					<tr>
 						<td class="stat-label">Movement per move</td>
-						<td class="stat-value">{{ stats.actionsMoveBaseLand }} ft.</td>
+						<td class="stat-value">{{ getFinalStat('actionsMoveBaseLand') }} ft.</td>
 					</tr>
 					<tr>
 						<td class="stat-label">Reach</td>
-						<td class="stat-value">{{ stats.reach }} ft.</td>
+						<td class="stat-value">{{ getFinalStat('reach') }} ft.</td>
 					</tr>
 					<tr>
 						<td class="stat-label">Size</td>
-						<td class="stat-value">{{ sizeMap[stats.size].name }}</td>
+						<td class="stat-value">{{ sizeMap[getFinalStat('size')].name }}</td>
 					</tr>
 					<tr>
 						<td class="stat-label">Carrying Capacity</td>
-						<td class="stat-value">{{ stats.capacityCarrying }} lbs.</td>
+						<td class="stat-value">{{ getFinalStat('capacityCarrying') }} lbs.</td>
 					</tr>
 				</table>
 			</div>

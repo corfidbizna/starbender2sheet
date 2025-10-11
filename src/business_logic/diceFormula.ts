@@ -211,20 +211,91 @@ class BinaryOpNode extends UnitNode {
 				rhsString = '(' + rhsString + ')';
 			}
 		}
-		return lhsString + this.operator + rhsString;
+		if (lhsString === '0') {
+			return rhsString;
+		} else if (rhsString === '0') {
+			return lhsString;
+		} else {
+			return lhsString + this.operator + rhsString;
+		}
 	}
 	involvesDice(): boolean {
 		return this.lhs.involvesDice() || this.rhs.involvesDice();
 	}
 	evaluateExceptDice(getStat: (name: string) => number): UnitNode {
-		let newLHS: NumberNode | undefined;
-		let newRHS: NumberNode | undefined;
+		let newLHS: NumberNode | UnitNode | undefined;
+		let newRHS: NumberNode | UnitNode | undefined;
 		if (!this.lhs.involvesDice()) {
 			newLHS = new NumberNode(this.lhs.evaluate(() => 0, getStat));
 		}
 		if (!this.rhs.involvesDice()) {
 			newRHS = new NumberNode(this.rhs.evaluate(() => 0, getStat));
 		}
+		// ====================================================================
+		if ((newLHS || this.lhs) instanceof BinaryOpNode && newRHS instanceof NumberNode) {
+			// Do I need to do this for the other side? Or maybe not because of the way nodes are structured?
+			const friend = (newLHS || this.lhs) as BinaryOpNode;
+			if (friend.operator === this.operator) {
+				const checkRHS = new BinaryOpNode(
+					friend.rhs,
+					this.rhs,
+					this.operator,
+				).evaluateExceptDice(getStat);
+				const checkLHS = new BinaryOpNode(
+					friend.lhs,
+					this.rhs,
+					this.operator,
+				).evaluateExceptDice(getStat);
+				if (checkRHS instanceof NumberNode) {
+					newLHS = friend.lhs;
+					newRHS = checkRHS;
+				}
+				if (checkLHS instanceof NumberNode) {
+					newLHS = friend.rhs;
+					newRHS = checkLHS;
+				}
+			}
+		}
+		// ====================================================================
+		// THIS CODE WORKS BUT IS REALLY SLOW; included here for posterity.
+		// if ((newLHS || this.lhs) instanceof BinaryOpNode && newRHS instanceof NumberNode) {
+		// 	// My left-hand side is a BinaryOpNode and my right-hand side is a number.
+		// 	//          vvv?
+		// 	// Thing   (Num)      |  Num      Num     |
+		// 	//   \      /         |    \      /       |
+		// 	//    friend    Num   |     friend  Thing |  Num    Thing
+		// 	//       \      /     |        \      /   |    \      /
+		// 	//          me        |           me      |       me
+		// 	//
+		// 	const friend = (newLHS || this.lhs) as BinaryOpNode;
+		// 	if (friend.operator !== '-' && friend.operator === this.operator) {
+		// 		// If the operator is a '+' or a '*' and is the same as us,
+		// 		// we can transpose our contents safely.
+		// 		//
+		// 		// Assuming we got here at all, one of our friend's sides can't evaluate to a number.
+		// 		// Nowe we just gotta figure out which half it is. If it's neither, this was a doomed expedition anyway and we can just not do anything.
+		// 		if (friend.lhs.evaluateExceptDice(getStat) instanceof NumberNode) {
+		// 			// The left-hand side of our friend is the number,
+		// 			// meaning we should swap my right-hand side and their left-hand side.
+		// 			newRHS = new BinaryOpNode(
+		// 				this.rhs,
+		// 				friend.lhs.evaluateExceptDice(getStat),
+		// 				friend.operator,
+		// 			).evaluateExceptDice(getStat);
+		// 			newLHS = friend.rhs.evaluateExceptDice(getStat);
+		// 		} else if (friend.rhs.evaluateExceptDice(getStat) instanceof NumberNode) {
+		// 			// The right-hand side of our friend is the number,
+		// 			// meaning we should swap my right-hand side and their right-hand side.
+		// 			newRHS = new BinaryOpNode(
+		// 				this.rhs,
+		// 				friend.rhs.evaluateExceptDice(getStat),
+		// 				friend.operator,
+		// 			).evaluateExceptDice(getStat);
+		// 			newLHS = friend.lhs.evaluateExceptDice(getStat);
+		// 		}
+		// 	}
+		// }
+		// ====================================================================
 		if (!this.involvesDice()) {
 			return new NumberNode(
 				this.evaluate(() => {
