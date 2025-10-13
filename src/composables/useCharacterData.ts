@@ -7,6 +7,7 @@ import {
 	type PartyBuffInfo,
 } from '@/business_logic/buffs';
 import { DiceFormula, getStatByCharacter } from '@/business_logic/diceFormula';
+import { updateLog } from '@/sharedState';
 import { computed, ref, type Ref, type ComputedRef } from 'vue';
 
 // ==================================================================================================
@@ -311,6 +312,10 @@ export type StatsCalculated = {
 	energyGrenade: number;
 	energySuper: number;
 	energyClass: number;
+	energyMeleeRecharge: number;
+	energyGrenadeRecharge: number;
+	energySuperRecharge: number;
+	energyClassRecharge: number;
 	rerolls: number;
 	slotsArmorHead: number;
 	slotsArmorArm: number;
@@ -366,6 +371,7 @@ export type StatsCalculated = {
 	hpShieldType: number;
 	skillFocus: number;
 	energyUniversal: number;
+	energyUniversalRecharge: number;
 	armor: number;
 	armorNatural: number;
 	armorShield: number;
@@ -430,6 +436,10 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	energyGrenade: 'Grenade Energy',
 	energySuper: 'Super Energy',
 	energyClass: 'Class Energy',
+	energyMeleeRecharge: 'Melee Energy Recharge',
+	energyGrenadeRecharge: 'Grenade Energy Recharge',
+	energySuperRecharge: 'Super Energy Recharge',
+	energyClassRecharge: 'Class Energy Recharge',
 	rerolls: 'Rerolls',
 	slotsArmorHead: 'Head Slot',
 	slotsArmorArm: 'Arms Slot',
@@ -484,7 +494,8 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	hpShieldMax: 'Max Shield HP',
 	hpShieldType: 'Shield Type',
 	skillFocus: 'Skill Focus',
-	energyUniversal: 'Max Universal Energy ',
+	energyUniversal: 'Max Universal Energy',
+	energyUniversalRecharge: 'Universal Energy Recharge',
 	armor: 'Armor',
 	armorNatural: 'Natural Armor',
 	armorShield: 'Shield',
@@ -584,6 +595,7 @@ export const statsDistribute = (source: StatsCalculated) => {
 export type StatBoxInfo = {
 	label: string;
 	data: BarBoxStatField[];
+	noRoll?: boolean;
 };
 export type BarBoxStatField = {
 	label: string;
@@ -611,6 +623,7 @@ export const makeComputedOfStats = (
 	buffs: ComputedRef<CharacterBuffSummary>,
 	label: string,
 	keys: StatsCalculatedKey[],
+	noRoll?: boolean,
 ): (() => StatBoxInfo) => {
 	return (): StatBoxInfo => {
 		const buffsValue = buffs.value;
@@ -624,6 +637,7 @@ export const makeComputedOfStats = (
 				value: stats.value[key],
 				value2: buffsValue[key]?.total,
 			})),
+			noRoll,
 		};
 	};
 };
@@ -924,6 +938,10 @@ function useCharacterDataUncached(characterId: string) {
 			energyGrenade: 0,
 			energySuper: 0,
 			energyClass: 0,
+			energyMeleeRecharge: 0,
+			energyGrenadeRecharge: 0,
+			energySuperRecharge: 0,
+			energyClassRecharge: 0,
 			rerolls: 0,
 			slotsArmorHead: 0,
 			slotsArmorArm: 0,
@@ -979,6 +997,7 @@ function useCharacterDataUncached(characterId: string) {
 			hpShieldType: 0,
 			skillFocus: 0,
 			energyUniversal: 0,
+			energyUniversalRecharge: 0,
 			armor: 0,
 			armorNatural: 0,
 			armorShield: 0,
@@ -1102,9 +1121,40 @@ function useCharacterDataUncached(characterId: string) {
 			return 0;
 		}
 	};
-	// const weaponSlotA = ref('');
-	// const weaponSlotB = ref('');
-	// const weaponSlotC = ref('');
+	type WeaponSlot = 'a' | 'b' | 'c';
+	const weaponSlots = ref<Record<WeaponSlot, string>>({
+		a: '',
+		b: '',
+		c: '',
+	});
+	const weaponSlotUpdate = (slot: WeaponSlot, name: string) => {
+		const otherKeys = Object.keys(weaponSlots);
+		otherKeys.forEach((key) => {
+			if (weaponSlots.value[key as WeaponSlot] === name) {
+				if (key !== slot) {
+					// The weapon was already in a slot and it wasn't the target one.
+					const register = weaponSlots.value[slot];
+					weaponSlots.value[slot] = name;
+					weaponSlots.value[key as WeaponSlot] = register;
+					updateLog(
+						'The weapon ' +
+							name +
+							' transferred to slot ' +
+							slot +
+							' from slot ' +
+							key +
+							(register === '')
+							? '.'
+							: ', swapping with ' + register + '.',
+					);
+				} else {
+					updateLog('The weapon ' + name + ' was already in slot ' + slot + '!');
+				}
+			}
+		});
+		weaponSlots.value[slot] = name;
+		updateLog('The weapon ' + name + ' was added to slot ' + slot + '.');
+	};
 	// WEAPONS END
 
 	// ==================================================================================================
@@ -1158,6 +1208,10 @@ function useCharacterDataUncached(characterId: string) {
 				energyGrenade: 0,
 				energySuper: 0,
 				energyClass: 0,
+				energyMeleeRecharge: 0,
+				energyGrenadeRecharge: 0,
+				energySuperRecharge: 0,
+				energyClassRecharge: 0,
 				rerolls: 0,
 				slotsArmorHead: 0,
 				slotsArmorArm: 0,
@@ -1213,6 +1267,7 @@ function useCharacterDataUncached(characterId: string) {
 				hpShieldType: 0,
 				skillFocus: 0,
 				energyUniversal: 0,
+				energyUniversalRecharge: 0,
 				armor: 0,
 				armorNatural: 0,
 				armorShield: 0,
@@ -1278,6 +1333,10 @@ function useCharacterDataUncached(characterId: string) {
 			energyGrenade: source.energyGrenade,
 			energySuper: source.energySuper,
 			energyClass: source.energyClass,
+			energyMeleeRecharge: 1,
+			energyGrenadeRecharge: 1,
+			energySuperRecharge: 1,
+			energyClassRecharge: 1,
 			rerolls: 0,
 			slotsArmorHead: 3,
 			slotsArmorArm: 3,
@@ -1333,6 +1392,7 @@ function useCharacterDataUncached(characterId: string) {
 			hpShieldType: 0,
 			skillFocus: source.skillFocus,
 			energyUniversal: 0,
+			energyUniversalRecharge: 0,
 			armor: source.armor,
 			armorNatural: source.armorNatural,
 			armorShield: source.armorShield,
@@ -1417,6 +1477,7 @@ function useCharacterDataUncached(characterId: string) {
 		// Weapons
 		weapons,
 		weaponAmmoUpdate,
+		weaponSlotUpdate,
 		weaponsLoading,
 		weaponsRefresh,
 		// Quests

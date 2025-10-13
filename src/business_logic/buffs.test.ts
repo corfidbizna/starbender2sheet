@@ -81,6 +81,10 @@ const testCharacterSimple: StatsCalculated = {
 	energyGrenade: 0,
 	energySuper: 0,
 	energyClass: 0,
+	energyMeleeRecharge: 0,
+	energyGrenadeRecharge: 0,
+	energySuperRecharge: 0,
+	energyClassRecharge: 0,
 	rerolls: 0,
 	slotsArmorHead: 0,
 	slotsArmorArm: 0,
@@ -136,6 +140,7 @@ const testCharacterSimple: StatsCalculated = {
 	hpShieldType: 0,
 	skillFocus: 0,
 	energyUniversal: 0,
+	energyUniversalRecharge: 0,
 	armor: 0,
 	armorNatural: 0,
 	armorShield: 0,
@@ -335,6 +340,25 @@ describe('Behaviors of getBuffEffects', () => {
 			},
 		]);
 	});
+	test('Zero stacks', () => {
+		const buff: BuffInfo = {
+			name: 'Buff Strength based on Stack Size',
+			type: 'Buff',
+			isStacking: true,
+			stacks: 0,
+			effects: 'Str Mod +1*stacks',
+			active: true,
+		};
+		const result = getBuffEffects(buff, testCharacterSimple);
+		expect(result).toEqual([
+			{
+				category: 'Misc',
+				sourceName: buff.name,
+				affectedStat: 'str',
+				amount: 0,
+			},
+		]);
+	});
 	test('Negative stack magnitude, no helper', () => {
 		const buff: BuffInfo = {
 			name: 'Buff Strength and Dex based on Stack Size',
@@ -478,6 +502,26 @@ describe('Behaviors of getBuffEffects', () => {
 			},
 		]);
 	});
+	test('Fractional Buff', () => {
+		const buff: BuffInfo = {
+			name: '',
+			category: 'Misc',
+			type: 'Debuff',
+			isStacking: true,
+			effects: 'Movement Action -0.5*stacks',
+			active: true,
+			stacks: 5,
+		};
+		const result = getBuffEffects(buff, testCharacterSimple);
+		expect(result).toEqual([
+			{
+				category: 'Misc',
+				sourceName: buff.name,
+				affectedStat: 'actionsMove',
+				amount: -2.5,
+			},
+		]);
+	});
 	test('Where does Natural Armor go?', () => {
 		const buff: BuffInfo = {
 			name: '',
@@ -493,29 +537,29 @@ describe('Behaviors of getBuffEffects', () => {
 		expect(tallied).toEqual({
 			ac: {
 				categories: {},
-				summary: ' 2',
+				summary: ' +2 Armor',
 				total: 12,
 			},
 			acFF: {
 				categories: {},
-				summary: ' 2',
+				summary: ' +2 Armor',
 				total: 2,
 			},
 			armorNatural: {
 				categories: {
 					Armor: 2,
 				},
-				summary: ' 2',
+				summary: ' +2 Armor',
 				total: 2,
 			},
 			dr: {
 				categories: {},
-				summary: ' 2',
+				summary: ' +2 Armor',
 				total: 2,
 			},
 			drFF: {
 				categories: {},
-				summary: ' 2',
+				summary: ' +2 Armor',
 				total: 2,
 			},
 		});
@@ -549,6 +593,10 @@ describe('getStatsCalclated', () => {
 			energyGrenade: 0,
 			energySuper: 0,
 			energyClass: 0,
+			energyMeleeRecharge: 0,
+			energyGrenadeRecharge: 0,
+			energySuperRecharge: 0,
+			energyClassRecharge: 0,
 			rerolls: 0,
 			slotsArmorHead: 0,
 			slotsArmorArm: 0,
@@ -604,6 +652,7 @@ describe('getStatsCalclated', () => {
 			hpShieldType: 0,
 			skillFocus: 0,
 			energyUniversal: 0,
+			energyUniversalRecharge: 0,
 			armor: 0,
 			armorNatural: 0,
 			armorShield: 0,

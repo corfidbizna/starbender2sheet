@@ -54,11 +54,30 @@ const refillAll = () => {
 				<td class="capacity">{{ stat.current || 0 }}</td>
 				<td class="divider">⁄</td>
 				<td class="capacity">{{ stat.max }}</td>
+				<td class="increment-container">
+					<button
+						class="increment-button"
+						@click="actionResourceUpdate(stat.stat as keyof ActionResource, -1)"
+					>
+						<span> - </span>
+					</button>
+					<button
+						class="increment-button"
+						@click="actionResourceUpdate(stat.stat as keyof ActionResource, 1)"
+					>
+						<span> + </span>
+					</button>
+				</td>
 				<td>
-					<button @click="actionResourceUpdate(stat.stat as keyof ActionResource, -1)">
-						-</button
-					><button @click="actionResourceUpdate(stat.stat as keyof ActionResource, 1)">
-						+
+					<button
+						@click="
+							actionResourceUpdate(
+								stat.stat as keyof ActionResource,
+								stat.max - stat.current,
+							)
+						"
+					>
+						⤒
 					</button>
 				</td>
 			</tr>
@@ -114,6 +133,14 @@ const refillAll = () => {
 	border: 1px solid #fff8;
 	background: #0001;
 	transition: background 0.1s;
+}
+.stat-box-table td button {
+	width: 1em;
+	padding: 2px 0;
+}
+.increment-container {
+	display: inline-block;
+	margin-right: 0.25em;
 }
 .stat-box-table button:hover {
 	background: #fff1;

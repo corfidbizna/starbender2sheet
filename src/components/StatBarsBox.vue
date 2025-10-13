@@ -77,7 +77,9 @@ const rollStat = (label: string, value: number) => {
 					:style="stat.bar"
 				></td>
 				<td class="value">{{ stat.value }}</td>
-				<td><button @click="rollStat(stat.label, stat.value)"></button></td>
+				<td v-if="!props.noRoll">
+					<button @click="rollStat(stat.label, stat.value)"></button>
+				</td>
 			</tr>
 		</table>
 	</div>

@@ -60,14 +60,13 @@ const infoAbilityScores = computed<StatBoxInfo>(
 	]),
 );
 const infoDefenseMods = computed<StatBoxInfo>(
-	makeComputedOfStats(stats, buffsTallied, 'Defense Mods', [
-		'ac',
-		'acTouch',
-		'acFF',
-		'acFFTouch',
-		'dr',
-		'drFF',
-	]),
+	makeComputedOfStats(
+		stats,
+		buffsTallied,
+		'Defense Mods',
+		['ac', 'acTouch', 'acFF', 'acFFTouch', 'dr', 'drFF'],
+		true,
+	),
 );
 const infoSaves = computed<StatBoxInfo>(
 	makeComputedOfStats(stats, buffsTallied, 'Saving Throws', ['fort', 'ref', 'will']),
@@ -78,16 +77,16 @@ const incrementTurn = () => {
 	// Energy Regen
 	// I need to implement regen rate, then replace the 1s with the regen rate.
 	if (resource.energySuper < getFinalStat('energySuper')) {
-		resource.energySuper += 1;
+		resource.energySuper += getFinalStat('energySuperRecharge');
 	}
 	if (resource.energyClass < getFinalStat('energyClass')) {
-		resource.energyClass += 1;
+		resource.energyClass += getFinalStat('energyClassRecharge');
 	}
 	if (resource.energyMelee < getFinalStat('energyMelee')) {
-		resource.energyMelee += 1;
+		resource.energyMelee += getFinalStat('energyMeleeRecharge');
 	}
 	if (resource.energyGrenade < getFinalStat('energyGrenade')) {
-		resource.energyGrenade += 1;
+		resource.energyGrenade += getFinalStat('energyGrenadeRecharge');
 	}
 	// Action Refresh
 	resource.actionsMove += source.actionsMove - resource.actionsMove;

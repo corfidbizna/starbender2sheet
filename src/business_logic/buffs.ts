@@ -51,18 +51,12 @@ export const getBuffEffects = (buff: BuffInfo, stats: StatsCalculated): BuffEffe
 		return [];
 	} else {
 		return buff.effects.split(', ').map((effect): BuffEffect => {
-			// Str Mod +2
-			// Str Mod +2*Dex Mod
-			// Str Mod +2*Dex Mod*stacks
-			// Str Mod +2*Dex Mod*-stacks
-			// Str Mod -2*stacks
 			const effectForSplit = effect.replace(/( )(?![A-Za-z])/g, '¶');
 			// Str Mod¶+2*Dex Mod
 			const [affectedStat, amount] = effectForSplit.split('¶');
 			if (!amount) {
 				throw new Error('Buff must have a target!');
 			}
-			// affectedStat = `str`, amount = `+1*dex*stacks`
 			let currentCategory = buff.category || 'Misc';
 			if (affectedStat.toLocaleLowerCase().slice(0, 4) === 'misc') {
 				currentCategory = 'Misc';
@@ -97,7 +91,7 @@ export const getBuffEffects = (buff: BuffInfo, stats: StatsCalculated): BuffEffe
 				}
 			}
 			const magnitude = newFactors.reduce((accumulator, currentValue) => {
-				return accumulator * (currentValue || 1);
+				return accumulator * (currentValue === undefined ? 1 : currentValue);
 			}, 1);
 			let result: number;
 			if (multFlag) {
@@ -179,6 +173,14 @@ export const tallyBuffs = (buffs: BuffEffect[], stats: StatsCalculated) => {
 					}
 				});
 			}
+		}
+	});
+	Object.keys(result).forEach((statt) => {
+		// Remove fractional values at this stage.
+		const stat = statt as StatsCalculatedKey;
+		const newTotal = Math.trunc(result[stat]?.total || 0);
+		if (result[stat] !== undefined) {
+			result[stat].total = newTotal;
 		}
 	});
 	return buffsDistribute(result, stats);
