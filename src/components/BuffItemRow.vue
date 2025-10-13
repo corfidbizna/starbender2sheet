@@ -89,6 +89,7 @@ const changeStacksUpdate = (amount: Event) => {
 	background-color: #0006;
 }
 .buff-label {
+	text-align: left;
 	display: flex;
 	max-width: 530px;
 	padding: 0.25em;

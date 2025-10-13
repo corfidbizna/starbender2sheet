@@ -90,7 +90,7 @@ const activeBuffNames = computed<string>(() => {
 				</tbody>
 			</table>
 			<BuffActivator :character-id="characterId" />
-			<pre>activatedPartyBuffs: {{ activatedPartyBuffs }}</pre>
+			<!-- <pre>activatedPartyBuffs: {{ activatedPartyBuffs }}</pre> -->
 		</div>
 	</div>
 </template>
