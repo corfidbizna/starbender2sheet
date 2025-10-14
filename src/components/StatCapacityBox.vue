@@ -142,6 +142,9 @@ const refillAll = () => {
 	display: inline-block;
 	margin-right: 0.25em;
 }
+.increment-container :last-child {
+	border-left: 0;
+}
 .stat-box-table button:hover {
 	background: #fff1;
 	transition: background 0.1s;

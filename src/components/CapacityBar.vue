@@ -50,9 +50,9 @@ const progress = computed<number>(() =>
 .bar,
 .remaining {
 	display: inline-block;
-	height: calc(100% - 4px);
-	margin-top: 2px;
-	margin-bottom: 2px;
+	height: calc(100% - 2px);
+	margin-top: 1px;
+	margin-bottom: 1px;
 }
 .line {
 	display: inline-block;

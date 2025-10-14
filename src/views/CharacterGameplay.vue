@@ -6,10 +6,12 @@ import useCharacterData, {
 	makeComputedOfStats,
 	type CapacityBoxStatField,
 	sizeMap,
+	type StatsCalculatedKey,
 } from '@/composables/useCharacterData';
 import StatBarsBox from '@/components/StatBarsBox.vue';
 import LoadingModal from '@/components/LoadingModal.vue';
 import StatCapacityBox from '@/components/StatCapacityBox.vue';
+import CapacityBar from '@/components/CapacityBar.vue';
 import { actionLog } from '@/sharedState';
 type CharacterProps = {
 	characterId: string;
@@ -75,19 +77,14 @@ const incrementTurn = () => {
 	const source = stats.value;
 	const resource = actionResources.value;
 	// Energy Regen
-	// I need to implement regen rate, then replace the 1s with the regen rate.
-	if (resource.energySuper < getFinalStat('energySuper')) {
-		resource.energySuper += getFinalStat('energySuperRecharge');
-	}
-	if (resource.energyClass < getFinalStat('energyClass')) {
-		resource.energyClass += getFinalStat('energyClassRecharge');
-	}
-	if (resource.energyMelee < getFinalStat('energyMelee')) {
-		resource.energyMelee += getFinalStat('energyMeleeRecharge');
-	}
-	if (resource.energyGrenade < getFinalStat('energyGrenade')) {
-		resource.energyGrenade += getFinalStat('energyGrenadeRecharge');
-	}
+	const energies = ['Super', 'Class', 'Melee', 'Grenade', 'Universal'];
+	energies.forEach((energy) => {
+		const energyKey = ('energy' + energy) as StatsCalculatedKey;
+		const energyRechargeKey = ('energy' + energy + 'Recharge') as StatsCalculatedKey;
+		if (resource[energyKey] < getFinalStat(energyKey) || getFinalStat(energyRechargeKey) < 0) {
+			resource[energyKey] += getFinalStat(energyRechargeKey);
+		}
+	});
 	// Action Refresh
 	resource.actionsMove += source.actionsMove - resource.actionsMove;
 	resource.actionsAttack += source.actionsAttack - resource.actionsAttack;
@@ -189,6 +186,16 @@ const skillsInfo = computed<StatBoxInfo>(() => {
 		data: fieldArray,
 	};
 });
+const encumberanceColor = computed<string>(() => {
+	const alpha = getFinalStat('encumberance');
+	const colors: Record<number, string> = {
+		0: '#fff',
+		1: '#ffa',
+		2: '#fa6',
+		3: '#e76',
+	};
+	return colors[alpha];
+});
 </script>
 <template>
 	<div
@@ -251,7 +258,32 @@ const skillsInfo = computed<StatBoxInfo>(() => {
 					</tr>
 					<tr>
 						<td class="stat-label">Carrying Capacity</td>
-						<td class="stat-value">{{ getFinalStat('capacityCarrying') }} lbs.</td>
+						<td class="stat-value">
+							{{ getFinalStat('weightCurrent') }} ⁄
+							{{ getFinalStat('capacityCarrying') }} lbs.
+						</td>
+					</tr>
+					<tr>
+						<td class="stat-label">
+							<span v-if="getFinalStat('encumberance') <= 0"> Not Encumbered </span>
+							<span v-else-if="getFinalStat('encumberance') === 1"> Encumbered </span>
+							<span v-else-if="getFinalStat('encumberance') === 2">
+								Heavily Encumbered
+							</span>
+							<span v-else-if="getFinalStat('encumberance') >= 3">
+								Over Encumbered
+							</span>
+						</td>
+						<td>
+							<CapacityBar
+								v-bind="{
+									max: getFinalStat('capacityCarrying'),
+									current: getFinalStat('weightCurrent') || 0,
+									color: encumberanceColor,
+								}"
+								style="height: 0.8em"
+							/>
+						</td>
 					</tr>
 				</table>
 			</div>

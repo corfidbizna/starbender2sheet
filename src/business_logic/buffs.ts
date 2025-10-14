@@ -250,12 +250,68 @@ export const buffsDistribute = (buffs: CharacterBuffSummary, stats: StatsCalcula
 			}
 		});
 	};
+	const distributeWeight = (stats: StatsCalculated) => {
+		const encumberance = Math.trunc(
+			Math.max(
+				0,
+				Math.min(
+					3,
+					((buffs.weightCurrent?.total || stats.weightCurrent) /
+						(buffs.capacityCarrying?.total || stats.capacityCarrying)) *
+						3,
+				),
+			),
+		);
+		const sizeMultMap: Record<number, number> = {
+			0: 1,
+			1: 0.5,
+			2: 0.25,
+			3: 0,
+		};
+		const speedMult = sizeMultMap[encumberance];
+		if (buffs.encumberance !== undefined) {
+			buffs.encumberance.total = encumberance;
+			buffs.encumberance.summary += '\n' + (buffs.weightCurrent?.summary || '');
+		} else {
+			buffs.encumberance = {
+				total: encumberance,
+				categories: {},
+				summary: buffs.weightCurrent?.summary || '',
+			};
+		}
+		if (speedMult < 1) {
+			const moveStats = [
+				'actionsMoveBaseLand',
+				'actionsMoveBaseSwim',
+				'actionsMoveBaseFly',
+				'actionsMoveBaseClimb',
+			];
+			moveStats.forEach((stat) => {
+				const key = stat as StatsCalculatedKey;
+				if (buffs[key] !== undefined) {
+					buffs[key].total = buffs[key].total * speedMult;
+					buffs[key].summary += '\nEncumberance x' + speedMult;
+				} else {
+					buffs[key] = {
+						total: stats[key] * speedMult,
+						categories: {},
+						summary: 'Encumberance x' + speedMult,
+					};
+				}
+			});
+		}
+	};
 	const buffKeys = Object.keys(buffs);
 	buffKeys.forEach((name) => {
 		if (name === 'actionsMoveMult') {
 			distributeMultiply(
 				'actionsMoveMult',
-				['actionsMoveLand', 'actionsMoveSwim', 'actionsMoveFly', 'actionsMoveClimb'],
+				[
+					'actionsMoveBaseLand',
+					'actionsMoveBaseSwim',
+					'actionsMoveBaseFly',
+					'actionsMoveBaseClimb',
+				],
 				stats,
 			);
 		} else if (name === 'drBase') {
@@ -303,6 +359,9 @@ export const buffsDistribute = (buffs: CharacterBuffSummary, stats: StatsCalcula
 			distributeAdditive('cha', ['energyUniversal'], stats, buffs.cpl?.total || stats.cpl);
 		} else if (name === 'strScore') {
 			distributeScore('strScore', ['str'], stats);
+			// if (buffs.capacityCarrying !== undefined) {
+			// 	stat.carryingCapacity * (buffs.strScore?.total || 1) * 30;
+			// }
 			// Carrying Capacity goes here somehow ._.
 		} else if (name === 'dexScore') {
 			distributeScore('dexScore', ['dex'], stats);
@@ -318,6 +377,7 @@ export const buffsDistribute = (buffs: CharacterBuffSummary, stats: StatsCalcula
 			distributeAdditive('weightBase', ['weightTotal'], stats);
 		} else if (name === 'weightCurrent') {
 			distributeAdditive('weightCurrent', ['weightTotal'], stats);
+			distributeWeight(stats);
 		} else if (name === 'babPerLevel') {
 			distributeAdditive('babPerLevel', ['bab'], stats);
 		} else if (name === 'bdbPerLevel') {
@@ -330,6 +390,7 @@ export const buffsDistribute = (buffs: CharacterBuffSummary, stats: StatsCalcula
 			distributeAdditive('refPerLevel', ['ref'], stats);
 		} else if (name === 'willPerLevel') {
 			distributeAdditive('willPerLevel', ['will'], stats);
+		} else if (name === 'size') {
 		}
 	});
 	return buffs;

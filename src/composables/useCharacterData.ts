@@ -1435,7 +1435,15 @@ function useCharacterDataUncached(characterId: string) {
 		return result;
 	});
 	const getFinalStat = (name: StatsCalculatedKey) => {
-		return buffsTallied.value[name]?.total || stats.value[name] || 0;
+		if (buffsTallied.value[name] === undefined) {
+			if (stats.value[name] === undefined) {
+				return 0;
+			} else {
+				return stats.value[name];
+			}
+		} else {
+			return buffsTallied.value[name].total;
+		}
 	};
 	const actionResources = ref<Record<string, number>>({
 		actionsMove: getFinalStat('actionsMove'),
