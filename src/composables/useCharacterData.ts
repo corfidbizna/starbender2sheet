@@ -46,7 +46,7 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 		label: 'Kara',
 		documentId: '1RcSqD_99aJc-gOcmJTloZ-jItp2XOTiozjNvV-nzgSI',
 		sheets: {
-			skills: '544688264',
+			skills: '847620321',
 			variables: '711215743',
 			buffs: '1723104523',
 		},
@@ -743,7 +743,7 @@ export type SkillInfoKey = {
 export const skillsInfoMap: Record<SkillKey, Record<string, string>> = {
 	// Str Skills
 	str: {
-		label: 'Str',
+		label: 'Str Roll',
 		baseStat: 'str',
 		description: 'text',
 	},
@@ -759,7 +759,7 @@ export const skillsInfoMap: Record<SkillKey, Record<string, string>> = {
 	},
 	// Dex Skills
 	dex: {
-		label: 'Dex',
+		label: 'Dex Roll',
 		baseStat: 'dex',
 		description: 'text',
 	},
@@ -800,7 +800,7 @@ export const skillsInfoMap: Record<SkillKey, Record<string, string>> = {
 	},
 	// Con Skills
 	con: {
-		label: 'Con',
+		label: 'Con Roll',
 		baseStat: 'con',
 		description: 'text',
 	},
@@ -811,7 +811,7 @@ export const skillsInfoMap: Record<SkillKey, Record<string, string>> = {
 	},
 	// Int Skills
 	int: {
-		label: 'Int',
+		label: 'Int Roll',
 		baseStat: 'int',
 		description: 'text',
 	},
@@ -892,7 +892,7 @@ export const skillsInfoMap: Record<SkillKey, Record<string, string>> = {
 	},
 	// Wis Skills
 	wis: {
-		label: 'Wis',
+		label: 'Wis Roll',
 		baseStat: 'wis',
 		description: 'text',
 	},
@@ -923,7 +923,7 @@ export const skillsInfoMap: Record<SkillKey, Record<string, string>> = {
 	},
 	// Cha Skills
 	cha: {
-		label: 'Cha',
+		label: 'Cha Roll',
 		baseStat: 'cha',
 		description: 'text',
 	},
@@ -965,10 +965,8 @@ export const skillsInfoMap: Record<SkillKey, Record<string, string>> = {
 	//
 };
 export const labelToSkillName: Record<string, string> = {};
-// Object.entries(labelMap).forEach((stringPair) => labelToStatName[stringPair[1].toLocaleLowerCase()] = stringPair[0]);
-// These two lines ^^^^ vvvv do the same work.
 Object.entries(skillsInfoMap).forEach(
-	([stat, info]) => (labelToStatName[info.label.toLocaleLowerCase()] = stat),
+	([stat, info]) => (labelToSkillName[info.label.toLocaleLowerCase()] = stat),
 );
 
 export type SkillsTableItem = {
@@ -1130,10 +1128,26 @@ function useCharacterDataUncached(characterId: string) {
 		data: skillsThatNeedToBeFiltered,
 		isLoading: skillsLoading,
 		refresh: skillsRefresh,
-	} = getSheetForCharacter<SkillsTableItem>(characterId, 'skills');
-	const skills = computed<SkillsTableItem[]>(() => {
-		// Removes items if there's nothing in the name field.
-		return skillsThatNeedToBeFiltered.value.filter((item) => !!item.Name);
+	} = getSheetForCharacter<Skill>(characterId, 'skills');
+	const skills = computed<Partial<Skill>>(() => {
+		const activeSkills: Partial<Skill> = {};
+		const skillList = Object.keys(skillsThatNeedToBeFiltered.value[0]);
+		for (let i = 0; i < skillList.length; i++) {
+			const skill = skillList[i];
+			const skillKey = labelToSkillName[skill.toLocaleLowerCase()] as SkillKey;
+			if (skillKey === undefined) {
+				console.warn("Couldn't find the skill " + skill);
+				continue;
+			}
+			const focus = skillsThatNeedToBeFiltered.value[0][skill as SkillKey];
+			const skillInfo = skillsInfoMap[skillKey];
+			const abilityMod =
+				getFinalStat((skillInfo.baseStat + 'Skills') as StatsCalculatedKey) +
+				getFinalStat(skillInfo.baseStat as StatsCalculatedKey);
+			activeSkills[skillKey] = focus * getFinalStat('cpl') + abilityMod + (focus > 0 ? 3 : 0);
+		}
+		console.log('activeSkills', activeSkills);
+		return activeSkills;
 	});
 	// SKILLS END
 

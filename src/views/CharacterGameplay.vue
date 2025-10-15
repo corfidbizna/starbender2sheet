@@ -7,6 +7,7 @@ import useCharacterData, {
 	type CapacityBoxStatField,
 	sizeMap,
 	type StatsCalculatedKey,
+	type SkillKey,
 } from '@/composables/useCharacterData';
 import StatBarsBox from '@/components/StatBarsBox.vue';
 import LoadingModal from '@/components/LoadingModal.vue';
@@ -177,8 +178,10 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 });
 const skillsInfo = computed<StatBoxInfo>(() => {
 	const fieldArray = <BarBoxStatField[]>[];
-	skills.value.forEach((skill) => {
-		fieldArray.push({ label: skill.Name, stat: skill.Name, value: skill.Bonus });
+	const skillList = Object.keys(skills.value) || [];
+	skillList.forEach((name: string) => {
+		const key = name as SkillKey;
+		fieldArray.push({ label: key, stat: 'str', value: skills.value[key] || 0 });
 	});
 	return {
 		label: 'Skills',
