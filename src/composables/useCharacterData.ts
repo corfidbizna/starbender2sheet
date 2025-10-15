@@ -682,6 +682,295 @@ export const makeComputedOfCapacities = (
 };
 
 // The type describing a character's skill.
+export type Skill = {
+	// Str Skills
+	str: number;
+	climb: number;
+	swim: number;
+	// Dex Skills
+	dex: number;
+	acrobatics: number;
+	disableDevice: number;
+	escapeArtist: number;
+	fly: number;
+	ride: number;
+	sleightOfHand: number;
+	stealth: number;
+	// Con Skills
+	con: number;
+	concentration: number;
+	// Int Skills
+	int: number;
+	appraise: number;
+	craft: number;
+	knowledge: number;
+	knowledgeArcana: number;
+	knowledgeDungeoneering: number;
+	knowledgeEngineering: number;
+	knowledgeGeography: number;
+	knowledgeHistory: number;
+	knowledgeLocal: number;
+	knowledgeNature: number;
+	knowledgeNobility: number;
+	knowledgePlanes: number;
+	knowledgeReligion: number;
+	linguistics: number;
+	spellcraft: number;
+	// Wis Skills
+	wis: number;
+	heal: number;
+	perception: number;
+	profession: number;
+	senseMotive: number;
+	survival: number;
+	// Cha Skills
+	cha: number;
+	bluff: number;
+	diplomacy: number;
+	disguise: number;
+	handleAnimal: number;
+	intimidate: number;
+	perform: number;
+	useMagicDevice: number;
+	//
+};
+export type SkillKey = keyof Skill;
+export type SkillInfoKey = {
+	label: string;
+	baseStat: StatsCalculatedKey;
+	description: string;
+};
+export const skillsInfoMap: Record<SkillKey, Record<string, string>> = {
+	// Str Skills
+	str: {
+		label: 'Str',
+		baseStat: 'str',
+		description: 'text',
+	},
+	climb: {
+		label: 'Climb',
+		baseStat: 'str',
+		description: 'text',
+	},
+	swim: {
+		label: 'Swim',
+		baseStat: 'str',
+		description: 'text',
+	},
+	// Dex Skills
+	dex: {
+		label: 'Dex',
+		baseStat: 'dex',
+		description: 'text',
+	},
+	acrobatics: {
+		label: 'Acrobatics',
+		baseStat: 'dex',
+		description: 'text',
+	},
+	disableDevice: {
+		label: 'Disable Device',
+		baseStat: 'dex',
+		description: 'text',
+	},
+	escapeArtist: {
+		label: 'Escape Artist',
+		baseStat: 'dex',
+		description: 'text',
+	},
+	fly: {
+		label: 'Fly',
+		baseStat: 'dex',
+		description: 'text',
+	},
+	ride: {
+		label: 'Ride',
+		baseStat: 'dex',
+		description: 'text',
+	},
+	sleightOfHand: {
+		label: 'Sleight of Hand',
+		baseStat: 'dex',
+		description: 'text',
+	},
+	stealth: {
+		label: 'Stealth',
+		baseStat: 'dex',
+		description: 'text',
+	},
+	// Con Skills
+	con: {
+		label: 'Con',
+		baseStat: 'con',
+		description: 'text',
+	},
+	concentration: {
+		label: 'Concentration',
+		baseStat: 'con',
+		description: 'text',
+	},
+	// Int Skills
+	int: {
+		label: 'Int',
+		baseStat: 'int',
+		description: 'text',
+	},
+	appraise: {
+		label: 'Appraise',
+		baseStat: 'int',
+		description: 'text',
+	},
+	craft: {
+		label: 'Craft',
+		baseStat: 'int',
+		description: 'text',
+	},
+	knowledge: {
+		label: 'Knowledge',
+		baseStat: 'int',
+		description: 'text',
+	},
+	knowledgeArcana: {
+		label: 'Knowledge (Arcana)',
+		baseStat: 'int',
+		description: 'text',
+	},
+	knowledgeDungeoneering: {
+		label: 'Knowledge (Dungeoneering)',
+		baseStat: 'int',
+		description: 'text',
+	},
+	knowledgeEngineering: {
+		label: 'Knowledge (Engineering)',
+		baseStat: 'int',
+		description: 'text',
+	},
+	knowledgeGeography: {
+		label: 'Knowledge (Geography)',
+		baseStat: 'int',
+		description: 'text',
+	},
+	knowledgeHistory: {
+		label: 'Knowledge (History)',
+		baseStat: 'int',
+		description: 'text',
+	},
+	knowledgeLocal: {
+		label: 'Knowledge (Local)',
+		baseStat: 'int',
+		description: 'text',
+	},
+	knowledgeNature: {
+		label: 'Knowledge (Nature)',
+		baseStat: 'int',
+		description: 'text',
+	},
+	knowledgeNobility: {
+		label: 'Knowledge (Nobility)',
+		baseStat: 'int',
+		description: 'text',
+	},
+	knowledgePlanes: {
+		label: 'Knowledge (Planes)',
+		baseStat: 'int',
+		description: 'text',
+	},
+	knowledgeReligion: {
+		label: 'Knowledge (Religion)',
+		baseStat: 'int',
+		description: 'text',
+	},
+	linguistics: {
+		label: 'Linguistics',
+		baseStat: 'int',
+		description: 'text',
+	},
+	spellcraft: {
+		label: 'Spellcraft',
+		baseStat: 'int',
+		description: 'text',
+	},
+	// Wis Skills
+	wis: {
+		label: 'Wis',
+		baseStat: 'wis',
+		description: 'text',
+	},
+	heal: {
+		label: 'Heal',
+		baseStat: 'wis',
+		description: 'text',
+	},
+	perception: {
+		label: 'Perception',
+		baseStat: 'wis',
+		description: 'text',
+	},
+	profession: {
+		label: 'Profession',
+		baseStat: 'wis',
+		description: 'text',
+	},
+	senseMotive: {
+		label: 'Sense Motive',
+		baseStat: 'wis',
+		description: 'text',
+	},
+	survival: {
+		label: 'Survival',
+		baseStat: 'wis',
+		description: 'text',
+	},
+	// Cha Skills
+	cha: {
+		label: 'Cha',
+		baseStat: 'cha',
+		description: 'text',
+	},
+	bluff: {
+		label: 'Bluff',
+		baseStat: 'cha',
+		description: 'text',
+	},
+	diplomacy: {
+		label: 'Diplomacy',
+		baseStat: 'cha',
+		description: 'text',
+	},
+	disguise: {
+		label: 'Disguise',
+		baseStat: 'cha',
+		description: 'text',
+	},
+	handleAnimal: {
+		label: 'Handle Animal',
+		baseStat: 'cha',
+		description: 'text',
+	},
+	intimidate: {
+		label: 'Intimidate',
+		baseStat: 'cha',
+		description: 'text',
+	},
+	perform: {
+		label: 'Perform',
+		baseStat: 'cha',
+		description: 'text',
+	},
+	useMagicDevice: {
+		label: 'Use Magic Device',
+		baseStat: 'cha',
+		description: 'text',
+	},
+	//
+};
+export const labelToSkillName: Record<string, string> = {};
+// Object.entries(labelMap).forEach((stringPair) => labelToStatName[stringPair[1].toLocaleLowerCase()] = stringPair[0]);
+// These two lines ^^^^ vvvv do the same work.
+Object.entries(skillsInfoMap).forEach(
+	([stat, info]) => (labelToStatName[info.label.toLocaleLowerCase()] = stat),
+);
+
 export type SkillsTableItem = {
 	Bonus: number;
 	Name: string;
@@ -1446,6 +1735,8 @@ function useCharacterDataUncached(characterId: string) {
 		}
 	};
 	const actionResources = ref<Record<string, number>>({
+		health: getFinalStat('hpMax'),
+		shields: getFinalStat('hpShieldMax'),
 		actionsMove: getFinalStat('actionsMove'),
 		actionsAttack: getFinalStat('actionsAttack'),
 		actionsReaction: getFinalStat('actionsReaction'),
@@ -1462,6 +1753,7 @@ function useCharacterDataUncached(characterId: string) {
 	const actionResourceUpdate = (destination: keyof ActionResource, amount: number) => {
 		actionResources.value[destination] += amount;
 	};
+
 	// STATS END
 
 	const composable = {

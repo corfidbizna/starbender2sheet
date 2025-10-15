@@ -7,6 +7,7 @@ import useCharacterData, {
 	type Weapon,
 } from '@/composables/useCharacterData';
 import WeaponItemRow from './WeaponItemRow.vue';
+import TEMPActiveWeapon from './TEMPActiveWeapon.vue';
 import LoadingModal from './LoadingModal.vue';
 import useFilter from '@/composables/useFilter';
 import { computed, ref } from 'vue';
@@ -68,6 +69,7 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 	<div class="weapon-tab-container">
 		<span class="weapon-infos">
 			<button @click="weaponsRefresh">Reload Weapons</button>
+			<div><TEMPActiveWeapon /></div>
 			<div class="search">
 				<label>
 					<span class="label">Filter by name: </span>
@@ -85,24 +87,27 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 				</label>
 			</div>
 			<div class="sort">
-				<label for="sort-by"> Sort by:</label>
-				<select
-					name="sort"
-					id="sort-by"
-					v-model="sortBy"
-				>
-					<option
-						v-for="item in Object.keys(sortList)"
-						:key="item"
-						:value="sortList[item]"
+				<h2>Sort By</h2>
+				<div class="sort-div">
+					<select
+						name="sort"
+						id="sort-by"
+						v-model="sortBy"
 					>
-						{{ item }}
-					</option>
-				</select>
-				<button @click="toggleSortAscending">
-					<span v-if="sortAscending">↓</span><span v-else>↑</span>
-				</button>
+						<option
+							v-for="item in Object.keys(sortList)"
+							:key="item"
+							:value="sortList[item]"
+						>
+							{{ item }}
+						</option>
+					</select>
+					<button @click="toggleSortAscending">
+						<span v-if="sortAscending">↓</span><span v-else>↑</span>
+					</button>
+				</div>
 			</div>
+			<h2>Action Log</h2>
 			<textarea
 				v-model="actionLog"
 				readonly
@@ -144,6 +149,13 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 }
 .search {
 	padding: 0.25em;
+}
+.sort-div {
+	width: 100%;
+}
+#sort-by {
+	width: calc(100% - 25px);
+	margin-right: auto;
 }
 .action-log {
 	color: #fff;

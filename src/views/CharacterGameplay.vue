@@ -77,8 +77,7 @@ const incrementTurn = () => {
 	const source = stats.value;
 	const resource = actionResources.value;
 	// Energy Regen
-	const energies = ['Super', 'Class', 'Melee', 'Grenade', 'Universal'];
-	energies.forEach((energy) => {
+	['Super', 'Class', 'Melee', 'Grenade', 'Universal'].forEach((energy) => {
 		const energyKey = ('energy' + energy) as StatsCalculatedKey;
 		const energyRechargeKey = ('energy' + energy + 'Recharge') as StatsCalculatedKey;
 		if (resource[energyKey] < getFinalStat(energyKey) || getFinalStat(energyRechargeKey) < 0) {
@@ -220,109 +219,121 @@ const encumberanceColor = computed<string>(() => {
 					<button @click="incrementTurn">Increment Turn</button>
 				</div>
 			</div>
-			<div>
-				<textarea
-					v-model="actionLog"
-					readonly
-					class="action-log"
-				></textarea>
-			</div>
-			<div class="stat-column-a">
-				<div><StatBarsBox v-bind="infoAbilityScores" /></div>
-				<div><StatBarsBox v-bind="infoSaves" /></div>
-			</div>
-			<div class="stat-column-b">
-				<StatCapacityBox
-					v-bind="{
-						label: 'Actions',
-						data: actionsCapacity,
-					}"
-					:characterId="characterId"
-				/>
-				<div><StatBarsBox v-bind="infoDefenseMods" /></div>
-				<table>
-					<caption>
-						<h2>Derived Information</h2>
-					</caption>
-					<tr>
-						<td class="stat-label">Movement per move</td>
-						<td class="stat-value">{{ getFinalStat('actionsMoveBaseLand') }} ft.</td>
-					</tr>
-					<tr>
-						<td class="stat-label">Reach</td>
-						<td class="stat-value">{{ getFinalStat('reach') }} ft.</td>
-					</tr>
-					<tr>
-						<td class="stat-label">Size</td>
-						<td class="stat-value">{{ sizeMap[getFinalStat('size')].name }}</td>
-					</tr>
-					<tr>
-						<td class="stat-label">Carrying Capacity</td>
-						<td class="stat-value">
-							{{ getFinalStat('weightCurrent') }} ⁄
-							{{ getFinalStat('capacityCarrying') }} lbs.
-						</td>
-					</tr>
-					<tr>
-						<td class="stat-label">
-							<span v-if="getFinalStat('encumberance') <= 0"> Not Encumbered </span>
-							<span v-else-if="getFinalStat('encumberance') === 1"> Encumbered </span>
-							<span v-else-if="getFinalStat('encumberance') === 2">
-								Heavily Encumbered
-							</span>
-							<span v-else-if="getFinalStat('encumberance') >= 3">
-								Over Encumbered
-							</span>
-						</td>
-						<td>
-							<CapacityBar
+			<div class="primary-block">
+				<div class="top-block">
+					<div class="stat-column-a">
+						<div><StatBarsBox v-bind="infoAbilityScores" /></div>
+						<div><StatBarsBox v-bind="infoSaves" /></div>
+					</div>
+					<div class="stat-column-b">
+						<StatCapacityBox
+							v-bind="{
+								label: 'Actions',
+								data: actionsCapacity,
+							}"
+							:characterId="characterId"
+						/>
+						<table>
+							<caption>
+								<h2>Derived Information</h2>
+							</caption>
+							<tr :title="buffsTallied.actionsMoveBaseLand?.summary || 'd'">
+								<td class="stat-label">Movement per move</td>
+								<td class="stat-value">
+									{{ getFinalStat('actionsMoveBaseLand') }} ft.
+								</td>
+							</tr>
+							<tr>
+								<td class="stat-label">Reach</td>
+								<td class="stat-value">{{ getFinalStat('reach') }} ft.</td>
+							</tr>
+							<tr>
+								<td class="stat-label">Size</td>
+								<td class="stat-value">{{ sizeMap[getFinalStat('size')].name }}</td>
+							</tr>
+							<tr>
+								<td class="stat-label">Carrying Capacity</td>
+								<td class="stat-value">
+									{{ getFinalStat('weightCurrent') }} ⁄
+									{{ getFinalStat('capacityCarrying') }} lbs.
+								</td>
+							</tr>
+							<tr>
+								<td class="stat-label">
+									<span v-if="getFinalStat('encumberance') <= 0">
+										Not Encumbered
+									</span>
+									<span v-else-if="getFinalStat('encumberance') === 1">
+										Encumbered
+									</span>
+									<span v-else-if="getFinalStat('encumberance') === 2">
+										Heavily Encumbered
+									</span>
+									<span v-else-if="getFinalStat('encumberance') >= 3">
+										Over Encumbered
+									</span>
+								</td>
+								<td>
+									<CapacityBar
+										v-bind="{
+											max: getFinalStat('capacityCarrying'),
+											current: getFinalStat('weightCurrent') || 0,
+											color: encumberanceColor,
+										}"
+										style="height: 0.8em"
+									/>
+								</td>
+							</tr>
+						</table>
+					</div>
+					<div class="stat-column-c">
+						<StatBarsBox v-bind="infoDefenseMods" />
+					</div>
+				</div>
+				<div class="bottom-block">
+					<div class="weapon-block">
+						<div>
+							<StatCapacityBox
 								v-bind="{
-									max: getFinalStat('capacityCarrying'),
-									current: getFinalStat('weightCurrent') || 0,
-									color: encumberanceColor,
+									label: 'Ammo',
+									data: ammoCapacity,
 								}"
-								style="height: 0.8em"
+								:characterId="characterId"
 							/>
-						</td>
-					</tr>
-				</table>
-			</div>
-			<div class="stat-column-c">
-				<div>
-					<StatCapacityBox
-						v-bind="{
-							label: 'Ammo',
-							data: ammoCapacity,
-						}"
-						:characterId="characterId"
-					/>
-				</div>
-				<div>
-					<StatCapacityBox
-						v-bind="{
-							label: 'Energy',
-							data: energyCapacity,
-						}"
-						:characterId="characterId"
-					/>
+						</div>
+					</div>
+					<div class="ability-block">
+						<StatCapacityBox
+							v-bind="{
+								label: 'Energy',
+								data: energyCapacity,
+							}"
+							:characterId="characterId"
+						/>
+						<div>
+							<button class="ability-button super">Super</button>
+							<button class="ability-button melee">Melee</button>
+							<button class="ability-button grenade">Grenade</button>
+							<button class="ability-button class">Class Ability</button>
+						</div>
+					</div>
 				</div>
 			</div>
-			<div style="height: 10em; width: 30em"><StatBarsBox v-bind="skillsInfo" /></div>
+			<div class="secondary-block">
+				<div>
+					<h2>Action Log</h2>
+					<textarea
+						v-model="actionLog"
+						readonly
+						class="action-log"
+					></textarea>
+				</div>
+				<StatBarsBox v-bind="skillsInfo" />
+			</div>
 		</div>
 	</div>
 </template>
 <style>
-.stat-column-a,
-.stat-column-b,
-.stat-column-c {
-	width: 20%;
-	display: inline-block;
-	vertical-align: top;
-	margin: 4px;
-}
-.stat-column-c {
-	width: 25%;
-}
 .stat-label {
 	text-align: right;
 	white-space: nowrap;
@@ -332,5 +343,54 @@ const encumberanceColor = computed<string>(() => {
 	white-space: nowrap;
 	font-weight: bold;
 	width: 100%;
+}
+/* */
+.primary-block {
+	width: 800px;
+	display: inline-block;
+	vertical-align: top;
+}
+.stat-column-a,
+.stat-column-b,
+.stat-column-c {
+	width: 32%;
+	display: inline-block;
+	vertical-align: top;
+	margin: 0.6%;
+}
+/* */
+.secondary-block {
+	width: 400px;
+	display: inline-block;
+	vertical-align: top;
+}
+.action-log {
+	width: 95%;
+	height: 10em;
+	padding: 0.5em;
+	margin: 0 2.5%;
+	resize: none;
+	font-family: 'Destiny Symbols Common';
+	background-color: #0005;
+	border: 2px solid #fffa;
+	color: #fff;
+	font-size: 0.8em;
+}
+/* */
+.bottom-block > * {
+	margin: 5px;
+}
+.weapon-block {
+	vertical-align: top;
+	display: inline-block;
+	width: 53%;
+}
+.ability-block {
+	vertical-align: top;
+	display: inline-block;
+	width: 44%;
+}
+.ability-button {
+	width: 25%;
 }
 </style>

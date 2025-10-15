@@ -2,6 +2,7 @@ import {
 	type StatsCalculatedKey,
 	type StatsCalculated,
 	labelToStatName,
+	sizeMap,
 } from '@/composables/useCharacterData';
 
 type BuffTypes = 'Buff' | 'Debuff' | 'Story Buff';
@@ -359,10 +360,27 @@ export const buffsDistribute = (buffs: CharacterBuffSummary, stats: StatsCalcula
 			distributeAdditive('cha', ['energyUniversal'], stats, buffs.cpl?.total || stats.cpl);
 		} else if (name === 'strScore') {
 			distributeScore('strScore', ['str'], stats);
-			// if (buffs.capacityCarrying !== undefined) {
-			// 	stat.carryingCapacity * (buffs.strScore?.total || 1) * 30;
-			// }
-			// Carrying Capacity goes here somehow ._.
+			if (stats.strScore !== buffs.strScore?.total) {
+				const capacityDiff =
+					(buffs.capacityCarrying?.total || stats.capacityCarrying) -
+					stats.capacityCarrying;
+				const newStrScore = buffs.strScore?.total || stats.strScore;
+				const newSize = buffs.size?.total || stats.size;
+				const newCapacity =
+					25 *
+					Math.floor(Math.pow(4, Math.max(newStrScore / 10, 0))) *
+					sizeMap[newSize].carryingCapacity;
+				if (buffs.capacityCarrying !== undefined) {
+					buffs.capacityCarrying.total = newCapacity + capacityDiff;
+					buffs.capacityCarrying.summary += '\n' + (buffs.strScore?.summary || '');
+				} else {
+					buffs.capacityCarrying = {
+						total: newCapacity + capacityDiff,
+						categories: {},
+						summary: buffs.strScore?.summary || '',
+					};
+				}
+			}
 		} else if (name === 'dexScore') {
 			distributeScore('dexScore', ['dex'], stats);
 		} else if (name === 'conScore') {
@@ -391,6 +409,74 @@ export const buffsDistribute = (buffs: CharacterBuffSummary, stats: StatsCalcula
 		} else if (name === 'willPerLevel') {
 			distributeAdditive('willPerLevel', ['will'], stats);
 		} else if (name === 'size') {
+			// When buffing skills is implemented, make sure to implement Stealth and Fly pls!!
+			const size = buffs.size?.total || stats.size;
+			const addAC = sizeMap[size].ac;
+			// const addStealth = sizeMap[size].stealth;
+			const multCarrying = sizeMap[size].carryingCapacity;
+			const invertedReach: Record<number, number> = {
+				'-4': -4,
+				'-3': -3,
+				'-2': -2.5,
+				'-1': 0,
+				'0': 0,
+				'1': 5,
+				'2': 10,
+				'3': 15,
+				'4': 25,
+				'5': 35,
+			};
+			// const addFly = sizeMap[size].fly;
+			const addToHit = sizeMap[size].toHit;
+			// AC Distribution
+			if (buffs.ac !== undefined) {
+				buffs.ac.total += addAC;
+				buffs.ac.summary += '\nSize ' + ('+' + addAC).replace('+-', '-');
+			} else {
+				buffs.ac = {
+					total: stats.ac + addAC,
+					categories: {},
+					summary: 'Size ' + ('+' + addAC).replace('+-', '-'),
+				};
+			}
+			// Carrying Capacity Distribution
+			if (buffs.capacityCarrying !== undefined) {
+				buffs.capacityCarrying.total = Math.trunc(
+					buffs.capacityCarrying.total * multCarrying,
+				);
+				buffs.capacityCarrying.summary += '\nSize x' + multCarrying;
+			} else {
+				buffs.capacityCarrying = {
+					total: Math.trunc(stats.capacityCarrying * multCarrying),
+					categories: {},
+					summary: 'Size x' + multCarrying,
+				};
+			}
+			// Reach Distribution
+			if (buffs.reach !== undefined) {
+				buffs.reach.total = buffs.reach.total + invertedReach[size];
+				buffs.reach.summary += '\nSize ' + ('+' + invertedReach[size]).replace('+-', '-');
+			} else {
+				buffs.reach = {
+					total: stats.reach + invertedReach[size],
+					categories: {},
+					summary: 'Size ' + ('+' + invertedReach[size]).replace('+-', '-'),
+				};
+			}
+			// To Hit Distribution
+			['toHitMelee', 'toHitRanged', 'toHitSpell'].forEach((item) => {
+				const hit = item as StatsCalculatedKey;
+				if (buffs[hit] !== undefined) {
+					buffs[hit].total += addToHit;
+					buffs[hit].summary += '\nSize ' + ('+' + addToHit).replace('+-', '-');
+				} else {
+					buffs[hit] = {
+						total: stats[hit] + addToHit,
+						categories: {},
+						summary: 'Size ' + ('+' + addToHit).replace('+-', '-'),
+					};
+				}
+			});
 		}
 	});
 	return buffs;
