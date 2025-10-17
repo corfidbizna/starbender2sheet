@@ -7,7 +7,7 @@ import useCharacterData, {
 	type Weapon,
 } from '@/composables/useCharacterData';
 import WeaponItemRow from './WeaponItemRow.vue';
-import TEMPActiveWeapon from './TEMPActiveWeapon.vue';
+// import TEMPActiveWeapon from './TEMPActiveWeapon.vue';
 import LoadingModal from './LoadingModal.vue';
 import useFilter from '@/composables/useFilter';
 import { computed, ref } from 'vue';
@@ -69,7 +69,8 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 	<div class="weapon-tab-container">
 		<span class="weapon-infos">
 			<button @click="weaponsRefresh">Reload Weapons</button>
-			<div><TEMPActiveWeapon /></div>
+			<!-- <div><TEMPActiveWeapon /></div> -->
+			<h2>Filter</h2>
 			<div class="search">
 				<label>
 					<span class="label">Filter by name: </span>
@@ -114,26 +115,24 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 				class="action-log"
 			></textarea>
 		</span>
-		<span class="weapon-table">
-			<div v-if="weaponsLoading"><LoadingModal /></div>
-			<div
-				v-else
-				class="scroll-box"
-			>
-				<WeaponItemRow
-					v-for="weapon in filteredData.includes"
-					:key="weapon.Name"
-					v-bind="weapon"
-					:characterId="characterId"
-				/>
-				<WeaponItemRow
-					v-for="weapon in filteredData.excludes"
-					:key="weapon.Name"
-					v-bind="weapon"
-					:characterId="characterId"
-					class="filtered"
-				/>
-			</div>
+		<span v-if="weaponsLoading"><LoadingModal /></span>
+		<span
+			v-else
+			class="weapon-list"
+		>
+			<WeaponItemRow
+				v-for="weapon in filteredData.includes"
+				:key="weapon.Name"
+				v-bind="weapon"
+				:characterId="characterId"
+			/>
+			<WeaponItemRow
+				v-for="weapon in filteredData.excludes"
+				:key="weapon.Name"
+				v-bind="weapon"
+				:characterId="characterId"
+				class="filtered"
+			/>
 		</span>
 	</div>
 </template>
@@ -146,6 +145,9 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 	flex-direction: column;
 	width: 18em;
 	margin-right: 20px;
+	padding: 10px;
+	position: fixed;
+	height: calc(100vh - 85px);
 }
 .search {
 	padding: 0.25em;
@@ -163,15 +165,17 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 	resize: none;
 	border-color: #fff8;
 	background-color: #0004;
-	height: 100%;
+	flex: 1;
 }
-.weapon-table {
+.weapon-list {
+	margin-left: 20em;
 	display: inline;
 	width: auto;
+	flex: 1;
 }
 .scroll-box {
+	height: 100%;
 	overflow-y: scroll;
-	height: calc(100vh - 150px);
 	padding: 0 10px;
 }
 .filtered {

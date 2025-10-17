@@ -36,9 +36,11 @@ const makeBar = (min: number, max: number, value: number, value2?: number): stri
 	return `background-image: linear-gradient(90deg, ${color1} ${lowBoundaryPos}%, ${color2} ${lowBoundaryPos}%, ${color2} ${highBoundaryPos}%, ${colorEmpty} ${highBoundaryPos}%);`;
 };
 
-const stats = computed<{ label: string; hovertext: string; bar: string; value: number }[]>(() => {
+const stats = computed<
+	{ label: string; hovertext: string; bar: string; value: number; description: string }[]
+>(() => {
 	const max = rangeMax.value;
-	return props.data.map(({ label, hovertext, value, value2 }) => ({
+	return props.data.map(({ label, hovertext, value, value2, description }) => ({
 		label,
 		hovertext:
 			label +
@@ -50,35 +52,48 @@ const stats = computed<{ label: string; hovertext: string; bar: string; value: n
 			(hovertext ? '\n' + hovertext : ''),
 		bar: makeBar(0, max, value, value2),
 		value: value2 != undefined ? value2 : value,
+		description: description || '',
 	}));
 });
 const rollStat = (label: string, value: number) => {
 	const formula = new DiceFormula('1d20+' + value);
 	const result = formula.roll(() => 0);
-	let string = 'Roll: ' + label + '\n  Hit result: ' + result;
+	let string = 'Roll: ' + label + ' ⇒ ' + result;
 	if (result <= 1 + value) {
 		string += '\n == Natural 1! ==';
+	} else if (result >= 20 + value) {
+		string += '\n == Natural 20! ==';
 	}
 	updateLog(string);
 };
 </script>
 <template>
 	<div>
-		<h2>{{ props.label }}</h2>
+		<h2 v-if="props.label">{{ props.label }}</h2>
 		<table>
 			<tr
 				v-for="stat in stats"
 				:key="stat.label"
 				:title="stat.hovertext"
 			>
-				<td class="label">{{ stat.label }}</td>
-				<td
-					class="bar"
-					:style="stat.bar"
-				></td>
+				<td class="label">
+					{{ stat.label }}
+				</td>
+				<td class="bar">
+					<span
+						class="bar-bg"
+						:style="stat.bar"
+					></span>
+				</td>
 				<td class="value">{{ stat.value }}</td>
 				<td v-if="!props.noRoll">
 					<button @click="rollStat(stat.label, stat.value)"></button>
+				</td>
+				<td
+					v-if="stat.description"
+					class="description"
+				>
+					{{ stat.description }}
 				</td>
 			</tr>
 		</table>
@@ -110,6 +125,12 @@ tr {
 	margin: 4px;
 	width: 100%;
 }
+.bar-bg {
+	display: inline-block;
+	width: 100%;
+	height: 1em;
+	vertical-align: middle;
+}
 button {
 	margin: 0;
 	height: 1.25em;
@@ -126,5 +147,10 @@ button:hover {
 }
 button:active {
 	background: #fff8;
+}
+.description {
+	padding-left: 1em;
+	width: auto;
+	white-space: nowrap;
 }
 </style>

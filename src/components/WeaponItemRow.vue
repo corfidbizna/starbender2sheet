@@ -78,6 +78,36 @@ const colorsAmmo = (ammoType: string) => {
 	}
 	return '#eeeeee' + alpha;
 };
+const glyphMap = {
+	Bow: '',
+	'Auto Rifle': '',
+	'Pulse Rifle': '',
+	'Scout Rifle': '',
+	'Hand Cannon': '',
+	'Submachine Gun': '',
+	Sidearm: '',
+	// Energy
+	Shotgun: '',
+	'Sniper Rifle': '',
+	'Fusion Rifle': '',
+	'Breech-Loading Grenade Launcher': '',
+	'Trace Rifle': '',
+	Glaive: '',
+	// Heavy
+	'Rocket Launcher': '',
+	'Drum-Loading Grenade Launcher': '',
+	'Linear Fusion Rifle': '',
+	Sword: '',
+	'Machine Gun': '',
+	// Elements
+	Kinetic: '',
+	Solar: '',
+	Arc: '',
+	Void: '',
+	Stasis: '',
+	Strand: '',
+	Prismatic: '',
+};
 const toHitCalc = computed<number>(() => {
 	let result = props.HitBonus || 0;
 	if (props.RangeType === 'Melee') {
@@ -89,32 +119,25 @@ const toHitCalc = computed<number>(() => {
 	}
 	return result;
 });
-// const damageBonus = computed<number>(() => {
-// 	let result = 0;
-// 	if (props.RangeType === 'Melee') {
-// 		result += buffsTallied.value.damageMelee?.total || stats.value.damageMelee;
-// 	} else if (props.RangeType === 'Ranged') {
-// 		result += buffsTallied.value.damageRanged?.total || stats.value.damageRanged;
-// 	} else if (props.RangeType === 'Spell') {
-// 		result += buffsTallied.value.damageSpell?.total || stats.value.damageSpell;
-// 	}
-// 	return (
-// 		result + (buffsTallied.value?.damagePrecision?.total || stats.value.damagePrecision || 0)
-// 	);
-// });
 const hitFormula = new DiceFormula('1d20');
 const rollDamage = () => {
 	console.log(props.DamageFormula);
 	const result = props.DamageFormula.roll(() => 0);
-	let string = props.Name + '\n  Damage: ' + result;
+	let string =
+		glyphMap[props.WeaponClass] +
+		props.Name +
+		'\n  Damage:     ' +
+		glyphMap[props.DamageType] +
+		result;
 	if (props.CritMult && props.CritMult > 1) {
-		string += '\n  Crit damage: ' + result * props.CritMult;
+		string += '\n  Crit damage: ' + glyphMap[props.DamageType] + result * props.CritMult;
 	}
 	updateLog(string);
 };
 const rollHit = () => {
 	const result = hitFormula.roll(() => 0);
-	let string = props.Name + '\n  Hit result: ' + (result + toHitCalc.value);
+	let string =
+		glyphMap[props.WeaponClass] + props.Name + '\n  Hit result: ' + (result + toHitCalc.value);
 	if (result <= 1) {
 		string += '\n == Natural 1! ==';
 	}
@@ -129,7 +152,7 @@ const fire = () => {
 	currentAmmo.value = weaponAmmoUpdate(props.Name, -props.Ammo);
 };
 const reload = () => {
-	updateLog('Reloaded ' + props.Name);
+	updateLog('Reloaded ' + glyphMap[props.WeaponClass] + props.Name);
 	const difference = props.AmmoCapacity - props.AmmoCurrent;
 	currentAmmo.value = weaponAmmoUpdate(props.Name, difference);
 };

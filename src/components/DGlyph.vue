@@ -22,11 +22,13 @@ const glyphMap = {
 	Sword: '',
 	'Machine Gun': '',
 	// Elements
+	Kinetic: '',
 	Solar: '',
 	Arc: '',
 	Void: '',
 	Stasis: '',
 	Strand: '',
+	Prismatic: '',
 };
 type FontEntries = keyof typeof glyphMap;
 type Glyph = {

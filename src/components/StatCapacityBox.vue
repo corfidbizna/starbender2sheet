@@ -24,7 +24,10 @@ const refillAll = () => {
 	<table class="stat-box-table">
 		<caption>
 			<h2>
-				<span class="table-label">{{ props.label }}</span
+				<span
+					v-if="props.label"
+					class="table-label"
+					>{{ props.label }}</span
 				><button @click="refillAll">Refill All</button>
 			</h2>
 		</caption>

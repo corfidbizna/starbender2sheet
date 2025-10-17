@@ -29,6 +29,7 @@ export type PartyDataSource = {
 	documentId: string;
 	sheets: {
 		weapons: string;
+		armor: string;
 		buffs: string;
 		quests: string;
 	};
@@ -66,6 +67,7 @@ export const partyDataSources: PartyDataSource = {
 	documentId: '1agznHO98JumWB896PpQZ3eJQGIJwEIivChTurlwu5H8',
 	sheets: {
 		weapons: '0',
+		armor: '31916088',
 		buffs: '1462505437',
 		quests: '745911680',
 	},
@@ -601,6 +603,7 @@ export type BarBoxStatField = {
 	label: string;
 	stat: string;
 	hovertext?: string;
+	description?: string;
 	value: number;
 	value2?: number;
 };
@@ -750,7 +753,7 @@ export const skillsInfoMap: Record<SkillKey, Record<string, string>> = {
 	climb: {
 		label: 'Climb',
 		baseStat: 'str',
-		description: 'text',
+		description: 'Climb Surfaces, Catch from falling',
 	},
 	swim: {
 		label: 'Swim',
@@ -1042,6 +1045,22 @@ export type Weapon = ImportedWeapon & {
 	DmgShort: string;
 	AmmoCurrent: number;
 };
+// The types describing armor.
+export type ImportedArmor = {
+	aurora: boolean;
+	kara: boolean;
+	mark: boolean;
+	lewis: boolean;
+	name: string;
+	flavortext?: string;
+	description?: string;
+	rarity: Rarity;
+	chargesMax?: number;
+	slots?: string;
+	buffs?: string;
+	buffCategory?: string;
+};
+
 // The type describing a quest info block.
 export type Quest = {
 	name: string;
@@ -1461,6 +1480,25 @@ function useCharacterDataUncached(characterId: string) {
 	// WEAPONS END
 
 	// ==================================================================================================
+	// ARMOR START
+	const {
+		data: armorForFiltering,
+		isLoading: armorLoading,
+		refresh: armorRefresh,
+	} = getNetworkDataStateForSheet<ImportedArmor>(
+		partyDataSources.documentId,
+		partyDataSources.sheets.armor,
+	);
+	const armor = computed<ImportedArmor[]>(() => {
+		const filteredArmors = armorForFiltering.value.filter(
+			(item) => item[characterId as CharacterNames],
+		);
+		return filteredArmors;
+	});
+
+	// ARMOR END
+
+	// ==================================================================================================
 	// QUESTS START
 	const {
 		data: questsThatNeedToBeFiltered,
@@ -1794,6 +1832,10 @@ function useCharacterDataUncached(characterId: string) {
 		weaponSlotUpdate,
 		weaponsLoading,
 		weaponsRefresh,
+		// Armors
+		armor,
+		armorLoading,
+		armorRefresh,
 		// Quests
 		quests,
 		questsLoading,

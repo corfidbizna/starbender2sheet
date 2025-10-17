@@ -132,7 +132,7 @@ const { character, stats, statsBase } = useCharacterData(props.characterId);
 		</div>
 	</div>
 </template>
-<style>
+<style scoped>
 .centered {
 	text-align: center;
 }

@@ -7,8 +7,5 @@ type CharacterProps = {
 const props = defineProps<CharacterProps>();
 </script>
 <template>
-	<div>
-		<h1>Weapons for {{ props.characterId }}</h1>
-	</div>
-	<WeaponTable :character-id="characterId"></WeaponTable>
+	<WeaponTable :character-id="props.characterId"></WeaponTable>
 </template>

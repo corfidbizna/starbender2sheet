@@ -1,13 +1,39 @@
 <script setup lang="ts">
+import LoadingModal from '@/components/LoadingModal.vue';
 import type { CharacterNames } from '@/composables/useCharacterData';
+import useCharacterData from '@/composables/useCharacterData';
 
-type CharacterProps = {
+const props = defineProps<{
 	characterId: CharacterNames;
-};
-const props = defineProps<CharacterProps>();
+}>();
+const { armor, armorLoading, armorRefresh } = useCharacterData(props.characterId);
 </script>
 <template>
-	<div>
-		<h1>Armor for {{ props.characterId }}</h1>
+	<h1>Armor for {{ props.characterId }}</h1>
+	<button @click="armorRefresh">Refresh Armor</button>
+	<div v-if="armorLoading">
+		<LoadingModal />
+	</div>
+	<div v-else>
+		<div class="armor-slots-active">
+			<div class="armor-slot helmet"><h2>Helmet: 0/3</h2></div>
+			<div class="armor-slot arm"><h2>Arm: 0/3</h2></div>
+			<div class="armor-slot torso"><h2>Torso: 0/3</h2></div>
+			<div class="armor-slot legs"><h2>Legs: 0/3</h2></div>
+		</div>
+		<pre>{{ armor }}</pre>
 	</div>
 </template>
+<style>
+.armor-slots-active {
+	display: flex;
+	flex-direction: row;
+	width: 100vw;
+}
+.armor-slot {
+	flex: 1 1 auto;
+	margin: 1em;
+	border: 2px solid #fff8;
+	padding: 2em;
+}
+</style>

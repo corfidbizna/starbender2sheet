@@ -8,6 +8,7 @@ import useCharacterData, {
 	sizeMap,
 	type StatsCalculatedKey,
 	type SkillKey,
+	skillsInfoMap,
 } from '@/composables/useCharacterData';
 import StatBarsBox from '@/components/StatBarsBox.vue';
 import LoadingModal from '@/components/LoadingModal.vue';
@@ -181,7 +182,11 @@ const skillsInfo = computed<StatBoxInfo>(() => {
 	const skillList = Object.keys(skills.value) || [];
 	skillList.forEach((name: string) => {
 		const key = name as SkillKey;
-		fieldArray.push({ label: key, stat: 'str', value: skills.value[key] || 0 });
+		fieldArray.push({
+			label: skillsInfoMap[key].label,
+			stat: 'str',
+			value: skills.value[key] || 0,
+		});
 	});
 	return {
 		label: 'Skills',
@@ -342,7 +347,8 @@ const encumberanceColor = computed<string>(() => {
 	white-space: nowrap;
 }
 .stat-value {
-	text-align: right;
+	text-align: left;
+	padding-left: 0.25em;
 	white-space: nowrap;
 	font-weight: bold;
 	width: 100%;
