@@ -1046,7 +1046,7 @@ export type Weapon = ImportedWeapon & {
 	AmmoCurrent: number;
 };
 // The types describing armor.
-export type ImportedArmor = {
+export type Armor = {
 	aurora: boolean;
 	kara: boolean;
 	mark: boolean;
@@ -1056,9 +1056,12 @@ export type ImportedArmor = {
 	description?: string;
 	rarity: Rarity;
 	chargesMax?: number;
+	coverage?: string;
 	slots?: string;
 	buffs?: string;
 	buffCategory?: string;
+	//
+	equipped: boolean;
 };
 
 // The type describing a quest info block.
@@ -1165,7 +1168,6 @@ function useCharacterDataUncached(characterId: string) {
 				getFinalStat(skillInfo.baseStat as StatsCalculatedKey);
 			activeSkills[skillKey] = focus * getFinalStat('cpl') + abilityMod + (focus > 0 ? 3 : 0);
 		}
-		console.log('activeSkills', activeSkills);
 		return activeSkills;
 	});
 	// SKILLS END
@@ -1227,7 +1229,11 @@ function useCharacterDataUncached(characterId: string) {
 
 	const buffArrayFlat = computed<BuffEffect[]>(() => {
 		const allBuffs = activatedPartyBuffs.value;
-		const result = allBuffs.map((buff) => getBuffEffects(buff, stats.value));
+		const allArmors = armorsAsBuffs.value;
+		const result = [
+			...allBuffs.map((buff) => getBuffEffects(buff, stats.value)),
+			...allArmors.map((buff) => getBuffEffects(buff, stats.value)),
+		];
 		return result.flat();
 		// return buffs.map((buff) => getBuffEffects(buff, stats.value)).flat();
 	});
@@ -1485,15 +1491,33 @@ function useCharacterDataUncached(characterId: string) {
 		data: armorForFiltering,
 		isLoading: armorLoading,
 		refresh: armorRefresh,
-	} = getNetworkDataStateForSheet<ImportedArmor>(
+	} = getNetworkDataStateForSheet<Armor>(
 		partyDataSources.documentId,
 		partyDataSources.sheets.armor,
 	);
-	const armor = computed<ImportedArmor[]>(() => {
+	const armor = computed<Armor[]>(() => {
 		const filteredArmors = armorForFiltering.value.filter(
 			(item) => item[characterId as CharacterNames],
 		);
-		return filteredArmors;
+		return filteredArmors.map((item) => {
+			item.equipped = false;
+			return item;
+		});
+	});
+	const namesOfEquippedArmor = ref<string[]>(['Neutronite Plate Armor']);
+	const armorsAsBuffs = computed<BuffInfo[]>(() => {
+		const result = armor.value.map((armor) => {
+			const newBuff: BuffInfo = {
+				name: armor.name,
+				type: 'Buff',
+				category: armor.buffCategory,
+				stacks: 0,
+				effects: armor.buffs,
+				active: true,
+			};
+			return newBuff;
+		});
+		return result.filter((armor) => namesOfEquippedArmor.value.includes(armor.name));
 	});
 
 	// ARMOR END
@@ -1834,6 +1858,7 @@ function useCharacterDataUncached(characterId: string) {
 		weaponsRefresh,
 		// Armors
 		armor,
+		namesOfEquippedArmor,
 		armorLoading,
 		armorRefresh,
 		// Quests

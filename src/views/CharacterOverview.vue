@@ -17,6 +17,12 @@ defineProps({
 */
 
 const { character } = useCharacterData(props.characterId);
+
+document.body.addEventListener('keydown', (e) => {
+	if (e.key === 'a' || e.key === 'd') {
+		console.log(e);
+	}
+});
 </script>
 
 <template>
