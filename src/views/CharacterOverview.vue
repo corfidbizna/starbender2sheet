@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
+import { onBeforeUnmount } from 'vue';
+import router from '@/router/index.ts';
 type CharacterProps = {
 	characterId: CharacterNames;
 };
@@ -17,11 +19,38 @@ defineProps({
 */
 
 const { character } = useCharacterData(props.characterId);
+const params = { characterId: props.characterId };
+const names = [
+	'characterGameplay',
+	'characterSkills',
+	'characterBuffs',
+	'characterWeapons',
+	'characterArmor',
+	'characterClass',
+	'questList',
+	'characterLore',
+	'settings',
+];
+const routeList = names.map((name) => ({ name, params }));
 
-document.body.addEventListener('keydown', (e) => {
+const keyHandler = (e: KeyboardEvent) => {
 	if (e.key === 'a' || e.key === 'd') {
-		console.log(e);
+		const currentRouteName = router.currentRoute.value.name as string;
+		const currentRouteIndex = names.indexOf(currentRouteName);
+		const direction = e.key === 'a' ? -1 : 1;
+		const targetIndex = (currentRouteIndex + direction + names.length) % names.length;
+		console.log(
+			`key: ${e.key}`,
+			{ currentRouteName, currentRouteIndex },
+			JSON.parse(JSON.stringify(router.currentRoute.value)),
+		);
+		router.push(routeList[targetIndex]);
 	}
+};
+window.addEventListener('keydown', keyHandler);
+
+onBeforeUnmount(() => {
+	window.removeEventListener('keydown', keyHandler);
 });
 </script>
 
@@ -53,7 +82,7 @@ document.body.addEventListener('keydown', (e) => {
 				<RouterLink :to="{ name: 'characterBuffs', params: { characterId } }"
 					>Buffs</RouterLink
 				>
-				<RouterLink :to="{ name: 'characterLoadout', params: { characterId } }"
+				<RouterLink :to="{ name: 'characterWeapons', params: { characterId } }"
 					>Loadout</RouterLink
 				>
 				<a>Seasonal Artifact</a>

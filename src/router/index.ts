@@ -36,13 +36,12 @@ const router = createRouter({
 				},
 				{
 					path: 'loadout',
-					name: 'characterLoadout',
-					redirect: 'loadout/weapons',
+					name: 'characterLoadoutButPleaseDontUseThisOneDirectly',
 					props: true,
 					component: () => import('../views/CharacterLoadout.vue'),
 					children: [
 						{
-							path: 'weapons',
+							path: '',
 							name: 'characterWeapons',
 							props: true,
 							component: () => import('../views/CharacterLoadoutWeapons.vue'),
