@@ -47,6 +47,7 @@ const { namesOfEquippedArmor } = useCharacterData(props.characterId);
 }
 .armor-item .header {
 	background-color: #c2bdb4;
+	color: #000;
 	padding: 0.5em;
 }
 .armor-item .header input {
@@ -67,15 +68,19 @@ const { namesOfEquippedArmor } = useCharacterData(props.characterId);
 }
 .armor-item .uncommon {
 	background-color: #356f42;
+	color: #fff;
 }
 .armor-item .rare {
 	background-color: #5076a3;
+	color: #fff;
 }
 .armor-item .legendary {
 	background-color: #522e65;
+	color: #fff;
 }
 .armor-item .exotic {
 	background-color: #cdae34;
+	color: #fff;
 }
 
 .armor-item .armor-content {

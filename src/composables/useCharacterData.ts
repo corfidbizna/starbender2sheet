@@ -32,6 +32,7 @@ export type PartyDataSource = {
 		armor: string;
 		buffs: string;
 		quests: string;
+		artifact: string;
 	};
 };
 // Gets the names of all the characters' subsheets and makes a type for every item.
@@ -70,6 +71,7 @@ export const partyDataSources: PartyDataSource = {
 		armor: '31916088',
 		buffs: '1462505437',
 		quests: '745911680',
+		artifact: '187064580',
 	},
 };
 // A list of all character names, used as keys in certian dynamic situations
@@ -411,6 +413,7 @@ export type StatsCalculated = {
 	fortPerLevel: number;
 	refPerLevel: number;
 	willPerLevel: number;
+	artifact: number;
 };
 export type StatsCalculatedKey = keyof StatsCalculated;
 export const labelMap: Record<StatsCalculatedKey, string> = {
@@ -444,9 +447,9 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	energyClassRecharge: 'Class Energy Recharge',
 	rerolls: 'Rerolls',
 	slotsArmorHead: 'Head Slot',
-	slotsArmorArm: 'Arms Slot',
+	slotsArmorArm: 'Arm Slot',
 	slotsArmorChest: 'Chest Slot',
-	slotsArmorLegs: 'Legs Slot',
+	slotsArmorLegs: 'Leg Slot',
 	slotsArmorClass: 'Class Slot',
 	slotsArmorFull: 'Armor Slot',
 	slotsArmorExotic: 'Exotic  Slot',
@@ -455,7 +458,7 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	equipArmorHead: 'Head Equipment',
 	equipArmorArm: 'Arm Equipment',
 	equipArmorChest: 'Chest Equipment',
-	equipArmorLegs: 'Legs Equipment',
+	equipArmorLegs: 'Leg Equipment',
 	equipArmorClass: 'Class Equipment',
 	equipArmorFull: 'Full Armor Equipment',
 	equipArmorExotic: 'Exotic Equipment',
@@ -535,6 +538,7 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	fortPerLevel: 'Level Up Fort',
 	refPerLevel: 'Level Up Ref',
 	willPerLevel: 'Level Up Will',
+	artifact: 'Artifact Points',
 };
 export const labelToStatName: Record<string, string> = {};
 // Object.entries(labelMap).forEach((stringPair) => labelToStatName[stringPair[1].toLocaleLowerCase()] = stringPair[0]);
@@ -1074,6 +1078,16 @@ export type Quest = {
 	progressMax: number;
 };
 
+// The type describing a Seasonal Artifact thingey.
+export type ArtifactMod = {
+	stage: number;
+	name: string;
+	description: string;
+	buffs: string;
+	hidden?: boolean;
+	active: boolean;
+};
+
 const unwrapJSONPRegex = /google\.visualization\.Query\.setResponse\((.+)\);/;
 const getSheetForCharacter = <T>(
 	characterId: string,
@@ -1363,6 +1377,7 @@ function useCharacterDataUncached(characterId: string) {
 			fortPerLevel: 0,
 			refPerLevel: 0,
 			willPerLevel: 0,
+			artifact: 0,
 		};
 		const statNames = Object.keys(newStats);
 		statNames.forEach((name) => {
@@ -1504,15 +1519,18 @@ function useCharacterDataUncached(characterId: string) {
 			return item;
 		});
 	});
-	const namesOfEquippedArmor = ref<string[]>(['Neutronite Plate Armor']);
+	const namesOfEquippedArmor = ref<string[]>([]);
 	const armorsAsBuffs = computed<BuffInfo[]>(() => {
 		const result = armor.value.map((armor) => {
+			const buffString = armor.buffs
+				? armor.buffs + (armor.slots ? ', ' + armor.slots : '')
+				: armor.slots;
 			const newBuff: BuffInfo = {
 				name: armor.name,
 				type: 'Buff',
 				category: armor.buffCategory,
 				stacks: 0,
-				effects: armor.buffs,
+				effects: buffString,
 				active: true,
 			};
 			return newBuff;
@@ -1536,6 +1554,30 @@ function useCharacterDataUncached(characterId: string) {
 		return questsThatNeedToBeFiltered.value.filter((item) => item.name);
 	});
 	// QUESTS END
+
+	// ==================================================================================================
+	// ARTIFACT START
+
+	const {
+		data: artifactModsForProcessing,
+		isLoading: artifactLoading,
+		refresh: artifactRefresh,
+	} = getNetworkDataStateForSheet<ArtifactMod>(
+		partyDataSources.documentId,
+		partyDataSources.sheets.artifact,
+	);
+	const namesOfActiveArtifactMods = ref<string[]>([]);
+	const artifactMods = computed<ArtifactMod[]>(() => {
+		return artifactModsForProcessing.value.map((item) => {
+			if (namesOfActiveArtifactMods.value.includes(item.name)) {
+				item.active = true;
+			} else {
+				item.active = false;
+			}
+			return item;
+		});
+	});
+	// ARTIFACT END
 
 	// ==================================================================================================
 	// STATS START
@@ -1670,6 +1712,7 @@ function useCharacterDataUncached(characterId: string) {
 				fortPerLevel: 0,
 				refPerLevel: 0,
 				willPerLevel: 0,
+				artifact: 0,
 			};
 		}
 		// Buff tallying goes here
@@ -1795,6 +1838,7 @@ function useCharacterDataUncached(characterId: string) {
 			fortPerLevel: source.fortPerLevel,
 			refPerLevel: source.refPerLevel,
 			willPerLevel: source.willPerLevel,
+			artifact: 0,
 		};
 		statsDistribute(result);
 		return result;
@@ -1832,6 +1876,8 @@ function useCharacterDataUncached(characterId: string) {
 
 	// STATS END
 
+	// ==================================================================================================
+	// Export Stuff
 	const composable = {
 		// Characters
 		character,
@@ -1865,6 +1911,11 @@ function useCharacterDataUncached(characterId: string) {
 		quests,
 		questsLoading,
 		questsRefresh,
+		// Artifact
+		artifactMods,
+		namesOfActiveArtifactMods,
+		artifactLoading,
+		artifactRefresh,
 		// Stats
 		statsBase: statsImported,
 		actionResources,

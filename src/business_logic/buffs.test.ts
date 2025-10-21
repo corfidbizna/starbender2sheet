@@ -165,6 +165,7 @@ const testCharacterSimple: StatsCalculated = {
 	fortPerLevel: 0,
 	refPerLevel: 0,
 	willPerLevel: 0,
+	artifact: 0,
 };
 
 describe('Behaviors of getBuffEffects', () => {
@@ -690,6 +691,7 @@ describe('getStatsCalclated', () => {
 			fortPerLevel: 0,
 			refPerLevel: 0,
 			willPerLevel: 0,
+			artifact: 0,
 		};
 		expect(expected.ac).toEqual(testCharacterBaseStats.attacks); // <— To make builds succeed : T.
 		// expect(getStatsCalculated(testCharacterBaseStats)).toMatchObject(expected);

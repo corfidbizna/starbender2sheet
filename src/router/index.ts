@@ -41,7 +41,7 @@ const router = createRouter({
 					component: () => import('../views/CharacterLoadout.vue'),
 					children: [
 						{
-							path: '',
+							path: 'weapons',
 							name: 'characterWeapons',
 							props: true,
 							component: () => import('../views/CharacterLoadoutWeapons.vue'),
@@ -59,6 +59,12 @@ const router = createRouter({
 							component: () => import('../views/CharacterLoadoutClass.vue'),
 						},
 					],
+				},
+				{
+					path: 'artifact',
+					name: 'seasonalArtifact',
+					props: true,
+					component: () => import('../views/SeasonalArtifact.vue'),
 				},
 				{
 					path: 'quests',
