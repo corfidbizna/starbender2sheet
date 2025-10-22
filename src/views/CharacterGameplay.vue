@@ -376,14 +376,6 @@ const encumberanceColor = computed<string>(() => {
 .action-log {
 	width: 95%;
 	height: 10em;
-	padding: 0.5em;
-	margin: 0 2.5%;
-	resize: none;
-	font-family: 'Destiny Symbols Common', sans-serif;
-	background-color: #0005;
-	border: 2px solid #fffa;
-	color: #fff;
-	font-size: 0.8em;
 }
 /* */
 .bottom-block > * {

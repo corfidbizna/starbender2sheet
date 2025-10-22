@@ -165,11 +165,6 @@ const rollStat = (label: string, value: number) => {
 	text-align: left;
 }
 .action-log {
-	color: #fff;
-	font-size: 0.8em;
-	resize: none;
-	border-color: #fff8;
-	background-color: #0004;
 	height: 100%;
 }
 .skills-content {

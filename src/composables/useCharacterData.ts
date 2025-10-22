@@ -614,6 +614,7 @@ export type BarBoxStatField = {
 export type CapacityBoxInfo = {
 	label: string;
 	data: CapacityBoxStatField[];
+	hideRefillAll?: boolean;
 };
 export type CapacityBoxStatField = {
 	label: string;
@@ -1059,13 +1060,20 @@ export type Armor = {
 	flavortext?: string;
 	description?: string;
 	rarity: Rarity;
-	chargesMax?: number;
+	isActivatable: boolean;
+	isStacking: boolean;
+	stacks: number;
+	stacksMax?: number;
+	stacksName?: string;
 	coverage?: string;
 	slots?: string;
 	buffs?: string;
 	buffCategory?: string;
+	buffsCharged?: string;
+	buffsChargedCategory?: string;
 	//
 	equipped: boolean;
+	active: boolean;
 };
 
 // The type describing a quest info block.
@@ -1513,32 +1521,68 @@ function useCharacterDataUncached(characterId: string) {
 		partyDataSources.documentId,
 		partyDataSources.sheets.armor,
 	);
-	const artifactMod = computed<Armor[]>(() => {
+	const armor = computed<Armor[]>(() => {
 		const filteredArmors = armorForFiltering.value.filter(
 			(item) => item[characterId as CharacterNames],
 		);
 		return filteredArmors.map((item) => {
-			item.equipped = false;
+			if (item.stacks === undefined) {
+				item.stacks = 0;
+			}
+			//
+			if (namesOfEquippedArmor.value.includes(item.name)) {
+				item.equipped = true;
+			} else {
+				item.equipped = false;
+			}
+			if (namesOfActiveArmor.value.includes(item.name)) {
+				item.active = true;
+			} else {
+				item.active = false;
+			}
+			//
+			if (item.buffs) {
+				item.buffs.replace(/charges/g, 0 + '');
+			}
+			if (item.buffsCharged) {
+				item.buffsCharged.replace(/charges/g, 0 + '');
+			}
 			return item;
 		});
 	});
 	const namesOfEquippedArmor = ref<string[]>([]);
+	const namesOfActiveArmor = ref<string[]>([]);
 	const armorsAsBuffs = computed<BuffInfo[]>(() => {
-		const result = artifactMod.value.map((armor) => {
-			const buffString = armor.buffs
-				? armor.buffs + (armor.slots ? ', ' + armor.slots : '')
-				: armor.slots;
-			const newBuff: BuffInfo = {
-				name: armor.name,
-				type: 'Buff',
-				category: armor.buffCategory,
-				stacks: 0,
-				effects: buffString || '',
-				active: true,
-			};
-			return newBuff;
-		});
-		return result.filter((buff) => namesOfEquippedArmor.value.includes(buff.name));
+		const passive = armor.value
+			.filter((buff) => namesOfEquippedArmor.value.includes(buff.name))
+			.map((armor) => {
+				const buffString = armor.buffs
+					? armor.buffs + (armor.slots ? ', ' + armor.slots : '')
+					: armor.slots;
+				const newBuff: BuffInfo = {
+					name: armor.name,
+					type: 'Buff',
+					category: armor.buffCategory,
+					stacks: 0,
+					effects: buffString || '',
+					active: true,
+				};
+				return newBuff;
+			});
+		const active = armor.value
+			.filter((buff) => namesOfActiveArmor.value.includes(buff.name))
+			.map((armor) => {
+				const newBuff: BuffInfo = {
+					name: armor.name,
+					type: 'Buff',
+					category: armor.buffsChargedCategory || 'Misc',
+					stacks: 0,
+					effects: armor.buffsCharged || '',
+					active: true,
+				};
+				return newBuff;
+			});
+		return [...passive, ...active];
 	});
 
 	// ARMOR END
@@ -1587,7 +1631,7 @@ function useCharacterDataUncached(characterId: string) {
 				const newBuff: BuffInfo = {
 					name: artifactMod.name,
 					type: 'Buff',
-					category: artifactMod.buffCategory,
+					category: artifactMod.buffCategory || 'Misc',
 					stacks: 0,
 					effects: artifactMod.buffs || '',
 					active: true,
@@ -1922,8 +1966,9 @@ function useCharacterDataUncached(characterId: string) {
 		weaponsLoading,
 		weaponsRefresh,
 		// Armors
-		armor: artifactMod,
+		armor,
 		namesOfEquippedArmor,
+		namesOfActiveArmor,
 		armorLoading,
 		armorRefresh,
 		// Quests

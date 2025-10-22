@@ -160,11 +160,6 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 	margin-right: auto;
 }
 .action-log {
-	color: #fff;
-	font-size: 0.8em;
-	resize: none;
-	border-color: #fff8;
-	background-color: #0004;
 	flex: 1;
 }
 .weapon-list {

@@ -165,7 +165,7 @@ const grid = computed<ArtifactMod[][]>(() => {
 	border-collapse: collapse;
 	/* background-color: #49a8; */
 	table-layout: fixed;
-	width: 100%;
+	/* width: 100%; */
 }
 .artifact tbody {
 	padding-top: 0.5em;
@@ -181,8 +181,8 @@ const grid = computed<ArtifactMod[][]>(() => {
 }
 .artifact-mod {
 	display: block;
-	width: auto;
-	height: 10em;
+	width: 11em;
+	height: 11em;
 	padding: 1em;
 	border-radius: 0.5em;
 	border-top: 2px solid #289;

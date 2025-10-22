@@ -28,7 +28,12 @@ const refillAll = () => {
 					v-if="props.label"
 					class="table-label"
 					>{{ props.label }}</span
-				><button @click="refillAll">Refill All</button>
+				><button
+					v-if="!hideRefillAll"
+					@click="refillAll"
+				>
+					Refill All
+				</button>
 			</h2>
 		</caption>
 		<tbody>

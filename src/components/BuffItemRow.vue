@@ -46,7 +46,7 @@ const changeStacksUpdate = (amount: Event) => {
 				/>
 				<span
 					class="buff-name"
-					:class="props.type.toLocaleLowerCase()"
+					:class="(props.type || 'Buff').toLocaleLowerCase()"
 					>{{ props.name }}</span
 				>
 				<span class="buff-category">{{ props.category || 'Misc' }}</span>

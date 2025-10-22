@@ -430,7 +430,9 @@ h2 {
 	border-bottom: 2px solid #fff4;
 }
 .weapon-footer {
-	height: 0.5em;
+	height: 1em;
+	padding: 0.2em;
+	padding-bottom: 0;
 	background: #000a;
 }
 .kinetic-icon {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ArmorItem from '@/components/ArmorItem.vue';
 import LoadingModal from '@/components/LoadingModal.vue';
+import StatCapacityBox from '@/components/StatCapacityBox.vue';
 import type { Armor, CharacterNames } from '@/composables/useCharacterData';
 import useCharacterData from '@/composables/useCharacterData';
 import { computed } from 'vue';
@@ -65,6 +66,22 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 	>
 		<div class="armor-infos">
 			<button @click="armorRefresh">Reload Armor</button>
+			<StatCapacityBox
+				v-bind="{
+					label: 'Armor Charges',
+					data: [
+						{
+							label: 'Charges',
+							stat: 'capacityArmorCharge',
+							color: '#8df',
+							max: getFinalStat('capacityArmorCharge'),
+							current: 0,
+						},
+					],
+					hideRefillAll: true,
+				}"
+				:characterId="characterId"
+			/>
 			<h2>Slots</h2>
 			<div class="armor-slots-active">
 				<div
