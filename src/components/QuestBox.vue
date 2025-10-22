@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { Quest } from '@/composables/useCharacterData';
 
 // import { computed } from 'vue';
@@ -21,17 +20,17 @@ const getBarStyle = (value: number, max: number): string => {
 		'%);'
 	);
 };
-const questImage = computed<string>(() => {
-	if (props.iconURL) {
-		return props.iconURL;
-	}
-	return 'https://destiny.wiki.gallery/images/7/71/Vanguard_elite_daily_bounty1.jpg';
-});
+// const questImage = computed<string>(() => {
+// 	if (props.iconURL) {
+// 		return props.iconURL;
+// 	}
+// 	return 'https://destiny.wiki.gallery/images/7/71/Vanguard_elite_daily_bounty1.jpg';
+// });
 </script>
 <template>
 	<div class="quest-box">
 		<div class="box">
-			<img :src="questImage" />
+			<img :src="props.iconURL" />
 			<h1>{{ props.name }}</h1>
 			<p>
 				{{ props.description }}
@@ -39,7 +38,7 @@ const questImage = computed<string>(() => {
 		</div>
 		<div
 			class="bar"
-			:style="getBarStyle(props.progressValue, props.progressMax)"
+			:style="getBarStyle(props.progressValue || 0, props.progressMax || 0)"
 		></div>
 	</div>
 </template>

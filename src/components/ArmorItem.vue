@@ -25,31 +25,37 @@ const { namesOfEquippedArmor, namesOfActiveArmor } = useCharacterData(props.char
 				<div class="name">{{ name }}</div>
 				<div class="coverage">{{ coverage || '' }} Equipment</div>
 			</div>
-			<label
-				v-if="isActivatable"
-				class="activate"
-				:class="active ? 'activated' : ''"
-				:for="name + '-active'"
-				>Activate<input
-					:id="name + '-active'"
-					type="checkbox"
-					:value="name"
-					v-model="namesOfActiveArmor"
-			/></label>
 		</div>
 		<div class="armor-content">
 			<div
 				v-if="buffs"
 				class="effects passive"
 			>
-				<span>Equipped Stats</span>
-				<span>{{ buffs }}</span>
+				<span class="armor-stats-label">Stats</span>
+				<span class="armor-stats">{{ buffs }}</span>
 			</div>
 			<div
 				v-if="buffsCharged"
 				class="effects active"
 			>
-				{{ buffsCharged }}
+				<span class="armor-stats-label">
+					<label
+						v-if="isActivatable"
+						class="activate"
+						:class="active ? 'activated' : ''"
+						:for="name + '-active'"
+						>Activate<input
+							:id="name + '-active'"
+							type="checkbox"
+							:value="name"
+							v-model="namesOfActiveArmor"
+					/></label>
+				</span>
+				<span
+					class="armor-stats"
+					:class="active ? '' : 'deactivated'"
+					>{{ buffsCharged }}</span
+				>
 			</div>
 			<div class="description">{{ description }}</div>
 			<div
@@ -82,8 +88,6 @@ const { namesOfEquippedArmor, namesOfActiveArmor } = useCharacterData(props.char
 	background-color: #c2bdb4;
 	color: #000;
 	padding: 0.5em;
-	display: flex;
-	align-items: flex-start;
 }
 .armor-item .header input {
 	display: inline;
@@ -91,20 +95,6 @@ const { namesOfEquippedArmor, namesOfActiveArmor } = useCharacterData(props.char
 }
 .armor-titles {
 	display: inline-block;
-	flex: 1;
-}
-.header .activate {
-	padding: 0.25em;
-	background: #0004;
-	border: 2px solid #fff8;
-}
-.header .activate.activated {
-	background: #fff4;
-	border-color: #ffff;
-}
-.header .activate input {
-	visibility: hidden;
-	width: 0;
 }
 .armor-item .name {
 	font-weight: bold;
@@ -138,6 +128,34 @@ const { namesOfEquippedArmor, namesOfActiveArmor } = useCharacterData(props.char
 .armor-content div {
 	padding: 8px;
 	border-bottom: 2px solid #fff4;
+}
+.armor-stats-label {
+	display: inline-block;
+	width: 6em;
+	font-style: normal;
+	font-weight: bold;
+	border-right: 2px solid #fff8;
+	margin-right: 0.5em;
+	padding-right: 0.5em;
+}
+.armor-stats {
+	font-style: italic;
+}
+.armor-stats.deactivated {
+	font-style: italic;
+	opacity: 0.5;
+}
+.activate {
+	padding: 0.25em;
+	background: #0004;
+	border: 2px solid #fff8;
+}
+.activate.activated {
+	background: #fff4;
+	border-color: #ffff;
+}
+.activate input {
+	display: none;
 }
 .effects {
 	font-size: 0.9em;

@@ -664,6 +664,7 @@ export type ActionResource = {
 	energyGrenade: number;
 	energyClass: number;
 	energyUniversal: number;
+	armorCharges: number;
 };
 
 //
@@ -1082,8 +1083,8 @@ export type Quest = {
 	iconURL: string;
 	isMajor: boolean;
 	description: string;
-	progressValue: number;
-	progressMax: number;
+	progressValue?: number;
+	progressMax?: number;
 };
 
 // The type describing a Seasonal Artifact thingey.
@@ -1229,6 +1230,9 @@ function useCharacterDataUncached(characterId: string) {
 			if (buff.isPassive) {
 				buff.active = true;
 			} else buff.active = false;
+			if (!buff.type) {
+				buff.type = 'Buff';
+			}
 			return buff;
 		});
 	});
@@ -1598,7 +1602,15 @@ function useCharacterDataUncached(characterId: string) {
 		partyDataSources.sheets.quests,
 	);
 	const quests = computed<Quest[]>(() => {
-		return questsThatNeedToBeFiltered.value.filter((item) => item.name);
+		return questsThatNeedToBeFiltered.value
+			.filter((item) => item.name)
+			.map((quest) => {
+				if (!quest.iconURL) {
+					quest.iconURL =
+						'https://destiny.wiki.gallery/images/7/71/Vanguard_elite_daily_bounty1.jpg';
+				}
+				return quest;
+			});
 	});
 	// QUESTS END
 
@@ -1932,6 +1944,7 @@ function useCharacterDataUncached(characterId: string) {
 		energyGrenade: getFinalStat('energyGrenade'),
 		energyClass: getFinalStat('energyClass'),
 		energyUniversal: getFinalStat('energyUniversal'),
+		armorCharges: getFinalStat('capacityArmorCharge'),
 	});
 	const actionResourceUpdate = (destination: keyof ActionResource, amount: number) => {
 		actionResources.value[destination] += amount;
