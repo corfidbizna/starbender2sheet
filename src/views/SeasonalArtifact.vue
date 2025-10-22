@@ -38,11 +38,16 @@ const grid = computed<ArtifactMod[][]>(() => {
 		<LoadingModal />
 	</div>
 	<div v-else>
-		<h1>Iron Decree</h1>
-		<h2>Artifact</h2>
 		<button @click="artifactRefresh">Refresh Artifact</button>
-		<div>Available: {{ getFinalStat('artifact') - namesOfActiveArtifactMods.length }}</div>
+		<h1 class="artifact-name">Iron Decree</h1>
+		<h2 class="artifact-subtitle">Artifact</h2>
 		<table class="artifact">
+			<caption class="artifact-availability">
+				<span>Available </span
+				><span class="artifact-availability-number">{{
+					getFinalStat('artifact') - namesOfActiveArtifactMods.length
+				}}</span>
+			</caption>
 			<tbody>
 				<tr
 					v-for="column in grid"
@@ -138,16 +143,38 @@ const grid = computed<ArtifactMod[][]>(() => {
 	</div>
 </template>
 <style>
+.artifact-name {
+	text-transform: uppercase;
+	margin-bottom: 0;
+}
+.artifact-subtitle {
+	margin-top: 0;
+	border: none;
+	margin-bottom: 1em;
+}
+.artifact-availability {
+	border-bottom: 2px solid #fff8;
+	margin-bottom: 0.25em;
+	padding-bottom: 0.25em;
+	text-align: left;
+}
+.artifact-availability-number {
+	font-weight: bold;
+}
 .artifact {
 	border-collapse: collapse;
-	background-color: #49a8;
+	/* background-color: #49a8; */
 	table-layout: fixed;
 	width: 100%;
+}
+.artifact tbody {
+	padding-top: 0.5em;
 }
 .artifact-cell {
 	padding: 4px;
 	border-right: 2px solid #1ff6;
 	box-sizing: border-box;
+	font-size: 0.8em;
 }
 .artifact-cell.edge {
 	border-color: #1ff;

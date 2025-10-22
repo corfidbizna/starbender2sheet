@@ -1083,7 +1083,8 @@ export type ArtifactMod = {
 	stage: number;
 	name: string;
 	description: string;
-	buffs: string;
+	buffs?: string;
+	buffCategory?: string;
 	hidden?: boolean;
 	active: boolean;
 };
@@ -1244,9 +1245,11 @@ function useCharacterDataUncached(characterId: string) {
 	const buffArrayFlat = computed<BuffEffect[]>(() => {
 		const allBuffs = activatedPartyBuffs.value;
 		const allArmors = armorsAsBuffs.value;
+		const allArtifactMods = artifactAsBuffs.value;
 		const result = [
 			...allBuffs.map((buff) => getBuffEffects(buff, stats.value)),
 			...allArmors.map((buff) => getBuffEffects(buff, stats.value)),
+			...allArtifactMods.map((buff) => getBuffEffects(buff, stats.value)),
 		];
 		return result.flat();
 		// return buffs.map((buff) => getBuffEffects(buff, stats.value)).flat();
@@ -1510,7 +1513,7 @@ function useCharacterDataUncached(characterId: string) {
 		partyDataSources.documentId,
 		partyDataSources.sheets.armor,
 	);
-	const armor = computed<Armor[]>(() => {
+	const artifactMod = computed<Armor[]>(() => {
 		const filteredArmors = armorForFiltering.value.filter(
 			(item) => item[characterId as CharacterNames],
 		);
@@ -1521,7 +1524,7 @@ function useCharacterDataUncached(characterId: string) {
 	});
 	const namesOfEquippedArmor = ref<string[]>([]);
 	const armorsAsBuffs = computed<BuffInfo[]>(() => {
-		const result = armor.value.map((armor) => {
+		const result = artifactMod.value.map((armor) => {
 			const buffString = armor.buffs
 				? armor.buffs + (armor.slots ? ', ' + armor.slots : '')
 				: armor.slots;
@@ -1530,12 +1533,12 @@ function useCharacterDataUncached(characterId: string) {
 				type: 'Buff',
 				category: armor.buffCategory,
 				stacks: 0,
-				effects: buffString,
+				effects: buffString || '',
 				active: true,
 			};
 			return newBuff;
 		});
-		return result.filter((armor) => namesOfEquippedArmor.value.includes(armor.name));
+		return result.filter((buff) => namesOfEquippedArmor.value.includes(buff.name));
 	});
 
 	// ARMOR END
@@ -1576,6 +1579,22 @@ function useCharacterDataUncached(characterId: string) {
 			}
 			return item;
 		});
+	});
+	const artifactAsBuffs = computed<BuffInfo[]>(() => {
+		const result = artifactMods.value
+			.filter((artifactMod) => artifactMod.active)
+			.map((artifactMod) => {
+				const newBuff: BuffInfo = {
+					name: artifactMod.name,
+					type: 'Buff',
+					category: artifactMod.buffCategory,
+					stacks: 0,
+					effects: artifactMod.buffs || '',
+					active: true,
+				};
+				return newBuff;
+			});
+		return result;
 	});
 	// ARTIFACT END
 
@@ -1903,7 +1922,7 @@ function useCharacterDataUncached(characterId: string) {
 		weaponsLoading,
 		weaponsRefresh,
 		// Armors
-		armor,
+		armor: artifactMod,
 		namesOfEquippedArmor,
 		armorLoading,
 		armorRefresh,
