@@ -11,6 +11,7 @@ const props = defineProps<{
 }>();
 const {
 	statsLoading,
+	actionResources,
 	buffsAsStats,
 	buffsLoading,
 	armor: armorList,
@@ -75,7 +76,7 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 							stat: 'armorCharges',
 							color: '#8df',
 							max: getFinalStat('capacityArmorCharge'),
-							current: 0,
+							current: actionResources.armorCharges,
 						},
 					],
 					hideRefillAll: true,

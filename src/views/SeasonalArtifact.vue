@@ -231,7 +231,4 @@ const grid = computed<ArtifactMod[][]>(() => {
 .artifact-stage-capacity > td {
 	padding: 0 4px;
 }
-.stage1 {
-	/* border-left: 2px solid #fff; */
-}
 </style>

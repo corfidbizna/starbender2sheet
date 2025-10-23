@@ -1985,7 +1985,6 @@ function useCharacterDataUncached(characterId: string) {
 		armorCharges: getFinalStat('capacityArmorCharge'),
 	});
 	const actionResourceUpdate = (destination: keyof ActionResource, amount: number) => {
-		console.log('Update ' + amount + ' for ' + destination);
 		actionResources.value[destination] += amount;
 	};
 
