@@ -33,7 +33,7 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 	const slots = Object.keys(result);
 	const filteredArmorList = computed<Armor[]>(() =>
 		armorList.value.filter((armor) => {
-			return namesOfEquippedArmor.value.includes(armor.name);
+			return namesOfEquippedArmor.value.includes(armor.name + ' (Equipped)');
 		}),
 	);
 	filteredArmorList.value.forEach((armor) => {

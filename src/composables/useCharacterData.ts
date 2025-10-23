@@ -1216,7 +1216,12 @@ function useCharacterDataUncached(characterId: string) {
 		const filteredPartyBuffs: BuffInfo[] = allPartyBuffs.value.filter(
 			(item) => item[characterId as CharacterNames],
 		);
-		const result = [...filteredPartyBuffs, ...playerBuffs.value];
+		const result = [
+			...filteredPartyBuffs,
+			...playerBuffs.value,
+			...armorsAsBuffs.value,
+			...artifactAsBuffs.value,
+		];
 		// for (let i = 0; i < result.length; i++) {
 		// 	result[i].stacks = ref<number>(490);
 		// 	if (result[i].isPassive) {
@@ -1249,20 +1254,19 @@ function useCharacterDataUncached(characterId: string) {
 		partyBuffs.value.filter((buff) => !buff.isPassive),
 	);
 	const activatedPartyBuffs = computed<BuffInfo[]>(() => {
-		const addThese = namesOfActivatedBuffs.value;
+		const addThese = [
+			...namesOfActivatedBuffs.value,
+			...namesOfEquippedArmor.value,
+			...namesOfActiveArmor.value,
+			...namesOfActiveArtifactMods.value,
+		];
 		const buffs = partyBuffs.value;
 		return buffs.filter((buff) => buff.isPassive || addThese.includes(buff.name));
 	});
 
 	const buffArrayFlat = computed<BuffEffect[]>(() => {
 		const allBuffs = activatedPartyBuffs.value;
-		const allArmors = armorsAsBuffs.value;
-		const allArtifactMods = artifactAsBuffs.value;
-		const result = [
-			...allBuffs.map((buff) => getBuffEffects(buff, stats.value)),
-			...allArmors.map((buff) => getBuffEffects(buff, stats.value)),
-			...allArtifactMods.map((buff) => getBuffEffects(buff, stats.value)),
-		];
+		const result = allBuffs.map((buff) => getBuffEffects(buff, stats.value));
 		return result.flat();
 		// return buffs.map((buff) => getBuffEffects(buff, stats.value)).flat();
 	});
@@ -1534,22 +1538,22 @@ function useCharacterDataUncached(characterId: string) {
 				item.stacks = 0;
 			}
 			//
-			if (namesOfEquippedArmor.value.includes(item.name)) {
+			if (namesOfEquippedArmor.value.includes(item.name + ' (Equipped)')) {
 				item.equipped = true;
 			} else {
 				item.equipped = false;
 			}
-			if (namesOfActiveArmor.value.includes(item.name)) {
+			if (namesOfActiveArmor.value.includes(item.name + ' (Active)')) {
 				item.active = true;
 			} else {
 				item.active = false;
 			}
 			//
 			if (item.buffs) {
-				item.buffs.replace(/charges/g, 0 + '');
+				item.buffs.replace(/charges/g, actionResources.value.armorCharges + '');
 			}
 			if (item.buffsCharged) {
-				item.buffsCharged.replace(/charges/g, 0 + '');
+				item.buffsCharged.replace(/charges/g, actionResources.value.armorCharges + '');
 			}
 			return item;
 		});
@@ -1558,29 +1562,31 @@ function useCharacterDataUncached(characterId: string) {
 	const namesOfActiveArmor = ref<string[]>([]);
 	const armorsAsBuffs = computed<BuffInfo[]>(() => {
 		const passive = armor.value
-			.filter((buff) => namesOfEquippedArmor.value.includes(buff.name))
+			.filter((buff) => namesOfEquippedArmor.value.includes(buff.name + ' (Equipped)'))
 			.map((armor) => {
 				const buffString = armor.buffs
 					? armor.buffs + (armor.slots ? ', ' + armor.slots : '')
 					: armor.slots;
 				const newBuff: BuffInfo = {
-					name: armor.name,
+					name: armor.name + ' (Equipped)',
 					type: 'Buff',
 					category: armor.buffCategory,
-					stacks: 0,
+					isStacking: !!armor.stacksMax || armor.isStacking,
+					stacks: armor.stacks,
 					effects: buffString || '',
 					active: true,
 				};
 				return newBuff;
 			});
 		const active = armor.value
-			.filter((buff) => namesOfActiveArmor.value.includes(buff.name))
+			.filter((buff) => namesOfActiveArmor.value.includes(buff.name + ' (Active)'))
 			.map((armor) => {
 				const newBuff: BuffInfo = {
-					name: armor.name,
+					name: armor.name + ' (Active)',
 					type: 'Buff',
 					category: armor.buffsChargedCategory || 'Misc',
-					stacks: 0,
+					isStacking: !!armor.stacksMax || armor.isStacking,
+					stacks: armor.stacks,
 					effects: armor.buffsCharged || '',
 					active: true,
 				};
@@ -1588,6 +1594,38 @@ function useCharacterDataUncached(characterId: string) {
 			});
 		return [...passive, ...active];
 	});
+	const armorStackUpdate = (name: string, amount: number) => {
+		const targetArmor = armor.value.find((armor) => armor.name === name);
+		if (targetArmor !== undefined) {
+			targetArmor.stacks = amount;
+		} else {
+			console.error(
+				'The armor ' + name + " didn't exist when we tried to change its stack amount.",
+			);
+		}
+		const downstreamBuffs = partyBuffs.value.filter(
+			(buff) => buff.name === name + ' (Equipped)' || buff.name === name + ' (Active)',
+		);
+		downstreamBuffs.forEach((targetBuff) => {
+			if (targetBuff !== undefined) {
+				// If the buff was found...
+				if (targetBuff.isStacking) {
+					// ...and it stacks...
+					targetBuff.stacks = amount;
+					return targetBuff.stacks;
+				}
+				// The buff doesn't stack.
+				console.error(
+					'The buff ' + name + " doesn't stack but we tried to change its stack amount.",
+				);
+			} else {
+				// The buff was not found.
+				console.error(
+					'The buff ' + name + " didn't exist when we tried to change its stack amount.",
+				);
+			}
+		});
+	};
 
 	// ARMOR END
 
@@ -1947,6 +1985,7 @@ function useCharacterDataUncached(characterId: string) {
 		armorCharges: getFinalStat('capacityArmorCharge'),
 	});
 	const actionResourceUpdate = (destination: keyof ActionResource, amount: number) => {
+		console.log('Update ' + amount + ' for ' + destination);
 		actionResources.value[destination] += amount;
 	};
 
@@ -1982,6 +2021,7 @@ function useCharacterDataUncached(characterId: string) {
 		armor,
 		namesOfEquippedArmor,
 		namesOfActiveArmor,
+		armorStackUpdate,
 		armorLoading,
 		armorRefresh,
 		// Quests
