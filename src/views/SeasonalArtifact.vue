@@ -41,103 +41,107 @@ const grid = computed<ArtifactMod[][]>(() => {
 		<button @click="artifactRefresh">Refresh Artifact</button>
 		<h1 class="artifact-name">Iron Decree</h1>
 		<h2 class="artifact-subtitle">Artifact</h2>
-		<table class="artifact">
-			<caption class="artifact-availability">
-				<span>Available </span
-				><span class="artifact-availability-number">{{
-					getFinalStat('artifact') - namesOfActiveArtifactMods.length
-				}}</span>
-			</caption>
-			<tbody>
-				<tr
-					v-for="column in grid"
-					:key="'column' + column[0].name"
-				>
-					<td
-						v-for="(cell, col) in column"
-						:key="cell.name"
-						class="artifact-cell"
-						:class="
-							namesOfActiveArtifactMods.length <
-								(stageQuantitiesForUnlock[col + 1] || artifactMods.length) &&
-							namesOfActiveArtifactMods.length >= stageQuantitiesForUnlock[col]
-								? 'edge'
-								: ''
-						"
+		<div class="artifact-container">
+			<table class="artifact">
+				<caption class="artifact-availability">
+					<span>Available </span
+					><span class="artifact-availability-number">{{
+						getFinalStat('artifact') - namesOfActiveArtifactMods.length
+					}}</span>
+				</caption>
+				<tbody>
+					<tr
+						v-for="column in grid"
+						:key="'column' + column[0].name"
 					>
-						<label
-							v-if="!cell.hidden"
-							class="artifact-mod"
+						<td
+							v-for="(cell, col) in column"
+							:key="cell.name"
+							class="artifact-cell"
 							:class="
-								[
-									'stage' + cell.stage,
-									cell.active ? 'active' : '',
-									namesOfActiveArtifactMods.length < stageQuantitiesForUnlock[col]
-										? 'disallowed'
-										: '',
-								].join(' ')
+								namesOfActiveArtifactMods.length <
+									(stageQuantitiesForUnlock[col + 1] || artifactMods.length) &&
+								namesOfActiveArtifactMods.length >= stageQuantitiesForUnlock[col]
+									? 'edge'
+									: ''
 							"
 						>
-							<div class="artifact-mod-name">
-								<input
-									type="checkbox"
-									:value="cell.name"
-									v-model="namesOfActiveArtifactMods"
-									:disabled="
+							<label
+								v-if="!cell.hidden"
+								class="artifact-mod"
+								:class="
+									[
+										'stage' + cell.stage,
+										cell.active ? 'active' : '',
 										namesOfActiveArtifactMods.length <
-											stageQuantitiesForUnlock[col] ||
-										(getFinalStat('artifact') -
-											namesOfActiveArtifactMods.length <=
-											0 &&
-											!cell.active)
-									"
-								/>{{ cell.name }}
+										stageQuantitiesForUnlock[col]
+											? 'disallowed'
+											: '',
+									].join(' ')
+								"
+							>
+								<div class="artifact-mod-name">
+									<input
+										type="checkbox"
+										:value="cell.name"
+										v-model="namesOfActiveArtifactMods"
+										:disabled="
+											namesOfActiveArtifactMods.length <
+												stageQuantitiesForUnlock[col] ||
+											(getFinalStat('artifact') -
+												namesOfActiveArtifactMods.length <=
+												0 &&
+												!cell.active)
+										"
+									/>{{ cell.name }}
+								</div>
+								<div class="artifact-mod-description">{{ cell.description }}</div>
+							</label>
+							<div
+								v-else
+								class="artifact-mod hidden"
+								:class="
+									[
+										'stage' + cell.stage,
+										cell.active ? 'active' : '',
+										namesOfActiveArtifactMods.length <
+										stageQuantitiesForUnlock[col]
+											? 'disallowed'
+											: '',
+									].join(' ')
+								"
+							>
+								???
 							</div>
-							<div class="artifact-mod-description">{{ cell.description }}</div>
-						</label>
-						<div
-							v-else
-							class="artifact-mod hidden"
-							:class="
-								[
-									'stage' + cell.stage,
-									cell.active ? 'active' : '',
-									namesOfActiveArtifactMods.length < stageQuantitiesForUnlock[col]
-										? 'disallowed'
-										: '',
-								].join(' ')
-							"
+						</td>
+					</tr>
+					<tr class="artifact-stage-capacity">
+						<td
+							v-for="(cell, index) in grid[0]"
+							:key="cell.stage + 'active'"
 						>
-							???
-						</div>
-					</td>
-				</tr>
-				<tr class="artifact-stage-capacity">
-					<td
-						v-for="(cell, index) in grid[0]"
-						:key="cell.stage + 'active'"
-					>
-						<CapacityBar
-							v-bind="{
-								min: stageQuantitiesForUnlock[index],
-								max: stageQuantitiesForUnlock[index + 1] || artifactMods.length,
-								current: namesOfActiveArtifactMods.length,
-								color: '#fff',
-							}"
-						/>
-						{{ stageQuantitiesForUnlock[index] }}
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		<div class="artifact-mod-info">
-			<div
-				v-for="artifactMod in artifactMods.filter((mod) => mod.active)"
-				:key="artifactMod.name"
-			>
-				<h2>{{ artifactMod.name }}</h2>
-				<div>{{ artifactMod.buffs }}</div>
-				<div>{{ artifactMod.description }}</div>
+							<CapacityBar
+								v-bind="{
+									min: stageQuantitiesForUnlock[index],
+									max: stageQuantitiesForUnlock[index + 1] || artifactMods.length,
+									current: namesOfActiveArtifactMods.length,
+									color: '#fff',
+								}"
+							/>
+							{{ stageQuantitiesForUnlock[index] }}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="artifact-mod-info">
+				<div
+					v-for="artifactMod in artifactMods.filter((mod) => mod.active)"
+					:key="artifactMod.name"
+				>
+					<h2>{{ artifactMod.name }}</h2>
+					<div>{{ artifactMod.buffs }}</div>
+					<div>{{ artifactMod.description }}</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -160,6 +164,9 @@ const grid = computed<ArtifactMod[][]>(() => {
 }
 .artifact-availability-number {
 	font-weight: bold;
+}
+.artifact-container {
+	display: flex;
 }
 .artifact {
 	border-collapse: collapse;
@@ -230,5 +237,10 @@ const grid = computed<ArtifactMod[][]>(() => {
 }
 .artifact-stage-capacity > td {
 	padding: 0 4px;
+}
+.artifact-mod-info {
+	display: inline;
+	max-width: 34em;
+	padding: 1em;
 }
 </style>

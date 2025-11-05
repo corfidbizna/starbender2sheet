@@ -301,6 +301,7 @@ export type StatsCalculated = {
 	actionsMoveSwim: number;
 	actionsMoveFly: number;
 	actionsMoveClimb: number;
+	//
 	ac: number;
 	acFF: number;
 	acTouch: number;
@@ -308,6 +309,29 @@ export type StatsCalculated = {
 	drBase: number;
 	dr: number;
 	drFF: number;
+	//
+	drArc: number;
+	drFFArc: number;
+	resistArc: number;
+	drSolar: number;
+	drFFSolar: number;
+	resistSolar: number;
+	drVoid: number;
+	drFFVoid: number;
+	resistVoid: number;
+	drStasis: number;
+	drFFStasis: number;
+	resistStasis: number;
+	drStrand: number;
+	drFFStrand: number;
+	resistStrand: number;
+	drPrismatic: number;
+	drFFPrismatic: number;
+	resistPrismatic: number;
+	drDark: number;
+	drFFDark: number;
+	resistDark: number;
+	//
 	capacityCarrying: number;
 	capacityKinetic: number;
 	capacitySpecial: number;
@@ -321,6 +345,7 @@ export type StatsCalculated = {
 	energySuperRecharge: number;
 	energyClassRecharge: number;
 	rerolls: number;
+	//
 	slotsArmorHead: number;
 	slotsArmorArm: number;
 	slotsArmorChest: number;
@@ -337,9 +362,15 @@ export type StatsCalculated = {
 	equipArmorClass: number;
 	equipArmorFull: number;
 	equipArmorExotic: number;
+	//
+	slotsWeapon: number;
+	equipWeapon: number;
+	hands: number;
+	//
 	equipAspects: number;
 	equipFragments: number;
 	capacityArmorCharge: number;
+	//
 	toHitRanged: number;
 	toHitMelee: number;
 	toHitSpell: number;
@@ -347,6 +378,7 @@ export type StatsCalculated = {
 	damageRanged: number;
 	damageSpell: number;
 	damagePrecision: number;
+	//
 	strSave: number;
 	dexSave: number;
 	conSave: number;
@@ -369,13 +401,16 @@ export type StatsCalculated = {
 	ref: number;
 	fort: number;
 	will: number;
+	//
 	hpMax: number;
 	hpTempMax: number;
 	hpShieldMax: number;
 	hpShieldType: number;
 	skillFocus: number;
+	//
 	energyUniversal: number;
 	energyUniversalRecharge: number;
+	//
 	armor: number;
 	armorNatural: number;
 	armorShield: number;
@@ -383,6 +418,7 @@ export type StatsCalculated = {
 	armorDodge: number;
 	bab: number;
 	bdb: number;
+	//
 	str: number;
 	dex: number;
 	con: number;
@@ -390,16 +426,19 @@ export type StatsCalculated = {
 	wis: number;
 	cha: number;
 	rolls: number;
+	//
 	actionsAttack: number;
 	actionsMove: number;
 	actionsReaction: number;
 	actionsBonus: number;
+	//
 	strScore: number;
 	dexScore: number;
 	conScore: number;
 	intScore: number;
 	wisScore: number;
 	chaScore: number;
+	//
 	cpl: number;
 	weightBase: number;
 	weightCurrent: number;
@@ -413,6 +452,7 @@ export type StatsCalculated = {
 	fortPerLevel: number;
 	refPerLevel: number;
 	willPerLevel: number;
+	//
 	artifact: number;
 };
 export type StatsCalculatedKey = keyof StatsCalculated;
@@ -433,6 +473,27 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	drBase: 'Base DR',
 	dr: 'DR',
 	drFF: 'FF DR',
+	drArc: 'Arc DR',
+	drFFArc: 'Arc FF DR',
+	resistArc: 'Arc Resistance',
+	drSolar: 'Solar DR',
+	drFFSolar: 'Solar FF DR',
+	resistSolar: 'Solar Resistance',
+	drVoid: 'Void DR',
+	drFFVoid: 'Void FF DR',
+	resistVoid: 'Void Resistance',
+	drStasis: 'Stasis DR',
+	drFFStasis: 'Stasis FF DR',
+	resistStasis: 'Stasis Resistance',
+	drStrand: 'Strand DR',
+	drFFStrand: 'Strand FF DR',
+	resistStrand: 'Strand Resistance',
+	drPrismatic: 'Prismatic DR',
+	drFFPrismatic: 'Prismatic FF DR',
+	resistPrismatic: 'Prismatic Resistance',
+	drDark: 'Darkness DR',
+	drFFDark: 'Darkness FF DR',
+	resistDark: 'Darkness Resistance',
 	capacityCarrying: 'Carrying Capacity',
 	capacityKinetic: 'Kinetic Ammo Capacity',
 	capacitySpecial: 'Special Ammo Capacity',
@@ -462,8 +523,11 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	equipArmorClass: 'Class Equipment',
 	equipArmorFull: 'Full Armor Equipment',
 	equipArmorExotic: 'Exotic Equipment',
-	equipAspects: 'number',
-	equipFragments: 'number',
+	slotsWeapon: 'Weapon Slots',
+	equipWeapon: 'Active Weapons',
+	hands: 'Hands',
+	equipAspects: 'Aspect Slots',
+	equipFragments: 'Fragment Slots',
 	capacityArmorCharge: 'Max Armor Charge',
 	toHitRanged: 'Ranged to hit',
 	toHitMelee: 'Melee to hit',
@@ -1019,37 +1083,41 @@ export type ImportedWeapon = {
 	kara: boolean;
 	mark: boolean;
 	lewis: boolean;
-	Name: string;
-	Flavortext?: string;
-	Rarity: Rarity;
-	Element: Element;
-	WeaponClass: WeaponClasses;
-	AttackType: string;
-	HitType: string;
-	HitBonus?: number;
-	CritRange?: number;
-	CritMult?: number;
-	Damage: string;
-	DamageType: Element;
-	RangeType: string;
-	Range: number;
-	Handed: number;
-	Size?: number;
-	Shape?: string;
-	Duration?: number;
-	Ammo: number;
-	AmmoCapacity: number;
-	AmmoType: string;
-	IsMagic: boolean;
-	Perks?: string;
+	name: string;
+	flavortext?: string;
+	rarity: Rarity;
+	element: Element;
+	weaponClass: WeaponClasses;
+	attackType: string;
+	hitType: string;
+	hitBonus?: number;
+	critRange?: number;
+	critMult?: number;
+	damage: string;
+	damageType: Element;
+	rangeType: string;
+	range: number;
+	handed: number;
+	size?: number;
+	shape?: string;
+	duration?: number;
+	ammo: number;
+	ammoCapacity: number;
+	ammoType: string;
+	isMagic: boolean;
+	buffsEquipped?: string;
+	buffsActive?: string;
+	perks?: string;
 };
 export type Weapon = ImportedWeapon & {
-	DamageFormula: DiceFormula;
-	DmgMin: number;
-	DmgMax: number;
-	DmgAvg: number;
-	DmgShort: string;
-	AmmoCurrent: number;
+	damageFormula: DiceFormula;
+	dmgMin: number;
+	dmgMax: number;
+	dmgAvg: number;
+	dmgShort: string;
+	ammoCurrent: number;
+	equipped: boolean;
+	active: boolean;
 };
 // The types describing armor.
 export type Armor = {
@@ -1274,131 +1342,10 @@ function useCharacterDataUncached(characterId: string) {
 		return tallyBuffs(buffArrayFlat.value, stats.value);
 	});
 	const buffsAsStats = computed<StatsCalculated>(() => {
-		const newStats: StatsCalculated = {
-			actionsMoveBaseLand: 0,
-			actionsMoveBaseSwim: 0,
-			actionsMoveBaseFly: 0,
-			actionsMoveBaseClimb: 0,
-			actionsMoveMult: 0,
-			actionsMoveLand: 0,
-			actionsMoveSwim: 0,
-			actionsMoveFly: 0,
-			actionsMoveClimb: 0,
-			ac: 0,
-			acFF: 0,
-			acTouch: 0,
-			acFFTouch: 0,
-			drBase: 0,
-			dr: 0,
-			drFF: 0,
-			capacityCarrying: 0,
-			capacityKinetic: 0,
-			capacitySpecial: 0,
-			capacityHeavy: 0,
-			energyMelee: 0,
-			energyGrenade: 0,
-			energySuper: 0,
-			energyClass: 0,
-			energyMeleeRecharge: 0,
-			energyGrenadeRecharge: 0,
-			energySuperRecharge: 0,
-			energyClassRecharge: 0,
-			rerolls: 0,
-			slotsArmorHead: 0,
-			slotsArmorArm: 0,
-			slotsArmorChest: 0,
-			slotsArmorLegs: 0,
-			slotsArmorClass: 0,
-			slotsArmorFull: 0,
-			slotsArmorExotic: 0,
-			slotsAspects: 0,
-			slotsFragments: 0,
-			equipArmorHead: 0,
-			equipArmorArm: 0,
-			equipArmorChest: 0,
-			equipArmorLegs: 0,
-			equipArmorClass: 0,
-			equipArmorFull: 0,
-			equipArmorExotic: 0,
-			equipAspects: 0,
-			equipFragments: 0,
-			capacityArmorCharge: 0,
-			toHitRanged: 0,
-			toHitMelee: 0,
-			toHitSpell: 0,
-			damageMelee: 0,
-			damageRanged: 0,
-			damageSpell: 0,
-			damagePrecision: 0,
-			strSave: 0,
-			dexSave: 0,
-			conSave: 0,
-			intSave: 0,
-			wisSave: 0,
-			chaSave: 0,
-			strSkillCheck: 0,
-			dexSkillCheck: 0,
-			conSkillCheck: 0,
-			intSkillCheck: 0,
-			wisSkillCheck: 0,
-			chaSkillCheck: 0,
-			strSkills: 0,
-			dexSkills: 0,
-			conSkills: 0,
-			intSkills: 0,
-			wisSkills: 0,
-			chaSkills: 0,
-			initiative: 0,
-			ref: 0,
-			fort: 0,
-			will: 0,
-			hpMax: 0,
-			hpTempMax: 0,
-			hpShieldMax: 0,
-			hpShieldType: 0,
-			skillFocus: 0,
-			energyUniversal: 0,
-			energyUniversalRecharge: 0,
-			armor: 0,
-			armorNatural: 0,
-			armorShield: 0,
-			armorDeflection: 0,
-			armorDodge: 0,
-			bab: 0,
-			bdb: 0,
-			str: 0,
-			dex: 0,
-			con: 0,
-			int: 0,
-			wis: 0,
-			cha: 0,
-			rolls: 0,
-			actionsAttack: 0,
-			actionsMove: 0,
-			actionsReaction: 0,
-			actionsBonus: 0,
-			strScore: 0,
-			dexScore: 0,
-			conScore: 0,
-			intScore: 0,
-			wisScore: 0,
-			chaScore: 0,
-			cpl: 0,
-			weightBase: 0,
-			weightCurrent: 0,
-			weightTotal: 0,
-			size: 0,
-			reach: 0,
-			encumberance: 0,
-			babPerLevel: 0,
-			bdbPerLevel: 0,
-			hpPerLevel: 0,
-			fortPerLevel: 0,
-			refPerLevel: 0,
-			willPerLevel: 0,
-			artifact: 0,
-		};
-		const statNames = Object.keys(newStats);
+		const statNames = Object.keys(labelMap);
+		const newStats: StatsCalculated = Object.fromEntries(
+			statNames.map((key) => [key, 0]),
+		) as StatsCalculated;
 		statNames.forEach((name) => {
 			newStats[name as StatsCalculatedKey] = getFinalStat(name as StatsCalculatedKey);
 		});
@@ -1448,41 +1395,53 @@ function useCharacterDataUncached(characterId: string) {
 		return filteredWeapons.map((weapon) => {
 			const damageBonus = computed<number>(() => {
 				let result = 0;
-				if (weapon.RangeType === 'Melee') {
+				if (weapon.rangeType === 'Melee') {
 					result += getFinalStat('damageMelee');
-				} else if (weapon.RangeType === 'Ranged') {
+				} else if (weapon.rangeType === 'Ranged') {
 					result += getFinalStat('damageRanged');
-				} else if (weapon.RangeType === 'Spell') {
+				} else if (weapon.rangeType === 'Spell') {
 					result += getFinalStat('damageSpell');
 				}
 				return result + (getFinalStat('damagePrecision') || 0);
 			});
 			// const formula = new DiceFormula(weapon.Damage);
-			const formula = new DiceFormula(weapon.Damage + '+' + damageBonus.value);
+			const formula = new DiceFormula(weapon.damage + '+' + damageBonus.value);
 			// const formula = new DiceFormula(
 			// 	weapon.Damage + '+' + damageBonus.value,
 			// ).evaluateExceptDice((name: string) => getFinalStat(name as StatsCalculatedKey));
-			weapon.DamageFormula = formula;
-			weapon.DmgMin = formula.min(statFunction);
-			weapon.DmgMax = formula.max(statFunction);
-			weapon.DmgAvg = formula.mean(statFunction);
-			weapon.DmgShort = formula.evaluateExceptDice(statFunction).stringify();
-			weapon.AmmoCurrent = weapon.AmmoCapacity;
+			weapon.damageFormula = formula;
+			weapon.dmgMin = formula.min(statFunction);
+			weapon.dmgMax = formula.max(statFunction);
+			weapon.dmgAvg = formula.mean(statFunction);
+			weapon.dmgShort = formula.evaluateExceptDice(statFunction).stringify();
+			weapon.ammoCurrent = weapon.ammoCapacity;
+			if (namesOfEquippedWeapons.value.includes(weapon.name)) {
+				weapon.equipped = true;
+			} else {
+				weapon.equipped = false;
+			}
+			if (namesOfActiveWeapons.value.includes(weapon.name)) {
+				weapon.active = true;
+			} else {
+				weapon.active = false;
+			}
 			return weapon;
 		});
 	});
 	const weaponAmmoUpdate = (name: string, changeAmount: number) => {
 		const targetWeapon: Weapon | undefined = weapons.value.find(
-			(weapon) => weapon.Name === name,
+			(weapon) => weapon.name === name,
 		);
 		if (targetWeapon) {
-			targetWeapon.AmmoCurrent += changeAmount;
-			return targetWeapon.AmmoCurrent;
+			targetWeapon.ammoCurrent += changeAmount;
+			return targetWeapon.ammoCurrent;
 		} else {
 			console.error('The weapon ' + name + " didn't exist when we tried to change its ammo.");
 			return 0;
 		}
 	};
+	const namesOfEquippedWeapons = ref<string[]>([]);
+	const namesOfActiveWeapons = ref<string[]>([]);
 	type WeaponSlot = 'a' | 'b' | 'c';
 	const weaponSlots = ref<Record<WeaponSlot, string>>({
 		a: '',
@@ -1703,132 +1662,12 @@ function useCharacterDataUncached(characterId: string) {
 	const stats = computed<StatsCalculated>(() => {
 		const source = statsImported.value;
 		if (!source) {
-			return {
-				actionsMoveBaseLand: 0,
-				actionsMoveBaseSwim: 0,
-				actionsMoveBaseFly: 0,
-				actionsMoveBaseClimb: 0,
-				actionsMoveMult: 0,
-				actionsMoveLand: 0,
-				actionsMoveSwim: 0,
-				actionsMoveFly: 0,
-				actionsMoveClimb: 0,
-				ac: 0,
-				acFF: 0,
-				acTouch: 0,
-				acFFTouch: 0,
-				drBase: 0,
-				dr: 0,
-				drFF: 0,
-				capacityCarrying: 0,
-				capacityKinetic: 0,
-				capacitySpecial: 0,
-				capacityHeavy: 0,
-				energyMelee: 0,
-				energyGrenade: 0,
-				energySuper: 0,
-				energyClass: 0,
-				energyMeleeRecharge: 0,
-				energyGrenadeRecharge: 0,
-				energySuperRecharge: 0,
-				energyClassRecharge: 0,
-				rerolls: 0,
-				slotsArmorHead: 0,
-				slotsArmorArm: 0,
-				slotsArmorChest: 0,
-				slotsArmorLegs: 0,
-				slotsArmorClass: 0,
-				slotsArmorFull: 0,
-				slotsArmorExotic: 0,
-				slotsAspects: 0,
-				slotsFragments: 0,
-				equipArmorHead: 0,
-				equipArmorArm: 0,
-				equipArmorChest: 0,
-				equipArmorLegs: 0,
-				equipArmorClass: 0,
-				equipArmorFull: 0,
-				equipArmorExotic: 0,
-				equipAspects: 0,
-				equipFragments: 0,
-				capacityArmorCharge: 0,
-				toHitRanged: 0,
-				toHitMelee: 0,
-				toHitSpell: 0,
-				damageMelee: 0,
-				damageRanged: 0,
-				damageSpell: 0,
-				damagePrecision: 0,
-				strSave: 0,
-				dexSave: 0,
-				conSave: 0,
-				intSave: 0,
-				wisSave: 0,
-				chaSave: 0,
-				strSkillCheck: 0,
-				dexSkillCheck: 0,
-				conSkillCheck: 0,
-				intSkillCheck: 0,
-				wisSkillCheck: 0,
-				chaSkillCheck: 0,
-				strSkills: 0,
-				dexSkills: 0,
-				conSkills: 0,
-				intSkills: 0,
-				wisSkills: 0,
-				chaSkills: 0,
-				initiative: 0,
-				ref: 0,
-				fort: 0,
-				will: 0,
-				hpMax: 0,
-				hpTempMax: 0,
-				hpShieldMax: 0,
-				hpShieldType: 0,
-				skillFocus: 0,
-				energyUniversal: 0,
-				energyUniversalRecharge: 0,
-				armor: 0,
-				armorNatural: 0,
-				armorShield: 0,
-				armorDeflection: 0,
-				armorDodge: 0,
-				bab: 0,
-				bdb: 0,
-				str: 0,
-				dex: 0,
-				con: 0,
-				int: 0,
-				wis: 0,
-				cha: 0,
-				rolls: 0,
-				actionsAttack: 0,
-				actionsMove: 0,
-				actionsReaction: 0,
-				actionsBonus: 0,
-				strScore: 0,
-				dexScore: 0,
-				conScore: 0,
-				intScore: 0,
-				wisScore: 0,
-				chaScore: 0,
-				cpl: 0,
-				weightBase: 0,
-				weightCurrent: 0,
-				weightTotal: 0,
-				size: 0,
-				reach: 0,
-				encumberance: 0,
-				babPerLevel: 0,
-				bdbPerLevel: 0,
-				hpPerLevel: 0,
-				fortPerLevel: 0,
-				refPerLevel: 0,
-				willPerLevel: 0,
-				artifact: 0,
-			};
+			return Object.fromEntries(
+				Object.keys(labelMap).map((key) => [key, 0]),
+			) as StatsCalculated;
 		}
-		// Buff tallying goes here
+		// Buff tallying goes here.
+		// The object below is where "default values" live.
 		const result: StatsCalculated = {
 			actionsMoveBaseLand: 30,
 			actionsMoveBaseSwim: 0,
@@ -1846,6 +1685,27 @@ function useCharacterDataUncached(characterId: string) {
 			drBase: 0,
 			dr: 0,
 			drFF: 0,
+			drArc: 0,
+			drFFArc: 0,
+			resistArc: 0,
+			drSolar: 0,
+			drFFSolar: 0,
+			resistSolar: 0,
+			drVoid: 0,
+			drFFVoid: 0,
+			resistVoid: 0,
+			drStasis: 0,
+			drFFStasis: 0,
+			resistStasis: 0,
+			drStrand: 0,
+			drFFStrand: 0,
+			resistStrand: 0,
+			drPrismatic: 0,
+			drFFPrismatic: 0,
+			resistPrismatic: 0,
+			drDark: 0,
+			drFFDark: 0,
+			resistDark: 0,
 			capacityCarrying: 0,
 			capacityKinetic: 0,
 			capacitySpecial: 18,
@@ -1873,6 +1733,9 @@ function useCharacterDataUncached(characterId: string) {
 			equipArmorClass: 0,
 			equipArmorFull: 0,
 			equipArmorExotic: 0,
+			slotsWeapon: 3,
+			equipWeapon: 1,
+			hands: 2,
 			equipAspects: 0,
 			equipFragments: 0,
 			slotsAspects: 0,
@@ -2013,6 +1876,8 @@ function useCharacterDataUncached(characterId: string) {
 		// Weapons
 		weapons,
 		weaponAmmoUpdate,
+		namesOfEquippedWeapons,
+		namesOfActiveWeapons,
 		weaponSlotUpdate,
 		weaponsLoading,
 		weaponsRefresh,

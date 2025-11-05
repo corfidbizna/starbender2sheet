@@ -30,7 +30,9 @@ const toggleSortAscending = () => {
 const props = defineProps<{
 	characterId: CharacterNames;
 }>();
-const { weapons, weaponsLoading, weaponsRefresh } = useCharacterData(props.characterId);
+const { weapons, weaponsLoading, namesOfEquippedWeapons, weaponsRefresh } = useCharacterData(
+	props.characterId,
+);
 const sortedWeapons = computed<Weapon[]>(() => {
 	const weaponsForSort = weapons.value.slice();
 	// if (!(sortBy as weaponKeys)) {
@@ -40,11 +42,11 @@ const sortedWeapons = computed<Weapon[]>(() => {
 	return weaponsForSort.sort((a, b) => {
 		const aSortKey = a[sortKey] || '';
 		const bSortKey = b[sortKey] || '';
-		if (sortKey === 'Rarity') {
-			const diff = rarities[a.Rarity] - rarities[b.Rarity];
+		if (sortKey === 'rarity') {
+			const diff = rarities[a.rarity] - rarities[b.rarity];
 			return diff * (sortAscending.value ? 1 : -1);
-		} else if (sortKey === 'Element') {
-			const diff = elements[a.Element] - elements[b.Element];
+		} else if (sortKey === 'element') {
+			const diff = elements[a.element] - elements[b.element];
 			return diff * (sortAscending.value ? 1 : -1);
 		} else {
 			if (aSortKey === undefined || bSortKey === undefined) {
@@ -62,14 +64,15 @@ const sortedWeapons = computed<Weapon[]>(() => {
 });
 const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 	listUnfiltered: sortedWeapons,
-	filter: { dataType: 'string', fieldName: 'Name' },
+	filter: { dataType: 'string', fieldName: 'name' },
 });
 </script>
 <template>
 	<div class="weapon-tab-container">
 		<span class="weapon-infos">
 			<button @click="weaponsRefresh">Reload Weapons</button>
-			<!-- <div><TEMPActiveWeapon /></div> -->
+			<h2>Equipped Weapons</h2>
+			<pre>{{ namesOfEquippedWeapons.join('\n') }}</pre>
 			<h2>Filter</h2>
 			<div class="search">
 				<label>
@@ -122,13 +125,13 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 		>
 			<WeaponItemRow
 				v-for="weapon in filteredData.includes"
-				:key="weapon.Name"
+				:key="weapon.name"
 				v-bind="weapon"
 				:characterId="characterId"
 			/>
 			<WeaponItemRow
 				v-for="weapon in filteredData.excludes"
-				:key="weapon.Name"
+				:key="weapon.name"
 				v-bind="weapon"
 				:characterId="characterId"
 				class="filtered"

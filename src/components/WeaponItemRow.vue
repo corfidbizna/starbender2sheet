@@ -11,19 +11,21 @@ import iconKinetic from '@/assets/svgs/Kenetic.svg?url';
 import { computed, ref } from 'vue';
 
 const props = defineProps<Weapon & { characterId: string }>();
-const { weaponAmmoUpdate, buffsTallied, stats } = useCharacterData(props.characterId);
+const { weaponAmmoUpdate, namesOfEquippedWeapons, buffsTallied, stats } = useCharacterData(
+	props.characterId,
+);
 const getCritDisplay = (): string => {
-	if (!props.CritRange) {
+	if (!props.critRange) {
 		return '--';
 	}
 	const delimiter = ', x';
-	if (props.CritRange === 20) {
-		return props.CritRange + delimiter + props.CritMult;
+	if (props.critRange === 20) {
+		return props.critRange + delimiter + props.critMult;
 	}
-	return 21 - props.CritRange + '-20' + delimiter + props.CritMult;
+	return 21 - props.critRange + '-20' + delimiter + props.critMult;
 };
 const getAmmoTypeDisplay = (): string => {
-	return props.AmmoType.split(' ')[0];
+	return props.ammoType.split(' ')[0];
 };
 const colorsRarity = (rarity: string): string => {
 	if (rarity === 'Uncommon') {
@@ -59,7 +61,7 @@ const colorsElement = (element: string): string => {
 	return '#FFFFFF'; // Kinetic
 };
 const ammoImageSrc = () => {
-	const ammo = props.AmmoType.toLocaleLowerCase();
+	const ammo = props.ammoType.toLocaleLowerCase();
 	if (ammo.includes('energy') || ammo.includes('special')) {
 		return svgAmmoSpecial;
 	}
@@ -109,80 +111,90 @@ const glyphMap = {
 	Prismatic: '',
 };
 const toHitCalc = computed<number>(() => {
-	let result = props.HitBonus || 0;
-	if (props.RangeType === 'Melee') {
+	let result = props.hitBonus || 0;
+	if (props.rangeType === 'Melee') {
 		result += buffsTallied.value.toHitMelee?.total || stats.value.toHitMelee;
-	} else if (props.RangeType === 'Ranged') {
+	} else if (props.rangeType === 'Ranged') {
 		result += buffsTallied.value.toHitRanged?.total || stats.value.toHitRanged;
-	} else if (props.RangeType === 'Spell') {
+	} else if (props.rangeType === 'Spell') {
 		result += buffsTallied.value.toHitSpell?.total || stats.value.toHitSpell;
 	}
 	return result;
 });
 const hitFormula = new DiceFormula('1d20');
 const rollDamage = () => {
-	console.log(props.DamageFormula);
-	const result = props.DamageFormula.roll(() => 0);
+	console.log(props.damageFormula);
+	const result = props.damageFormula.roll(() => 0);
 	let string =
-		glyphMap[props.WeaponClass] +
-		props.Name +
+		glyphMap[props.weaponClass] +
+		props.name +
 		'\n  Damage:     ' +
-		glyphMap[props.DamageType] +
+		glyphMap[props.damageType] +
 		result;
-	if (props.CritMult && props.CritMult > 1) {
-		string += '\n  Crit damage: ' + glyphMap[props.DamageType] + result * props.CritMult;
+	if (props.critMult && props.critMult > 1) {
+		string += '\n  Crit damage: ' + glyphMap[props.damageType] + result * props.critMult;
 	}
 	updateLog(string);
 };
 const rollHit = () => {
 	const result = hitFormula.roll(() => 0);
 	let string =
-		glyphMap[props.WeaponClass] + props.Name + '\n  Hit result: ' + (result + toHitCalc.value);
+		glyphMap[props.weaponClass] + props.name + '\n  Hit result: ' + (result + toHitCalc.value);
 	if (result <= 1) {
 		string += '\n == Natural 1! ==';
 	}
-	if (result > 20 - (props.CritRange || 0)) {
+	if (result > 20 - (props.critRange || 0)) {
 		string += '\n == Critical hit! ==';
 	}
 	updateLog(string);
 	fire();
 };
-const currentAmmo = ref<number>(props.AmmoCurrent);
+const currentAmmo = ref<number>(props.ammoCurrent);
 const fire = () => {
-	currentAmmo.value = weaponAmmoUpdate(props.Name, -props.Ammo);
+	currentAmmo.value = weaponAmmoUpdate(props.name, -props.ammo);
 };
 const reload = () => {
-	updateLog('Reloaded ' + glyphMap[props.WeaponClass] + props.Name);
-	const difference = props.AmmoCapacity - props.AmmoCurrent;
-	currentAmmo.value = weaponAmmoUpdate(props.Name, difference);
+	updateLog('Reloaded ' + glyphMap[props.weaponClass] + props.name);
+	const difference = props.ammoCapacity - props.ammoCurrent;
+	currentAmmo.value = weaponAmmoUpdate(props.name, difference);
 };
 </script>
 <template>
-	<div class="weapon-row">
+	<label
+		class="weapon-row"
+		:class="equipped ? 'equipped' : ''"
+		:for="name + '-equip'"
+	>
 		<div
 			class="weapon-header"
-			:class="Rarity.toLocaleLowerCase()"
-			:style="'background-color: ' + colorsRarity(Rarity)"
+			:class="rarity.toLocaleLowerCase()"
+			:style="'background-color: ' + colorsRarity(rarity)"
 		>
 			<div class="weapon-titles">
-				<div class="gun-icon"><DGlyph v-bind="{ name: WeaponClass }" /></div>
+				<input
+					type="checkbox"
+					:id="name + '-equip'"
+					:value="name"
+					v-model="namesOfEquippedWeapons"
+				/>
+				<div class="gun-icon"><DGlyph v-bind="{ name: weaponClass }" /></div>
 				<div class="gun-titles">
 					<h1>
 						<DGlyph
-							v-if="Element != 'Kinetic'"
-							v-bind="{ name: Element }"
+							v-if="element != 'Kinetic'"
+							v-bind="{ name: element }"
 							class="element-glyph"
-							:style="'color: ' + colorsElement(Element)"
+							:style="'color: ' + colorsElement(element)"
 						/>
 						<img
 							v-else
 							class="kinetic-icon"
 							src="/src/assets/svgs/Kenetic.svg"
 						/>
-						<span>{{ Name }}</span>
+						<span>{{ name }}</span>
 					</h1>
 					<h2>
-						{{ WeaponClass.toUpperCase() }}
+						{{ weaponClass.toUpperCase() }}
 					</h2>
 				</div>
 			</div>
@@ -195,10 +207,10 @@ const reload = () => {
 			<div class="weapon-damage-info">
 				<div class="damage-main">
 					<DGlyph
-						v-if="Element != 'Kinetic'"
-						v-bind="{ name: Element }"
+						v-if="element != 'Kinetic'"
+						v-bind="{ name: element }"
 						class="element-glyph"
-						:style="'color: ' + colorsElement(Element)"
+						:style="'color: ' + colorsElement(element)"
 					/>
 					<img
 						v-else
@@ -206,9 +218,9 @@ const reload = () => {
 						:src="iconKinetic"
 					/>
 					<span
-						:style="'color: ' + colorsElement(Element)"
-						:title="Damage"
-						>{{ DmgShort }}</span
+						:style="'color: ' + colorsElement(element)"
+						:title="damage"
+						>{{ dmgShort }}</span
 					>
 				</div>
 				<div class="damage-sub">
@@ -219,13 +231,13 @@ const reload = () => {
 					<span class="ammo-type">{{ ' ' + getAmmoTypeDisplay() }}</span>
 					<CapacityBar
 						v-bind="{
-							max: AmmoCapacity,
+							max: ammoCapacity,
 							current: currentAmmo,
-							color: colorsAmmo(AmmoType),
+							color: colorsAmmo(ammoType),
 						}"
 						class="ammo-bar"
 					/>
-					<span>{{ currentAmmo }} ⁄ {{ props.AmmoCapacity }}</span>
+					<span>{{ currentAmmo }} ⁄ {{ props.ammoCapacity }}</span>
 					<button @click="reload()">↺</button>
 				</div>
 			</div>
@@ -233,81 +245,90 @@ const reload = () => {
 				<tbody class="weapon-cells">
 					<tr>
 						<td class="weapon-stat-label">Average Dmg</td>
-						<td class="weapon-stat-data alt">{{ DmgAvg }}</td>
+						<td class="weapon-stat-data alt">{{ dmgAvg }}</td>
 						<td class="weapon-stat-label">To Hit</td>
-						<td class="weapon-stat-data">{{ toHitCalc }} v. {{ HitType }}</td>
+						<td class="weapon-stat-data">{{ toHitCalc }} v. {{ hitType }}</td>
 						<td class="weapon-stat-label">Range</td>
-						<td class="weapon-stat-data">{{ RangeType }} {{ Range }}ft. </td>
+						<td class="weapon-stat-data">{{ rangeType }} {{ range }}ft. </td>
 					</tr>
 					<tr>
 						<td class="weapon-stat-label">Min Dmg</td>
-						<td class="weapon-stat-data">{{ DmgMin }}</td>
+						<td class="weapon-stat-data">{{ dmgMin }}</td>
 						<td class="weapon-stat-label">Crit</td>
 						<td class="weapon-stat-data">{{ getCritDisplay() }}</td>
 						<td class="weapon-stat-label">Shape</td>
 						<td
-							v-if="Size"
+							v-if="size"
 							class="weapon-stat-data"
 						>
-							{{ Size }}ft. {{ Shape }} 
+							{{ size }}ft. {{ shape }}
 						</td>
 						<td
 							v-else
 							class="weapon-stat-data"
 						>
-							-- 
+							--
 						</td>
 					</tr>
 					<tr>
 						<td class="weapon-stat-label">Max Dmg</td>
-						<td class="weapon-stat-data">{{ DmgMax }}</td>
+						<td class="weapon-stat-data">{{ dmgMax }}</td>
 						<td class="weapon-stat-label">Ammo</td>
-						<td class="weapon-stat-data">{{ Ammo }}</td>
+						<td class="weapon-stat-data">{{ ammo }}</td>
 						<td class="weapon-stat-label">Duration</td>
 						<td
-							v-if="Duration"
+							v-if="duration"
 							class="weapon-stat-data"
 						>
-							{{ Duration }} rounds
+							{{ duration }} rounds
 						</td>
 						<td
 							v-else
 							class="weapon-stat-data"
 						>
-							-- 
+							--
 						</td>
 					</tr>
 					<tr>
 						<td class="weapon-stat-label">Attack Type</td>
-						<td class="weapon-stat-data">{{ AttackType }}</td>
+						<td class="weapon-stat-data">{{ attackType }}</td>
 						<td class="weapon-stat-label">Magazine</td>
-						<td class="weapon-stat-data">{{ AmmoCapacity }} {{ AmmoType }}</td>
+						<td class="weapon-stat-data">{{ ammoCapacity }} {{ ammoType }}</td>
 						<td class="weapon-stat-label">Handed</td>
-						<td class="weapon-stat-data">{{ Handed }}-handed</td>
+						<td class="weapon-stat-data">{{ handed }}-handed</td>
 					</tr>
 				</tbody>
 			</table>
 			<div class="weapon-perks">
-				<pre>{{ Perks?.split('), ').map((item) => item + ')') }}</pre>
+				<pre>{{ perks?.split('), ').map((item) => item + ')') }}</pre>
 			</div>
 			<div
 				class="flavortext"
-				v-if="Flavortext"
+				v-if="flavortext"
 			>
-				{{ Flavortext }}
+				{{ flavortext }}
 			</div>
-			<div class="weapon-footer"></div>
+			<div class="weapon-footer">
+				<span
+					v-if="equipped"
+					class="is-equipped"
+					>CURRENTLY EQUIPPED</span
+				>
+			</div>
 		</div>
-	</div>
+	</label>
 </template>
 <style scoped>
 .weapon-row {
+	display: block;
 	font-size: 0.9em;
 	margin: 0.5em auto;
 	max-width: 40em;
 	background-blend-mode: multiply;
-	/* background-color: #555; */
-	/* border: 2px solid #fffa; */
+	border: 2px solid #fff0;
+}
+.weapon-row.equipped {
+	border-color: #ffff;
 }
 .gun-icon {
 	font-size: 1.9em;
@@ -351,6 +372,9 @@ h2 {
 .weapon-titles {
 	display: flex;
 	flex-grow: 1;
+}
+.weapon-titles input[type='checkbox'] {
+	visibility: collapse;
 }
 .action-buttons {
 	flex-shrink: 0;
@@ -434,6 +458,11 @@ h2 {
 	padding: 0.2em;
 	padding-bottom: 0;
 	background: #000a;
+	text-align: right;
+	color: #000a;
+}
+.equipped .weapon-footer {
+	background: #fff;
 }
 .kinetic-icon {
 	width: 1em;
