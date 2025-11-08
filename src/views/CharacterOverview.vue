@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
-import { onBeforeUnmount } from 'vue';
 import router from '@/router/index.ts';
+import LoadingModal from '@/components/LoadingModal.vue';
+import { computed, onBeforeUnmount } from 'vue';
 type CharacterProps = {
 	characterId: CharacterNames;
 };
@@ -18,8 +19,22 @@ defineProps({
 })
 */
 
-const { character } = useCharacterData(props.characterId);
+const { character, armorLoading, buffsLoading, statsLoading, skillsLoading, weaponsLoading } =
+	useCharacterData(props.characterId);
 const params = { characterId: props.characterId };
+let initialLoadComplete = false;
+const isLoading = computed(() => {
+	const done =
+		armorLoading.value ||
+		buffsLoading.value ||
+		statsLoading.value ||
+		skillsLoading.value ||
+		weaponsLoading.value;
+	if (done === true && initialLoadComplete === false) {
+		initialLoadComplete = true;
+	}
+	return !initialLoadComplete;
+});
 const names = [
 	'characterGameplay',
 	'characterSkills',
@@ -104,10 +119,20 @@ onBeforeUnmount(() => {
 		<div v-if="!character">
 			<h1>Invalid character ID: {{ characterId }}</h1>
 		</div>
-		<router-view
-			v-else
-			class="content"
-		/>
+		<div v-else>
+			<div v-if="isLoading">
+				<div>Armor loading… <span v-if="armorLoading">…done!</span></div>
+				<div>Buffs loading… <span v-if="buffsLoading">…done!</span></div>
+				<div>Stats loading… <span v-if="statsLoading">…done!</span></div>
+				<div>Skills loading… <span v-if="skillsLoading">…done!</span></div>
+				<div>Weapons loading… <span v-if="weaponsLoading">…done!</span></div>
+				<LoadingModal />
+			</div>
+			<router-view
+				v-else
+				class="content"
+			/>
+		</div>
 	</div>
 </template>
 <style>

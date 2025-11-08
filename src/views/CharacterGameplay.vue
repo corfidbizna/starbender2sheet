@@ -9,11 +9,13 @@ import useCharacterData, {
 	type StatsCalculatedKey,
 	type SkillKey,
 	skillsInfoMap,
+	type Weapon,
 } from '@/composables/useCharacterData';
 import StatBarsBox from '@/components/StatBarsBox.vue';
 import LoadingModal from '@/components/LoadingModal.vue';
 import StatCapacityBox from '@/components/StatCapacityBox.vue';
 import CapacityBar from '@/components/CapacityBar.vue';
+import WeaponItemRow from '@/components/WeaponItemRow.vue';
 import { actionLog } from '@/sharedState';
 type CharacterProps = {
 	characterId: string;
@@ -25,6 +27,10 @@ const {
 	buffsTallied,
 	statsBase,
 	stats,
+	weapons,
+	weaponsLoading,
+	namesOfEquippedWeapons,
+	namesOfActiveWeapons,
 	actionResources,
 	getFinalStat,
 	statsLoading,
@@ -137,6 +143,9 @@ const ammoCapacity = computed<CapacityBoxStatField[]>(() => {
 			current: actionResources.value.ammoHeavy,
 		},
 	];
+});
+const equippedWeapons = computed<Weapon[]>(() => {
+	return weapons.value.filter((weapon) => namesOfEquippedWeapons.value.includes(weapon.name));
 });
 const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 	return [
@@ -309,6 +318,16 @@ const encumberanceColor = computed<string>(() => {
 								:characterId="characterId"
 							/>
 						</div>
+						<pre>{{ namesOfActiveWeapons.join('\n') }}</pre>
+						<div v-if="!weaponsLoading">
+							<WeaponItemRow
+								v-for="weapon in equippedWeapons"
+								:key="weapon.name"
+								v-bind="weapon"
+								:characterId="characterId"
+								:activatable="true"
+							/>
+						</div>
 					</div>
 					<div class="ability-block">
 						<StatCapacityBox
@@ -355,7 +374,7 @@ const encumberanceColor = computed<string>(() => {
 }
 /* */
 .primary-block {
-	width: 800px;
+	width: 1000px;
 	display: inline-block;
 	vertical-align: top;
 }

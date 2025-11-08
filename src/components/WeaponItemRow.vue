@@ -10,10 +10,9 @@ import svgAmmoHeavy from '@/assets/svgs/ammo_heavy.svg?url';
 import iconKinetic from '@/assets/svgs/Kenetic.svg?url';
 import { computed, ref } from 'vue';
 
-const props = defineProps<Weapon & { characterId: string }>();
-const { weaponAmmoUpdate, namesOfEquippedWeapons, buffsTallied, stats } = useCharacterData(
-	props.characterId,
-);
+const props = defineProps<Weapon & { characterId: string; activatable?: boolean }>();
+const { weaponAmmoUpdate, namesOfEquippedWeapons, namesOfActiveWeapons, buffsTallied, stats } =
+	useCharacterData(props.characterId);
 const getCritDisplay = (): string => {
 	if (!props.critRange) {
 		return '--';
@@ -162,7 +161,11 @@ const reload = () => {
 <template>
 	<label
 		class="weapon-row"
-		:class="equipped ? 'equipped' : ''"
+		:class="
+			(equipped && !activatable ? 'equipped' : '') +
+			' ' +
+			(active && activatable ? 'equipped' : '')
+		"
 		:for="name + '-equip'"
 	>
 		<div
@@ -172,6 +175,14 @@ const reload = () => {
 		>
 			<div class="weapon-titles">
 				<input
+					v-if="activatable"
+					type="checkbox"
+					:id="name + '-equip'"
+					:value="name"
+					v-model="namesOfActiveWeapons"
+				/>
+				<input
+					v-else
 					type="checkbox"
 					:id="name + '-equip'"
 					:value="name"
@@ -300,7 +311,7 @@ const reload = () => {
 				</tbody>
 			</table>
 			<div class="weapon-perks">
-				<pre>{{ perks?.split('), ').map((item) => item + ')') }}</pre>
+				<pre>{{ perks?.split(', ') }}</pre>
 			</div>
 			<div
 				class="flavortext"
@@ -310,9 +321,14 @@ const reload = () => {
 			</div>
 			<div class="weapon-footer">
 				<span
-					v-if="equipped"
+					v-if="equipped && !activatable"
 					class="is-equipped"
 					>CURRENTLY EQUIPPED</span
+				>
+				<span
+					v-else-if="active"
+					class="is-equipped"
+					>CURRENTLY ACTIVE</span
 				>
 			</div>
 		</div>
@@ -329,6 +345,9 @@ const reload = () => {
 }
 .weapon-row.equipped {
 	border-color: #ffff;
+}
+.weapon-row.disabled {
+	opacity: 0.5;
 }
 .gun-icon {
 	font-size: 1.9em;

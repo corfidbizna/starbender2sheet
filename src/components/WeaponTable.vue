@@ -11,6 +11,7 @@ import WeaponItemRow from './WeaponItemRow.vue';
 import LoadingModal from './LoadingModal.vue';
 import useFilter from '@/composables/useFilter';
 import { computed, ref } from 'vue';
+import CapacityBar from './CapacityBar.vue';
 
 const sortList: Record<string, string> = {
 	// Dropdown Option: statKey,
@@ -30,7 +31,7 @@ const toggleSortAscending = () => {
 const props = defineProps<{
 	characterId: CharacterNames;
 }>();
-const { weapons, weaponsLoading, namesOfEquippedWeapons, weaponsRefresh } = useCharacterData(
+const { weapons, weaponsLoading, weaponsRefresh, getFinalStat } = useCharacterData(
 	props.characterId,
 );
 const sortedWeapons = computed<Weapon[]>(() => {
@@ -71,8 +72,23 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 	<div class="weapon-tab-container">
 		<span class="weapon-infos">
 			<button @click="weaponsRefresh">Reload Weapons</button>
-			<h2>Equipped Weapons</h2>
-			<pre>{{ namesOfEquippedWeapons.join('\n') }}</pre>
+			<h2>Weapon Slots</h2>
+			<span style="display: flex">
+				<span style="flex-grow: 1; display: inline-block">
+					<CapacityBar
+						v-bind="{
+							max: getFinalStat('slotsWeapon'),
+							current: getFinalStat('slotsWeaponUsed'),
+							color: '#fff',
+						}"
+					/>
+				</span>
+				<span
+					>{{ getFinalStat('slotsWeaponUsed') }}&nbsp;⁄&nbsp;{{
+						getFinalStat('slotsWeapon')
+					}}</span
+				>
+			</span>
 			<h2>Filter</h2>
 			<div class="search">
 				<label>

@@ -364,8 +364,9 @@ export type StatsCalculated = {
 	equipArmorExotic: number;
 	//
 	slotsWeapon: number;
-	equipWeapon: number;
+	slotsWeaponUsed: number;
 	hands: number;
+	handsUsed: number;
 	//
 	equipAspects: number;
 	equipFragments: number;
@@ -524,8 +525,9 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	equipArmorFull: 'Full Armor Equipment',
 	equipArmorExotic: 'Exotic Equipment',
 	slotsWeapon: 'Weapon Slots',
-	equipWeapon: 'Active Weapons',
+	slotsWeaponUsed: 'Weapons Equipped',
 	hands: 'Hands',
+	handsUsed: 'Hands Used',
 	equipAspects: 'Aspect Slots',
 	equipFragments: 'Fragment Slots',
 	capacityArmorCharge: 'Max Armor Charge',
@@ -610,6 +612,13 @@ export const labelToStatName: Record<string, string> = {};
 Object.entries(labelMap).forEach(
 	([stat, label]) => (labelToStatName[label.toLocaleLowerCase()] = stat),
 );
+export const makeEmptyStats = () => {
+	const result: Record<string, number> = {};
+	Object.keys(labelToStatName).forEach((key) => {
+		result[key] = 0;
+	});
+	return result as Record<StatsCalculatedKey, number>;
+};
 export const statsDistribute = (source: StatsCalculated) => {
 	source.str = Math.floor((source.strScore - 10) / 2);
 	source.dex = Math.floor((source.dexScore - 10) / 2);
@@ -1088,12 +1097,14 @@ export type ImportedWeapon = {
 	rarity: Rarity;
 	element: Element;
 	weaponClass: WeaponClasses;
+	slots: number;
 	attackType: string;
 	hitType: string;
 	hitBonus?: number;
 	critRange?: number;
 	critMult?: number;
 	damage: string;
+	damagePrecision?: string;
 	damageType: Element;
 	rangeType: string;
 	range: number;
@@ -1105,6 +1116,7 @@ export type ImportedWeapon = {
 	ammoCapacity: number;
 	ammoType: string;
 	isMagic: boolean;
+	ranks?: number;
 	buffsEquipped?: string;
 	buffsActive?: string;
 	perks?: string;
@@ -1287,6 +1299,7 @@ function useCharacterDataUncached(characterId: string) {
 		const result = [
 			...filteredPartyBuffs,
 			...playerBuffs.value,
+			...weaponsAsBuffs.value,
 			...armorsAsBuffs.value,
 			...artifactAsBuffs.value,
 		];
@@ -1324,6 +1337,8 @@ function useCharacterDataUncached(characterId: string) {
 	const activatedPartyBuffs = computed<BuffInfo[]>(() => {
 		const addThese = [
 			...namesOfActivatedBuffs.value,
+			...namesOfEquippedWeapons.value.map((weapon) => weapon + ' (Equipped)'),
+			...namesOfActiveWeapons.value.map((weapon) => weapon + ' (Active)'),
 			...namesOfEquippedArmor.value,
 			...namesOfActiveArmor.value,
 			...namesOfActiveArtifactMods.value,
@@ -1395,6 +1410,9 @@ function useCharacterDataUncached(characterId: string) {
 		return filteredWeapons.map((weapon) => {
 			const damageBonus = computed<number>(() => {
 				let result = 0;
+				if (buffsTallied.value === undefined) {
+					return result;
+				}
 				if (weapon.rangeType === 'Melee') {
 					result += getFinalStat('damageMelee');
 				} else if (weapon.rangeType === 'Ranged') {
@@ -1442,6 +1460,49 @@ function useCharacterDataUncached(characterId: string) {
 	};
 	const namesOfEquippedWeapons = ref<string[]>([]);
 	const namesOfActiveWeapons = ref<string[]>([]);
+	const weaponsAsBuffs = computed<BuffInfo[]>(() => {
+		// using the weapons computed from above causes a cyclic dependency,
+		// thankfully we don't need those buffs, or even character filtering here.
+		const weapons = weaponsForFiltering;
+		if (!namesOfEquippedWeapons.value.length && !namesOfActiveWeapons.value.length) {
+			return [];
+		}
+		const resultEquipped = weapons.value
+			.filter((weapon) => namesOfEquippedWeapons.value.includes(weapon.name))
+			.map((weapon) => {
+				const buffString =
+					'Weapons Equipped +' +
+					weapon.slots +
+					(weapon.buffsEquipped !== undefined ? ', ' + weapon.buffsEquipped : '');
+				const newBuff: BuffInfo = {
+					name: weapon.name + ' (Equipped)',
+					type: 'Buff',
+					category: 'Misc',
+					stacks: 0,
+					effects: buffString || '',
+					active: true,
+				};
+				return newBuff;
+			});
+		const resultActive = weapons.value
+			.filter((weapon) => namesOfActiveWeapons.value.includes(weapon.name))
+			.map((weapon) => {
+				const buffString =
+					'Hands Used +' +
+					weapon.handed +
+					(weapon.buffsActive !== undefined ? ', ' + weapon.buffsEquipped : '');
+				const newBuff: BuffInfo = {
+					name: weapon.name + ' (Active)',
+					type: 'Buff',
+					category: 'Misc',
+					stacks: 0,
+					effects: buffString || '',
+					active: true,
+				};
+				return newBuff;
+			});
+		return [...resultEquipped, ...resultActive];
+	});
 	type WeaponSlot = 'a' | 'b' | 'c';
 	const weaponSlots = ref<Record<WeaponSlot, string>>({
 		a: '',
@@ -1734,8 +1795,9 @@ function useCharacterDataUncached(characterId: string) {
 			equipArmorFull: 0,
 			equipArmorExotic: 0,
 			slotsWeapon: 3,
-			equipWeapon: 1,
+			slotsWeaponUsed: 0,
 			hands: 2,
+			handsUsed: 0,
 			equipAspects: 0,
 			equipFragments: 0,
 			slotsAspects: 0,
