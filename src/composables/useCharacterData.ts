@@ -693,6 +693,7 @@ export type CapacityBoxStatField = {
 	label: string;
 	stat: string;
 	color?: string;
+	colorMax?: string;
 	hovertext?: string;
 	max: number;
 	current: number;
@@ -725,6 +726,10 @@ export const makeComputedOfStats = (
 
 // The type and destination of character stats that describe "capacities" rather than straight-up values.
 export type ActionResource = {
+	turns: number;
+	health: number;
+	shields: number;
+	//
 	actionMoves: number;
 	actionAttacks: number;
 	actionReactions: number;
@@ -739,6 +744,7 @@ export type ActionResource = {
 	energyUniversal: number;
 	armorCharges: number;
 };
+export type ActionResourceKey = keyof ActionResource;
 
 //
 export const makeComputedOfCapacities = (

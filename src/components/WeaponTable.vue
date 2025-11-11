@@ -73,7 +73,15 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 		<span class="weapon-infos">
 			<button @click="weaponsRefresh">Reload Weapons</button>
 			<h2>Weapon Slots</h2>
-			<span style="display: flex">
+			<span
+				style="display: flex; align-items: center"
+				:style="
+					getFinalStat('slotsWeaponUsed') > getFinalStat('slotsWeapon')
+						? 'color: #f66'
+						: ''
+				"
+			>
+				<span>Used </span>
 				<span style="flex-grow: 1; display: inline-block">
 					<CapacityBar
 						v-bind="{
@@ -84,7 +92,7 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 					/>
 				</span>
 				<span
-					>{{ getFinalStat('slotsWeaponUsed') }}&nbsp;⁄&nbsp;{{
+					> {{ getFinalStat('slotsWeaponUsed') }} ⁄ {{
 						getFinalStat('slotsWeapon')
 					}}</span
 				>

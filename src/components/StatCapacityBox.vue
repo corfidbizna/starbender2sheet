@@ -49,6 +49,7 @@ const refillAll = () => {
 							max: stat.max,
 							current: stat.current || 0,
 							color: stat.color || '#eee',
+							colorFull: stat.colorMax,
 						}"
 					/>
 				</td>

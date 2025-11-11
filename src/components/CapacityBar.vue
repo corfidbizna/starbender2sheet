@@ -5,11 +5,17 @@ type CapacityBarInfo = {
 	max: number;
 	current: number;
 	color: string;
+	colorFull?: string;
 	min?: number;
 };
 const props = defineProps<CapacityBarInfo>();
 const range = computed<number>(() => props.max - (props.min || 0));
-const color = computed<string>(() => props.color || '#f0f');
+const color = computed<string>(() => {
+	if (!!props.colorFull && progress.value >= 100) {
+		return props.colorFull || '#f0f';
+	}
+	return props.color || '#f0f';
+});
 const progress = computed<number>(() =>
 	Math.min(100, Math.max(0, (100 * (props.current - (props.min || 0))) / range.value)),
 );
@@ -26,7 +32,7 @@ const progress = computed<number>(() =>
 		<span class="line"></span>
 		<span
 			class="remaining"
-			:style="'width: calc(' + (100 - progress) + '% - 2px);'"
+			:style="'width: calc(' + (100 - progress) + '% - ' + (progress === 0 ? 2 : 0) + 'px);'"
 		></span>
 	</span>
 	<span
@@ -45,7 +51,9 @@ const progress = computed<number>(() =>
 .bar,
 .remaining,
 .line {
-	transition: width 0.15s;
+	transition:
+		width 0.15s,
+		background-color 0.075s;
 }
 .bar,
 .remaining {

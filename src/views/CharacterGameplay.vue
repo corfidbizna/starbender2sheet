@@ -153,6 +153,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 			label: 'Super',
 			stat: 'energySuper',
 			color: subclassColor.value,
+			colorMax: '#ff6',
 			max: getFinalStat('energySuper'),
 			current: actionResources.value.energySuper,
 		},
