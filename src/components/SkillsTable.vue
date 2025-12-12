@@ -108,6 +108,7 @@ const rollStat = (label: string, value: number) => {
 						<tr
 							v-for="skill in filteredData.includes"
 							:key="skill.name"
+							class="skill-row"
 						>
 							<td class="name">{{ skill.name }}</td>
 							<td class="bar">
@@ -125,7 +126,7 @@ const rollStat = (label: string, value: number) => {
 						<tr
 							v-for="skill in filteredData.excludes"
 							:key="skill.name"
-							class="filtered"
+							class="skill-row filtered"
 						>
 							<td class="name">{{ skill.name }}</td>
 							<td class="bar">
@@ -186,10 +187,16 @@ const rollStat = (label: string, value: number) => {
 tbody tr:nth-child(2n) {
 	background-color: #00000004;
 }
+.skill-row {
+	transition: background-color 0.1s;
+}
+.skill-row:hover {
+	background-color: #fff4;
+}
 .name {
 	max-width: fit-content;
 	padding-left: 1em;
-	white-space: nowrap;
+	/* white-space: nowrap; */
 }
 tbody .bar {
 	width: 10em;

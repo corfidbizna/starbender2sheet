@@ -30,7 +30,6 @@ const {
 	weapons,
 	weaponsLoading,
 	namesOfEquippedWeapons,
-	namesOfActiveWeapons,
 	actionResources,
 	getFinalStat,
 	statsLoading,
@@ -310,16 +309,42 @@ const encumberanceColor = computed<string>(() => {
 				</div>
 				<div class="bottom-block">
 					<div class="weapon-block">
-						<div>
+						<div style="display: flex">
 							<StatCapacityBox
 								v-bind="{
 									label: 'Ammo',
 									data: ammoCapacity,
 								}"
 								:characterId="characterId"
+								style="width: 55%"
 							/>
+							<div style="width: 45%; margin-left: 1em">
+								<StatCapacityBox
+									v-bind="{
+										label: 'Weapons',
+										data: [
+											{
+												label: 'Equipped',
+												stat: '',
+												color: '#eee',
+												max: getFinalStat('slotsWeapon'),
+												current: getFinalStat('slotsWeaponUsed'),
+											},
+											{
+												label: 'Hands Used',
+												stat: '',
+												color: '#eee',
+												max: getFinalStat('hands'),
+												current: getFinalStat('handsUsed'),
+											},
+										],
+										hideRefillAll: true,
+										noInteract: true,
+									}"
+									:characterId="characterId"
+								/>
+							</div>
 						</div>
-						<pre>{{ namesOfActiveWeapons.join('\n') }}</pre>
 						<div v-if="!weaponsLoading">
 							<WeaponItemRow
 								v-for="weapon in equippedWeapons"

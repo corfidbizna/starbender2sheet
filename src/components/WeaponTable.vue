@@ -87,7 +87,7 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 						v-bind="{
 							max: getFinalStat('slotsWeapon'),
 							current: getFinalStat('slotsWeaponUsed'),
-							color: '#fff',
+							color: '#eee',
 						}"
 					/>
 				</span>

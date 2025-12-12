@@ -57,9 +57,27 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 		label: 'Aurora',
 		documentId: '12vonRcFzriWY5AjLmueqbjd6DCQCJpqiLJkDpZEDgNU',
 		sheets: {
-			skills: '544688264',
+			skills: '392143893',
 			variables: '1217161183',
-			buffs: '-1',
+			buffs: '900669394',
+		},
+	},
+	mark: {
+		label: 'Mark',
+		documentId: '1sa9fdn6xgqjoClBUKJ1n2yZRoR5cevaK4YWwq1x2v10',
+		sheets: {
+			skills: '1502753776',
+			variables: '769576778',
+			buffs: '919733175',
+		},
+	},
+	lewis: {
+		label: 'Lewis Reed',
+		documentId: '1Emn-t1tU1Ugztb3Q0PqHO6gBEcuujWP-hTYEZHzdtKc',
+		sheets: {
+			skills: '1546065139',
+			variables: '625235028',
+			buffs: '858793392',
 		},
 	},
 };
@@ -688,6 +706,7 @@ export type CapacityBoxInfo = {
 	label: string;
 	data: CapacityBoxStatField[];
 	hideRefillAll?: boolean;
+	noInteract?: boolean;
 };
 export type CapacityBoxStatField = {
 	label: string;
@@ -791,17 +810,30 @@ export type Skill = {
 	int: number;
 	appraise: number;
 	craft: number;
+	craftCooking: number;
+	craftElectronic: number;
+	craftExplosives: number;
+	craftMechanical: number;
+	craftSculpture: number;
 	knowledge: number;
+	knowledgeAgriculture: number;
 	knowledgeArcana: number;
+	knowledgeAll: number;
+	knowledgeBiologyNature: number;
 	knowledgeDungeoneering: number;
 	knowledgeEngineering: number;
+	knowledgeFinance: number;
 	knowledgeGeography: number;
 	knowledgeHistory: number;
 	knowledgeLocal: number;
 	knowledgeNature: number;
 	knowledgeNobility: number;
+	knowledgePhysicalEdHealthNutrition: number;
+	knowledgePhysicalSciEngineering: number;
 	knowledgePlanes: number;
 	knowledgeReligion: number;
+	knowledgeTactics: number;
+	knowledgeTechnology: number;
 	linguistics: number;
 	spellcraft: number;
 	// Wis Skills
@@ -809,6 +841,10 @@ export type Skill = {
 	heal: number;
 	perception: number;
 	profession: number;
+	professionAdmin: number;
+	professionAll: number;
+	professionGuard: number;
+	professionTeacher: number;
 	senseMotive: number;
 	survival: number;
 	// Cha Skills
@@ -819,6 +855,7 @@ export type Skill = {
 	handleAnimal: number;
 	intimidate: number;
 	perform: number;
+	performSingingAndDancing: number;
 	useMagicDevice: number;
 	//
 };
@@ -838,12 +875,12 @@ export const skillsInfoMap: Record<SkillKey, Record<string, string>> = {
 	climb: {
 		label: 'Climb',
 		baseStat: 'str',
-		description: 'Climb Surfaces, Catch from falling',
+		description: 'Climb, Make Handholds, Catch Yourself',
 	},
 	swim: {
 		label: 'Swim',
 		baseStat: 'str',
-		description: 'text',
+		description: 'Swim at half Speed',
 	},
 	// Dex Skills
 	dex: {
@@ -854,37 +891,38 @@ export const skillsInfoMap: Record<SkillKey, Record<string, string>> = {
 	acrobatics: {
 		label: 'Acrobatics',
 		baseStat: 'dex',
-		description: 'text',
+		description:
+			'Cross Narrow Surfaces/Uneven Ground, Move Through Threatened Squares, Jumping and Falling',
 	},
 	disableDevice: {
 		label: 'Disable Device',
 		baseStat: 'dex',
-		description: 'text',
+		description: 'Disarm Device, Open Lock, Sabotage Mechanical Item',
 	},
 	escapeArtist: {
 		label: 'Escape Artist',
 		baseStat: 'dex',
-		description: 'text',
+		description: 'slip bonds, escape grapples, Move Through Tight Space',
 	},
 	fly: {
 		label: 'Fly',
 		baseStat: 'dex',
-		description: 'text',
+		description: 'Tight Turns, Avoid Falls, Handle Wind',
 	},
 	ride: {
 		label: 'Ride',
 		baseStat: 'dex',
-		description: 'text',
+		description: 'Do special manuvers, Tricks, or actions, Ride, Drive, Pilot',
 	},
 	sleightOfHand: {
 		label: 'Sleight of Hand',
 		baseStat: 'dex',
-		description: 'text',
+		description: 'Take Something Unnoticed, Hide or Retrieve an Object, Entertain',
 	},
 	stealth: {
 		label: 'Stealth',
 		baseStat: 'dex',
-		description: 'text',
+		description: 'Hide',
 	},
 	// Con Skills
 	con: {
@@ -906,77 +944,142 @@ export const skillsInfoMap: Record<SkillKey, Record<string, string>> = {
 	appraise: {
 		label: 'Appraise',
 		baseStat: 'int',
-		description: 'text',
+		description: 'Appraise Value of Item, Identify its properties',
 	},
 	craft: {
 		label: 'Craft',
 		baseStat: 'int',
-		description: 'text',
+		description: 'Practice a Trade, Make Something, Identify properties of your craft',
+	},
+	craftCooking: {
+		label: 'Craft (Cooking)',
+		baseStat: 'int',
+		description: 'Practice a Trade, Make Something, Identify properties of your craft',
+	},
+	craftElectronic: {
+		label: 'Craft (Electronic)',
+		baseStat: 'int',
+		description: 'Practice a Trade, Make Something, Identify properties of your craft',
+	},
+	craftExplosives: {
+		label: 'Craft (Explosives)',
+		baseStat: 'int',
+		description: 'Practice a Trade, Make Something, Identify properties of your craft',
+	},
+	craftMechanical: {
+		label: 'Craft (Mechanical)',
+		baseStat: 'int',
+		description: 'Practice a Trade, Make Something, Identify properties of your craft',
+	},
+	craftSculpture: {
+		label: 'Craft (Sculpture)',
+		baseStat: 'int',
+		description: 'Practice a Trade, Make Something, Identify properties of your craft',
 	},
 	knowledge: {
 		label: 'Knowledge',
 		baseStat: 'int',
-		description: 'text',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeAll: {
+		label: 'Knowledge (All)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeAgriculture: {
+		label: 'Knowledge (Agriculture)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
 	},
 	knowledgeArcana: {
 		label: 'Knowledge (Arcana)',
 		baseStat: 'int',
-		description: 'text',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeBiologyNature: {
+		label: 'Knowledge (Biology & Nature)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
 	},
 	knowledgeDungeoneering: {
 		label: 'Knowledge (Dungeoneering)',
 		baseStat: 'int',
-		description: 'text',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
 	},
 	knowledgeEngineering: {
 		label: 'Knowledge (Engineering)',
 		baseStat: 'int',
-		description: 'text',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeFinance: {
+		label: 'Knowledge (Finance)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
 	},
 	knowledgeGeography: {
 		label: 'Knowledge (Geography)',
 		baseStat: 'int',
-		description: 'text',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
 	},
 	knowledgeHistory: {
 		label: 'Knowledge (History)',
 		baseStat: 'int',
-		description: 'text',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
 	},
 	knowledgeLocal: {
 		label: 'Knowledge (Local)',
 		baseStat: 'int',
-		description: 'text',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
 	},
 	knowledgeNature: {
 		label: 'Knowledge (Nature)',
 		baseStat: 'int',
-		description: 'text',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
 	},
 	knowledgeNobility: {
 		label: 'Knowledge (Nobility)',
 		baseStat: 'int',
-		description: 'text',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgePhysicalEdHealthNutrition: {
+		label: 'Knowledge (Physical Ed & Health & Nutrition)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgePhysicalSciEngineering: {
+		label: 'Knowledge (Physical Sci & Engeneering)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
 	},
 	knowledgePlanes: {
 		label: 'Knowledge (Planes)',
 		baseStat: 'int',
-		description: 'text',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
 	},
 	knowledgeReligion: {
 		label: 'Knowledge (Religion)',
 		baseStat: 'int',
-		description: 'text',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeTactics: {
+		label: 'Knowledge (Tactics)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeTechnology: {
+		label: 'Knowledge (Technology)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
 	},
 	linguistics: {
 		label: 'Linguistics',
 		baseStat: 'int',
-		description: 'text',
+		description: 'Decypher Language, Create or Detect Forgeries, Codes and Cyphers',
 	},
 	spellcraft: {
 		label: 'Spellcraft',
 		baseStat: 'int',
-		description: 'text',
+		description: 'Identify Spell, Determine Properties of Magic item',
 	},
 	// Wis Skills
 	wis: {
@@ -987,27 +1090,47 @@ export const skillsInfoMap: Record<SkillKey, Record<string, string>> = {
 	heal: {
 		label: 'Heal',
 		baseStat: 'wis',
-		description: 'text',
+		description: 'Treat ailment, Identify drugs',
 	},
 	perception: {
 		label: 'Perception',
 		baseStat: 'wis',
-		description: 'text',
+		description: 'Notice Something',
 	},
 	profession: {
 		label: 'Profession',
 		baseStat: 'wis',
-		description: 'text',
+		description: 'Earn a Living, Complete Tasks',
+	},
+	professionAdmin: {
+		label: 'Profession (Admin)',
+		baseStat: 'wis',
+		description: 'Earn a Living, Complete Tasks',
+	},
+	professionAll: {
+		label: 'Profession (All)',
+		baseStat: 'wis',
+		description: 'Earn a Living, Complete Tasks',
+	},
+	professionGuard: {
+		label: 'Profession (Guard)',
+		baseStat: 'wis',
+		description: 'Earn a Living, Complete Tasks',
+	},
+	professionTeacher: {
+		label: 'Profession (Teacher)',
+		baseStat: 'wis',
+		description: 'Earn a Living, Complete Tasks',
 	},
 	senseMotive: {
 		label: 'Sense Motive',
 		baseStat: 'wis',
-		description: 'text',
+		description: 'Hunch, Sense Enchantment, Discern Secret Message',
 	},
 	survival: {
 		label: 'Survival',
 		baseStat: 'wis',
-		description: 'text',
+		description: 'Tracking, Find your way, Avoid Hazards',
 	},
 	// Cha Skills
 	cha: {
@@ -1018,37 +1141,43 @@ export const skillsInfoMap: Record<SkillKey, Record<string, string>> = {
 	bluff: {
 		label: 'Bluff',
 		baseStat: 'cha',
-		description: 'text',
+		description:
+			'Deceive or Lie, Convey Secret Message, Feint or Diversions in Combat, Suggest an Action',
 	},
 	diplomacy: {
 		label: 'Diplomacy',
 		baseStat: 'cha',
-		description: 'text',
+		description: 'Influence Attitude, Gather Information, Make Request, Suggest an Action',
 	},
 	disguise: {
 		label: 'Disguise',
 		baseStat: 'cha',
-		description: 'text',
+		description: 'change your appearance',
 	},
 	handleAnimal: {
 		label: 'Handle Animal',
 		baseStat: 'cha',
-		description: 'text',
+		description: 'teach tricks, Give Commandes, Tame',
 	},
 	intimidate: {
 		label: 'Intimidate',
 		baseStat: 'cha',
-		description: 'text',
+		description: 'Demoralize, Influence, Coerce',
 	},
 	perform: {
 		label: 'Perform',
 		baseStat: 'cha',
-		description: 'text',
+		description: 'Entertain, Inspire, Destract, Earn Money',
+	},
+	performSingingAndDancing: {
+		label: 'Perform (Singing and Dancing)',
+		baseStat: 'cha',
+		description: 'Entertain, Inspire, Destract, Earn Money',
 	},
 	useMagicDevice: {
 		label: 'Use Magic Device',
 		baseStat: 'cha',
-		description: 'text',
+		description: 'Activate magical Device, Cause Mishap',
 	},
 	//
 };
@@ -1266,6 +1395,10 @@ function useCharacterDataUncached(characterId: string) {
 		const skillList = Object.keys(skillsThatNeedToBeFiltered.value[0]);
 		for (let i = 0; i < skillList.length; i++) {
 			const skill = skillList[i];
+			// const skillShortName = skill
+			// 	.toLocaleLowerCase()
+			// 	.slice(0, skill.indexOf('(') < 0 ? skill.length : skill.indexOf('('))
+			// 	.trim();
 			const skillKey = labelToSkillName[skill.toLocaleLowerCase()] as SkillKey;
 			if (skillKey === undefined) {
 				console.warn("Couldn't find the skill " + skill);
@@ -1562,6 +1695,12 @@ function useCharacterDataUncached(characterId: string) {
 		return filteredArmors.map((item) => {
 			if (item.stacks === undefined) {
 				item.stacks = 0;
+			}
+			if (item.rarity === undefined) {
+				item.rarity = 'Common';
+			}
+			if (item.coverage === undefined) {
+				item.coverage = (item.slots || '').match(/^[A-Za-z]+ /)?.join('') || '';
 			}
 			//
 			if (namesOfEquippedArmor.value.includes(item.name + ' (Equipped)')) {

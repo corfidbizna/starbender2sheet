@@ -22,7 +22,7 @@ const refillAll = () => {
 </script>
 <template>
 	<table class="stat-box-table">
-		<caption>
+		<caption v-if="label !== ''">
 			<h2>
 				<span
 					v-if="props.label"
@@ -63,7 +63,10 @@ const refillAll = () => {
 				<td class="capacity">{{ stat.current || 0 }}</td>
 				<td class="divider">⁄</td>
 				<td class="capacity">{{ stat.max }}</td>
-				<td class="increment-container">
+				<td
+					v-if="!noInteract"
+					class="increment-container"
+				>
 					<button
 						class="increment-button"
 						@click="actionResourceUpdate(stat.stat as keyof ActionResource, -1)"
@@ -77,7 +80,7 @@ const refillAll = () => {
 						<span> + </span>
 					</button>
 				</td>
-				<td>
+				<td v-if="!noInteract">
 					<button
 						@click="
 							actionResourceUpdate(
