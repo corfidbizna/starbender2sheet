@@ -336,6 +336,20 @@ export const buffsDistribute = (buffs: CharacterBuffSummary, stats: StatsCalcula
 			distributeAdditive('armorDeflection', ['ac', 'acFF', 'acTouch', 'acFFTouch'], stats);
 		} else if (name === 'armorDodge') {
 			distributeAdditive('armorDodge', ['ac', 'acTouch'], stats);
+		} else if (name === 'hpShieldKinetic') {
+			distributeAdditive('hpShieldKinetic', ['hpShieldMax'], stats);
+		} else if (name === 'hpShieldSolar') {
+			distributeAdditive('hpShieldSolar', ['hpShieldMax'], stats);
+		} else if (name === 'hpShieldArc') {
+			distributeAdditive('hpShieldArc', ['hpShieldMax'], stats);
+		} else if (name === 'hpShieldVoid') {
+			distributeAdditive('hpShieldVoid', ['hpShieldMax'], stats);
+		} else if (name === 'hpShieldStasis') {
+			distributeAdditive('hpShieldStasis', ['hpShieldMax'], stats);
+		} else if (name === 'hpShieldStrand') {
+			distributeAdditive('hpShieldStrand', ['hpShieldMax'], stats);
+		} else if (name === 'hpShieldPrismatic') {
+			distributeAdditive('hpShieldPrismatic', ['hpShieldMax'], stats);
 		} else if (name === 'bab') {
 			distributeAdditive('bab', ['toHitMelee', 'toHitRanged', 'toHitSpell'], stats);
 		} else if (name === 'bdb') {

@@ -29,6 +29,8 @@ const glyphMap = {
 	Stasis: '',
 	Strand: '',
 	Prismatic: '',
+	Dark: '',
+	Darkness: '',
 };
 type FontEntries = keyof typeof glyphMap;
 type Glyph = {

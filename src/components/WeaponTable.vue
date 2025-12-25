@@ -47,7 +47,12 @@ const sortedWeapons = computed<Weapon[]>(() => {
 			const diff = rarities[a.rarity] - rarities[b.rarity];
 			return diff * (sortAscending.value ? 1 : -1);
 		} else if (sortKey === 'element') {
-			const diff = elements[a.element] - elements[b.element];
+			const elementList = Object.keys(elements);
+			const elementOrder: Record<string, number> = {};
+			elementList.forEach((item, index) => {
+				elementOrder[item] = index;
+			});
+			const diff = elementOrder[a.element] - elementOrder[b.element];
 			return diff * (sortAscending.value ? 1 : -1);
 		} else {
 			if (aSortKey === undefined || bSortKey === undefined) {

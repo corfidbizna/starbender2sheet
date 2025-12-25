@@ -148,13 +148,13 @@ const columnsToFieldNames = (parsed: GVizSheetResponse): Record<string, unknown>
 
 // Generic Stuff
 export const elements = {
-	Kinetic: 0,
-	Solar: 1,
-	Arc: 2,
-	Void: 3,
-	Stasis: 4,
-	Strand: 5,
-	Prismatic: 6,
+	Kinetic: '#FFFFFF',
+	Solar: '#F16F27',
+	Arc: '#7AECF3',
+	Void: '#B283CC',
+	Stasis: '#4D87FF',
+	Strand: '#35E366',
+	Prismatic: '#FFFFFF',
 };
 export type Element = keyof typeof elements;
 type SizeEffect = {
@@ -424,6 +424,13 @@ export type StatsCalculated = {
 	hpMax: number;
 	hpTempMax: number;
 	hpShieldMax: number;
+	hpShieldKinetic: number;
+	hpShieldSolar: number;
+	hpShieldArc: number;
+	hpShieldVoid: number;
+	hpShieldStasis: number;
+	hpShieldStrand: number;
+	hpShieldPrismatic: number;
 	hpShieldType: number;
 	skillFocus: number;
 	//
@@ -581,6 +588,13 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	hpMax: 'Max HP',
 	hpTempMax: 'Max Temp HP',
 	hpShieldMax: 'Max Shield HP',
+	hpShieldKinetic: 'Kinetic Overshields',
+	hpShieldSolar: 'Solar Overshields',
+	hpShieldArc: 'Arc Overshields',
+	hpShieldVoid: 'Void Overshields',
+	hpShieldStasis: 'Stasis Overshields',
+	hpShieldStrand: 'Strand Overshields',
+	hpShieldPrismatic: 'Prismatic Overshields',
 	hpShieldType: 'Shield Type',
 	skillFocus: 'Skill Focus',
 	energyUniversal: 'Max Universal Energy',
@@ -716,6 +730,7 @@ export type CapacityBoxStatField = {
 	hovertext?: string;
 	max: number;
 	current: number;
+	current2?: number;
 };
 
 //
@@ -1980,6 +1995,13 @@ function useCharacterDataUncached(characterId: string) {
 			hpMax: 0,
 			hpTempMax: 0,
 			hpShieldMax: 0,
+			hpShieldKinetic: 0,
+			hpShieldSolar: 0,
+			hpShieldArc: 0,
+			hpShieldVoid: 0,
+			hpShieldStasis: 0,
+			hpShieldStrand: 0,
+			hpShieldPrismatic: 0,
 			hpShieldType: 0,
 			skillFocus: source.skillFocus,
 			energyUniversal: 0,

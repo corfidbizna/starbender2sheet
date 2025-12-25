@@ -21,6 +21,32 @@ const router = createRouter({
 					name: 'characterGameplay',
 					props: true,
 					component: () => import('../views/CharacterGameplay.vue'),
+					children: [
+						{
+							path: 'weapons',
+							name: 'characterGameplayWeapons',
+							props: true,
+							component: () => import('../views/CharacterGameplayWeapons.vue'),
+						},
+						{
+							path: 'armor',
+							name: 'characterGameplayArmor',
+							props: true,
+							component: () => import('../views/CharacterGameplayArmor.vue'),
+						},
+						{
+							path: 'skills',
+							name: 'characterGameplaySkills',
+							props: true,
+							component: () => import('../views/CharacterGameplaySkills.vue'),
+						},
+						{
+							path: 'buffs',
+							name: 'characterGameplayBuffs',
+							props: true,
+							component: () => import('../views/CharacterGameplayBuffs.vue'),
+						},
+					],
 				},
 				{
 					path: 'skills',
