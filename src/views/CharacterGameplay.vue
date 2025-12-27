@@ -17,7 +17,7 @@ import LoadingModal from '@/components/LoadingModal.vue';
 import StatCapacityBox from '@/components/StatCapacityBox.vue';
 import CapacityBar from '@/components/CapacityBar.vue';
 import DGlyph from '@/components/DGlyph.vue';
-import { actionLog } from '@/sharedState';
+import { actionLog, updateLog } from '@/sharedState';
 type CharacterProps = {
 	characterId: string;
 };
@@ -200,7 +200,39 @@ const previewDamage = computed<Record<string, number>>(() => {
 	}
 	return result;
 });
+const glyphMap: Record<string, string> = {
+	Kinetic: '',
+	Solar: '',
+	Arc: '',
+	Void: '',
+	Stasis: '',
+	Strand: '',
+	Prismatic: '',
+	Dark: '',
+	Darkness: '',
+};
 const applyDamage = () => {
+	const startingHealth = actionResources.value.health;
+	const startingShields = actionResources.value.shields;
+	//
+	const diffHealth = -1 * (startingHealth - previewDamage.value.health);
+	const diffShields = -1 * (startingShields - previewDamage.value.shields);
+	const stringStart = 'Took ' + glyphMap[dmgType.value] + dmg.value + ' damage,\n  ';
+	const stringShield =
+		'Shields: ' +
+		startingShields +
+		' → ' +
+		previewDamage.value.shields +
+		' (' +
+		diffShields +
+		')\n  ';
+	const stringHealth =
+		'Health:  ' + startingHealth + ' → ' + previewDamage.value.health + ' (' + diffHealth + ')';
+	updateLog(stringStart + (startingShields > 0 ? stringShield : '') + stringHealth);
+	if (actionResources.value.health <= 0) {
+		updateLog('== Guardian down! ==');
+	}
+	//
 	actionResourceUpdate('health', previewDamage.value.health - actionResources.value.health);
 	actionResourceUpdate('shields', previewDamage.value.shields - actionResources.value.shields);
 };
@@ -336,28 +368,34 @@ const encumberanceColor = computed<string>(() => {
 								</h2>
 							</caption>
 							<tr>
-								<td class="stat-label">Received</td>
+								<td class="stat-label">Math</td>
 								<td
 									class="stat-value"
 									colspan="3"
 								>
-									<input
-										id="damage-raw"
-										type="number"
-										value="0"
-										v-model="dmg"
-										style="min-width: 4em; width: 0em"
-									/>
-									× {{ dmgMult }}{{ currentDR < 0 ? ' + ' : ' - '
+									({{ dmg }} × {{ dmgMult }}){{ currentDR < 0 ? ' + ' : ' - '
 									}}{{ Math.abs(currentDR) }} → {{ dmgCount }}× →
 								</td>
 								<td
 									class="stat-value"
 									style="text-align: right"
 								>
-									<span style="width: 2em; display: block">{{
-										currentDamage
-									}}</span>
+									<span>{{ currentDamage }}</span>
+								</td>
+							</tr>
+							<tr>
+								<td class="stat-label">Received</td>
+								<td
+									class="stat-value"
+									colspan="4"
+								>
+									<input
+										id="damage-raw"
+										type="number"
+										value="0"
+										v-model="dmg"
+										style="min-width: 4em; width: 40%"
+									/>
 								</td>
 							</tr>
 							<tr>
@@ -372,25 +410,8 @@ const encumberanceColor = computed<string>(() => {
 										style="width: 3em"
 									/>
 								</td>
-								<td class="stat-label">Count</td>
-								<td class="stat-value">
-									<input
-										id="damage-count"
-										type="number"
-										value="1"
-										min="1"
-										v-model="dmgCount"
-										style="width: 3em"
-									/>
-								</td>
-								<td></td>
-							</tr>
-							<tr>
 								<td class="stat-label">Type</td>
-								<td
-									class="stat-value"
-									colspan="3"
-								>
+								<td class="stat-value">
 									<select
 										name="damage-select"
 										id="damage-select"
@@ -412,22 +433,31 @@ const encumberanceColor = computed<string>(() => {
 										v-if="dmgType !== 'Kinetic'"
 										v-bind="{ name: dmgType }"
 										class="element-glyph"
-										:style="'color: ' + elements[dmgType as Element]"
+										:style="
+											'color: ' + (elements[dmgType as Element] || '#7a6666')
+										"
 										style="font-size: 1em"
 									/>
 								</td>
 							</tr>
 							<tr>
-								<td class="stat-label">DR Type</td>
-								<td
-									class="stat-value"
-									colspan="3"
-								>
+								<td class="stat-label">Count</td>
+								<td class="stat-value">
+									<input
+										id="damage-count"
+										type="number"
+										value="1"
+										min="1"
+										v-model="dmgCount"
+										style="width: 3em"
+									/>
+								</td>
+								<td class="stat-label">DR</td>
+								<td class="stat-value">
 									<select
 										name="damage-select"
 										id="damage-select"
 										v-model="dmgDRType"
-										style="width: 100%"
 									>
 										<option value="None">--None--</option>
 										<option value="DR">DR</option>
