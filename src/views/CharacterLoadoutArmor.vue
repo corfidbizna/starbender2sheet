@@ -229,6 +229,9 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 	flex-direction: column;
 	width: 100%;
 }
+.armor-slots-active h2 {
+	width: 13em;
+}
 .armor-slot {
 	flex: 1 1 auto;
 	margin: 0.25em;

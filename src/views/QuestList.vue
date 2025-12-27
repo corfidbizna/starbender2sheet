@@ -24,29 +24,43 @@ const bounties = computed<Quest[]>(() => {
 		<LoadingModal />
 	</div>
 	<div v-else>
-		<h1>Quest List</h1>
-		<button @click="questsRefresh()">Refresh quests</button>
 		<div class="quest-list">
+			<button
+				@click="questsRefresh()"
+				class="refresh-data"
+			>
+				Refresh quests
+			</button>
 			<div class="column-a">
 				<h2>Quests</h2>
-				<QuestBox
-					v-for="quest in quests"
-					:key="quest.name"
-					v-bind="quest"
-				/>
+				<div class="scrollable">
+					<QuestBox
+						v-for="quest in quests"
+						:key="quest.name"
+						v-bind="quest"
+					/>
+				</div>
 			</div>
 			<div class="column-b">
 				<h2>Bounties</h2>
-				<QuestBox
-					v-for="quest in bounties"
-					:key="quest.name"
-					v-bind="quest"
-				/>
+				<QuestBox v-bind="bounties[0]" />
+				<div class="scrollable">
+					<QuestBox
+						v-for="quest in bounties"
+						:key="quest.name"
+						v-bind="quest"
+					/>
+				</div>
 			</div>
 		</div>
 	</div>
 </template>
 <style>
+.refresh-data {
+	position: absolute;
+	top: 76px;
+	left: 8px;
+}
 .quest-list {
 	justify-content: center;
 	display: block;
@@ -58,5 +72,24 @@ const bounties = computed<Quest[]>(() => {
 	display: inline-block;
 	vertical-align: top;
 	margin: 1em;
+	height: calc(100vh - 140px);
+}
+/* .column-a .box {
+	height: 120px;
+}
+.column-a img {
+	width: 117px;
+	height: 117px;
+}
+.column-b {
+	width: 448px;
+}
+.column-b img {
+	width: 64px;
+	height: 64px;
+} */
+.quest-list .scrollable {
+	overflow-y: scroll;
+	height: 100%;
 }
 </style>

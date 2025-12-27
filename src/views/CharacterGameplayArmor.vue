@@ -9,7 +9,7 @@ type CharacterProps = {
 	characterId: CharacterNames;
 };
 const props = defineProps<CharacterProps>();
-const { character, armor, actionResources, getFinalStat } = useCharacterData(props.characterId);
+const { character, armor } = useCharacterData(props.characterId);
 const equippedArmor = computed<Armor[]>(() => armor.value.filter((armor) => armor.equipped));
 </script>
 <template>
@@ -17,22 +17,6 @@ const equippedArmor = computed<Armor[]>(() => armor.value.filter((armor) => armo
 		class="CharacterSkills"
 		v-if="character"
 	>
-		<StatCapacityBox
-			v-bind="{
-				label: 'Armor Charges',
-				data: [
-					{
-						label: 'Charges',
-						stat: 'armorCharges',
-						color: '#8df',
-						max: getFinalStat('capacityArmorCharge'),
-						current: actionResources.armorCharges,
-					},
-				],
-				hideRefillAll: true,
-			}"
-			:characterId="characterId"
-		/>
 		<h2>Equipped Armor</h2>
 		<div v-if="equippedArmor.length === 0">
 			<h1 style="text-align: center">No armor equipped</h1>

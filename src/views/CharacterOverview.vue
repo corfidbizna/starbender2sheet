@@ -179,6 +179,7 @@ onBeforeUnmount(() => {
 	height: 3em;
 	margin-top: 0.5em;
 	padding-right: 0.75em;
+	text-transform: uppercase;
 }
 .tab-container a {
 	flex: 0;

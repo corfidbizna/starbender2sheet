@@ -38,7 +38,6 @@ const grid = computed<ArtifactMod[][]>(() => {
 		<LoadingModal />
 	</div>
 	<div v-else>
-		<button @click="artifactRefresh">Refresh Artifact</button>
 		<h1 class="artifact-name">Iron Decree</h1>
 		<h2 class="artifact-subtitle">Artifact</h2>
 		<div class="artifact-container">
@@ -48,6 +47,12 @@ const grid = computed<ArtifactMod[][]>(() => {
 					><span class="artifact-availability-number">{{
 						getFinalStat('artifact') - namesOfActiveArtifactMods.length
 					}}</span>
+					<button
+						@click="artifactRefresh"
+						style="float: right"
+					>
+						Refresh Artifact
+					</button>
 				</caption>
 				<tbody>
 					<tr
@@ -188,8 +193,8 @@ const grid = computed<ArtifactMod[][]>(() => {
 }
 .artifact-mod {
 	display: block;
-	width: 11em;
-	height: 11em;
+	width: 17em;
+	height: 7em;
 	padding: 1em;
 	border-radius: 0.5em;
 	border-top: 2px solid #289;

@@ -257,6 +257,12 @@ const actionsCapacity = computed<CapacityBoxStatField[]>(() => {
 			max: getFinalStat('actionsReaction'),
 			current: actionResources.value.actionsReaction,
 		},
+		{
+			label: 'Bonus Actions',
+			stat: 'actionsBonus',
+			max: getFinalStat('actionsBonus'),
+			current: actionResources.value.actionsBonus,
+		},
 	];
 });
 const energyCapacity = computed<CapacityBoxStatField[]>(() => {
@@ -531,6 +537,22 @@ const encumberanceColor = computed<string>(() => {
 					</div>
 					<div class="stat-column-c">
 						<div class="ability-block">
+							<StatCapacityBox
+								v-bind="{
+									label: 'Armor Charges',
+									data: [
+										{
+											label: 'Charges',
+											stat: 'armorCharges',
+											color: '#8df',
+											max: getFinalStat('capacityArmorCharge'),
+											current: actionResources.armorCharges,
+										},
+									],
+									hideRefillAll: true,
+								}"
+								:characterId="characterId"
+							/>
 							<StatCapacityBox
 								v-bind="{
 									label: 'Energy',

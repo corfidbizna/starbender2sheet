@@ -13,7 +13,8 @@ body {
 	background-attachment: fixed;
 	background-position: center;
 	background-image:
-		url('/src/assets/bg00.png'), radial-gradient(circle at 50% 10%, #fff8, #ddd0),
+		url('/src/assets/bg00.png'), url('/src/assets/bg00.png'),
+		radial-gradient(circle at 50% 10%, #fff8, #ddd0),
 		linear-gradient(12deg, #97683944 20%, transparent 60%),
 		linear-gradient(-30deg, #1737992e 20%, transparent 60%),
 		linear-gradient(4deg, #444 10%, #888 30%, #aaa 90%);
