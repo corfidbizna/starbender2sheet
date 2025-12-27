@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { CharacterNames } from '@/composables/useCharacterData';
 import useCharacterData from '@/composables/useCharacterData';
+import BuffActivator from '@/components/BuffActivator.vue';
 
 type CharacterProps = {
 	characterId: CharacterNames;
@@ -13,6 +14,6 @@ const { character } = useCharacterData(props.characterId);
 		class="CharacterSkills"
 		v-if="character"
 	>
-		<h1>Gameplay buff display for {{ character.label }}</h1>
+		<BuffActivator :character-id="characterId" />
 	</div>
 </template>

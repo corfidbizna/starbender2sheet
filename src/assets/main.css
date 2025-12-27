@@ -45,3 +45,24 @@ h2 {
 .d-glyph {
 	font-family: 'Destiny Symbols Common';
 }
+input[type='number'] {
+	background-color: #0002;
+	color: #fff;
+	font-weight: bold;
+	text-align: right;
+	border: 1px solid #fff8;
+}
+button {
+	color: #fff;
+	text-decoration: none;
+	border: 1px solid #fff8;
+	background: #0001;
+	transition: background 0.1s;
+}
+button:hover {
+	background: #fff1;
+	transition: background 0.1s;
+}
+button:active {
+	background: #fff8;
+}

@@ -46,6 +46,12 @@ const router = createRouter({
 							props: true,
 							component: () => import('../views/CharacterGameplayBuffs.vue'),
 						},
+						{
+							path: 'artifact',
+							name: 'characterGameplayArtifact',
+							props: true,
+							component: () => import('../views/CharacterGameplayArtifact.vue'),
+						},
 					],
 				},
 				{

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-// import type { BuffInfo } from '@/business_logic/buffs';
-import useCharacterData from '@/composables/useCharacterData';
-import useFilter from '@/composables/useFilter';
 import type { BuffInfo } from '@/business_logic/buffs';
+import useCharacterData from '@/composables/useCharacterData';
+// import useFilter from '@/composables/useFilter';
 import BuffItemRow from './BuffItemRow.vue';
+import { computed } from 'vue';
 
 type CharacterProps = {
 	characterId: string;
@@ -12,19 +12,32 @@ const props = defineProps<CharacterProps>();
 
 const { buffs } = useCharacterData(props.characterId);
 
-const { queryValue, invertFilter, filteredData } = useFilter<BuffInfo, string>({
-	listUnfiltered: buffs,
-	filter: { dataType: 'string', fieldName: 'type' },
-});
-queryValue.value = 'Story';
-invertFilter.value = false;
+const storyBuffs = computed<BuffInfo[]>(() => buffs.value.filter((buff) => buff.type === 'Story'));
+const otherBuffs = computed<BuffInfo[]>(() =>
+	buffs.value.filter((buff) => buff.type !== 'Story' && buff.type !== 'Neutral'),
+);
+// const activeBuffs = computed<BuffInfo[]>(() => {
+// 	return otherBuffs.value.filter((buff) => buff.active);
+// });
+// const inactiveBuffs = computed<BuffInfo[]>(() => {
+// 	return otherBuffs.value.filter((buff) => !buff.active);
+// });
+// const { queryValue, invertFilter, filteredData } = useFilter<BuffInfo, string>({
+// 	listUnfiltered: otherBuffs,
+// 	filter: { dataType: 'boolean', fieldName: 'active' },
+// });
+// queryValue.value = 'true';
+// invertFilter.value = false;
 </script>
 <template>
 	<div class="buff-activator">
-		<div class="buff-table">
+		<div
+			class="buff-table"
+			v-if="storyBuffs.length > 0"
+		>
 			<h2>Story Buffs</h2>
 			<BuffItemRow
-				v-for="buff in filteredData.includes"
+				v-for="buff in storyBuffs"
 				:key="buff.name"
 				v-bind="buff"
 				:characterId="characterId"
@@ -33,7 +46,7 @@ invertFilter.value = false;
 		<div class="buff-table">
 			<h2>Other Buffs</h2>
 			<BuffItemRow
-				v-for="buff in filteredData.excludes"
+				v-for="buff in otherBuffs"
 				:key="buff.name"
 				v-bind="buff"
 				:characterId="characterId"
@@ -51,6 +64,6 @@ invertFilter.value = false;
 .buff-table {
 	display: inline-block;
 	vertical-align: top;
-	margin: 1em;
+	/* margin: 1em; */
 }
 </style>

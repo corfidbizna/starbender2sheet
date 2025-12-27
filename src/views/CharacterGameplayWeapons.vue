@@ -89,13 +89,22 @@ const equippedWeapons = computed<Weapon[]>(() => {
 				</div>
 			</div>
 			<div v-if="!weaponsLoading">
-				<WeaponItemRow
-					v-for="weapon in equippedWeapons"
-					:key="weapon.name"
-					v-bind="weapon"
-					:characterId="characterId"
-					:activatable="true"
-				/>
+				<h2>Equipped Weapons</h2>
+				<div
+					v-if="namesOfEquippedWeapons.length === 0"
+					style="text-align: center"
+				>
+					<h1>No weapons equipped</h1>
+				</div>
+				<div v-else>
+					<WeaponItemRow
+						v-for="weapon in equippedWeapons"
+						:key="weapon.name"
+						v-bind="weapon"
+						:characterId="characterId"
+						:activatable="true"
+					/>
+				</div>
 			</div>
 		</div>
 	</div>

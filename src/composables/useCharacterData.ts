@@ -422,8 +422,10 @@ export type StatsCalculated = {
 	will: number;
 	//
 	hpMax: number;
+	hpRecharge: number;
 	hpTempMax: number;
 	hpShieldMax: number;
+	hpShieldRecharge: number;
 	hpShieldKinetic: number;
 	hpShieldSolar: number;
 	hpShieldArc: number;
@@ -586,15 +588,17 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	fort: 'Fort Save',
 	will: 'Will Save',
 	hpMax: 'Max HP',
+	hpRecharge: 'HP Recharge',
 	hpTempMax: 'Max Temp HP',
 	hpShieldMax: 'Max Shield HP',
-	hpShieldKinetic: 'Kinetic Overshields',
-	hpShieldSolar: 'Solar Overshields',
-	hpShieldArc: 'Arc Overshields',
-	hpShieldVoid: 'Void Overshields',
-	hpShieldStasis: 'Stasis Overshields',
-	hpShieldStrand: 'Strand Overshields',
-	hpShieldPrismatic: 'Prismatic Overshields',
+	hpShieldRecharge: 'Shield Recharge',
+	hpShieldKinetic: 'Kinetic Overshield',
+	hpShieldSolar: 'Solar Overshield',
+	hpShieldArc: 'Arc Overshield',
+	hpShieldVoid: 'Void Overshield',
+	hpShieldStasis: 'Stasis Overshield',
+	hpShieldStrand: 'Strand Overshield',
+	hpShieldPrismatic: 'Prismatic Overshield',
 	hpShieldType: 'Shield Type',
 	skillFocus: 'Skill Focus',
 	energyUniversal: 'Max Universal Energy',
@@ -1498,6 +1502,13 @@ function useCharacterDataUncached(characterId: string) {
 			...namesOfActiveArtifactMods.value,
 		];
 		const buffs = partyBuffs.value;
+		buffs.forEach((buff) => {
+			if (buff.isPassive || addThese.includes(buff.name)) {
+				buff.active = true;
+			} else {
+				buff.active = false;
+			}
+		});
 		return buffs.filter((buff) => buff.isPassive || addThese.includes(buff.name));
 	});
 
@@ -1630,7 +1641,7 @@ function useCharacterDataUncached(characterId: string) {
 					(weapon.buffsEquipped !== undefined ? ', ' + weapon.buffsEquipped : '');
 				const newBuff: BuffInfo = {
 					name: weapon.name + ' (Equipped)',
-					type: 'Buff',
+					type: 'Neutral',
 					category: 'Misc',
 					stacks: 0,
 					effects: buffString || '',
@@ -1647,7 +1658,7 @@ function useCharacterDataUncached(characterId: string) {
 					(weapon.buffsActive !== undefined ? ', ' + weapon.buffsEquipped : '');
 				const newBuff: BuffInfo = {
 					name: weapon.name + ' (Active)',
-					type: 'Buff',
+					type: 'Neutral',
 					category: 'Misc',
 					stacks: 0,
 					effects: buffString || '',
@@ -1749,7 +1760,7 @@ function useCharacterDataUncached(characterId: string) {
 					: armor.slots;
 				const newBuff: BuffInfo = {
 					name: armor.name + ' (Equipped)',
-					type: 'Buff',
+					type: 'Neutral',
 					category: armor.buffCategory,
 					isStacking: !!armor.stacksMax || armor.isStacking,
 					stacks: armor.stacks,
@@ -1763,7 +1774,7 @@ function useCharacterDataUncached(characterId: string) {
 			.map((armor) => {
 				const newBuff: BuffInfo = {
 					name: armor.name + ' (Active)',
-					type: 'Buff',
+					type: 'Neutral',
 					category: armor.buffsChargedCategory || 'Misc',
 					isStacking: !!armor.stacksMax || armor.isStacking,
 					stacks: armor.stacks,
@@ -1860,7 +1871,7 @@ function useCharacterDataUncached(characterId: string) {
 			.map((artifactMod) => {
 				const newBuff: BuffInfo = {
 					name: artifactMod.name,
-					type: 'Buff',
+					type: 'Neutral',
 					category: artifactMod.buffCategory || 'Misc',
 					stacks: 0,
 					effects: artifactMod.buffs || '',
@@ -1993,8 +2004,10 @@ function useCharacterDataUncached(characterId: string) {
 			fort: 0,
 			will: 0,
 			hpMax: 0,
+			hpRecharge: 0,
 			hpTempMax: 0,
 			hpShieldMax: 0,
+			hpShieldRecharge: 0,
 			hpShieldKinetic: 0,
 			hpShieldSolar: 0,
 			hpShieldArc: 0,

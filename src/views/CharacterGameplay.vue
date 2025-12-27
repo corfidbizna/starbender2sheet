@@ -35,6 +35,9 @@ const {
 	// skills,
 	skillsLoading,
 	skillsRefresh,
+	weapons,
+	weaponAmmoUpdate,
+	namesOfEquippedWeapons,
 	actionResourceUpdate,
 } = useCharacterData(props.characterId);
 
@@ -94,6 +97,38 @@ const incrementTurn = () => {
 	resource.actionsMove += source.actionsMove - resource.actionsMove;
 	resource.actionsAttack += source.actionsAttack - resource.actionsAttack;
 	resource.actionsReaction += source.actionsReaction - resource.actionsReaction;
+	// Healths Regen
+	if (resource.health < source.hpMax) {
+		resource.health += getFinalStat('hpRegen' as StatsCalculatedKey);
+	}
+	if (resource.shields < source.hpShieldMax) {
+		resource.shields += getFinalStat('hpShieldRegen' as StatsCalculatedKey);
+	}
+};
+const rallyBanner = () => {
+	const source = stats.value;
+	const resource = actionResources.value;
+	// Energy Regen
+	['Super', 'Class', 'Melee', 'Grenade', 'Universal'].forEach((energy) => {
+		const energyKey = ('energy' + energy) as StatsCalculatedKey;
+		resource[energyKey] += source[energyKey] - resource[energyKey];
+	});
+	// Action Refresh
+	resource.actionsMove += source.actionsMove - resource.actionsMove;
+	resource.actionsAttack += source.actionsAttack - resource.actionsAttack;
+	resource.actionsReaction += source.actionsReaction - resource.actionsReaction;
+	// Ammo Refresh
+	// resource.ammoKinetic += source.capacityKinetic - resource.ammoKinetic;
+	// resource.ammoSpecial += source.capacitySpecial - resource.ammoSpecial;
+	// resource.ammoHeavy += source.capacityHeavy - resource.ammoHeavy;
+	weapons.value
+		.filter((weapon) => namesOfEquippedWeapons.value.includes(weapon.name))
+		.forEach((weapon) => {
+			weaponAmmoUpdate(weapon.name, weapon.ammoCapacity - weapon.ammoCurrent);
+		});
+	// Healths Refresh
+	resource.health += source.hpMax - resource.health;
+	resource.shields += source.hpShieldMax - resource.shields;
 };
 const healthCapacity = computed<CapacityBoxStatField[]>(() => {
 	return [
@@ -252,21 +287,28 @@ const encumberanceColor = computed<string>(() => {
 			<LoadingModal />
 		</div>
 		<div v-else>
-			<div>
-				<h1>Gameplay for {{ character.label }}</h1>
-				<div>
-					<button
-						@click="
-							statsRefresh();
-							skillsRefresh();
-						"
-					>
-						Refresh Info
-					</button>
-					<button @click="incrementTurn">Increment Turn</button>
-				</div>
-			</div>
 			<div class="primary-block">
+				<div class="action-block">
+					<div>
+						<h1>{{ character.label }}</h1>
+						<button
+							@click="
+								statsRefresh();
+								skillsRefresh();
+							"
+						>
+							Reload Data
+						</button>
+						<button @click="incrementTurn">Increment Turn</button>
+						<button @click="rallyBanner">Rally Banner</button>
+					</div>
+					<h2>Action Log</h2>
+					<textarea
+						v-model="actionLog"
+						readonly
+						class="action-log"
+					></textarea>
+				</div>
 				<div class="left-block">
 					<div class="stat-column-a">
 						<StatBarsBox v-bind="infoAbilityScores" />
@@ -297,23 +339,23 @@ const encumberanceColor = computed<string>(() => {
 								<td class="stat-label">Received</td>
 								<td
 									class="stat-value"
-									colspan="4"
+									colspan="3"
 								>
 									<input
 										id="damage-raw"
 										type="number"
 										value="0"
 										v-model="dmg"
-										style="min-width: 50%; width: 0em"
+										style="min-width: 4em; width: 0em"
 									/>
 									× {{ dmgMult }}{{ currentDR < 0 ? ' + ' : ' - '
-									}}{{ Math.abs(currentDR) }} → {{ dmgCount }}x →
+									}}{{ Math.abs(currentDR) }} → {{ dmgCount }}× →
 								</td>
 								<td
 									class="stat-value"
 									style="text-align: right"
 								>
-									<span style="width: 3em; display: block">{{
+									<span style="width: 2em; display: block">{{
 										currentDamage
 									}}</span>
 								</td>
@@ -341,13 +383,13 @@ const encumberanceColor = computed<string>(() => {
 										style="width: 3em"
 									/>
 								</td>
-								<td colspan="2"></td>
+								<td></td>
 							</tr>
 							<tr>
 								<td class="stat-label">Type</td>
 								<td
 									class="stat-value"
-									colspan="4"
+									colspan="3"
 								>
 									<select
 										name="damage-select"
@@ -379,7 +421,7 @@ const encumberanceColor = computed<string>(() => {
 								<td class="stat-label">DR Type</td>
 								<td
 									class="stat-value"
-									colspan="4"
+									colspan="3"
 								>
 									<select
 										name="damage-select"
@@ -476,14 +518,6 @@ const encumberanceColor = computed<string>(() => {
 					</div>
 				</div>
 				<div class="right-block">
-					<div>
-						<h2>Action Log</h2>
-						<textarea
-							v-model="actionLog"
-							readonly
-							class="action-log"
-						></textarea>
-					</div>
 					<div class="tab-header">
 						<RouterLink
 							:to="{ name: 'characterGameplayWeapons', params: { characterId } }"
@@ -500,6 +534,10 @@ const encumberanceColor = computed<string>(() => {
 						<RouterLink
 							:to="{ name: 'characterGameplayBuffs', params: { characterId } }"
 							>Buffs</RouterLink
+						>
+						<RouterLink
+							:to="{ name: 'characterGameplayArtifact', params: { characterId } }"
+							>Artifact</RouterLink
 						>
 					</div>
 					<RouterView />
@@ -540,10 +578,15 @@ const encumberanceColor = computed<string>(() => {
 .stat-column-a,
 .stat-column-b,
 .stat-column-c {
-	width: 48%;
 	display: inline-block;
 	vertical-align: top;
 	margin: 0.6%;
+}
+.stat-column-a {
+	width: 43%;
+}
+.stat-column-b {
+	width: 53%;
 }
 .stat-column-c {
 	width: 98%;
@@ -555,9 +598,27 @@ const encumberanceColor = computed<string>(() => {
 .tab-header * {
 	flex: 1 0;
 	border: 1px solid #fffd;
-	background-color: #0004;
+	background-color: #0002;
 	text-align: center;
+	text-transform: uppercase;
+	text-decoration: none;
 	padding: 0.5em;
+	transition:
+		color 0.1s,
+		background-color 0.1s;
+	color: #fffb;
+	margin-top: 1em;
+}
+.tab-header a:hover {
+	transition:
+		color 0.1s,
+		background-color 0.1s;
+	color: #fff;
+	background-color: #fff1;
+}
+.tab-header .router-link-active {
+	color: #ffff;
+	background-color: #fff4;
 }
 /* */
 .secondary-block {
@@ -565,9 +626,20 @@ const encumberanceColor = computed<string>(() => {
 	display: inline-block;
 	vertical-align: top;
 }
+.action-block {
+	flex: 0 0 auto;
+	width: 12em;
+	height: 460px;
+}
+.action-block button {
+	width: 100%;
+	height: 2em;
+	font-size: 1em;
+	margin: 2px 0;
+}
 .action-log {
-	width: 95%;
-	height: 10em;
+	width: 90%;
+	height: 100%;
 }
 /* */
 .bottom-block > * {
