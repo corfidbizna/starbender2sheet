@@ -9,6 +9,7 @@ type BuffTypes = 'Buff' | 'Debuff' | 'Story' | 'Neutral';
 export type BuffInfo = {
 	name: string;
 	type: BuffTypes;
+	family?: string;
 	category?: string;
 	isStacking?: boolean;
 	stackMax?: number;
@@ -252,6 +253,7 @@ export const buffsDistribute = (buffs: CharacterBuffSummary, stats: StatsCalcula
 		});
 	};
 	const distributeWeight = (stats: StatsCalculated) => {
+		// Note: encumberance calculation doesn't work when size adjusted.
 		const encumberance = Math.trunc(
 			Math.max(
 				0,

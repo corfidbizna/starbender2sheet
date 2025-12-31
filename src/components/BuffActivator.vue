@@ -16,10 +16,10 @@ const storyBuffs = computed<BuffInfo[]>(() => buffs.value.filter((buff) => buff.
 const otherBuffs = computed<BuffInfo[]>(() =>
 	buffs.value.filter((buff) => buff.type !== 'Story' && buff.type !== 'Neutral'),
 );
-const activeBuffs = [
+const activeBuffs = computed<BuffInfo[]>(() => [
 	...storyBuffs.value.filter((buff) => buff.active),
 	...otherBuffs.value.filter((buff) => buff.active),
-];
+]);
 // const activeBuffs = computed<BuffInfo[]>(() => {
 // 	return otherBuffs.value.filter((buff) => buff.active);
 // });
@@ -48,7 +48,7 @@ const activeBuffs = [
 			/>
 			<h2>Active Buffs</h2>
 			<BuffItemRow
-				v-for="buff in otherBuffs.filter((buff) => buff.active)"
+				v-for="buff in activeBuffs"
 				:key="buff.name"
 				v-bind="buff"
 				:characterId="characterId"

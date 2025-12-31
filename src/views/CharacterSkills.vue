@@ -12,7 +12,6 @@ const { character } = useCharacterData(props.characterId);
 		class="CharacterSkills"
 		v-if="character"
 	>
-		<h1>Skills for {{ character.label }}</h1>
 		<SkillsTable :character-id="characterId"></SkillsTable>
 	</div>
 </template>

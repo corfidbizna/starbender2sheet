@@ -305,15 +305,24 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 		},
 	];
 });
+const encumberanceTEMP = computed<number>(() => {
+	return Math.trunc(
+		Math.max(
+			0,
+			Math.min(3, (getFinalStat('weightCurrent') / getFinalStat('capacityCarrying')) * 3),
+		),
+	);
+});
 const encumberanceColor = computed<string>(() => {
-	const alpha = getFinalStat('encumberance');
+	// const alpha = getFinalStat('encumberance');
+	// Right now 'encumberance' is broken, so I'm reusing the math for encumberanceTEMP.
 	const colors: Record<number, string> = {
 		0: '#fff',
 		1: '#ffa',
 		2: '#fa6',
 		3: '#e76',
 	};
-	return colors[alpha];
+	return colors[encumberanceTEMP.value];
 });
 </script>
 <template>
@@ -509,18 +518,12 @@ const encumberanceColor = computed<string>(() => {
 							</tr>
 							<tr>
 								<td class="stat-label">
-									<span v-if="getFinalStat('encumberance') <= 0">
-										Not Encumbered
-									</span>
-									<span v-else-if="getFinalStat('encumberance') === 1">
-										Encumbered
-									</span>
-									<span v-else-if="getFinalStat('encumberance') === 2">
+									<span v-if="encumberanceTEMP <= 0"> Not Encumbered </span>
+									<span v-else-if="encumberanceTEMP === 1"> Encumbered </span>
+									<span v-else-if="encumberanceTEMP === 2">
 										Heavily Encumbered
 									</span>
-									<span v-else-if="getFinalStat('encumberance') >= 3">
-										Over Encumbered
-									</span>
+									<span v-else-if="encumberanceTEMP >= 3"> Over Encumbered </span>
 								</td>
 								<td>
 									<CapacityBar

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
+import { bgColor, banner } from '@/sharedState';
 import router from '@/router/index.ts';
 import LoadingModal from '@/components/LoadingModal.vue';
 import { computed, onBeforeUnmount } from 'vue';
@@ -50,10 +51,10 @@ const names = [
 const routeList = names.map((name) => ({ name, params }));
 
 const keyHandler = (e: KeyboardEvent) => {
-	if (e.key === 'a' || e.key === 'd') {
+	if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
 		const currentRouteName = router.currentRoute.value.name as string;
 		const currentRouteIndex = names.indexOf(currentRouteName);
-		const direction = e.key === 'a' ? -1 : 1;
+		const direction = e.key === 'ArrowLeft' ? -1 : 1;
 		const targetIndex = (currentRouteIndex + direction + names.length) % names.length;
 		console.log(
 			`key: ${e.key}`,
@@ -71,8 +72,14 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-	<div class="character-overview">
-		<header class="banner">
+	<div
+		class="character-overview"
+		:style="'--bg-color: ' + bgColor"
+	>
+		<header
+			class="banner"
+			:style="'background-image: url(' + banner + ')'"
+		>
 			<RouterLink
 				:to="{ name: 'home' }"
 				class="logo"
@@ -131,6 +138,7 @@ onBeforeUnmount(() => {
 			v-else
 			class="content"
 		/>
+		<!-- <div class="background"></div> -->
 	</div>
 </template>
 <style>
@@ -139,10 +147,19 @@ onBeforeUnmount(() => {
 	flex-flow: column;
 	height: 100vh;
 }
+.character-overview::after {
+	content: '';
+	width: 100vw;
+	height: 100vh;
+	position: absolute;
+	background-color: var(--bg-color);
+	z-index: -1;
+	mix-blend-mode: multiply;
+}
 .banner {
 	width: 100vw;
 	height: 4em;
-	background-image: url('https://wallpapershigh.com/wp-content/uploads/destiny-2-logo-5.webp');
+	/* background-image: url('https://wallpapershigh.com/wp-content/uploads/destiny-2-logo-5.webp'); */
 	background-size: cover;
 	background-color: #444;
 	border-bottom: 2px solid #444;
@@ -180,6 +197,7 @@ onBeforeUnmount(() => {
 	margin-top: 0.5em;
 	padding-right: 0.75em;
 	text-transform: uppercase;
+	text-shadow: 0 0 #0008;
 }
 .tab-container a {
 	flex: 0;

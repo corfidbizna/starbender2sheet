@@ -194,7 +194,7 @@ const changeStacksUpdate = (amount: Event) => {
 	text-align: center;
 	padding: 0.25em;
 	background: #0004;
-	border: 4px solid #fff8;
+	border: 2px solid #fff8;
 	width: 100%;
 	display: inline-block;
 	box-sizing: border-box;

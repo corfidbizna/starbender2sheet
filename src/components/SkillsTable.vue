@@ -102,6 +102,7 @@ const rollStat = (label: string, value: number) => {
 			class="skills-content"
 		>
 			<h2>Skills</h2>
+			<div>(Hover over a skill to see its uses)</div>
 			<div class="scroll-box">
 				<table class="skill-table">
 					<tbody>
@@ -120,7 +121,9 @@ const rollStat = (label: string, value: number) => {
 							<td class="bonus">{{ skill.value }}</td>
 							<td><button @click="rollStat(skill.name, skill.value)"></button></td>
 							<td class="description">
-								{{ skill.description }}
+								<span>
+									{{ skill.description }}
+								</span>
 							</td>
 						</tr>
 						<tr
@@ -138,7 +141,9 @@ const rollStat = (label: string, value: number) => {
 							<td class="bonus">{{ skill.value }}</td>
 							<td><button @click="rollStat(skill.name, skill.value)"></button></td>
 							<td class="description">
-								{{ skill.description }}
+								<span>
+									{{ skill.description }}
+								</span>
 							</td>
 						</tr>
 					</tbody>
@@ -149,7 +154,7 @@ const rollStat = (label: string, value: number) => {
 </template>
 <style scoped>
 .skills {
-	height: calc(100vh - 154px);
+	height: var(--content-height);
 	display: flex;
 	flex-direction: row;
 	border-spacing: 1px;
@@ -174,9 +179,11 @@ const rollStat = (label: string, value: number) => {
 }
 .scroll-box {
 	/* max-height: 100px; */
+	width: 100%;
 	height: fit-content;
 	max-height: calc(100% - 3em);
 	overflow-y: scroll;
+	scrollbar-width: none;
 }
 .skill-table {
 	padding-top: 0.25em;
@@ -193,10 +200,13 @@ tbody tr:nth-child(2n) {
 .skill-row:hover {
 	background-color: #fff4;
 }
+.skill-row:hover * {
+	visibility: visible;
+}
 .name {
 	max-width: fit-content;
 	padding-left: 1em;
-	/* white-space: nowrap; */
+	white-space: nowrap;
 }
 tbody .bar {
 	width: 10em;
@@ -231,6 +241,16 @@ table button:active {
 .description {
 	padding-left: 1em;
 	text-align: left;
+	overflow: visible;
+	position: relative;
+	visibility: hidden;
+	--width: 20em;
+	width: var(--width);
+}
+.description * {
+	position: absolute;
+	width: var(--width);
+	top: 3px;
 }
 td {
 	border: none;

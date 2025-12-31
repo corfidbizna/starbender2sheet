@@ -21,9 +21,9 @@ const rangeMax = computed<number>((): number => {
 });
 const makeBar = (min: number, max: number, value: number, value2?: number): string => {
 	const colors = {
-		gold: '#eb3f',
-		green: '#afaf',
-		red: '#fa9f',
+		gold: 'var(--color-masterwork)',
+		green: 'var(--color-buff)',
+		red: 'var(--color-debuff)',
 	};
 	const realValue2 = value2 === undefined ? value : value2 || 0;
 	const color1 = '#ffff';

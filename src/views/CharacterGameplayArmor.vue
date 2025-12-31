@@ -2,7 +2,7 @@
 import type { CharacterNames, Armor } from '@/composables/useCharacterData';
 import useCharacterData from '@/composables/useCharacterData';
 import ArmorItem from '@/components/ArmorItem.vue';
-import StatCapacityBox from '@/components/StatCapacityBox.vue';
+// import StatCapacityBox from '@/components/StatCapacityBox.vue';
 import { computed } from 'vue';
 
 type CharacterProps = {

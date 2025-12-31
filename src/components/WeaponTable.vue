@@ -15,12 +15,12 @@ import CapacityBar from './CapacityBar.vue';
 
 const sortList: Record<string, string> = {
 	// Dropdown Option: statKey,
-	Name: 'Name',
-	'Weapon Class': 'WeaponClass',
-	Rarity: 'Rarity',
-	Element: 'Element',
-	Handedness: 'Handed',
-	'Average Damage': 'DmgAvg',
+	Name: 'name',
+	'Weapon Class': 'weaponClass',
+	Rarity: 'rarity',
+	Element: 'element',
+	Handedness: 'handed',
+	'Average Damage': 'gmgAvg',
 };
 type weaponKeys = keyof Weapon;
 const sortBy = ref<string>('Name');
@@ -92,7 +92,10 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 						v-bind="{
 							max: getFinalStat('slotsWeapon'),
 							current: getFinalStat('slotsWeaponUsed'),
-							color: '#eee',
+							color:
+								getFinalStat('slotsWeaponUsed') > getFinalStat('slotsWeapon')
+									? 'var(--color-debuff)'
+									: '#eee',
 						}"
 					/>
 				</span>

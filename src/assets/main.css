@@ -9,6 +9,17 @@
 }
 
 body {
+	--content-height: calc(100vh - 80px);
+	--color-kinetic: #ffffff;
+	--color-solar: #f16f27;
+	--color-arc: #7aecf3;
+	--color-void: #b283cc;
+	--color-stasis: #4d87ff;
+	--color-strand: #35e366;
+	--color-prismatic: #ffffff;
+	--color-buff: #afaf;
+	--color-debuff: #fa9f;
+	--color-masterwork: #eb3f;
 	background-size: cover;
 	background-attachment: fixed;
 	background-position: center;
@@ -23,6 +34,33 @@ body {
 	font-family: sans-serif;
 	margin: 0;
 }
+/* body::before {
+	content: '';
+	position: absolute;
+	width: 75vw;
+	height: 75vh;
+	top: 12.5%;
+	left: 12.5%;
+	mask-image: radial-gradient(circle, #000 50%, #fff 50%);
+	z-index: -1;
+	overflow: hidden;
+	animation-name: rotate-bg;
+	animation-duration: 60s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+	background-size: cover;
+	background-attachment: fixed;
+	background-position: center;
+	background-image: url('/src/assets/bg00.png'), url('/src/assets/bg00.png');
+}
+@keyframes rotate-bg {
+	0% {
+		rotate: 0deg;
+	}
+	100% {
+		rotate: 180deg;
+	}
+} */
 h2 {
 	font-size: 1em;
 	margin: 0;
