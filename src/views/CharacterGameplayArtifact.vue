@@ -16,7 +16,7 @@ const artifactList = computed<ArtifactMod[]>(() => {
 </script>
 <template>
 	<div
-		class="CharacterSkills"
+		class="gameplay-artifact-list"
 		v-if="character && !artifactLoading"
 	>
 		<div
@@ -36,3 +36,10 @@ const artifactList = computed<ArtifactMod[]>(() => {
 	</div>
 	<div v-else><h1>Loading seasonal artifact…</h1></div>
 </template>
+<style>
+.gameplay-artifact-list {
+	height: calc(100vh - 125px);
+	overflow-y: scroll;
+	scrollbar-width: none;
+}
+</style>

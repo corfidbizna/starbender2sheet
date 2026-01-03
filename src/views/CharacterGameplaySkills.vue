@@ -37,6 +37,15 @@ const skillsInfo = computed<StatBoxInfo>(() => {
 		class="CharacterSkills"
 		v-if="character"
 	>
-		<StatBarsBox v-bind="skillsInfo" />
+		<div class="gameplay-skills-list">
+			<StatBarsBox v-bind="skillsInfo" />
+		</div>
 	</div>
 </template>
+<style>
+.gameplay-skills-list {
+	height: calc(100vh - 125px);
+	overflow-y: scroll;
+	scrollbar-width: none;
+}
+</style>

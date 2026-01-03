@@ -91,5 +91,6 @@ const bounties = computed<Quest[]>(() => {
 .quest-list .scrollable {
 	overflow-y: scroll;
 	height: 100%;
+	scrollbar-width: none;
 }
 </style>

@@ -598,7 +598,6 @@ const encumberanceColor = computed<string>(() => {
 					<RouterView />
 				</div>
 			</div>
-			<div class="bottom-block"></div>
 		</div>
 	</div>
 </template>
@@ -616,6 +615,7 @@ const encumberanceColor = computed<string>(() => {
 }
 /* */
 .primary-block {
+	height: var(--content-height);
 	width: 100%;
 	max-width: 1400px;
 	margin: 0 auto;
@@ -694,12 +694,9 @@ const encumberanceColor = computed<string>(() => {
 }
 .action-log {
 	width: 90%;
-	height: 100%;
+	height: calc(100vh - 324px);
 }
 /* */
-.bottom-block > * {
-	margin: 5px;
-}
 .weapon-block {
 	display: block;
 }

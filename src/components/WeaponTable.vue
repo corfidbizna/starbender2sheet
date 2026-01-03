@@ -20,7 +20,7 @@ const sortList: Record<string, string> = {
 	Rarity: 'rarity',
 	Element: 'element',
 	Handedness: 'handed',
-	'Average Damage': 'gmgAvg',
+	'Average Damage': 'dmgAvg',
 };
 type weaponKeys = keyof Weapon;
 const sortBy = ref<string>('Name');

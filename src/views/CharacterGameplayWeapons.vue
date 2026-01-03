@@ -88,7 +88,10 @@ const equippedWeapons = computed<Weapon[]>(() => {
 					/>
 				</div>
 			</div>
-			<div v-if="!weaponsLoading">
+			<div
+				class="gameplay-weapons"
+				v-if="!weaponsLoading"
+			>
 				<h2>Equipped Weapons</h2>
 				<div
 					v-if="namesOfEquippedWeapons.length === 0"
@@ -96,7 +99,10 @@ const equippedWeapons = computed<Weapon[]>(() => {
 				>
 					<h1>No weapons equipped</h1>
 				</div>
-				<div v-else>
+				<div
+					v-else
+					class="gameplay-weapons-list"
+				>
 					<WeaponItemRow
 						v-for="weapon in equippedWeapons"
 						:key="weapon.name"
@@ -109,3 +115,14 @@ const equippedWeapons = computed<Weapon[]>(() => {
 		</div>
 	</div>
 </template>
+<style>
+.weapons-block {
+	display: flex;
+}
+.gameplay-weapons-list {
+	height: calc(100vh - 280px);
+	overflow-y: scroll;
+	scrollbar-width: none;
+	font-size: 0.9rem;
+}
+</style>

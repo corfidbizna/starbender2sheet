@@ -14,6 +14,16 @@ const { character } = useCharacterData(props.characterId);
 		class="CharacterSkills"
 		v-if="character"
 	>
-		<BuffActivator :character-id="characterId" />
+		<BuffActivator
+			:character-id="characterId"
+			class="gameplay-buffs-list"
+		/>
 	</div>
 </template>
+<style>
+.gameplay-buffs-list {
+	height: calc(100vh - 125px);
+	overflow-y: scroll;
+	scrollbar-width: none;
+}
+</style>
