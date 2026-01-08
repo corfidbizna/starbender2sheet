@@ -2,17 +2,20 @@
 import type { BuffInfo } from '@/business_logic/buffs';
 import useCharacterData from '@/composables/useCharacterData';
 import { computed } from 'vue';
+import iconBuffUp from '/src/assets/icons/buff_up.png';
+import iconBuffDown from '/src/assets/icons/buff_down.png';
+import iconBuffStory from '/src/assets/icons/buff_story.png';
 
 const props = defineProps<BuffInfo & { characterId: string }>();
 const { namesOfActivatedBuffs, buffsStackUpdate } = useCharacterData(props.characterId);
 
 const imageSrc = computed<string>(() => {
 	if (props.type === 'Buff') {
-		return '/src/assets/icons/buff_up.png';
+		return iconBuffUp;
 	} else if (props.type === 'Debuff') {
-		return '/src/assets/icons/buff_down.png';
+		return iconBuffDown;
 	}
-	return '/src/assets/icons/buff_story.png';
+	return iconBuffStory;
 });
 
 const displayStyle = computed<string>(() => {

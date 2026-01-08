@@ -357,9 +357,18 @@ const encumberanceColor = computed<string>(() => {
 				</div>
 				<div class="left-block">
 					<div class="stat-column-a">
-						<StatBarsBox v-bind="infoAbilityScores" />
-						<StatBarsBox v-bind="infoSaves" />
-						<StatBarsBox v-bind="infoDefenseMods" />
+						<StatBarsBox
+							v-bind="infoAbilityScores"
+							class="hover-highlight"
+						/>
+						<StatBarsBox
+							v-bind="infoSaves"
+							class="hover-highlight"
+						/>
+						<StatBarsBox
+							v-bind="infoDefenseMods"
+							class="hover-highlight"
+						/>
 					</div>
 					<div class="stat-column-b">
 						<StatCapacityBox
@@ -368,8 +377,9 @@ const encumberanceColor = computed<string>(() => {
 								data: healthCapacity,
 							}"
 							:characterId="characterId"
+							class="hover-highlight"
 						/>
-						<table class="stat-box-table">
+						<table class="stat-box-table hover-highlight">
 							<caption>
 								<h2>
 									<span>Damage Calculator</span
@@ -489,8 +499,9 @@ const encumberanceColor = computed<string>(() => {
 								data: actionsCapacity,
 							}"
 							:characterId="characterId"
+							class="hover-highlight"
 						/>
-						<table>
+						<table class="hover-highlight">
 							<caption>
 								<h2>Derived Information</h2>
 							</caption>
@@ -601,6 +612,14 @@ const encumberanceColor = computed<string>(() => {
 	</div>
 </template>
 <style>
+.hover-highlight {
+	color: #e8e8e8;
+	transition: color 0.5s;
+}
+.hover-highlight:hover {
+	color: #fff;
+	transition: color 0.5s;
+}
 .stat-label {
 	text-align: right;
 	white-space: nowrap;
