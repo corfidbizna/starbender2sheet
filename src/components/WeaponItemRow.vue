@@ -342,6 +342,7 @@ const reload = () => {
 	max-width: 40em;
 	background-blend-mode: multiply;
 	border: 4px solid #fff0;
+	text-shadow: none;
 }
 .weapon-row.equipped {
 	border-color: #ffff;

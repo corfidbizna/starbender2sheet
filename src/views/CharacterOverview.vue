@@ -209,8 +209,23 @@ onBeforeUnmount(() => {
 	text-decoration: none;
 	transition: color 0.3s;
 	color: #fffa;
-	border-bottom: 4px solid #0000;
 	padding: 0 1em;
+	position: relative;
+}
+.tab-container a::after {
+	transition:
+		background-color 0.2s ease-out,
+		width 0.2s ease-out,
+		margin-left 0.2s ease-out;
+	content: ' ';
+	position: absolute;
+	height: 4px;
+	background-color: #fff;
+	width: 0;
+	left: 0;
+	bottom: -12px;
+	margin-left: 50%;
+	text-align: center;
 }
 .tab-container a:hover {
 	transition: color 0.3s;
@@ -224,7 +239,10 @@ onBeforeUnmount(() => {
 }
 .tab-container .router-link-active {
 	color: #fff;
-	border-bottom: 4px solid #fff;
+}
+.tab-container .router-link-active::after {
+	width: 100%;
+	margin-left: 0;
 }
 .content {
 	flex: 1 1 auto;

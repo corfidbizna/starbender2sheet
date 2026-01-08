@@ -32,6 +32,7 @@ body {
 	/* background-color: #888; */
 	color: #f8f8f8;
 	font-family: sans-serif;
+	text-shadow: 1px 1px #0004;
 	margin: 0;
 }
 /* body::before {
@@ -71,6 +72,7 @@ h2 {
 	text-transform: uppercase;
 	font-weight: 100;
 	margin-top: 1em;
+	text-shadow: none;
 }
 .action-log {
 	padding: 0.5em;
