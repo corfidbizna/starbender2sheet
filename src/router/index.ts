@@ -11,6 +11,11 @@ const router = createRouter({
 			component: HomeView,
 		},
 		{
+			path: '/buff_icons',
+			name: 'buffIcons',
+			component: () => import('../views/BuffIconsView.vue'),
+		},
+		{
 			path: '/character/:characterId',
 			name: 'characterOverviewDontManuallyRouteToMeRouteToMyChildren',
 			props: true,
