@@ -106,17 +106,16 @@ const incrementTurn = () => {
 	}
 };
 const rallyBanner = () => {
-	const source = stats.value;
 	const resource = actionResources.value;
 	// Energy Regen
 	['Super', 'Class', 'Melee', 'Grenade', 'Universal'].forEach((energy) => {
 		const energyKey = ('energy' + energy) as StatsCalculatedKey;
-		resource[energyKey] += source[energyKey] - resource[energyKey];
+		resource[energyKey] += getFinalStat(energyKey) - resource[energyKey];
 	});
 	// Action Refresh
-	resource.actionsMove += source.actionsMove - resource.actionsMove;
-	resource.actionsAttack += source.actionsAttack - resource.actionsAttack;
-	resource.actionsReaction += source.actionsReaction - resource.actionsReaction;
+	resource.actionsMove += getFinalStat('actionsMove') - resource.actionsMove;
+	resource.actionsAttack += getFinalStat('actionsAttack') - resource.actionsAttack;
+	resource.actionsReaction += getFinalStat('actionsReaction') - resource.actionsReaction;
 	// Ammo Refresh
 	// resource.ammoKinetic += source.capacityKinetic - resource.ammoKinetic;
 	// resource.ammoSpecial += source.capacitySpecial - resource.ammoSpecial;
@@ -127,8 +126,8 @@ const rallyBanner = () => {
 			weaponAmmoUpdate(weapon.name, weapon.ammoCapacity - weapon.ammoCurrent);
 		});
 	// Healths Refresh
-	resource.health += source.hpMax - resource.health;
-	resource.shields += source.hpShieldMax - resource.shields;
+	resource.health += getFinalStat('hpMax') - resource.health;
+	resource.shields += getFinalStat('hpShieldMax') - resource.shields;
 };
 const healthCapacity = computed<CapacityBoxStatField[]>(() => {
 	return [

@@ -105,6 +105,7 @@ const changeStacksUpdate = (amount: Event) => {
 	width: 576px;
 	margin: 6px;
 	border: 4px solid #fff0;
+	text-shadow: none;
 }
 .armor-item.equipped {
 	border-color: #ffff;
