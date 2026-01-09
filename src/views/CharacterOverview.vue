@@ -88,8 +88,8 @@ onBeforeUnmount(() => {
 					<img src="/src/assets/icons/slot_tricorn.png" />
 				</div>
 				<div class="icon">
-					<h1>STARBENDER 2</h1>
-					<h2>Season of Reckoning</h2>
+					<h1>{{ character?.label }}</h1>
+					<h2 style="text-transform: none">Season of Reckoning</h2>
 				</div>
 			</RouterLink>
 			<nav
@@ -162,7 +162,7 @@ onBeforeUnmount(() => {
 	/* background-image: url('https://wallpapershigh.com/wp-content/uploads/destiny-2-logo-5.webp'); */
 	background-size: cover;
 	background-color: #444;
-	border-bottom: 2px solid #444;
+	/* border-bottom: 2px solid #444; */
 	display: flex;
 	flex: 0 0 auto;
 }
@@ -181,7 +181,7 @@ onBeforeUnmount(() => {
 	background: none;
 	padding: 0;
 	margin: 0;
-	width: inherit;
+	margin-right: auto;
 }
 .icon {
 	display: inline-block;
@@ -198,6 +198,7 @@ onBeforeUnmount(() => {
 	padding-right: 0.75em;
 	text-transform: uppercase;
 	text-shadow: 0 0 #0008;
+	width: min-content;
 }
 .tab-container a {
 	flex: 0;
