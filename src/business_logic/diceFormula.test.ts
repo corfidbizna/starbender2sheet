@@ -255,6 +255,11 @@ describe('Dice Formula Stuff', () => {
 		const reformula = formula.evaluateExceptDice(getStat).stringify();
 		expect(reformula).toEqual('15');
 	});
+	// test('Variable dice count', () => {
+	// 	const formula = new DiceFormula('(4*2)d8'); // Stray die roll
+	// 	const reformula = formula.evaluateExceptDice(getStat).stringify;
+	// 	expect(reformula).toEqual('8d8');
+	// });
 	// test('1d6+Move (Base Land)', () => {
 	// 	// This has a stat with parenthesis in the name,
 	// 	// meaning it thinks 'Move' is a repetition and 'Base Land' is the thing inside

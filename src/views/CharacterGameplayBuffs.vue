@@ -16,6 +16,7 @@ const { character } = useCharacterData(props.characterId);
 	>
 		<BuffActivator
 			:character-id="characterId"
+			:condensed="true"
 			class="gameplay-buffs-list"
 		/>
 	</div>

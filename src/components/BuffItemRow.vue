@@ -1,28 +1,20 @@
 <script setup lang="ts">
-import type { BuffInfo } from '@/business_logic/buffs';
+import type { BuffTypes, BuffInfo } from '@/business_logic/buffs';
 import useCharacterData from '@/composables/useCharacterData';
 import { computed } from 'vue';
-import iconBuffUp from '/src/assets/icons/buff_up.png';
-import iconBuffDown from '/src/assets/icons/buff_down.png';
-import iconBuffStory from '/src/assets/icons/buff_story.png';
 
-const props = defineProps<BuffInfo & { characterId: string }>();
+const props = defineProps<BuffInfo & { characterId: string; condensed: boolean }>();
 const { namesOfActivatedBuffs, buffsStackUpdate } = useCharacterData(props.characterId);
 
 const imageSrc = computed<string>(() => {
-	if (props.type === 'Buff') {
-		return iconBuffUp;
-	} else if (props.type === 'Debuff') {
-		return iconBuffDown;
-	}
-	return iconBuffStory;
-});
-
-const displayStyle = computed<string>(() => {
-	if (!props.isStacking) {
-		return 'visibility: hidden;';
-	}
-	return '';
+	const defaultIcon: Record<BuffTypes, string> = {
+		Buff: 'General_Arrow_Buff',
+		Debuff: 'General_Arrow_Debuff',
+		Story: 'General_Reticle_Neutral',
+		Warning: 'General_Reticle_Warning',
+		Neutral: 'General_Reticle_Neutral',
+	};
+	return './buff_icons/' + (!!props.icon ? props.icon : defaultIcon[props.type]) + '.svg';
 });
 
 const idName = props.name.replace(/ /g, '-').toLocaleLowerCase();
@@ -33,16 +25,20 @@ const changeStacksUpdate = (amount: Event) => {
 };
 </script>
 <template>
-	<label class="buff-label">
-		<input
-			:disabled="props.isPassive"
-			type="checkbox"
-			name="partyBuffs"
-			:value="props.name"
-			v-model="namesOfActivatedBuffs"
-		/>
+	<label
+		:title="props.description"
+		class="buff-label"
+		:class="condensed ? 'condensed' : ''"
+	>
 		<div class="contents">
 			<div class="buff-header">
+				<input
+					:disabled="props.isPassive"
+					type="checkbox"
+					name="partyBuffs"
+					:value="props.name"
+					v-model="namesOfActivatedBuffs"
+				/>
 				<img
 					:src="imageSrc"
 					class="buff-icon"
@@ -52,15 +48,19 @@ const changeStacksUpdate = (amount: Event) => {
 					:class="props.type.toLocaleLowerCase()"
 					>{{ props.name }}</span
 				>
-				<span class="buff-category">{{ props.category || 'Misc' }}</span>
+				<span
+					v-if="!condensed"
+					class="buff-category"
+					>{{ props.category || 'Misc' }}</span
+				>
 				<span
 					class="duration"
 					v-if="props.roundsRemaining"
 					>{{ props.roundsRemaining }} rounds remaining</span
 				>
 				<span
+					v-if="props.isStacking"
 					class="stacks"
-					:style="displayStyle"
 					>x{{ props.stacks
 					}}<input
 						:id="'spinbox-' + idName"
@@ -76,16 +76,24 @@ const changeStacksUpdate = (amount: Event) => {
 				>
 			</div>
 			<div
-				v-if="props.effects"
-				class="buff-effects"
+				v-if="props.effects && !condensed"
+				class="buff-text effects"
 			>
 				<span>{{ props.effects }}</span>
 			</div>
-			<div v-if="props.description">{{ props.description }}</div>
+			<div
+				v-if="props.description && !condensed"
+				class="buff-text description"
+			>
+				{{ props.description }}
+			</div>
 		</div>
 	</label>
 </template>
 <style scoped>
+.condensed {
+	font-size: 0.8em;
+}
 .buff-label:has(input[type='checkbox']:checked),
 .buff-label:has(input[type='checkbox']:disabled) {
 	border-color: #fff;
@@ -94,6 +102,7 @@ const changeStacksUpdate = (amount: Event) => {
 .buff-label {
 	text-align: left;
 	display: flex;
+	width: auto;
 	max-width: 530px;
 	padding: 0.25em;
 	margin: 0.5em;
@@ -103,25 +112,21 @@ const changeStacksUpdate = (amount: Event) => {
 		background-color 0.15s;
 	background-color: #0004;
 }
-.buff-label > input {
-	margin-right: 0.5em;
-	width: 1.5em;
-	height: 1.5em;
-	display: inline;
+.buff-label.condensed {
+	border: none;
+	background-color: #0000;
+}
+.buff-header > input {
+	width: 1.4em;
+	height: 1.3em;
+	align-self: baseline;
+}
+.buff-header > input:disabled {
+	visibility: hidden;
 }
 .buff-label .contents {
 	display: inline;
 	width: 100%;
-}
-.buff-label .contents > * {
-	border-bottom: 1px solid #fff8;
-	padding: 2px 0;
-	margin: 2px 0;
-}
-.buff-label .contents > *:last-child {
-	border-bottom: 0;
-	padding-bottom: 0;
-	margin-bottom: 0;
 }
 /*  */
 .buff-header {
@@ -130,8 +135,9 @@ const changeStacksUpdate = (amount: Event) => {
 	align-items: center;
 }
 .buff-icon {
-	width: 1.2em;
-	height: 1.2em;
+	width: 2em;
+	position: relative;
+	top: -2px;
 }
 .buff-name {
 	font-size: 1.2em;
@@ -140,10 +146,13 @@ const changeStacksUpdate = (amount: Event) => {
 }
 .buff,
 .story {
-	color: #b6efbd;
+	color: var(--color-buff);
 }
 .debuff {
-	color: #f99a8e;
+	color: var(--color-debuff);
+}
+.warning {
+	color: var(--color-masterwork);
 }
 .buff-category {
 	/* font-size: 0.8em; */
@@ -154,7 +163,13 @@ const changeStacksUpdate = (amount: Event) => {
 .buff-category::before {
 	content: '// ';
 }
-.buff-effects {
+.buff-text {
+	margin-top: 2px;
+	margin-left: 1.5em;
+	padding-top: 4px;
+	border-top: 2px solid #fff8;
+}
+.buff-text.effects {
 	opacity: 0.8;
 	font-size: 0.9em;
 	font-style: italic;

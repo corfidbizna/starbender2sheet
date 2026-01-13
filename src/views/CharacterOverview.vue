@@ -247,7 +247,7 @@ onBeforeUnmount(() => {
 }
 .content {
 	flex: 1 1 auto;
-	padding: 0 0.5em;
+	padding: 0.5em;
 	overflow-y: scroll;
 }
 </style>

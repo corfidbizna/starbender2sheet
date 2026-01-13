@@ -11,8 +11,14 @@ import iconKinetic from '@/assets/svgs/Kenetic.svg?url';
 import { computed, ref } from 'vue';
 
 const props = defineProps<Weapon & { characterId: string; activatable?: boolean }>();
-const { weaponAmmoUpdate, namesOfEquippedWeapons, namesOfActiveWeapons, buffsTallied, stats } =
-	useCharacterData(props.characterId);
+const {
+	weaponAmmoUpdate,
+	namesOfEquippedWeapons,
+	namesOfActiveWeapons,
+	buffsTallied,
+	stats,
+	actionResources,
+} = useCharacterData(props.characterId);
 const getCritDisplay = (): string => {
 	if (!props.critRange) {
 		return '--';
@@ -115,8 +121,10 @@ const toHitCalc = computed<number>(() => {
 		result += buffsTallied.value.toHitMelee?.total || stats.value.toHitMelee;
 	} else if (props.rangeType === 'Ranged') {
 		result += buffsTallied.value.toHitRanged?.total || stats.value.toHitRanged;
+		result -= actionResources.value.rangeIncrement * props.rangePenalty;
 	} else if (props.rangeType === 'Spell') {
 		result += buffsTallied.value.toHitSpell?.total || stats.value.toHitSpell;
+		result -= actionResources.value.rangeIncrement * props.rangePenalty;
 	}
 	return result;
 });
@@ -138,7 +146,17 @@ const rollDamage = () => {
 const rollHit = () => {
 	const result = hitFormula.roll(() => 0);
 	let string =
-		glyphMap[props.weaponClass] + props.name + '\n  Hit result: ' + (result + toHitCalc.value);
+		glyphMap[props.weaponClass] +
+		props.name +
+		'\n  ' +
+		result +
+		' (dice) ' +
+		('+ ' + toHitCalc.value).replace('+-', '-') +
+		' (bonus)';
+	if (props.rangeType !== 'Melee' && actionResources.value.rangeIncrement > 0) {
+		string += ' - ' + actionResources.value.rangeIncrement * props.rangePenalty + ' (range)';
+	}
+	string += '\n  Hit result ⇒ ' + (result + toHitCalc.value);
 	if (result <= 1) {
 		string += '\n == Natural 1! ==';
 	}
@@ -258,7 +276,16 @@ const reload = () => {
 						<td class="weapon-stat-label">Average Dmg</td>
 						<td class="weapon-stat-data alt">{{ dmgAvg }}</td>
 						<td class="weapon-stat-label">To Hit</td>
-						<td class="weapon-stat-data">{{ toHitCalc }} v. {{ hitType }}</td>
+						<td
+							class="weapon-stat-data"
+							:style="
+								actionResources.rangeIncrement > 0 && props.rangeType !== 'Melee'
+									? 'color: var(--color-debuff)'
+									: ''
+							"
+						>
+							{{ toHitCalc }} v. {{ hitType }}
+						</td>
 						<td class="weapon-stat-label">Range</td>
 						<td class="weapon-stat-data">{{ rangeType }} {{ range }}ft. </td>
 					</tr>

@@ -85,6 +85,10 @@ const infoSaves = computed<StatBoxInfo>(
 const incrementTurn = () => {
 	const source = stats.value;
 	const resource = actionResources.value;
+	// Update Log
+	updateLog('—— Turn ' + actionResources.value.turns + ' Ended ——');
+	// Turn Counter
+	actionResourceUpdate('turns', 1);
 	// Energy Regen
 	['Super', 'Class', 'Melee', 'Grenade', 'Universal'].forEach((energy) => {
 		const energyKey = ('energy' + energy) as StatsCalculatedKey;
@@ -107,6 +111,8 @@ const incrementTurn = () => {
 };
 const rallyBanner = () => {
 	const resource = actionResources.value;
+	// Update Log
+	updateLog('    Rallying to a banner!\nAll energies and health refilled');
 	// Energy Regen
 	['Super', 'Class', 'Melee', 'Grenade', 'Universal'].forEach((energy) => {
 		const energyKey = ('energy' + energy) as StatsCalculatedKey;
@@ -336,7 +342,6 @@ const encumberanceColor = computed<string>(() => {
 			<div class="primary-block">
 				<div class="action-block">
 					<div>
-						<h1>{{ character.label }}</h1>
 						<button
 							@click="
 								statsRefresh();
@@ -345,6 +350,17 @@ const encumberanceColor = computed<string>(() => {
 						>
 							Reload Data
 						</button>
+						<h1 class="turn-display">
+							<span style="flex: 1 0 auto">Turn </span
+							><span style="margin-left: auto; flex: 1 0 auto"
+								><input
+									style="font-size: 0.8em; width: 2em"
+									v-model="actionResources['turns']"
+									type="number"
+									min="0"
+									value="1"
+							/></span>
+						</h1>
 						<button @click="incrementTurn">Increment Turn</button>
 						<button @click="rallyBanner">Rally Banner</button>
 					</div>
@@ -612,8 +628,16 @@ const encumberanceColor = computed<string>(() => {
 	</div>
 </template>
 <style>
+.turn-display {
+	display: flex;
+	align-items: baseline;
+	padding: 10px 20px;
+	border-top: 2px solid #ddd;
+	border-bottom: 2px solid #ddd;
+	margin: 8px 0;
+}
 .hover-highlight {
-	color: #e8e8e8;
+	/* color: #e8e8e8; */
 	transition: color 0.5s;
 }
 .hover-highlight:hover {
@@ -701,8 +725,10 @@ const encumberanceColor = computed<string>(() => {
 }
 .action-block {
 	flex: 0 0 auto;
+	display: flex;
 	width: 12em;
-	height: 460px;
+	height: var(--content-height);
+	flex-direction: column;
 }
 .action-block button {
 	width: 100%;
@@ -712,7 +738,7 @@ const encumberanceColor = computed<string>(() => {
 }
 .action-log {
 	width: 90%;
-	height: calc(100vh - 324px);
+	flex-grow: 2;
 }
 /* */
 .weapon-block {

@@ -1262,6 +1262,7 @@ export type ImportedWeapon = {
 	damageType: Element;
 	rangeType: string;
 	range: number;
+	rangePenalty: number;
 	handed: number;
 	size?: number;
 	shape?: string;
@@ -1587,6 +1588,7 @@ function useCharacterDataUncached(characterId: string) {
 				}
 				return result + (getFinalStat('damagePrecision') || 0);
 			});
+			if (weapon.rangePenalty === undefined) weapon.rangePenalty = 2;
 			// const formula = new DiceFormula(weapon.Damage);
 			const formula = new DiceFormula(weapon.damage + '+' + damageBonus.value);
 			// const formula = new DiceFormula(
@@ -2073,6 +2075,7 @@ function useCharacterDataUncached(characterId: string) {
 		}
 	};
 	const actionResources = ref<Record<string, number>>({
+		turns: 0,
 		health: getFinalStat('hpMax'),
 		shields: getFinalStat('hpShieldMax'),
 		actionsMove: getFinalStat('actionsMove'),
@@ -2088,6 +2091,7 @@ function useCharacterDataUncached(characterId: string) {
 		energyClass: getFinalStat('energyClass'),
 		energyUniversal: getFinalStat('energyUniversal'),
 		armorCharges: getFinalStat('capacityArmorCharge'),
+		rangeIncrement: 0,
 	});
 	const actionResourceUpdate = (destination: keyof ActionResource, amount: number) => {
 		actionResources.value[destination] += amount;

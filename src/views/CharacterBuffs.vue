@@ -76,8 +76,14 @@ const activeBuffNames = computed<string>(() => {
 			v-else
 			class="buff-test"
 		>
-			<div><button @click="buffsRefresh">Refresh Buffs</button></div>
-			<table>
+			<div class="buff-list">
+				<div><button @click="buffsRefresh">Refresh Buffs</button></div>
+				<h2>Activated Buffs</h2>
+				<div>{{ activeBuffNames.split(', ').join('\n') }}</div>
+				<h2>Stat Totals</h2>
+				<div>{{ buffTotals.split(', ').join('\n') }}</div>
+			</div>
+			<!-- <table>
 				<tbody>
 					<tr>
 						<td>Names of Activated Buffs:</td>
@@ -88,13 +94,25 @@ const activeBuffNames = computed<string>(() => {
 						<td>{{ buffTotals }}</td>
 					</tr>
 				</tbody>
-			</table>
-			<BuffActivator :character-id="characterId" />
+			</table> -->
+			<BuffActivator
+				:character-id="characterId"
+				:condensed="false"
+			/>
 			<!-- <pre>activatedPartyBuffs: {{ activatedPartyBuffs }}</pre> -->
 		</div>
 	</div>
 </template>
 <style>
+.buff-test {
+	display: flex;
+}
+.buff-list {
+	white-space: pre-line;
+	width: 16em;
+	flex: 0 0 auto;
+	margin-right: 1em;
+}
 .buff-box input {
 	vertical-align: top;
 }

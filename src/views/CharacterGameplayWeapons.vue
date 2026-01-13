@@ -86,6 +86,17 @@ const equippedWeapons = computed<Weapon[]>(() => {
 						}"
 						:characterId="characterId"
 					/>
+					<div class="range-controls">
+						<span style="flex-grow: 1">Range Increment</span>
+						<input
+							type="number"
+							style="width: 3em"
+							v-model="actionResources.rangeIncrement"
+							value="0"
+							min="0"
+							max="10"
+						/>
+					</div>
 				</div>
 			</div>
 			<div
@@ -118,6 +129,10 @@ const equippedWeapons = computed<Weapon[]>(() => {
 <style>
 .weapons-block {
 	display: flex;
+}
+.range-controls {
+	display: flex;
+	align-items: center;
 }
 .gameplay-weapons-list {
 	height: calc(100vh - 280px);

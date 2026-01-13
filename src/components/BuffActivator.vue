@@ -7,6 +7,7 @@ import { computed } from 'vue';
 
 type CharacterProps = {
 	characterId: string;
+	condensed: boolean;
 };
 const props = defineProps<CharacterProps>();
 
@@ -45,6 +46,7 @@ const activeBuffs = computed<BuffInfo[]>(() => [
 				:key="buff.name"
 				v-bind="buff"
 				:characterId="characterId"
+				:condensed="props.condensed"
 			/>
 			<h2>Active Buffs</h2>
 			<BuffItemRow
@@ -52,6 +54,7 @@ const activeBuffs = computed<BuffInfo[]>(() => [
 				:key="buff.name"
 				v-bind="buff"
 				:characterId="characterId"
+				:condensed="props.condensed"
 			/>
 		</div>
 		<div class="buff-table">
@@ -61,6 +64,7 @@ const activeBuffs = computed<BuffInfo[]>(() => [
 				:key="buff.name"
 				v-bind="buff"
 				:characterId="characterId"
+				:condensed="props.condensed"
 			/>
 		</div>
 	</div>
@@ -68,13 +72,12 @@ const activeBuffs = computed<BuffInfo[]>(() => [
 <style scoped>
 .buff-activator {
 	display: block;
-	justify-content: center;
-	display: block;
 	text-align: center;
 }
 .buff-table {
 	display: inline-block;
 	vertical-align: top;
-	/* margin: 1em; */
+	width: 450px;
+	margin: 0 0.2em;
 }
 </style>
