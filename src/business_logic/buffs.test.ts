@@ -67,6 +67,7 @@ describe('Behaviors of getBuffEffects', () => {
 		const buff: BuffInfo = {
 			name: 'Cool sunglasses',
 			type: 'Buff',
+			isStory: false,
 			description: 'Makes you look cool',
 			active: true,
 			stacks: 0,
@@ -78,6 +79,7 @@ describe('Behaviors of getBuffEffects', () => {
 		const buff: BuffInfo = {
 			name: 'Buff Strength',
 			type: 'Buff',
+			isStory: false,
 			isStacking: false,
 			description: 'Buffs strength by 5.',
 			effects: 'Str Mod +5',
@@ -99,6 +101,7 @@ describe('Behaviors of getBuffEffects', () => {
 			name: 'Debuff Strength & Dexterity',
 			type: 'Debuff',
 			isStacking: false,
+			isStory: false,
 			description: 'Debuffs strength and dexterity.',
 			effects: 'Str Mod -5, Dex Mod -7',
 			active: true,
@@ -125,6 +128,7 @@ describe('Behaviors of getBuffEffects', () => {
 			name: 'Buffs Something Based on Another Stat',
 			type: 'Buff',
 			isStacking: false,
+			isStory: false,
 			description: 'Buffs strength by dexterity mod.',
 			effects: 'Str Mod +1*Dex Mod',
 			active: true,
@@ -145,6 +149,7 @@ describe('Behaviors of getBuffEffects', () => {
 			name: 'Buffs Something Based on Another Stat Two-Way',
 			type: 'Buff',
 			isStacking: false,
+			isStory: false,
 			description: 'Buffs strength by dexterity mod and vice versa.',
 			effects: 'Str Mod +1*Dex Mod, Dex Mod +1*Str Mod',
 			active: true,
@@ -170,6 +175,7 @@ describe('Behaviors of getBuffEffects', () => {
 		const buff: BuffInfo = {
 			name: 'Buff Strength based on Dex and Stack Size',
 			type: 'Buff',
+			isStory: false,
 			isStacking: true,
 			stacks: 3,
 			effects: 'Str Mod +1*Dex Mod*stacks',
@@ -189,6 +195,7 @@ describe('Behaviors of getBuffEffects', () => {
 		const buff: BuffInfo = {
 			name: 'Buff Strength and Dex based on Stack Size',
 			type: 'Buff',
+			isStory: false,
 			isStacking: true,
 			stacks: 3,
 			effects: 'Str Mod +10, Dex Mod +stacks',
@@ -214,6 +221,7 @@ describe('Behaviors of getBuffEffects', () => {
 		const buff: BuffInfo = {
 			name: 'Buff Strength and Dex based on Stack Size',
 			type: 'Buff',
+			isStory: false,
 			isStacking: true,
 			stacks: 3,
 			effects: 'Str Mod +10, Dex Mod +1*stacks',
@@ -239,6 +247,7 @@ describe('Behaviors of getBuffEffects', () => {
 		const buff: BuffInfo = {
 			name: 'Buff Strength based on Stack Size',
 			type: 'Buff',
+			isStory: false,
 			isStacking: true,
 			stacks: 0,
 			effects: 'Str Mod +1*stacks',
@@ -258,6 +267,7 @@ describe('Behaviors of getBuffEffects', () => {
 		const buff: BuffInfo = {
 			name: 'Buff Strength and Dex based on Stack Size',
 			type: 'Buff',
+			isStory: false,
 			isStacking: true,
 			stacks: 3,
 			effects: 'Str Mod -stacks',
@@ -277,6 +287,7 @@ describe('Behaviors of getBuffEffects', () => {
 		const buff: BuffInfo = {
 			name: 'Adds 5 to nowhere',
 			type: 'Debuff',
+			isStory: false,
 			isStacking: false,
 			effects: '+5',
 			active: true,
@@ -291,6 +302,7 @@ describe('Behaviors of getBuffEffects', () => {
 		const buff: BuffInfo = {
 			name: 'Multiply Dex by 3',
 			type: 'Buff',
+			isStory: false,
 			isStacking: false,
 			effects: 'Dex Mod *3',
 			active: true,
@@ -310,6 +322,7 @@ describe('Behaviors of getBuffEffects', () => {
 		const buff: BuffInfo = {
 			name: 'Buffs Strength by 5 and -3',
 			type: 'Buff',
+			isStory: false,
 			isStacking: false,
 			effects: 'Str Mod +5, Str Mod -3',
 			active: true,
@@ -336,6 +349,7 @@ describe('Behaviors of getBuffEffects', () => {
 			name: 'Buffs Strength by 10',
 			category: 'Netflix',
 			type: 'Buff',
+			isStory: false,
 			isStacking: false,
 			effects: 'Str Mod +10',
 			active: true,
@@ -356,6 +370,7 @@ describe('Behaviors of getBuffEffects', () => {
 			name: 'Buffs Strength by 5 and also Misc Dexterity by 5',
 			category: 'Netflix',
 			type: 'Buff',
+			isStory: false,
 			isStacking: false,
 			effects: 'Str Mod +5, misc Dex Mod +5',
 			active: true,
@@ -382,6 +397,7 @@ describe('Behaviors of getBuffEffects', () => {
 			name: '',
 			category: 'Armor',
 			type: 'Buff',
+			isStory: false,
 			isStacking: false,
 			effects: 'Natural Armor +3',
 			active: true,
@@ -402,6 +418,7 @@ describe('Behaviors of getBuffEffects', () => {
 			name: '',
 			category: 'Misc',
 			type: 'Debuff',
+			isStory: false,
 			isStacking: true,
 			effects: 'Movement Action -0.5*stacks',
 			active: true,
@@ -422,6 +439,7 @@ describe('Behaviors of getBuffEffects', () => {
 			name: '',
 			category: 'Armor',
 			type: 'Buff',
+			isStory: false,
 			isStacking: false,
 			effects: 'Natural Armor +2',
 			active: true,
