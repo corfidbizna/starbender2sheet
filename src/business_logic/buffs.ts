@@ -5,7 +5,7 @@ import {
 	sizeMap,
 } from '@/composables/useCharacterData';
 
-export type BuffTypes = 'Buff' | 'Debuff' | 'Neutral' | 'Warning';
+export type BuffTypes = 'Buff' | 'Debuff' | 'Neutral' | 'Warning' | 'Hidden';
 // type BuffFamilies =
 export type BuffInfo = {
 	name: string;

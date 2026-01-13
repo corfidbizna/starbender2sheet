@@ -15,7 +15,7 @@ const { buffs } = useCharacterData(props.characterId);
 
 const storyBuffs = computed<BuffInfo[]>(() => buffs.value.filter((buff) => buff.isStory));
 const otherBuffs = computed<BuffInfo[]>(() =>
-	buffs.value.filter((buff) => !buff.isStory && buff.type !== 'Neutral'),
+	buffs.value.filter((buff) => !buff.isStory && buff.type !== 'Hidden'),
 );
 const activeBuffs = computed<BuffInfo[]>(() => [
 	...storyBuffs.value.filter((buff) => buff.active),
