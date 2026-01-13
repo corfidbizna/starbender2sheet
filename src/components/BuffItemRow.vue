@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { BuffTypes, BuffInfo } from '@/business_logic/buffs';
+import type { BuffInfo } from '@/business_logic/buffs';
 import useCharacterData from '@/composables/useCharacterData';
 import { computed } from 'vue';
 
@@ -7,14 +7,9 @@ const props = defineProps<BuffInfo & { characterId: string; condensed: boolean }
 const { namesOfActivatedBuffs, buffsStackUpdate } = useCharacterData(props.characterId);
 
 const imageSrc = computed<string>(() => {
-	const defaultIcon: Record<BuffTypes, string> = {
-		Buff: 'General_Arrow_Buff',
-		Debuff: 'General_Arrow_Debuff',
-		Story: 'General_Reticle_Neutral',
-		Warning: 'General_Reticle_Warning',
-		Neutral: 'General_Reticle_Neutral',
-	};
-	return './buff_icons/' + (!!props.icon ? props.icon : defaultIcon[props.type]) + '.svg';
+	return (
+		'./buff_icons/' + (props.icon ? props.icon : 'General_Arrow') + '_' + props.type + '.svg'
+	);
 });
 
 const idName = props.name.replace(/ /g, '-').toLocaleLowerCase();

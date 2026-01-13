@@ -5,13 +5,14 @@ import {
 	sizeMap,
 } from '@/composables/useCharacterData';
 
-export type BuffTypes = 'Buff' | 'Debuff' | 'Story' | 'Neutral' | 'Warning';
+export type BuffTypes = 'Buff' | 'Debuff' | 'Neutral' | 'Warning';
 // type BuffFamilies =
 export type BuffInfo = {
 	name: string;
 	type: BuffTypes;
 	icon?: string;
 	category?: string;
+	isStory: boolean;
 	isStacking?: boolean;
 	stackMax?: number;
 	stacks: number;

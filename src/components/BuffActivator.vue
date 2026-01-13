@@ -13,9 +13,9 @@ const props = defineProps<CharacterProps>();
 
 const { buffs } = useCharacterData(props.characterId);
 
-const storyBuffs = computed<BuffInfo[]>(() => buffs.value.filter((buff) => buff.type === 'Story'));
+const storyBuffs = computed<BuffInfo[]>(() => buffs.value.filter((buff) => buff.isStory));
 const otherBuffs = computed<BuffInfo[]>(() =>
-	buffs.value.filter((buff) => buff.type !== 'Story' && buff.type !== 'Neutral'),
+	buffs.value.filter((buff) => !buff.isStory && buff.type !== 'Neutral'),
 );
 const activeBuffs = computed<BuffInfo[]>(() => [
 	...storyBuffs.value.filter((buff) => buff.active),
