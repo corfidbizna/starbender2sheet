@@ -30,6 +30,7 @@ export type PartyDataSource = {
 	sheets: {
 		weapons: string;
 		armor: string;
+		abilities: string;
 		buffs: string;
 		quests: string;
 		artifact: string;
@@ -87,6 +88,7 @@ export const partyDataSources: PartyDataSource = {
 	sheets: {
 		weapons: '0',
 		armor: '31916088',
+		abilities: '1109846394',
 		buffs: '1462505437',
 		quests: '745911680',
 		artifact: '187064580',
@@ -94,7 +96,13 @@ export const partyDataSources: PartyDataSource = {
 };
 // A list of all character names, used as keys in certian dynamic situations
 // and thus needs to be a type for TypeScript reasons.
-export type CharacterNames = 'aurora' | 'kara' | 'mark' | 'lewis';
+export type Characters = {
+	aurora: boolean;
+	kara: boolean;
+	mark: boolean;
+	lewis: boolean;
+};
+export type CharacterNames = keyof Characters;
 
 export type GVizSheetResponse = {
 	version: string;
@@ -1241,11 +1249,7 @@ type WeaponClasses =
 	| 'Sword'
 	| 'Machine Gun';
 // The type describing a weapon
-export type ImportedWeapon = {
-	aurora: boolean;
-	kara: boolean;
-	mark: boolean;
-	lewis: boolean;
+export type ImportedWeapon = Characters & {
 	name: string;
 	flavortext?: string;
 	rarity: Rarity;
@@ -1287,11 +1291,7 @@ export type Weapon = ImportedWeapon & {
 	active: boolean;
 };
 // The types describing armor.
-export type Armor = {
-	aurora: boolean;
-	kara: boolean;
-	mark: boolean;
-	lewis: boolean;
+export type Armor = Characters & {
 	name: string;
 	flavortext?: string;
 	description?: string;
@@ -1310,6 +1310,37 @@ export type Armor = {
 	//
 	equipped: boolean;
 	active: boolean;
+};
+
+// The types describing abilities.
+export type AbilityClass = 'Super' | 'Grenade' | 'Melee' | 'Class Ability' | 'Subcomponent';
+export type Ability = Characters & {
+	name: string;
+	groupName: string[];
+	type: AbilityClass;
+	flavortext: string;
+	description: string;
+	specialProperties: string;
+	element: Element;
+	prerequisite: string[];
+	hitType: string;
+	hitBonus: number;
+	critRange: number;
+	critMult: number;
+	damageDieQuantity: number;
+	damageDieFormula: string;
+	damage: DiceFormula;
+	energyMax: number;
+	partialPowerSteps: number;
+	partialPowerStats: string[];
+	partialPowerStepMult: number[];
+	partialPowerAllowed: boolean;
+	rangeType: string;
+	range: number;
+	size: number;
+	shape: string;
+	duration: number;
+	handed: number;
 };
 
 // The type describing a quest info block.
@@ -1643,7 +1674,7 @@ function useCharacterDataUncached(characterId: string) {
 					(weapon.buffsEquipped !== undefined ? ', ' + weapon.buffsEquipped : '');
 				const newBuff: BuffInfo = {
 					name: weapon.name + ' (Equipped)',
-					type: 'Neutral',
+					type: 'Hidden',
 					category: 'Misc',
 					isStory: false,
 					stacks: 0,
@@ -1661,7 +1692,7 @@ function useCharacterDataUncached(characterId: string) {
 					(weapon.buffsActive !== undefined ? ', ' + weapon.buffsEquipped : '');
 				const newBuff: BuffInfo = {
 					name: weapon.name + ' (Active)',
-					type: 'Neutral',
+					type: 'Hidden',
 					category: 'Misc',
 					isStory: false,
 					stacks: 0,
@@ -1764,7 +1795,7 @@ function useCharacterDataUncached(characterId: string) {
 					: armor.slots;
 				const newBuff: BuffInfo = {
 					name: armor.name + ' (Equipped)',
-					type: 'Neutral',
+					type: 'Hidden',
 					category: armor.buffCategory,
 					isStory: false,
 					isStacking: !!armor.stacksMax || armor.isStacking,
@@ -1779,7 +1810,7 @@ function useCharacterDataUncached(characterId: string) {
 			.map((armor) => {
 				const newBuff: BuffInfo = {
 					name: armor.name + ' (Active)',
-					type: 'Neutral',
+					type: 'Hidden',
 					category: armor.buffsChargedCategory || 'Misc',
 					isStory: false,
 					isStacking: !!armor.stacksMax || armor.isStacking,
@@ -1825,6 +1856,35 @@ function useCharacterDataUncached(characterId: string) {
 	};
 
 	// ARMOR END
+
+	// ==================================================================================================
+	// ABILITIES START
+	const {
+		data: abilitiesThatNeedToBeFiltered,
+		isLoading: abilitiesLoading,
+		refresh: abilitiesRefresh,
+	} = getNetworkDataStateForSheet<Ability>(
+		partyDataSources.documentId,
+		partyDataSources.sheets.abilities,
+	);
+	const abilities = computed<Ability[]>(() => {
+		return abilitiesThatNeedToBeFiltered.value
+			.filter((item) => item[characterId as CharacterNames] && item.name)
+			.map((ability) => {
+				ability.groupName = ability.groupName[0].split(', ');
+				ability.prerequisite = ability.prerequisite[0].split(', ');
+				ability.partialPowerStats = ability.partialPowerStats[0].split(', ');
+				ability.partialPowerStepMult = (ability.partialPowerStepMult[0] + '')
+					.split(', ')
+					.map((num) => parseInt(num));
+				ability.damage = new DiceFormula(
+					ability.damageDieQuantity + ability.damageDieFormula,
+				);
+				return ability;
+			});
+	});
+
+	// ABILITIES END
 
 	// ==================================================================================================
 	// QUESTS START
@@ -1877,7 +1937,7 @@ function useCharacterDataUncached(characterId: string) {
 			.map((artifactMod) => {
 				const newBuff: BuffInfo = {
 					name: artifactMod.name,
-					type: 'Neutral',
+					type: 'Hidden',
 					category: artifactMod.buffCategory || 'Misc',
 					isStory: false,
 					stacks: 0,
@@ -2139,6 +2199,10 @@ function useCharacterDataUncached(characterId: string) {
 		armorStackUpdate,
 		armorLoading,
 		armorRefresh,
+		// Abilities
+		abilities,
+		abilitiesLoading,
+		abilitiesRefresh,
 		// Quests
 		quests,
 		questsLoading,
