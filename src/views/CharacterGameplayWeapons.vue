@@ -87,15 +87,15 @@ const equippedWeapons = computed<Weapon[]>(() => {
 						:characterId="characterId"
 					/>
 					<div class="range-controls">
-						<span style="flex-grow: 1">Range Increment</span>
+						<span style="flex-grow: 1">Target Distance</span>
 						<input
 							type="number"
-							style="width: 3em"
-							v-model="actionResources.rangeIncrement"
+							style="width: 5em"
+							v-model="actionResources.targetRange"
 							value="0"
 							min="0"
-							max="10"
 						/>
+						<span>ft.</span>
 					</div>
 				</div>
 			</div>

@@ -115,16 +115,21 @@ const glyphMap = {
 	Strand: '',
 	Prismatic: '',
 };
+const hitRangeMod = computed<number>(() => {
+	const distance = actionResources.value.targetRange;
+	const increment = Math.min(10, Math.max(0, distance / props.range));
+	return Math.trunc(increment) * props.rangePenalty;
+});
 const toHitCalc = computed<number>(() => {
 	let result = props.hitBonus || 0;
 	if (props.rangeType === 'Melee') {
 		result += buffsTallied.value.toHitMelee?.total || stats.value.toHitMelee;
 	} else if (props.rangeType === 'Ranged') {
 		result += buffsTallied.value.toHitRanged?.total || stats.value.toHitRanged;
-		result -= actionResources.value.rangeIncrement * props.rangePenalty;
+		result -= hitRangeMod.value;
 	} else if (props.rangeType === 'Spell') {
 		result += buffsTallied.value.toHitSpell?.total || stats.value.toHitSpell;
-		result -= actionResources.value.rangeIncrement * props.rangePenalty;
+		result -= hitRangeMod.value;
 	}
 	return result;
 });
@@ -279,7 +284,7 @@ const reload = () => {
 						<td
 							class="weapon-stat-data"
 							:style="
-								actionResources.rangeIncrement > 0 && props.rangeType !== 'Melee'
+								hitRangeMod > 0 && props.rangeType !== 'Melee'
 									? 'color: var(--color-debuff)'
 									: ''
 							"

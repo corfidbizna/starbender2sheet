@@ -2096,7 +2096,7 @@ function useCharacterDataUncached(characterId: string) {
 		energyClass: getFinalStat('energyClass'),
 		energyUniversal: getFinalStat('energyUniversal'),
 		armorCharges: getFinalStat('capacityArmorCharge'),
-		rangeIncrement: 0,
+		targetRange: 0,
 	});
 	const actionResourceUpdate = (destination: keyof ActionResource, amount: number) => {
 		actionResources.value[destination] += amount;
