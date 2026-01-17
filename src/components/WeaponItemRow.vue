@@ -4,10 +4,6 @@ import useCharacterData, { type Weapon } from '@/composables/useCharacterData';
 import DGlyph from './DGlyph.vue';
 import CapacityBar from './CapacityBar.vue';
 import { DiceFormula } from '@/business_logic/diceFormula';
-import svgAmmoPrimary from '@/assets/svgs/ammo_primary.svg?url';
-import svgAmmoSpecial from '@/assets/svgs/ammo_special.svg?url';
-import svgAmmoHeavy from '@/assets/svgs/ammo_heavy.svg?url';
-import iconKinetic from '@/assets/svgs/Kenetic.svg?url';
 import { computed, ref } from 'vue';
 
 const props = defineProps<Weapon & { characterId: string; activatable?: boolean }>();
@@ -68,12 +64,12 @@ const colorsElement = (element: string): string => {
 const ammoImageSrc = () => {
 	const ammo = props.ammoType.toLocaleLowerCase();
 	if (ammo.includes('energy') || ammo.includes('special')) {
-		return svgAmmoSpecial;
+		return './svgs/ammo_special.svg';
 	}
 	if (ammo.includes('heavy')) {
-		return svgAmmoHeavy;
+		return './svgs/ammo_heavy.svg';
 	}
-	return svgAmmoPrimary;
+	return './svgs/ammo_primary.svg';
 };
 const colorsAmmo = (ammoType: string) => {
 	const alpha = 'ff';
@@ -223,7 +219,7 @@ const reload = () => {
 						<img
 							v-else
 							class="kinetic-icon"
-							src="/src/assets/svgs/Kenetic.svg"
+							src="./svgs/Kenetic.svg"
 						/>
 						<span>{{ name }}</span>
 					</h1>
@@ -249,7 +245,7 @@ const reload = () => {
 					<img
 						v-else
 						class="kinetic-icon"
-						:src="iconKinetic"
+						src="./svgs/Kenetic.svg"
 					/>
 					<span
 						:style="'color: ' + colorsElement(element)"
