@@ -27,12 +27,15 @@ const progress = computed<number>(() =>
 	>
 		<span
 			class="bar"
-			:style="'width: calc(' + progress + '% - 2px); background-color: ' + color"
+			:style="'width: ' + progress + '%; background-color: ' + color"
 		></span>
-		<span class="line"></span>
+		<span
+			class="line"
+			:style="'left: calc(' + progress + '% - 1px)'"
+		></span>
 		<span
 			class="remaining"
-			:style="'width: calc(' + (100 - progress) + '% - ' + (progress === 0 ? 2 : 0) + 'px);'"
+			:style="'width: calc(' + (100 - progress) + '%);'"
 		></span>
 	</span>
 	<span
@@ -43,8 +46,9 @@ const progress = computed<number>(() =>
 </template>
 <style scoped>
 .container {
+	position: relative;
 	display: inline-block;
-	width: calc(100% - 2px);
+	width: 100%;
 	height: 1.2em;
 	margin: 2px;
 }
@@ -63,10 +67,14 @@ const progress = computed<number>(() =>
 	margin-bottom: 1px;
 }
 .line {
+	position: absolute;
 	display: inline-block;
 	width: 2px;
 	height: 100%;
 	background-color: #fff;
+}
+.line {
+	transition: left 0.15s;
 }
 .remaining {
 	background-color: #fff4;
