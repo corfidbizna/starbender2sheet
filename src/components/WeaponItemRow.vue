@@ -64,12 +64,12 @@ const colorsElement = (element: string): string => {
 const ammoImageSrc = () => {
 	const ammo = props.ammoType.toLocaleLowerCase();
 	if (ammo.includes('energy') || ammo.includes('special')) {
-		return './svgs/ammo_special.svg';
+		return '/public/svgs/ammo_special.svg';
 	}
 	if (ammo.includes('heavy')) {
-		return './svgs/ammo_heavy.svg';
+		return '/public/svgs/ammo_heavy.svg';
 	}
-	return './svgs/ammo_primary.svg';
+	return '/public/svgs/ammo_primary.svg';
 };
 const colorsAmmo = (ammoType: string) => {
 	const alpha = 'ff';
@@ -219,7 +219,7 @@ const reload = () => {
 						<img
 							v-else
 							class="kinetic-icon"
-							src="./svgs/Kenetic.svg"
+							src="/public/svgs/Kenetic.svg"
 						/>
 						<span>{{ name }}</span>
 					</h1>
@@ -245,7 +245,7 @@ const reload = () => {
 					<img
 						v-else
 						class="kinetic-icon"
-						src="./svgs/Kenetic.svg"
+						src="/public/svgs/Kenetic.svg"
 					/>
 					<span
 						:style="'color: ' + colorsElement(element)"
