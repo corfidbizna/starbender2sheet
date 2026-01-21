@@ -40,6 +40,12 @@ const router = createRouter({
 							component: () => import('../views/CharacterGameplayArmor.vue'),
 						},
 						{
+							path: 'abilities',
+							name: 'characterGameplayAbilities',
+							props: true,
+							component: () => import('../views/CharacterGameplayAbilities.vue'),
+						},
+						{
 							path: 'skills',
 							name: 'characterGameplaySkills',
 							props: true,

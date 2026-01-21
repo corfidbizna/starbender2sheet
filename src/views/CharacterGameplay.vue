@@ -589,12 +589,6 @@ const encumberanceColor = computed<string>(() => {
 								}"
 								:characterId="characterId"
 							/>
-							<div>
-								<button class="ability-button super">Super</button>
-								<button class="ability-button melee">Melee</button>
-								<button class="ability-button grenade">Grenade</button>
-								<button class="ability-button class">Class Ability</button>
-							</div>
 						</div>
 					</div>
 				</div>
@@ -607,6 +601,10 @@ const encumberanceColor = computed<string>(() => {
 						<RouterLink
 							:to="{ name: 'characterGameplayArmor', params: { characterId } }"
 							>Armor</RouterLink
+						>
+						<RouterLink
+							:to="{ name: 'characterGameplayAbilities', params: { characterId } }"
+							>Abilities</RouterLink
 						>
 						<RouterLink
 							:to="{ name: 'characterGameplaySkills', params: { characterId } }"
@@ -737,7 +735,7 @@ const encumberanceColor = computed<string>(() => {
 	margin: 2px 0;
 }
 .action-log {
-	width: 90%;
+	width: auto;
 	flex-grow: 2;
 }
 /* */

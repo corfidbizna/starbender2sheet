@@ -95,6 +95,7 @@ input[type='number'] {
 	font-weight: bold;
 	text-align: right;
 	border: 1px solid #fff8;
+	padding: 0;
 }
 button {
 	color: #fff;

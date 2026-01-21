@@ -1273,6 +1273,7 @@ export type ImportedWeapon = Characters & {
 	duration?: number;
 	ammo: number;
 	ammoCapacity: number;
+	ammoReloadAmount: number;
 	ammoType: string;
 	isMagic: boolean;
 	ranks?: number;
@@ -1314,15 +1315,21 @@ export type Armor = Characters & {
 
 // The types describing abilities.
 export type AbilityClass = 'Super' | 'Grenade' | 'Melee' | 'Class Ability' | 'Subcomponent';
+type ImportedAbility = Ability & {
+	groupNameList: string;
+	prerequisiteList: string;
+	partialPowerStatsList: string;
+	partialPowerStepMultList: string;
+};
 export type Ability = Characters & {
 	name: string;
-	groupName: string[];
+	groupNames: string[];
 	type: AbilityClass;
 	flavortext: string;
 	description: string;
 	specialProperties: string;
 	element: Element;
-	prerequisite: string[];
+	prerequisites: string[];
 	hitType: string;
 	hitBonus: number;
 	critRange: number;
@@ -1333,7 +1340,7 @@ export type Ability = Characters & {
 	energyMax: number;
 	partialPowerSteps: number;
 	partialPowerStats: string[];
-	partialPowerStepMult: number[];
+	partialPowerStepMults: number[];
 	partialPowerAllowed: boolean;
 	rangeType: string;
 	range: number;
@@ -1631,6 +1638,9 @@ function useCharacterDataUncached(characterId: string) {
 			weapon.dmgAvg = formula.mean(statFunction);
 			weapon.dmgShort = formula.evaluateExceptDice(statFunction).stringify();
 			weapon.ammoCurrent = weapon.ammoCapacity;
+			if (weapon.ammoReloadAmount === undefined) {
+				weapon.ammoReloadAmount = weapon.ammoCapacity;
+			}
 			if (namesOfEquippedWeapons.value.includes(weapon.name)) {
 				weapon.equipped = true;
 			} else {
@@ -1863,7 +1873,7 @@ function useCharacterDataUncached(characterId: string) {
 		data: abilitiesThatNeedToBeFiltered,
 		isLoading: abilitiesLoading,
 		refresh: abilitiesRefresh,
-	} = getNetworkDataStateForSheet<Ability>(
+	} = getNetworkDataStateForSheet<ImportedAbility>(
 		partyDataSources.documentId,
 		partyDataSources.sheets.abilities,
 	);
@@ -1871,17 +1881,37 @@ function useCharacterDataUncached(characterId: string) {
 		return abilitiesThatNeedToBeFiltered.value
 			.filter((item) => item[characterId as CharacterNames] && item.name)
 			.map((ability) => {
-				ability.groupName = ability.groupName[0].split(', ');
-				ability.prerequisite = ability.prerequisite[0].split(', ');
-				ability.partialPowerStats = ability.partialPowerStats[0].split(', ');
-				ability.partialPowerStepMult = (ability.partialPowerStepMult[0] + '')
+				const parsedAbility = { ...ability };
+				parsedAbility.groupNames = (ability.groupNameList || ability.name).split(', ');
+				parsedAbility.prerequisites = (ability.prerequisiteList || '').split(', ');
+				parsedAbility.partialPowerStats = (ability.partialPowerStatsList || '').split(', ');
+				parsedAbility.partialPowerStepMults = (ability.partialPowerStepMultList || '')
 					.split(', ')
 					.map((num) => parseInt(num));
-				ability.damage = new DiceFormula(
-					ability.damageDieQuantity + ability.damageDieFormula,
-				);
-				return ability;
+				const newDamage =
+					(ability.damageDieQuantity || '0') + (ability.damageDieFormula || 'd0');
+				parsedAbility.damage = new DiceFormula(newDamage);
+				return parsedAbility;
 			});
+	});
+	const abilityGroups = computed<Record<string, string[]>>(() => {
+		const groups: Record<string, string[]> = {};
+		abilities.value.forEach((ability) => {
+			ability.groupNames.forEach((groupName) => {
+				if (ability.type !== 'Subcomponent') {
+					if (groups[ability.name] === undefined) {
+						groups[ability.name] = [];
+					}
+				} else {
+					if (groups[groupName] === undefined) {
+						groups[groupName] = [ability.name];
+					} else {
+						groups[groupName].push(ability.name);
+					}
+				}
+			});
+		});
+		return groups;
 	});
 
 	// ABILITIES END
@@ -2201,6 +2231,7 @@ function useCharacterDataUncached(characterId: string) {
 		armorRefresh,
 		// Abilities
 		abilities,
+		abilityGroups,
 		abilitiesLoading,
 		abilitiesRefresh,
 		// Quests
