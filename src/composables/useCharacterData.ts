@@ -174,6 +174,37 @@ type SizeEffect = {
 	fly: number;
 	toHit: number;
 };
+export type DamageComponent = {
+	attackType: string; // Bullet
+	hitType: string; // AC
+	hitBonus: number; // 2 (to be combined with range stuff)
+	critRange: number; // 1 (20 only)
+	critMult: number; // 2 (x2)
+	damageFormula: DiceFormula; // 2d8+(Str Mod*2) <— separate from the imported string!!!
+	dmgShort: string; // 2d8+10 (calculate pls)
+	dmgMin: number; // 4 (calculate pls)
+	dmgAvg: number; // [whatever the average is] (calculate pls)
+	dmgMax: number; // 18 (calculate pls)
+	damageType: Element; // Solar
+	rangeType: string; // Ranged
+	range: number; // 20
+	rangePenalty: number; // 2 (goes down by 2)
+	rangeIncrementsModifier: number; // 60 (every 60ft. distance)
+	size: number; // 10
+	shape: string; // sphere
+	duration: number; // 1
+};
+export const damageStringToDownstream = (damage: string, sourceStats: StatsCalculated) => {
+	const statFunction = getStatByCharacter(sourceStats);
+	const formula = new DiceFormula(damage);
+	return {
+		damageFormula: formula,
+		dmgMin: formula.min(statFunction),
+		dmgMax: formula.max(statFunction),
+		dmgAvg: formula.mean(statFunction),
+		dmgShort: formula.evaluateExceptDice(statFunction).stringify(),
+	};
+};
 export const sizeMap: Record<number, SizeEffect> = {
 	'-4': {
 		name: 'Fine',
@@ -1291,7 +1322,7 @@ export type Weapon = ImportedWeapon & {
 	equipped: boolean;
 	active: boolean;
 };
-// The types describing armor.
+// Armor Types
 export type Armor = Characters & {
 	name: string;
 	flavortext?: string;
@@ -1313,7 +1344,7 @@ export type Armor = Characters & {
 	active: boolean;
 };
 
-// The types describing abilities.
+// ABility Types
 export type AbilityClass = 'Super' | 'Grenade' | 'Melee' | 'Class Ability' | 'Subcomponent';
 type ImportedAbility = Ability & {
 	groupNameList: string;
@@ -1350,7 +1381,7 @@ export type Ability = Characters & {
 	handed: number;
 };
 
-// The type describing a quest info block.
+// Quest Types
 export type Quest = {
 	name: string;
 	iconURL: string;
@@ -1360,7 +1391,7 @@ export type Quest = {
 	progressMax?: number;
 };
 
-// The type describing a Seasonal Artifact thingey.
+// Seasonal Artifact Types
 export type ArtifactMod = {
 	stage: number;
 	name: string;
