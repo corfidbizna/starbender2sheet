@@ -131,7 +131,6 @@ const toHitCalc = computed<number>(() => {
 });
 const hitFormula = new DiceFormula('1d20');
 const rollDamage = () => {
-	console.log(props.damageFormula);
 	const result = props.damageFormula.roll(() => 0);
 	let string =
 		glyphMap[props.weaponClass] +

@@ -111,3 +111,6 @@ button:hover {
 button:active {
 	background: #fff8;
 }
+button:disabled {
+	color: #888;
+}

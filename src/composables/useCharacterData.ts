@@ -1334,9 +1334,9 @@ export type Ability = Characters & {
 	hitBonus: number;
 	critRange: number;
 	critMult: number;
-	damageDieQuantity: number;
-	damageDieFormula: string;
-	damage: DiceFormula;
+	dmgDieQuantity: number;
+	dmgDieFormula: string;
+	dmg: DiceFormula;
 	energyMax: number;
 	partialPowerSteps: number;
 	partialPowerStats: string[];
@@ -1627,11 +1627,7 @@ function useCharacterDataUncached(characterId: string) {
 				return result + (getFinalStat('damagePrecision') || 0);
 			});
 			if (weapon.rangePenalty === undefined) weapon.rangePenalty = 2;
-			// const formula = new DiceFormula(weapon.Damage);
 			const formula = new DiceFormula(weapon.damage + '+' + damageBonus.value);
-			// const formula = new DiceFormula(
-			// 	weapon.Damage + '+' + damageBonus.value,
-			// ).evaluateExceptDice((name: string) => getFinalStat(name as StatsCalculatedKey));
 			weapon.damageFormula = formula;
 			weapon.dmgMin = formula.min(statFunction);
 			weapon.dmgMax = formula.max(statFunction);
@@ -1889,8 +1885,8 @@ function useCharacterDataUncached(characterId: string) {
 					.split(', ')
 					.map((num) => parseInt(num));
 				const newDamage =
-					(ability.damageDieQuantity || '0') + (ability.damageDieFormula || 'd0');
-				parsedAbility.damage = new DiceFormula(newDamage);
+					(parsedAbility.dmgDieQuantity || '0') + (parsedAbility.dmgDieFormula || 'd0');
+				parsedAbility.dmg = new DiceFormula(newDamage);
 				return parsedAbility;
 			});
 	});

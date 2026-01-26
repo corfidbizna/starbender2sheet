@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type {
 	Ability,
-	AbilityClass,
-	ActionResourceKey,
 	CharacterNames,
 	Element,
 	StatsCalculatedKey,
@@ -10,20 +8,14 @@ import type {
 import useCharacterData, { elements } from '@/composables/useCharacterData';
 import CapacityBar from '@/components/CapacityBar.vue';
 import { computed, ref } from 'vue';
+import AbilityItemRow from '@/components/AbilityItemRow.vue';
 
 type CharacterProps = {
 	characterId: CharacterNames;
 };
 const props = defineProps<CharacterProps>();
-const {
-	character,
-	statsBase,
-	abilities,
-	abilitiesLoading,
-	getFinalStat,
-	actionResources,
-	actionResourceUpdate,
-} = useCharacterData(props.characterId);
+const { character, statsBase, abilities, abilitiesLoading, getFinalStat, actionResources } =
+	useCharacterData(props.characterId);
 const mainAbilities = computed<Ability[]>(() => {
 	return abilities.value.filter((ability) => ability.type !== 'Subcomponent');
 });
@@ -44,7 +36,8 @@ const classIcon = computed<string>(() => {
 	};
 	return classMap[gClass] || '/public/svgs/Tricorn.svg';
 });
-const energyList: Record<string, string> = {
+const energyImage: Record<string, string> = {
+	Super: '/public/svgs/stat_intellect.svg',
 	Grenade: '/public/svgs/stat_discipline.svg',
 	Melee: '/public/svgs/stat_melee.svg',
 	Class: classIcon.value,
@@ -55,10 +48,6 @@ const subclassColor = computed<string>(() => {
 	return elements[subclass] || '#FFFFFF'; // Kinetic
 });
 const abilityFilter = ref<string>('Universal');
-const updateEnergy = (energyType: AbilityClass, energyUsed: number) => {
-	const key = ('energy' + energyType.split(' ')[0]) as ActionResourceKey;
-	actionResourceUpdate(key, -energyUsed);
-};
 </script>
 <template>
 	<div
@@ -114,7 +103,7 @@ const updateEnergy = (energyType: AbilityClass, energyUsed: number) => {
 							<td>{{ getFinalStat('energySuper') }}</td>
 						</tr>
 						<tr
-							v-for="energyType in Object.keys(energyList)"
+							v-for="energyType in ['Grenade', 'Melee', 'Class', 'Universal']"
 							:key="energyType"
 						>
 							<td>
@@ -124,7 +113,7 @@ const updateEnergy = (energyType: AbilityClass, energyUsed: number) => {
 									value="energyType"
 									@click="abilityFilter = energyType"
 								>
-									<img :src="energyList[energyType]" />
+									<img :src="energyImage[energyType]" />
 								</button>
 							</td>
 							<td style="font-weight: normal">{{ energyType }}</td>
@@ -163,29 +152,11 @@ const updateEnergy = (energyType: AbilityClass, energyUsed: number) => {
 				<div
 					v-for="ability in filteredAbilities"
 					:key="ability.name"
-					class="ability-box"
 				>
-					<h2>
-						{{ ability.name }}<span class="ability-subtitle">{{ ability.type }}</span>
-					</h2>
-					<div
-						v-if="ability.flavortext"
-						class="ability-flavortext"
-						style="font-style: italic"
-					>
-						{{ ability.flavortext }}
-					</div>
-					<button
-						class="cast-ability-button"
-						@click="updateEnergy(ability.type, ability.energyMax)"
-						:disabled="
-							ability.energyMax >
-							actionResources['energy' + ability.type.split(' ')[0]]
-						"
-					>
-						Use
-					</button>
-					<div>{{ ability.description }}</div>
+					<AbilityItemRow
+						v-bind="ability"
+						:character-id="characterId"
+					/>
 				</div>
 			</div>
 		</div>
@@ -276,16 +247,8 @@ const updateEnergy = (energyType: AbilityClass, energyUsed: number) => {
 	scrollbar-width: none;
 	font-size: 0.9rem;
 }
-.ability-box {
-	margin: 0.5em;
-	background-color: #0004;
-}
-.cast-ability-button {
+.ability-box-icon {
+	filter: invert(100%);
 	height: 3em;
-	width: 3em;
-	background-color: #0004;
-}
-.cast-ability-button:disabled {
-	color: #888;
 }
 </style>
