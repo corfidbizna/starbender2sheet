@@ -188,8 +188,8 @@ export type DamageComponent = {
 	damageType: Element; // Solar
 	rangeType: string; // Ranged
 	range: number; // 20
-	rangePenalty: number; // 2 (goes down by 2)
-	rangeIncrementsModifier: number; // 60 (every 60ft. distance)
+	rangePenalty: number; // 20 (goes down every 20ft. distance)
+	rangeIncrementsModifier: number; // 2 (amount to decrease hit by)
 	size: number; // 10
 	shape: string; // sphere
 	duration: number; // 1
@@ -1351,6 +1351,16 @@ type ImportedAbility = Ability & {
 	prerequisiteList: string;
 	partialPowerStatsList: string;
 	partialPowerStepMultList: string;
+	// For the damage stuff
+	hitType: string;
+	hitBonus: number;
+	critRange: number;
+	critMult: number;
+	element: Element;
+	range: number;
+	size: number;
+	shape: string;
+	duration: number;
 };
 export type Ability = Characters & {
 	name: string;
@@ -1361,10 +1371,7 @@ export type Ability = Characters & {
 	specialProperties: string;
 	element: Element;
 	prerequisites: string[];
-	hitType: string;
-	hitBonus: number;
-	critRange: number;
-	critMult: number;
+	damageStatsBase: DamageComponent;
 	dmgDieQuantity: number;
 	dmgDieFormula: string;
 	dmg: DiceFormula;
@@ -1374,10 +1381,6 @@ export type Ability = Characters & {
 	partialPowerStepMults: number[];
 	partialPowerAllowed: boolean;
 	rangeType: string;
-	range: number;
-	size: number;
-	shape: string;
-	duration: number;
 	handed: number;
 };
 
@@ -1909,14 +1912,49 @@ function useCharacterDataUncached(characterId: string) {
 			.filter((item) => item[characterId as CharacterNames] && item.name)
 			.map((ability) => {
 				const parsedAbility = { ...ability };
+				// Defaults
+				parsedAbility.groupNames = parsedAbility.groupNames || [];
+				parsedAbility.type = parsedAbility.type || 'Melee';
+				parsedAbility.flavortext = parsedAbility.flavortext || '';
+				parsedAbility.description = parsedAbility.description || '';
+				parsedAbility.specialProperties = parsedAbility.specialProperties || '';
+				parsedAbility.element = parsedAbility.element || 'Void';
+				parsedAbility.prerequisites = parsedAbility.prerequisites || [];
+				// parsedAbility.damageStatsBase = parsedAbility.damageStatsBase || {};
+				parsedAbility.dmgDieQuantity = parsedAbility.dmgDieQuantity || 0;
+				parsedAbility.dmgDieFormula = parsedAbility.dmgDieFormula || '';
+				// parsedAbility.dmg = parsedAbility.dmg || ;
+				parsedAbility.energyMax = parsedAbility.energyMax || 0;
+				parsedAbility.partialPowerSteps = parsedAbility.partialPowerSteps || 0;
+				parsedAbility.partialPowerStats = parsedAbility.partialPowerStats || [];
+				parsedAbility.partialPowerStepMults = parsedAbility.partialPowerStepMults || [];
+				parsedAbility.partialPowerAllowed = parsedAbility.partialPowerAllowed || false;
+				parsedAbility.rangeType = parsedAbility.rangeType || 'Melee';
+				parsedAbility.handed = parsedAbility.handed || 0;
+				//
 				parsedAbility.groupNames = (ability.groupNameList || ability.name).split(', ');
 				parsedAbility.prerequisites = (ability.prerequisiteList || '').split(', ');
 				parsedAbility.partialPowerStats = (ability.partialPowerStatsList || '').split(', ');
 				parsedAbility.partialPowerStepMults = (ability.partialPowerStepMultList || '')
 					.split(', ')
 					.map((num) => parseInt(num));
-				const newDamage =
-					(parsedAbility.dmgDieQuantity || '0') + (parsedAbility.dmgDieFormula || 'd0');
+				const newDamage = parsedAbility.dmgDieQuantity + parsedAbility.dmgDieFormula;
+				parsedAbility.damageStatsBase = {
+					...damageStringToDownstream(newDamage, buffsAsStats.value),
+					attackType: 'Ability',
+					hitType: ability.hitType,
+					hitBonus: ability.hitBonus,
+					critRange: ability.critRange,
+					critMult: ability.critMult,
+					damageType: ability.element,
+					rangeType: 'Spell',
+					range: ability.range,
+					rangePenalty: 2,
+					rangeIncrementsModifier: ability.range,
+					size: ability.size,
+					shape: ability.shape,
+					duration: ability.duration,
+				};
 				parsedAbility.dmg = new DiceFormula(newDamage);
 				return parsedAbility;
 			});
@@ -2197,6 +2235,7 @@ function useCharacterDataUncached(characterId: string) {
 		}
 	};
 	const actionResources = ref<Record<string, number>>({
+		subclassIndex: 0,
 		turns: 0,
 		health: getFinalStat('hpMax'),
 		shields: getFinalStat('hpShieldMax'),

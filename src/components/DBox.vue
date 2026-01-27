@@ -40,7 +40,7 @@ const props = defineProps<DBox>();
 		</div>
 		<div
 			class="flavortext"
-			v-if="props.flavortext !== undefined"
+			v-if="!!props.flavortext"
 		>
 			{{ props.flavortext }}
 		</div>

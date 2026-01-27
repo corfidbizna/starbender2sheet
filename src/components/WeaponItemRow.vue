@@ -20,8 +20,8 @@ const getCritDisplay = (): string => {
 		return '--';
 	}
 	const delimiter = ', x';
-	if (props.critRange === 20) {
-		return props.critRange + delimiter + props.critMult;
+	if (props.critRange === 1) {
+		return 20 + delimiter + props.critMult;
 	}
 	return 21 - props.critRange + '-20' + delimiter + props.critMult;
 };
@@ -318,7 +318,8 @@ const reload = () => {
 							v-if="duration"
 							class="weapon-stat-data"
 						>
-							{{ duration }} rounds
+							{{ duration }}
+							{{ duration === 1 ? 'round' : 'rounds' }}
 						</td>
 						<td
 							v-else
