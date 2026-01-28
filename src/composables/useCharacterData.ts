@@ -1349,6 +1349,7 @@ export type AbilityClass = 'Super' | 'Grenade' | 'Melee' | 'Class Ability' | 'Su
 type ImportedAbility = Ability & {
 	groupNameList: string;
 	prerequisiteList: string;
+	buffList: string;
 	partialPowerStatsList: string;
 	partialPowerStepMultList: string;
 	// For the damage stuff
@@ -1371,6 +1372,7 @@ export type Ability = Characters & {
 	specialProperties: string;
 	element: Element;
 	prerequisites: string[];
+	buffs: string[];
 	damageStatsBase: DamageComponent;
 	dmgDieQuantity: number;
 	dmgDieFormula: string;
@@ -1932,11 +1934,19 @@ function useCharacterDataUncached(characterId: string) {
 				parsedAbility.rangeType = parsedAbility.rangeType || 'Melee';
 				parsedAbility.handed = parsedAbility.handed || 0;
 				//
-				parsedAbility.groupNames = (ability.groupNameList || ability.name).split(', ');
-				parsedAbility.prerequisites = (ability.prerequisiteList || '').split(', ');
-				parsedAbility.partialPowerStats = (ability.partialPowerStatsList || '').split(', ');
+				parsedAbility.groupNames = (ability.groupNameList || ability.name)
+					.split(', ')
+					.filter((item) => !!item);
+				parsedAbility.prerequisites = (ability.prerequisiteList || '')
+					.split(', ')
+					.filter((item) => !!item);
+				parsedAbility.buffs = (ability.buffList || '').split(', ').filter((item) => !!item);
+				parsedAbility.partialPowerStats = (ability.partialPowerStatsList || '')
+					.split(', ')
+					.filter((item) => !!item);
 				parsedAbility.partialPowerStepMults = (ability.partialPowerStepMultList || '')
 					.split(', ')
+					.filter((item) => !!item)
 					.map((num) => parseInt(num));
 				const newDamage = parsedAbility.dmgDieQuantity + parsedAbility.dmgDieFormula;
 				parsedAbility.damageStatsBase = {

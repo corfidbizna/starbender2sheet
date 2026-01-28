@@ -12,6 +12,8 @@ import { computed, ref } from 'vue';
 import DGlyph from '@/components/DGlyph.vue';
 import { DiceFormula, getStatByCharacter } from '@/business_logic/diceFormula';
 import { updateLog } from '@/sharedState';
+import type { BuffInfo } from '@/business_logic/buffs';
+import BuffItemRow from './BuffItemRow.vue';
 
 type CharacterProps = {
 	characterId: CharacterNames;
@@ -20,6 +22,7 @@ const props = defineProps<Ability & CharacterProps>();
 const {
 	stats,
 	statsBase,
+	buffs,
 	buffsAsStats,
 	buffsTallied,
 	getFinalStat,
@@ -45,7 +48,8 @@ const maxEnergy = computed<number>(() =>
 const energyUseAmount = computed<number>(() => props.energyMax - partialPowerIncrement.value);
 // Assembles the gradient string used for the energy usage bar.
 const energyUsageGradientString = computed<string>(() => {
-	const colRemaining = '#eee';
+	const colRemaining = '#fff';
+	const colReduced = 'var(--color-buff)';
 	const colSubtracted = '#aaa';
 	const colEmpty = '#0004';
 	const energyProgress = (100 * currentEnergy.value) / maxEnergy.value;
@@ -53,9 +57,21 @@ const energyUsageGradientString = computed<string>(() => {
 		0,
 		(100 * (currentEnergy.value - energyUseAmount.value)) / maxEnergy.value,
 	);
+	const useProgressMax = Math.max(
+		0,
+		(100 * (currentEnergy.value - props.energyMax)) / maxEnergy.value,
+	);
 	return (
 		'linear-gradient(to right, ' +
 		colRemaining +
+		' ' +
+		useProgressMax +
+		'%, ' +
+		colReduced +
+		' ' +
+		useProgressMax +
+		'%, ' +
+		colReduced +
 		' ' +
 		useProgress +
 		'%, ' +
@@ -89,7 +105,7 @@ const energyImage: Record<string, string> = {
 	Grenade: '/public/svgs/stat_discipline.svg',
 	Melee: '/public/svgs/stat_melee.svg',
 	Class: computed<string>(() => {
-		const gClass = statsBase.value.guardianClass || 'Titan';
+		const gClass = statsBase.value?.guardianClass || 'Titan';
 		const classMap: Record<string, string> = {
 			Titan: '/public/svgs/class_titan_proportional.svg',
 			Warlock: '/public/svgs/class_warlock_proportional.svg',
@@ -188,6 +204,10 @@ const debuffed = computed<Record<string, boolean>>(() => {
 		handed: pps.handed !== props.handed,
 		dmg: pps.dmgDieQuantity !== props.dmgDieQuantity,
 	};
+});
+// The buffs that this ability is associated with, if any.
+const buffsFiltered = computed<BuffInfo[]>(() => {
+	return buffs.value.filter((buff) => props.buffs.includes(buff.name));
 });
 
 // =======================
@@ -493,6 +513,15 @@ const updateEnergy = () => {
 					class="ability-info-text"
 				>
 					{{ props.specialProperties }}
+				</div>
+				<div v-if="buffsFiltered.length > 0">
+					<BuffItemRow
+						v-for="buff in buffsFiltered"
+						:key="buff.name"
+						v-bind="buff"
+						:character-id="characterId"
+						:condensed="true"
+					/>
 				</div>
 			</template>
 		</DBox>
