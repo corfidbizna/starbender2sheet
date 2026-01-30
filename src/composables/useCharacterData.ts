@@ -1947,7 +1947,7 @@ function useCharacterDataUncached(characterId: string) {
 				parsedAbility.partialPowerStepMults = (ability.partialPowerStepMultList || '')
 					.split(', ')
 					.filter((item) => !!item)
-					.map((num) => parseInt(num));
+					.map((num) => parseFloat(num));
 				const newDamage = parsedAbility.dmgDieQuantity + parsedAbility.dmgDieFormula;
 				parsedAbility.damageStatsBase = {
 					...damageStringToDownstream(newDamage, buffsAsStats.value),

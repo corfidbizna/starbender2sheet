@@ -172,7 +172,7 @@ const partialPowerStats = computed<
 		if (key !== 'dmg') {
 			const subtractAmount =
 				partialPowerIncrement.value * props.partialPowerStepMults[i] || 0;
-			result[key] -= subtractAmount;
+			result[key] -= Math.trunc(subtractAmount);
 		}
 	});
 	const newDamage = (result.dmgDieQuantity || '0') + (props.dmgDieFormula || 'd0');
@@ -343,7 +343,7 @@ const updateEnergy = () => {
 											]
 										}}
 									</td>
-									<td>(-{{ props.partialPowerStepMults[i] }})</td>
+									<td>(-{{ props.partialPowerStepMults[i] }}x)</td>
 								</tr>
 							</tbody>
 						</table>
