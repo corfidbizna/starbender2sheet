@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { bgColor, banner } from '@/sharedState';
+import { bgColor, banner, storeVisuals, resetVisuals } from '@/sharedState';
 const identifyUnicodeSymbols = (start: number, length: number) => {
 	const strings = [];
 	for (let i = start; i < start + length; i++) {
 		strings.push(String.fromCharCode(i) + ' :: ' + i);
 	}
 	return strings.join('\n');
+};
+const clearLocalStorage = () => {
+	localStorage.clear();
 };
 </script>
 <template>
@@ -69,6 +72,34 @@ const identifyUnicodeSymbols = (start: number, length: number) => {
 					/>
 				</td>
 			</tr>
+			<tr title="Reset all visual configuration to default settings.">
+				<td class="setting-label">
+					<label>Reset Visuals</label>
+				</td>
+				<td class="setting-content">
+					<button
+						id="reset-visuals"
+						@click="resetVisuals()"
+					>
+						Reset
+					</button>
+				</td>
+			</tr>
+			<tr
+				title="Save the current specified visual settings to local storage so they'll persist if the tab closes."
+			>
+				<td class="setting-label">
+					<label>Write Visuals to Local Storage</label>
+				</td>
+				<td class="setting-content">
+					<button
+						id="save-visuals"
+						@click="storeVisuals()"
+					>
+						Save
+					</button>
+				</td>
+			</tr>
 			<tr class="header">
 				<td colspan="2"><h2>Debug</h2></td>
 			</tr>
@@ -81,6 +112,16 @@ const identifyUnicodeSymbols = (start: number, length: number) => {
 						id="setting-buff-names"
 						type="checkbox"
 					/>
+				</td>
+			</tr>
+			<tr
+				title="Removes all saved state from local storage. Does not affect the current state of things."
+			>
+				<td class="setting-label">
+					<label>Clear Local Storage</label>
+				</td>
+				<td class="setting-content">
+					<button @click="clearLocalStorage()">Clear</button>
 				</td>
 			</tr>
 		</table>

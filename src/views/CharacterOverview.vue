@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
-import { bgColor, banner } from '@/sharedState';
+import { bgColor, banner, getBanner, getBGColor } from '@/sharedState';
 import router from '@/router/index.ts';
 import LoadingModal from '@/components/LoadingModal.vue';
 import { computed, onBeforeUnmount } from 'vue';
@@ -33,6 +33,8 @@ const isLoading = computed(() => {
 		weaponsLoading.value;
 	if (done === true && initialLoadComplete === false) {
 		initialLoadComplete = true;
+		bgColor.value = getBGColor();
+		banner.value = getBanner();
 	}
 	return !initialLoadComplete;
 });
