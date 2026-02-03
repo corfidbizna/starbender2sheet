@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { updateLog } from '@/sharedState.ts';
-import useCharacterData, { type Weapon } from '@/composables/useCharacterData';
+import useCharacterData, { type Weapon, type WeaponPerk } from '@/composables/useCharacterData';
 import DGlyph from './DGlyph.vue';
 import CapacityBar from './CapacityBar.vue';
 import { DiceFormula } from '@/business_logic/diceFormula';
@@ -11,6 +11,7 @@ const {
 	weaponAmmoUpdate,
 	namesOfEquippedWeapons,
 	namesOfActiveWeapons,
+	weaponPerks,
 	buffsTallied,
 	stats,
 	actionResources,
@@ -175,6 +176,14 @@ const reload = () => {
 	const difference = props.ammoCapacity - props.ammoCurrent;
 	currentAmmo.value = weaponAmmoUpdate(props.name, difference);
 };
+const perkList = computed<WeaponPerk[]>(() => {
+	const perkNameList = props.perks?.split(', ') || [];
+	if (perkNameList.length === 0) return [];
+	return weaponPerks.value.filter((perk) => perkNameList.includes(perk.name));
+});
+const perkListActive = ref<string[]>([
+	...perkList.value.filter((perk) => perk.passive).map((perk) => perk.name),
+]);
 </script>
 <template>
 	<label
@@ -339,7 +348,24 @@ const reload = () => {
 				</tbody>
 			</table>
 			<div class="weapon-perks">
-				<pre>{{ perks?.split(', ') }}</pre>
+				<details
+					v-for="perk in perkList"
+					:key="perk.name"
+					class="weapon-perk"
+					:class="{ active: perkListActive.includes(perk.name) }"
+					:for="'perk ' + perk.name"
+				>
+					<summary>
+						<input
+							type="checkbox"
+							:class="{ hidden: perk.passive }"
+							:disabled="perk.passive"
+							:value="perk.name"
+							v-model="perkListActive"
+						/><span>{{ perk.name }}</span>
+					</summary>
+					<div>{{ perk.description }}</div>
+				</details>
 			</div>
 			<div
 				class="flavortext"
@@ -492,6 +518,19 @@ h2 {
 	flex: 2;
 	/* max-height: 6em;
 	overflow-y: scroll; */
+}
+.weapon-perk {
+	margin: 0.5em;
+	padding: 0.25em;
+	display: block;
+	border: 2px solid #fff0;
+}
+.weapon-perk.active {
+	border: 2px solid #fff4;
+	background-color: #fff4;
+}
+.weapon-perk .hidden {
+	visibility: hidden;
 }
 .flavortext {
 	font-style: italic;

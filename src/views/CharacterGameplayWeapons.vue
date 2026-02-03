@@ -14,6 +14,7 @@ const {
 	weapons,
 	weaponsLoading,
 	namesOfEquippedWeapons,
+	weaponPerksLoading,
 	actionResources,
 	getFinalStat,
 } = useCharacterData(props.characterId);
@@ -101,7 +102,7 @@ const equippedWeapons = computed<Weapon[]>(() => {
 			</div>
 			<div
 				class="gameplay-weapons"
-				v-if="!weaponsLoading"
+				v-if="!weaponsLoading && !weaponPerksLoading"
 			>
 				<h2>Equipped Weapons</h2>
 				<div

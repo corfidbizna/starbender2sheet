@@ -7,7 +7,6 @@ import useCharacterData, {
 	type Weapon,
 } from '@/composables/useCharacterData';
 import WeaponItemRow from './WeaponItemRow.vue';
-// import TEMPActiveWeapon from './TEMPActiveWeapon.vue';
 import LoadingModal from './LoadingModal.vue';
 import useFilter from '@/composables/useFilter';
 import { computed, ref } from 'vue';
@@ -31,9 +30,14 @@ const toggleSortAscending = () => {
 const props = defineProps<{
 	characterId: CharacterNames;
 }>();
-const { weapons, weaponsLoading, weaponsRefresh, getFinalStat } = useCharacterData(
-	props.characterId,
-);
+const {
+	weapons,
+	weaponsLoading,
+	weaponsRefresh,
+	weaponPerksLoading,
+	weaponPerksRefresh,
+	getFinalStat,
+} = useCharacterData(props.characterId);
 const sortedWeapons = computed<Weapon[]>(() => {
 	const weaponsForSort = weapons.value.slice();
 	// if (!(sortBy as weaponKeys)) {
@@ -76,7 +80,7 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 <template>
 	<div class="weapon-tab-container">
 		<span class="weapon-infos">
-			<button @click="weaponsRefresh">Reload Weapons</button>
+			<button @click="(weaponsRefresh, weaponPerksRefresh)">Reload Weapons</button>
 			<h2>Weapon Slots</h2>
 			<span
 				style="display: flex; align-items: center"
@@ -150,7 +154,7 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 				class="action-log"
 			></textarea>
 		</span>
-		<span v-if="weaponsLoading"><LoadingModal /></span>
+		<span v-if="weaponsLoading || weaponPerksLoading"><LoadingModal /></span>
 		<span
 			v-else
 			class="weapon-list"
