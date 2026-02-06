@@ -566,9 +566,12 @@ export class DiceFormula {
 	evaluateExceptDice(getStat: (name: string) => number): DiceFormula {
 		return new DiceFormula(this.tree.evaluateExceptDice(getStat));
 	}
-	private execute(roller: (sides: number) => number, getStat: (name: string) => number): number {
+	execute(roller: (sides: number) => number, getStat: (name: string) => number): number {
 		return this.tree.evaluate(roller, getStat);
 	}
+	// private execute(roller: (sides: number) => number, getStat: (name: string) => number): number {
+	// 	return this.tree.evaluate(roller, getStat);
+	// }
 }
 
 export const getStatByCharacter = (stats: Partial<StatsCalculated>) => {

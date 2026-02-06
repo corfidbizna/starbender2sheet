@@ -9,15 +9,8 @@ type CharacterProps = {
 	characterId: CharacterNames;
 };
 const props = defineProps<CharacterProps>();
-const {
-	character,
-	weapons,
-	weaponsLoading,
-	namesOfEquippedWeapons,
-	weaponPerksLoading,
-	actionResources,
-	getFinalStat,
-} = useCharacterData(props.characterId);
+const { character, weapons, weaponsLoading, weaponPerksLoading, actionResources, getFinalStat } =
+	useCharacterData(props.characterId);
 const ammoCapacity = computed<CapacityBoxStatField[]>(() => {
 	return [
 		{
@@ -44,7 +37,7 @@ const ammoCapacity = computed<CapacityBoxStatField[]>(() => {
 	];
 });
 const equippedWeapons = computed<Weapon[]>(() => {
-	return weapons.value.filter((weapon) => namesOfEquippedWeapons.value.includes(weapon.name));
+	return weapons.value.filter((weapon) => weapon.isEquipped);
 });
 </script>
 <template>
@@ -106,7 +99,7 @@ const equippedWeapons = computed<Weapon[]>(() => {
 			>
 				<h2>Equipped Weapons</h2>
 				<div
-					v-if="namesOfEquippedWeapons.length === 0"
+					v-if="equippedWeapons.length === 0"
 					style="text-align: center"
 				>
 					<h1>No weapons equipped</h1>

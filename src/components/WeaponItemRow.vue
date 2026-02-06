@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { updateLog } from '@/sharedState.ts';
-import useCharacterData, { type Weapon, type WeaponPerk } from '@/composables/useCharacterData';
+import useCharacterData, { type Weapon } from '@/composables/useCharacterData';
 import DGlyph from './DGlyph.vue';
 import CapacityBar from './CapacityBar.vue';
 import { DiceFormula } from '@/business_logic/diceFormula';
@@ -8,26 +8,28 @@ import { computed, ref } from 'vue';
 
 const props = defineProps<Weapon & { characterId: string; activatable?: boolean }>();
 const {
+	weapons,
 	weaponAmmoUpdate,
-	namesOfEquippedWeapons,
-	namesOfActiveWeapons,
-	weaponPerks,
-	buffsTallied,
-	stats,
+	damageStringToDownstream,
+	getFinalStat,
+	buffsAsStats,
 	actionResources,
 } = useCharacterData(props.characterId);
+const weaponIndex = computed<number>(() =>
+	weapons.value.findIndex((weapon) => weapon.name === props.name),
+);
 const getCritDisplay = (): string => {
-	if (!props.critRange) {
+	if (!weapon.value.damage.critRange) {
 		return '--';
 	}
 	const delimiter = ', x';
-	if (props.critRange === 1) {
-		return 20 + delimiter + props.critMult;
+	if (weapon.value.damage.critRange === 1) {
+		return 20 + delimiter + weapon.value.damage.critMult;
 	}
-	return 21 - props.critRange + '-20' + delimiter + props.critMult;
+	return 21 - weapon.value.damage.critRange + '-20' + delimiter + weapon.value.damage.critMult;
 };
 const getAmmoTypeDisplay = (): string => {
-	return props.ammoType.split(' ')[0];
+	return weapon.value.ammoType.split(' ')[0];
 };
 const colorsRarity = (rarity: string): string => {
 	if (rarity === 'Uncommon') {
@@ -63,7 +65,7 @@ const colorsElement = (element: string): string => {
 	return '#FFFFFF'; // Kinetic
 };
 const ammoImageSrc = () => {
-	const ammo = props.ammoType.toLocaleLowerCase();
+	const ammo = weapon.value.ammoType.toLocaleLowerCase();
 	if (ammo.includes('energy') || ammo.includes('special')) {
 		return '/public/svgs/ammo_special.svg';
 	}
@@ -114,33 +116,36 @@ const glyphMap = {
 };
 const hitRangeMod = computed<number>(() => {
 	const distance = actionResources.value.targetRange;
-	const increment = Math.min(10, Math.max(0, distance / props.range));
-	return Math.trunc(increment) * props.rangePenalty;
+	const increment = Math.min(10, Math.max(0, distance / weapon.value.damage.range));
+	return Math.trunc(increment) * weapon.value.damage.rangePenalty;
 });
 const toHitCalc = computed<number>(() => {
-	let result = props.hitBonus || 0;
-	if (props.rangeType === 'Melee') {
-		result += buffsTallied.value.toHitMelee?.total || stats.value.toHitMelee;
-	} else if (props.rangeType === 'Ranged') {
-		result += buffsTallied.value.toHitRanged?.total || stats.value.toHitRanged;
+	let result = weapon.value.damage.hitBonus || 0;
+	if (weapon.value.damage.rangeType === 'Melee') {
+		result += getFinalStat('toHitMelee');
+	} else if (weapon.value.damage.rangeType === 'Ranged') {
+		result += getFinalStat('toHitRanged');
 		result -= hitRangeMod.value;
-	} else if (props.rangeType === 'Spell') {
-		result += buffsTallied.value.toHitSpell?.total || stats.value.toHitSpell;
+	} else if (weapon.value.damage.rangeType === 'Spell') {
+		result += getFinalStat('toHitSpell');
 		result -= hitRangeMod.value;
 	}
 	return result;
 });
 const hitFormula = new DiceFormula('1d20');
 const rollDamage = () => {
-	const result = props.damageFormula.roll(() => 0);
+	const result = weapon.value.damage.damageFormula.roll(() => 0);
 	let string =
 		glyphMap[props.weaponClass] +
 		props.name +
 		'\n  Damage:     ' +
-		glyphMap[props.damageType] +
+		glyphMap[weapon.value.damage.damageType] +
 		result;
-	if (props.critMult && props.critMult > 1) {
-		string += '\n  Crit damage: ' + glyphMap[props.damageType] + result * props.critMult;
+	if (weapon.value.damage.critMult && weapon.value.damage.critMult > 1) {
+		string +=
+			'\n  Crit damage: ' +
+			glyphMap[weapon.value.damage.damageType] +
+			result * weapon.value.damage.critMult;
 	}
 	updateLog(string);
 };
@@ -154,44 +159,130 @@ const rollHit = () => {
 		' (dice) ' +
 		('+ ' + toHitCalc.value).replace('+-', '-') +
 		' (bonus)';
-	if (props.rangeType !== 'Melee' && actionResources.value.rangeIncrement > 0) {
-		string += ' - ' + actionResources.value.rangeIncrement * props.rangePenalty + ' (range)';
+	if (weapon.value.damage.rangeType !== 'Melee' && actionResources.value.rangeIncrement > 0) {
+		string +=
+			' - ' +
+			actionResources.value.rangeIncrement * weapon.value.damage.rangePenalty +
+			' (range)';
 	}
 	string += '\n  Hit result ⇒ ' + (result + toHitCalc.value);
 	if (result <= 1) {
 		string += '\n == Natural 1! ==';
 	}
-	if (result > 20 - (props.critRange || 0)) {
+	if (result > 20 - (weapon.value.damage.critRange || 0)) {
 		string += '\n == Critical hit! ==';
 	}
 	updateLog(string);
 	fire();
 };
+
 const currentAmmo = ref<number>(props.ammoCurrent);
 const fire = () => {
-	currentAmmo.value = weaponAmmoUpdate(props.name, -props.ammo);
+	currentAmmo.value = weaponAmmoUpdate(props.name, -weapon.value.ammo);
 };
 const reload = () => {
 	updateLog('Reloaded ' + glyphMap[props.weaponClass] + props.name);
-	const difference = props.ammoCapacity - props.ammoCurrent;
+	const difference = weapon.value.ammoCapacity - props.ammoCurrent;
 	currentAmmo.value = weaponAmmoUpdate(props.name, difference);
 };
-const perkList = computed<WeaponPerk[]>(() => {
-	const perkNameList = props.perks?.split(', ') || [];
-	if (perkNameList.length === 0) return [];
-	return weaponPerks.value.filter((perk) => perkNameList.includes(perk.name));
+
+// Perks stuff lives here
+const weapon = computed<Weapon>(() => {
+	const modified = JSON.parse(JSON.stringify(props));
+	const perkKeys = Object.keys(props.perks);
+	for (let i = 0; i < perkKeys.length; i++) {
+		const perk = props.perks[perkKeys[i]];
+		const stk = (statName: string) => {
+			if (perk.stacking && perk.stackAffectedStats.includes(statName)) {
+				return perk.stacks;
+			}
+			return 1;
+		};
+		if (weapons.value[weaponIndex.value].perks[perk.name].isActive) {
+			if (perk.replaceStats) {
+				// The perk needs to replace the weapon stat rather than supplement it.
+				// Note, this will also be replaced by perks further down the line.
+				modified.damage.hitBonus =
+					perk.damage.hitBonus * stk('hitBonus') || modified.damage.hitBonus;
+				modified.damage.critRange =
+					perk.damage.critRange * stk('critRange') || modified.damage.critRange;
+				modified.damage.critMult =
+					perk.damage.critMult * stk('critMult') || modified.damage.critMult;
+				const damageStats = damageStringToDownstream(
+					!!perk.damage.dmgMax ? perk.damage.dmgShort : modified.damage.dmgShort,
+					buffsAsStats.value,
+				);
+				modified.damage.damageFormula = damageStats.damageFormula;
+				modified.damage.dmgShort = damageStats.dmgShort;
+				modified.damage.dmgMin = damageStats.dmgMin;
+				modified.damage.dmgAvg = damageStats.dmgAvg;
+				modified.damage.dmgMax = damageStats.dmgMax;
+				modified.damage.range = perk.damage.range * stk('range') || modified.damage.range;
+				modified.damage.rangePenalty =
+					perk.damage.rangePenalty * stk('rangePenalty') || modified.damage.range;
+				modified.damage.rangeIncrementsModifier =
+					perk.damage.rangeIncrementsModifier * stk('rangeIncrementsModifier') ||
+					modified.damage.rangeIncrementsModifier;
+				modified.damage.size = perk.damage.size * stk('size') || modified.damage.size;
+				modified.damage.duration =
+					perk.damage.duration * stk('duration') || modified.damage.duration;
+				modified.ammo = perk.ammo * stk('ammo') || modified.ammo;
+				modified.ammoCapacity =
+					perk.ammoCapacity * stk('ammoCapacity') || modified.ammoCapacity;
+				modified.ammoReloadAmount =
+					perk.ammoReloadAmount * stk('ammoReloadAmount') || modified.ammoReloadAmount;
+			} else {
+				// Supplement things instead.
+				modified.damage.hitBonus =
+					modified.damage.hitBonus || 0 + perk.damage.hitBonus * stk('hitBonus');
+				modified.damage.critRange =
+					modified.damage.critRange || 0 + perk.damage.critRange * stk('critRange');
+				modified.damage.critMult =
+					modified.damage.critMult || 0 + perk.damage.critMult * stk('critMult');
+				const damageStats = damageStringToDownstream(
+					perk.damage
+						? modified.damage.dmgShort + '+' + perk.damage.dmgShort
+						: modified.damage.dmgShort,
+					buffsAsStats.value,
+				);
+				modified.damage.damageFormula = damageStats.damageFormula;
+				modified.damage.dmgShort = damageStats.dmgShort;
+				modified.damage.dmgMin = damageStats.dmgMin;
+				modified.damage.dmgAvg = damageStats.dmgAvg;
+				modified.damage.dmgMax = damageStats.dmgMax;
+				modified.damage.rangePenalty += perk.damage.rangePenalty * stk('rangePenalty');
+				modified.damage.rangeIncrementsModifier +=
+					perk.damage.rangeIncrementsModifier * stk('rangeIncrementsModifier');
+				modified.damage.size = modified.damage.size || 0 + perk.damage.size * stk('size');
+				modified.damage.duration =
+					modified.damage.duration || 0 + perk.damage.duration * stk('duration');
+				modified.ammo = perk.ammo * stk('ammo') || modified.ammo;
+				modified.ammoCapacity =
+					perk.ammoCapacity * stk('ammoCapacity') || modified.ammoCapacity;
+				modified.ammoReloadAmount =
+					perk.ammoReloadAmount * stk('ammoReloadAmount') || modified.ammoReloadAmount;
+			}
+			// To do regardless of replace or not.
+			modified.damage.attackType = perk.damage.attackType || modified.damage.attackType;
+			modified.damage.hitType = perk.damage.hitType || modified.damage.hitType;
+			modified.damage.hitType = perk.damage.hitType || modified.damage.hitType;
+			modified.damage.damageType = perk.damage.damageType || modified.damage.damageType;
+			modified.damage.rangeType = perk.damage.rangeType || modified.damage.rangeType;
+			modified.damage.shape = perk.damage.shape || modified.damage.shape;
+			modified.ammoType = perk.ammoType || modified.ammoType;
+			modified.isMagic = perk.isMagic || modified.isMagic;
+		}
+	}
+	return modified;
 });
-const perkListActive = ref<string[]>([
-	...perkList.value.filter((perk) => perk.passive).map((perk) => perk.name),
-]);
 </script>
 <template>
 	<label
 		class="weapon-row"
 		:class="
-			(equipped && !activatable ? 'equipped' : '') +
+			(isEquipped && !activatable ? 'equipped' : '') +
 			' ' +
-			(active && activatable ? 'equipped' : '')
+			(isActive && activatable ? 'equipped' : '')
 		"
 		:for="name + '-equip'"
 	>
@@ -205,24 +296,22 @@ const perkListActive = ref<string[]>([
 					v-if="activatable"
 					type="checkbox"
 					:id="name + '-equip'"
-					:value="name"
-					v-model="namesOfActiveWeapons"
+					v-model="weapons[weaponIndex].isActive"
 				/>
 				<input
 					v-else
 					type="checkbox"
 					:id="name + '-equip'"
-					:value="name"
-					v-model="namesOfEquippedWeapons"
+					v-model="weapons[weaponIndex].isEquipped"
 				/>
 				<div class="gun-icon"><DGlyph v-bind="{ name: weaponClass }" /></div>
 				<div class="gun-titles">
 					<h1>
 						<DGlyph
-							v-if="element != 'Kinetic'"
-							v-bind="{ name: element }"
+							v-if="weapon.element != 'Kinetic'"
+							v-bind="{ name: weapon.element }"
 							class="element-glyph"
-							:style="'color: ' + colorsElement(element)"
+							:style="'color: ' + colorsElement(weapon.element)"
 						/>
 						<img
 							v-else
@@ -245,10 +334,10 @@ const perkListActive = ref<string[]>([
 			<div class="weapon-damage-info">
 				<div class="damage-main">
 					<DGlyph
-						v-if="element != 'Kinetic'"
-						v-bind="{ name: element }"
+						v-if="weapon.element != 'Kinetic'"
+						v-bind="{ name: weapon.element }"
 						class="element-glyph"
-						:style="'color: ' + colorsElement(element)"
+						:style="'color: ' + colorsElement(weapon.element)"
 					/>
 					<img
 						v-else
@@ -256,9 +345,9 @@ const perkListActive = ref<string[]>([
 						src="/public/svgs/Kenetic.svg"
 					/>
 					<span
-						:style="'color: ' + colorsElement(element)"
-						:title="damage"
-						>{{ dmgShort }}</span
+						:style="'color: ' + colorsElement(weapon.element)"
+						:title="weapon.damage.dmgShort"
+						>{{ weapon.damage.dmgShort }}</span
 					>
 				</div>
 				<div class="damage-sub">
@@ -269,13 +358,13 @@ const perkListActive = ref<string[]>([
 					<span class="ammo-type">{{ ' ' + getAmmoTypeDisplay() }}</span>
 					<CapacityBar
 						v-bind="{
-							max: ammoCapacity,
+							max: weapon.ammoCapacity,
 							current: currentAmmo,
-							color: colorsAmmo(ammoType),
+							color: colorsAmmo(weapon.ammoType),
 						}"
 						class="ammo-bar"
 					/>
-					<span>{{ currentAmmo }} ⁄ {{ props.ammoCapacity }}</span>
+					<span>{{ currentAmmo }} ⁄ {{ weapon.ammoCapacity }}</span>
 					<button @click="reload()">↺</button>
 				</div>
 			</div>
@@ -283,32 +372,34 @@ const perkListActive = ref<string[]>([
 				<tbody class="weapon-cells">
 					<tr>
 						<td class="weapon-stat-label">Average Dmg</td>
-						<td class="weapon-stat-data alt">{{ dmgAvg }}</td>
+						<td class="weapon-stat-data alt">{{ weapon.damage.dmgAvg }}</td>
 						<td class="weapon-stat-label">To Hit</td>
 						<td
 							class="weapon-stat-data"
 							:style="
-								hitRangeMod > 0 && props.rangeType !== 'Melee'
+								hitRangeMod > 0 && weapon.damage.rangeType !== 'Melee'
 									? 'color: var(--color-debuff)'
 									: ''
 							"
 						>
-							{{ toHitCalc }} v. {{ hitType }}
+							{{ toHitCalc }} v. {{ weapon.damage.hitType }}
 						</td>
 						<td class="weapon-stat-label">Range</td>
-						<td class="weapon-stat-data">{{ rangeType }} {{ range }}ft. </td>
+						<td class="weapon-stat-data">
+							{{ weapon.damage.rangeType }} {{ weapon.damage.range }}ft. 
+						</td>
 					</tr>
 					<tr>
 						<td class="weapon-stat-label">Min Dmg</td>
-						<td class="weapon-stat-data">{{ dmgMin }}</td>
+						<td class="weapon-stat-data">{{ weapon.damage.dmgMin }}</td>
 						<td class="weapon-stat-label">Crit</td>
 						<td class="weapon-stat-data">{{ getCritDisplay() }}</td>
 						<td class="weapon-stat-label">Shape</td>
 						<td
-							v-if="size"
+							v-if="weapon.damage.size"
 							class="weapon-stat-data"
 						>
-							{{ size }}ft. {{ shape }}
+							{{ weapon.damage.size }}ft. {{ weapon.damage.shape }}
 						</td>
 						<td
 							v-else
@@ -319,16 +410,16 @@ const perkListActive = ref<string[]>([
 					</tr>
 					<tr>
 						<td class="weapon-stat-label">Max Dmg</td>
-						<td class="weapon-stat-data">{{ dmgMax }}</td>
+						<td class="weapon-stat-data">{{ weapon.damage.dmgMax }}</td>
 						<td class="weapon-stat-label">Ammo</td>
-						<td class="weapon-stat-data">{{ ammo }}</td>
+						<td class="weapon-stat-data">{{ weapon.ammo }}</td>
 						<td class="weapon-stat-label">Duration</td>
 						<td
-							v-if="duration"
+							v-if="weapon.damage.duration"
 							class="weapon-stat-data"
 						>
-							{{ duration }}
-							{{ duration === 1 ? 'round' : 'rounds' }}
+							{{ weapon.damage.duration }}
+							{{ weapon.damage.duration === 1 ? 'round' : 'rounds' }}
 						</td>
 						<td
 							v-else
@@ -339,20 +430,22 @@ const perkListActive = ref<string[]>([
 					</tr>
 					<tr>
 						<td class="weapon-stat-label">Attack Type</td>
-						<td class="weapon-stat-data">{{ attackType }}</td>
+						<td class="weapon-stat-data">{{ weapon.damage.attackType }}</td>
 						<td class="weapon-stat-label">Magazine</td>
-						<td class="weapon-stat-data">{{ ammoCapacity }} {{ ammoType }}</td>
+						<td class="weapon-stat-data">
+							{{ weapon.ammoCapacity }} {{ weapon.ammoType }}
+						</td>
 						<td class="weapon-stat-label">Handed</td>
-						<td class="weapon-stat-data">{{ handed }}-handed</td>
+						<td class="weapon-stat-data">{{ weapon.handed }}-handed</td>
 					</tr>
 				</tbody>
 			</table>
 			<div class="weapon-perks">
 				<details
-					v-for="perk in perkList"
+					v-for="perk in perks"
 					:key="perk.name"
 					class="weapon-perk"
-					:class="{ active: perkListActive.includes(perk.name) }"
+					:class="{ active: weapons[weaponIndex].perks[perk.name].isActive }"
 					:for="'perk ' + perk.name"
 				>
 					<summary>
@@ -360,9 +453,16 @@ const perkListActive = ref<string[]>([
 							type="checkbox"
 							:class="{ hidden: perk.passive }"
 							:disabled="perk.passive"
-							:value="perk.name"
-							v-model="perkListActive"
-						/><span>{{ perk.name }}</span>
+							v-model="weapons[weaponIndex].perks[perk.name].isActive"
+						/><span>{{ perk.name }}  </span>
+						<span v-if="perk.stacking"
+							><input
+								class="weapon-perk-stacks"
+								type="number"
+								min="0"
+								:max="perk.stacksMax || Infinity"
+								v-model="weapons[weaponIndex].perks[perk.name].stacks"
+						/></span>
 					</summary>
 					<div>{{ perk.description }}</div>
 				</details>
@@ -375,12 +475,12 @@ const perkListActive = ref<string[]>([
 			</div>
 			<div class="weapon-footer">
 				<span
-					v-if="equipped && !activatable"
+					v-if="isEquipped && !activatable"
 					class="is-equipped"
 					>CURRENTLY EQUIPPED</span
 				>
 				<span
-					v-else-if="active"
+					v-else-if="isActive"
 					class="is-equipped"
 					>CURRENTLY ACTIVE</span
 				>
@@ -511,6 +611,9 @@ h2 {
 	padding-left: 0.25em;
 	white-space: nowrap;
 }
+.weapon-stat-data.modified {
+	color: var(--color-buff);
+}
 .weapon-stat-data.alt {
 	width: 7%;
 }
@@ -531,6 +634,9 @@ h2 {
 }
 .weapon-perk .hidden {
 	visibility: hidden;
+}
+.weapon-perk-stacks {
+	width: 3em;
 }
 .flavortext {
 	font-style: italic;

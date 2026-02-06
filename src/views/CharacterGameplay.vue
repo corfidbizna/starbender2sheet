@@ -37,7 +37,6 @@ const {
 	skillsRefresh,
 	weapons,
 	weaponAmmoUpdate,
-	namesOfEquippedWeapons,
 	actionResourceUpdate,
 } = useCharacterData(props.characterId);
 
@@ -127,7 +126,7 @@ const rallyBanner = () => {
 	// resource.ammoSpecial += source.capacitySpecial - resource.ammoSpecial;
 	// resource.ammoHeavy += source.capacityHeavy - resource.ammoHeavy;
 	weapons.value
-		.filter((weapon) => namesOfEquippedWeapons.value.includes(weapon.name))
+		.filter((weapon) => weapon.isEquipped)
 		.forEach((weapon) => {
 			weaponAmmoUpdate(weapon.name, weapon.ammoCapacity - weapon.ammoCurrent);
 		});

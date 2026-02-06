@@ -7,8 +7,7 @@ import {
 	type PartyBuffInfo,
 } from '@/business_logic/buffs';
 import { DiceFormula, getStatByCharacter } from '@/business_logic/diceFormula';
-import { updateLog } from '@/sharedState';
-import { computed, ref, type Ref, type ComputedRef } from 'vue';
+import { computed, ref, type Ref, type ComputedRef, watch } from 'vue';
 
 // ==================================================================================================
 // Sheet Types
@@ -190,8 +189,8 @@ export type DamageComponent = {
 	damageType: Element; // Solar
 	rangeType: string; // Ranged
 	range: number; // 20
-	rangePenalty: number; // 20 (goes down every 20ft. distance)
-	rangeIncrementsModifier: number; // 2 (amount to decrease hit by)
+	rangePenalty: number; // 2 (amount to decrease hit by)
+	rangeIncrementsModifier: number; // 20 (goes down every 20ft. distance)
 	size: number; // 10
 	shape: string; // sphere
 	duration: number; // 1
@@ -1300,6 +1299,7 @@ export type ImportedWeapon = Characters & {
 	rangeType: string;
 	range: number;
 	rangePenalty: number;
+	rangeIncrementsModifier: number;
 	handed: number;
 	size?: number;
 	shape?: string;
@@ -1314,15 +1314,27 @@ export type ImportedWeapon = Characters & {
 	buffsActive?: string;
 	perks?: string;
 };
-export type Weapon = ImportedWeapon & {
-	damageFormula: DiceFormula;
-	dmgMin: number;
-	dmgMax: number;
-	dmgAvg: number;
-	dmgShort: string;
+export type Weapon = {
+	name: string;
+	flavortext: string;
+	rarity: Rarity;
+	element: Element;
+	weaponClass: WeaponClasses;
+	slots: number;
+	damage: DamageComponent;
+	handed: number;
+	ammo: number;
 	ammoCurrent: number;
-	equipped: boolean;
-	active: boolean;
+	ammoCapacity: number;
+	ammoReloadAmount: number;
+	ammoType: string;
+	isMagic: boolean;
+	ranks: number;
+	buffsEquipped: string;
+	buffsActive: string;
+	isEquipped: boolean;
+	isActive: boolean;
+	perks: Record<string, WeaponPerk>;
 };
 // Weapon Perks
 type ImportedWeaponPerk = {
@@ -1331,6 +1343,7 @@ type ImportedWeaponPerk = {
 	passive: boolean;
 	stacking: boolean;
 	stacksMax: number;
+	stackAffectedStats: string;
 	replaceStats: boolean;
 	attackType: string;
 	hitType: string;
@@ -1350,7 +1363,7 @@ type ImportedWeaponPerk = {
 	handed: number;
 	ammo: number;
 	ammoCapacity: number;
-	ammoReloadCapacity: number;
+	ammoReloadAmount: number;
 	ammoType: string;
 	isMagic: boolean;
 	buffs: string;
@@ -1359,14 +1372,16 @@ export type WeaponPerk = {
 	name: string;
 	description: string;
 	passive: boolean;
+	isActive: boolean;
 	stacking: boolean;
 	stacksMax: number;
+	stackAffectedStats: string[];
+	stacks: number;
 	replaceStats: boolean;
-	rankedStats: string[];
 	damage: DamageComponent;
 	ammo: number;
 	ammoCapacity: number;
-	ammoReloadCapacity: number;
+	ammoReloadAmount: number;
 	ammoType: string;
 	isMagic: boolean;
 	buffs?: string;
@@ -1396,24 +1411,25 @@ export type Armor = Characters & {
 
 // ABility Types
 export type AbilityClass = 'Super' | 'Grenade' | 'Melee' | 'Class Ability' | 'Subcomponent';
-type ImportedAbility = Ability & {
-	groupNameList: string;
-	prerequisiteList: string;
-	buffList: string;
-	partialPowerStatsList: string;
-	partialPowerStepMultList: string;
-	// For the damage stuff
-	hitType: string;
-	hitBonus: number;
-	critRange: number;
-	critMult: number;
-	element: Element;
-	range: number;
-	size: number;
-	shape: string;
-	duration: number;
-};
-export type Ability = Characters & {
+type ImportedAbility = Characters &
+	Ability & {
+		groupNameList: string;
+		prerequisiteList: string;
+		buffList: string;
+		partialPowerStatsList: string;
+		partialPowerStepMultList: string;
+		// For the damage stuff
+		hitType: string;
+		hitBonus: number;
+		critRange: number;
+		critMult: number;
+		element: Element;
+		range: number;
+		size: number;
+		shape: string;
+		duration: number;
+	};
+export type Ability = {
 	name: string;
 	groupNames: string[];
 	type: AbilityClass;
@@ -1581,27 +1597,18 @@ function useCharacterDataUncached(characterId: string) {
 		);
 		const result = [
 			...filteredPartyBuffs,
-			...playerBuffs.value,
+			...playerBuffs.value.map((buff) => {
+				buff.isStory = buff.isStory || false;
+				return buff;
+			}),
 			...weaponsAsBuffs.value,
 			...armorsAsBuffs.value,
 			...artifactAsBuffs.value,
 		];
-		// for (let i = 0; i < result.length; i++) {
-		// 	result[i].stacks = ref<number>(490);
-		// 	if (result[i].isPassive) {
-		// 		result[i].active = true;
-		// 	} else result[i].active = false;
-		// 	return result;
-		// }
-		// return result;
 		return result.map((buff) => {
-			buff.stacks = 0;
-			if (buff.isPassive) {
-				buff.active = true;
-			} else buff.active = false;
-			if (!buff.type) {
-				buff.type = 'Buff';
-			}
+			buff.stacks = buff.stacks || 0;
+			buff.active = buff.isPassive || buff.active || false;
+			buff.type = buff.type || 'Buff';
 			return buff;
 		});
 	});
@@ -1620,8 +1627,22 @@ function useCharacterDataUncached(characterId: string) {
 	const activatedPartyBuffs = computed<BuffInfo[]>(() => {
 		const addThese = [
 			...namesOfActivatedBuffs.value,
-			...namesOfEquippedWeapons.value.map((weapon) => weapon + ' (Equipped)'),
-			...namesOfActiveWeapons.value.map((weapon) => weapon + ' (Active)'),
+			...weapons.value
+				.filter((weapon) => weapon.isEquipped)
+				.map((weapon) => weapon.name + ' (Equipped)'),
+			...weapons.value
+				.filter((weapon) => weapon.isActive)
+				.map((weapon) => weapon.name + ' (Active)'),
+			...weapons.value
+				.filter((weapon) => weapon.isActive)
+				.map((weapon) => {
+					const keys = Object.keys(weapon.perks);
+					return keys.map((key) => {
+						return weapon.name + ': ' + weapon.perks[key].name;
+					});
+				})
+				.flat()
+				.filter((item) => !!item),
 			...namesOfEquippedArmor.value,
 			...namesOfActiveArmor.value,
 			...namesOfActiveArtifactMods.value,
@@ -1687,57 +1708,41 @@ function useCharacterDataUncached(characterId: string) {
 		data: weaponsForFiltering,
 		isLoading: weaponsLoading,
 		refresh: weaponsRefresh,
-	} = getNetworkDataStateForSheet<Weapon>(
+	} = getNetworkDataStateForSheet<ImportedWeapon>(
 		partyDataSources.documentId,
 		partyDataSources.sheets.weapons,
 	);
-	const weapons = computed<Weapon[]>(() => {
-		const filteredWeapons = weaponsForFiltering.value.filter(
-			(item) => item[characterId as CharacterNames],
-		);
-		// const statFunction = getStatByCharacter(stats.value);
-		return filteredWeapons.map((weapon) => {
-			const damageBonus = computed<number>(() => {
-				let result = 0;
-				if (buffsTallied.value === undefined) {
-					return result;
-				}
-				if (weapon.rangeType === 'Melee') {
-					result += getFinalStat('damageMelee');
-				} else if (weapon.rangeType === 'Ranged') {
-					result += getFinalStat('damageRanged');
-				} else if (weapon.rangeType === 'Spell') {
-					result += getFinalStat('damageSpell');
-				}
-				return result + (getFinalStat('damagePrecision') || 0);
-			});
-			if (weapon.rangePenalty === undefined) weapon.rangePenalty = 2;
-			const damageStats = damageStringToDownstream(
-				weapon.damage + '+' + damageBonus.value,
-				stats.value,
-			);
-			weapon.damageFormula = damageStats.damageFormula;
-			weapon.dmgMin = damageStats.dmgMin;
-			weapon.dmgMax = damageStats.dmgMax;
-			weapon.dmgAvg = damageStats.dmgAvg;
-			weapon.dmgShort = damageStats.dmgShort;
-			weapon.ammoCurrent = weapon.ammoCapacity;
-			if (weapon.ammoReloadAmount === undefined) {
-				weapon.ammoReloadAmount = weapon.ammoCapacity;
+	const weapons = ref<Weapon[]>([]);
+	const weaponEquip = (name: string, status: boolean) => {
+		const target = weapons.value.find((weapon) => weapon.name === name);
+		if (!!target) {
+			target.isEquipped = status;
+		}
+	};
+	const weaponActivate = (name: string, status: boolean) => {
+		const target = weapons.value.find((weapon) => weapon.name === name);
+		if (!!target) {
+			target.isActive = status;
+		}
+	};
+	const weaponPerkActivate = (weaponName: string, perkName: string, status: boolean) => {
+		const targetWeapon = weapons.value.find((weapon) => weapon.name === weaponName);
+		if (targetWeapon) {
+			const targetPerk = targetWeapon.perks[perkName];
+			if (targetPerk) {
+				targetPerk.isActive = status;
 			}
-			if (namesOfEquippedWeapons.value.includes(weapon.name)) {
-				weapon.equipped = true;
-			} else {
-				weapon.equipped = false;
+		}
+	};
+	const weaponPerkStackUpdate = (weaponName: string, perkName: string, stackCount: number) => {
+		const targetWeapon = weapons.value.find((weapon) => weapon.name === weaponName);
+		if (targetWeapon) {
+			const targetPerk = targetWeapon.perks[perkName];
+			if (targetPerk) {
+				targetPerk.stacks = stackCount;
 			}
-			if (namesOfActiveWeapons.value.includes(weapon.name)) {
-				weapon.active = true;
-			} else {
-				weapon.active = false;
-			}
-			return weapon;
-		});
-	});
+		}
+	};
 	const weaponAmmoUpdate = (name: string, changeAmount: number) => {
 		const targetWeapon: Weapon | undefined = weapons.value.find(
 			(weapon) => weapon.name === name,
@@ -1759,61 +1764,141 @@ function useCharacterDataUncached(characterId: string) {
 		partyDataSources.sheets.weaponPerks,
 	);
 	const weaponPerks = computed<WeaponPerk[]>(() => {
-		return weaponPerksForProcessing.value.map((prePerk: ImportedWeaponPerk) => {
-			const damageStats = damageStringToDownstream(prePerk.damage || '0', stats.value);
+		return weaponPerksForProcessing.value.map((p: ImportedWeaponPerk) => {
+			const damageStats = damageStringToDownstream(p.damage || '0', stats.value);
 			const resultPerk: WeaponPerk = {
-				name: prePerk.name,
-				description: prePerk.description,
-				passive: prePerk.passive,
-				stacking: prePerk.stacking,
-				stacksMax: prePerk.stacksMax,
-				replaceStats: prePerk.replaceStats,
+				name: p.name,
+				description: p.description,
+				passive: p.passive,
+				isActive: p.passive,
+				stacking: p.stacking,
+				stacksMax: p.stacksMax,
+				stackAffectedStats: (p.stackAffectedStats || '').split(', '),
+				stacks: 0,
+				replaceStats: p.replaceStats,
 				damage: {
-					attackType: prePerk.attackType,
-					hitType: prePerk.hitType,
-					hitBonus: prePerk.hitBonus,
-					critRange: prePerk.critRange,
-					critMult: prePerk.critMult,
+					attackType: p.attackType,
+					hitType: p.hitType,
+					hitBonus: p.hitBonus,
+					critRange: p.critRange,
+					critMult: p.critMult,
 					damageFormula: damageStats.damageFormula,
 					dmgShort: damageStats.dmgShort,
 					dmgMin: damageStats.dmgMin,
 					dmgAvg: damageStats.dmgAvg,
 					dmgMax: damageStats.dmgMax,
-					damageType: prePerk.damageType,
-					rangeType: prePerk.rangeType,
-					range: prePerk.range,
-					rangePenalty: prePerk.rangePenalty || prePerk.range,
-					rangeIncrementsModifier: prePerk.rangeIncrementsModifier || 2,
-					size: prePerk.size,
-					shape: prePerk.shape,
-					duration: prePerk.duration,
+					damageType: p.damageType,
+					rangeType: p.rangeType,
+					range: p.range,
+					rangePenalty: p.rangePenalty || 2,
+					rangeIncrementsModifier: p.rangeIncrementsModifier || p.range,
+					size: p.size,
+					shape: p.shape,
+					duration: p.duration,
 				},
-				ammo: prePerk.ammo,
-				ammoCapacity: prePerk.ammoCapacity,
-				ammoReloadCapacity: prePerk.ammoReloadCapacity,
-				ammoType: prePerk.ammoType,
-				isMagic: prePerk.isMagic,
-				rankedStats: [],
+				ammo: p.ammo,
+				ammoCapacity: p.ammoCapacity,
+				ammoReloadAmount: p.ammoReloadAmount || p.ammoCapacity,
+				ammoType: p.ammoType,
+				isMagic: p.isMagic,
+				buffs: p.buffs,
 			};
 			return resultPerk;
 		});
 	});
-	const namesOfEquippedWeapons = ref<string[]>([]);
-	const namesOfActiveWeapons = ref<string[]>([]);
+	watch([weaponsForFiltering, weaponPerks], () => {
+		weapons.value = weaponsForFiltering.value
+			.filter((item) => item[characterId as CharacterNames])
+			.map((ogWeapon) => {
+				const damageBonus = computed<number>(() => {
+					let result = 0;
+					if (buffsTallied.value === undefined) {
+						return result;
+					}
+					if (ogWeapon.rangeType === 'Melee') {
+						result += getFinalStat('damageMelee');
+					} else if (ogWeapon.rangeType === 'Ranged') {
+						result += getFinalStat('damageRanged');
+					} else if (ogWeapon.rangeType === 'Spell') {
+						result += getFinalStat('damageSpell');
+					}
+					return result + (getFinalStat('damagePrecision') || 0);
+				});
+				const dmgStatStuff = damageStringToDownstream(
+					ogWeapon.damage + '+' + damageBonus.value,
+					stats.value,
+				);
+				const perkNameList = ogWeapon.perks?.split(', ') || [];
+				const perkList: Record<string, WeaponPerk> = {};
+				for (let i = 0; i < perkNameList.length; i++) {
+					const targetPerk = weaponPerks.value.find(
+						(perk) => perk.name === perkNameList[i],
+					);
+					if (targetPerk) {
+						// It needs to be a copy of the perk or else it references
+						// the original perk.
+						perkList[perkNameList[i]] = { ...targetPerk };
+					}
+				}
+				const weapon: Weapon = {
+					name: ogWeapon.name,
+					flavortext: ogWeapon.flavortext || '',
+					rarity: ogWeapon.rarity,
+					element: ogWeapon.element,
+					weaponClass: ogWeapon.weaponClass,
+					slots: ogWeapon.slots,
+					damage: {
+						attackType: ogWeapon.attackType,
+						hitType: ogWeapon.hitType,
+						hitBonus: ogWeapon.hitBonus || 0,
+						critRange: ogWeapon.critRange || 0,
+						critMult: ogWeapon.critMult || 0,
+						damageFormula: dmgStatStuff.damageFormula,
+						dmgShort: dmgStatStuff.dmgShort,
+						dmgMin: dmgStatStuff.dmgMin,
+						dmgAvg: dmgStatStuff.dmgAvg,
+						dmgMax: dmgStatStuff.dmgMax,
+						damageType: ogWeapon.damageType,
+						rangeType: ogWeapon.rangeType,
+						range: ogWeapon.range,
+						rangePenalty: ogWeapon.rangePenalty || 2,
+						rangeIncrementsModifier: ogWeapon.rangeIncrementsModifier,
+						size: ogWeapon.size || 0,
+						shape: ogWeapon.shape || '',
+						duration: ogWeapon.duration || 0,
+					},
+					handed: ogWeapon.handed,
+					ammo: ogWeapon.ammo,
+					ammoCurrent: ogWeapon.ammoCapacity,
+					ammoCapacity: ogWeapon.ammoCapacity,
+					ammoReloadAmount: ogWeapon.ammoReloadAmount || ogWeapon.ammoCapacity,
+					ammoType: ogWeapon.ammoType,
+					isMagic: ogWeapon.isMagic,
+					ranks: ogWeapon.ranks || 0,
+					buffsEquipped: ogWeapon.buffsEquipped || '',
+					buffsActive: ogWeapon.buffsActive || '',
+					isEquipped: false,
+					isActive: false,
+					perks: perkList,
+				};
+				// Put whether or not the weapon is active / equipped from Local Storage here!!
+				return weapon;
+			});
+	});
 	const weaponsAsBuffs = computed<BuffInfo[]>(() => {
 		// using the weapons computed from above causes a cyclic dependency,
 		// thankfully we don't need those buffs, or even character filtering here.
-		const weapons = weaponsForFiltering;
-		if (!namesOfEquippedWeapons.value.length && !namesOfActiveWeapons.value.length) {
-			return [];
-		}
-		const resultEquipped = weapons.value
-			.filter((weapon) => namesOfEquippedWeapons.value.includes(weapon.name))
+		const weaponsList = weapons.value;
+		// if (!namesOfEquippedWeapons.value.length && !namesOfActiveWeapons.value.length) {
+		// 	return [];
+		// }
+		const resultEquipped = weaponsList
+			.filter((weapon) => weapon.isEquipped)
 			.map((weapon) => {
 				const buffString =
 					'Weapons Equipped +' +
 					weapon.slots +
-					(weapon.buffsEquipped !== undefined ? ', ' + weapon.buffsEquipped : '');
+					(!!weapon.buffsEquipped ? ', ' + weapon.buffsEquipped : '');
 				const newBuff: BuffInfo = {
 					name: weapon.name + ' (Equipped)',
 					type: 'Hidden',
@@ -1825,13 +1910,13 @@ function useCharacterDataUncached(characterId: string) {
 				};
 				return newBuff;
 			});
-		const resultActive = weapons.value
-			.filter((weapon) => namesOfActiveWeapons.value.includes(weapon.name))
+		const resultActive = weaponsList
+			.filter((weapon) => weapon.isEquipped)
 			.map((weapon) => {
 				const buffString =
 					'Hands Used +' +
 					weapon.handed +
-					(weapon.buffsActive !== undefined ? ', ' + weapon.buffsEquipped : '');
+					(!!weapon.buffsActive ? ', ' + weapon.buffsActive : '');
 				const newBuff: BuffInfo = {
 					name: weapon.name + ' (Active)',
 					type: 'Hidden',
@@ -1843,42 +1928,29 @@ function useCharacterDataUncached(characterId: string) {
 				};
 				return newBuff;
 			});
-		return [...resultEquipped, ...resultActive];
+		const fromPerks = weaponsList
+			.filter((weapon) => weapon.isActive)
+			.map((weapon) => {
+				const keys = Object.keys(weapon.perks).filter(
+					(key) => weapon.perks[key].isActive && weapon.perks[key].buffs,
+				);
+				return keys.map((key) => {
+					const perk = weapon.perks[key];
+					return <BuffInfo>{
+						name: weapon.name + ': ' + perk.name,
+						type: 'Hidden',
+						category: 'Misc',
+						isStory: false,
+						stacks: perk.stacks || 0,
+						effects: perk.buffs,
+						active: true,
+					};
+				});
+			})
+			.flat()
+			.filter((item) => item !== undefined);
+		return [...resultEquipped, ...resultActive, ...fromPerks];
 	});
-	type WeaponSlot = 'a' | 'b' | 'c';
-	const weaponSlots = ref<Record<WeaponSlot, string>>({
-		a: '',
-		b: '',
-		c: '',
-	});
-	const weaponSlotUpdate = (slot: WeaponSlot, name: string) => {
-		const otherKeys = Object.keys(weaponSlots);
-		otherKeys.forEach((key) => {
-			if (weaponSlots.value[key as WeaponSlot] === name) {
-				if (key !== slot) {
-					// The weapon was already in a slot and it wasn't the target one.
-					const register = weaponSlots.value[slot];
-					weaponSlots.value[slot] = name;
-					weaponSlots.value[key as WeaponSlot] = register;
-					updateLog(
-						'The weapon ' +
-							name +
-							' transferred to slot ' +
-							slot +
-							' from slot ' +
-							key +
-							(register === '')
-							? '.'
-							: ', swapping with ' + register + '.',
-					);
-				} else {
-					updateLog('The weapon ' + name + ' was already in slot ' + slot + '!');
-				}
-			}
-		});
-		weaponSlots.value[slot] = name;
-		updateLog('The weapon ' + name + ' was added to slot ' + slot + '.');
-	};
 	// WEAPONS END
 
 	// ==================================================================================================
@@ -2393,14 +2465,16 @@ function useCharacterDataUncached(characterId: string) {
 		// Weapons
 		weapons,
 		weaponAmmoUpdate,
-		namesOfEquippedWeapons,
-		namesOfActiveWeapons,
-		weaponSlotUpdate,
-		weaponsLoading,
+		weaponEquip,
+		weaponActivate,
+		weaponPerkActivate,
+		weaponPerkStackUpdate,
+		weaponsLoading: weaponsLoading && weaponPerksLoading,
 		weaponsRefresh,
 		weaponPerks,
 		weaponPerksLoading,
 		weaponPerksRefresh,
+		damageStringToDownstream,
 		// Armors
 		armor,
 		namesOfEquippedArmor,
