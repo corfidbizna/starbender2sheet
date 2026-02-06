@@ -19,14 +19,14 @@ const weaponIndex = computed<number>(() =>
 	weapons.value.findIndex((weapon) => weapon.name === props.name),
 );
 const getCritDisplay = (): string => {
-	if (!weapon.value.damage.critRange) {
+	if (!weapon.value.critRange) {
 		return '--';
 	}
 	const delimiter = ', x';
-	if (weapon.value.damage.critRange === 1) {
-		return 20 + delimiter + weapon.value.damage.critMult;
+	if (weapon.value.critRange === 1) {
+		return 20 + delimiter + weapon.value.critMult;
 	}
-	return 21 - weapon.value.damage.critRange + '-20' + delimiter + weapon.value.damage.critMult;
+	return 21 - weapon.value.critRange + '-20' + delimiter + weapon.value.critMult;
 };
 const getAmmoTypeDisplay = (): string => {
 	return weapon.value.ammoType.split(' ')[0];
@@ -116,17 +116,17 @@ const glyphMap = {
 };
 const hitRangeMod = computed<number>(() => {
 	const distance = actionResources.value.targetRange;
-	const increment = Math.min(10, Math.max(0, distance / weapon.value.damage.range));
-	return Math.trunc(increment) * weapon.value.damage.rangePenalty;
+	const increment = Math.min(10, Math.max(0, distance / weapon.value.range));
+	return Math.trunc(increment) * weapon.value.rangePenalty;
 });
 const toHitCalc = computed<number>(() => {
-	let result = weapon.value.damage.hitBonus || 0;
-	if (weapon.value.damage.rangeType === 'Melee') {
+	let result = weapon.value.hitBonus || 0;
+	if (weapon.value.rangeType === 'Melee') {
 		result += getFinalStat('toHitMelee');
-	} else if (weapon.value.damage.rangeType === 'Ranged') {
+	} else if (weapon.value.rangeType === 'Ranged') {
 		result += getFinalStat('toHitRanged');
 		result -= hitRangeMod.value;
-	} else if (weapon.value.damage.rangeType === 'Spell') {
+	} else if (weapon.value.rangeType === 'Spell') {
 		result += getFinalStat('toHitSpell');
 		result -= hitRangeMod.value;
 	}
@@ -134,18 +134,18 @@ const toHitCalc = computed<number>(() => {
 });
 const hitFormula = new DiceFormula('1d20');
 const rollDamage = () => {
-	const result = weapon.value.damage.damageFormula.roll(() => 0);
+	const result = weapon.value.damageFormula.roll(() => 0);
 	let string =
 		glyphMap[props.weaponClass] +
 		props.name +
 		'\n  Damage:     ' +
-		glyphMap[weapon.value.damage.damageType] +
+		glyphMap[weapon.value.damageType] +
 		result;
-	if (weapon.value.damage.critMult && weapon.value.damage.critMult > 1) {
+	if (weapon.value.critMult && weapon.value.critMult > 1) {
 		string +=
 			'\n  Crit damage: ' +
-			glyphMap[weapon.value.damage.damageType] +
-			result * weapon.value.damage.critMult;
+			glyphMap[weapon.value.damageType] +
+			result * weapon.value.critMult;
 	}
 	updateLog(string);
 };
@@ -159,17 +159,15 @@ const rollHit = () => {
 		' (dice) ' +
 		('+ ' + toHitCalc.value).replace('+-', '-') +
 		' (bonus)';
-	if (weapon.value.damage.rangeType !== 'Melee' && actionResources.value.rangeIncrement > 0) {
+	if (weapon.value.rangeType !== 'Melee' && actionResources.value.rangeIncrement > 0) {
 		string +=
-			' - ' +
-			actionResources.value.rangeIncrement * weapon.value.damage.rangePenalty +
-			' (range)';
+			' - ' + actionResources.value.rangeIncrement * weapon.value.rangePenalty + ' (range)';
 	}
 	string += '\n  Hit result ⇒ ' + (result + toHitCalc.value);
 	if (result <= 1) {
 		string += '\n == Natural 1! ==';
 	}
-	if (result > 20 - (weapon.value.damage.critRange || 0)) {
+	if (result > 20 - (weapon.value.critRange || 0)) {
 		string += '\n == Critical hit! ==';
 	}
 	updateLog(string);
@@ -202,30 +200,25 @@ const weapon = computed<Weapon>(() => {
 			if (perk.replaceStats) {
 				// The perk needs to replace the weapon stat rather than supplement it.
 				// Note, this will also be replaced by perks further down the line.
-				modified.damage.hitBonus =
-					perk.damage.hitBonus * stk('hitBonus') || modified.damage.hitBonus;
-				modified.damage.critRange =
-					perk.damage.critRange * stk('critRange') || modified.damage.critRange;
-				modified.damage.critMult =
-					perk.damage.critMult * stk('critMult') || modified.damage.critMult;
+				modified.hitBonus = perk.hitBonus * stk('hitBonus') || modified.hitBonus;
+				modified.critRange = perk.critRange * stk('critRange') || modified.critRange;
+				modified.critMult = perk.critMult * stk('critMult') || modified.critMult;
 				const damageStats = damageStringToDownstream(
-					!!perk.damage.dmgMax ? perk.damage.dmgShort : modified.damage.dmgShort,
+					!!perk.dmgMax ? perk.dmgShort : modified.dmgShort,
 					buffsAsStats.value,
 				);
-				modified.damage.damageFormula = damageStats.damageFormula;
-				modified.damage.dmgShort = damageStats.dmgShort;
-				modified.damage.dmgMin = damageStats.dmgMin;
-				modified.damage.dmgAvg = damageStats.dmgAvg;
-				modified.damage.dmgMax = damageStats.dmgMax;
-				modified.damage.range = perk.damage.range * stk('range') || modified.damage.range;
-				modified.damage.rangePenalty =
-					perk.damage.rangePenalty * stk('rangePenalty') || modified.damage.range;
-				modified.damage.rangeIncrementsModifier =
-					perk.damage.rangeIncrementsModifier * stk('rangeIncrementsModifier') ||
-					modified.damage.rangeIncrementsModifier;
-				modified.damage.size = perk.damage.size * stk('size') || modified.damage.size;
-				modified.damage.duration =
-					perk.damage.duration * stk('duration') || modified.damage.duration;
+				modified.damageFormula = damageStats.damageFormula;
+				modified.dmgShort = damageStats.dmgShort;
+				modified.dmgMin = damageStats.dmgMin;
+				modified.dmgAvg = damageStats.dmgAvg;
+				modified.dmgMax = damageStats.dmgMax;
+				modified.range = perk.range * stk('range') || modified.range;
+				modified.rangePenalty = perk.rangePenalty * stk('rangePenalty') || modified.range;
+				modified.rangeIncrementsModifier =
+					perk.rangeIncrementsModifier * stk('rangeIncrementsModifier') ||
+					modified.rangeIncrementsModifier;
+				modified.size = perk.size * stk('size') || modified.size;
+				modified.duration = perk.duration * stk('duration') || modified.duration;
 				modified.ammo = perk.ammo * stk('ammo') || modified.ammo;
 				modified.ammoCapacity =
 					perk.ammoCapacity * stk('ammoCapacity') || modified.ammoCapacity;
@@ -233,29 +226,25 @@ const weapon = computed<Weapon>(() => {
 					perk.ammoReloadAmount * stk('ammoReloadAmount') || modified.ammoReloadAmount;
 			} else {
 				// Supplement things instead.
-				modified.damage.hitBonus =
-					modified.damage.hitBonus || 0 + perk.damage.hitBonus * stk('hitBonus');
-				modified.damage.critRange =
-					modified.damage.critRange || 0 + perk.damage.critRange * stk('critRange');
-				modified.damage.critMult =
-					modified.damage.critMult || 0 + perk.damage.critMult * stk('critMult');
+				modified.hitBonus = modified.hitBonus || 0 + perk.hitBonus * stk('hitBonus');
+				modified.critRange = modified.critRange || 0 + perk.critRange * stk('critRange');
+				modified.critMult = modified.critMult || 0 + perk.critMult * stk('critMult');
 				const damageStats = damageStringToDownstream(
-					perk.damage
-						? modified.damage.dmgShort + '+' + perk.damage.dmgShort
-						: modified.damage.dmgShort,
+					perk.damageFormula
+						? modified.dmgShort + '+' + perk.dmgShort
+						: modified.dmgShort,
 					buffsAsStats.value,
 				);
-				modified.damage.damageFormula = damageStats.damageFormula;
-				modified.damage.dmgShort = damageStats.dmgShort;
-				modified.damage.dmgMin = damageStats.dmgMin;
-				modified.damage.dmgAvg = damageStats.dmgAvg;
-				modified.damage.dmgMax = damageStats.dmgMax;
-				modified.damage.rangePenalty += perk.damage.rangePenalty * stk('rangePenalty');
-				modified.damage.rangeIncrementsModifier +=
-					perk.damage.rangeIncrementsModifier * stk('rangeIncrementsModifier');
-				modified.damage.size = modified.damage.size || 0 + perk.damage.size * stk('size');
-				modified.damage.duration =
-					modified.damage.duration || 0 + perk.damage.duration * stk('duration');
+				modified.damageFormula = damageStats.damageFormula;
+				modified.dmgShort = damageStats.dmgShort;
+				modified.dmgMin = damageStats.dmgMin;
+				modified.dmgAvg = damageStats.dmgAvg;
+				modified.dmgMax = damageStats.dmgMax;
+				modified.rangePenalty += perk.rangePenalty * stk('rangePenalty');
+				modified.rangeIncrementsModifier +=
+					perk.rangeIncrementsModifier * stk('rangeIncrementsModifier');
+				modified.size = modified.size || 0 + perk.size * stk('size');
+				modified.duration = modified.duration || 0 + perk.duration * stk('duration');
 				modified.ammo = perk.ammo * stk('ammo') || modified.ammo;
 				modified.ammoCapacity =
 					perk.ammoCapacity * stk('ammoCapacity') || modified.ammoCapacity;
@@ -263,12 +252,12 @@ const weapon = computed<Weapon>(() => {
 					perk.ammoReloadAmount * stk('ammoReloadAmount') || modified.ammoReloadAmount;
 			}
 			// To do regardless of replace or not.
-			modified.damage.attackType = perk.damage.attackType || modified.damage.attackType;
-			modified.damage.hitType = perk.damage.hitType || modified.damage.hitType;
-			modified.damage.hitType = perk.damage.hitType || modified.damage.hitType;
-			modified.damage.damageType = perk.damage.damageType || modified.damage.damageType;
-			modified.damage.rangeType = perk.damage.rangeType || modified.damage.rangeType;
-			modified.damage.shape = perk.damage.shape || modified.damage.shape;
+			modified.attackType = perk.attackType || modified.attackType;
+			modified.hitType = perk.hitType || modified.hitType;
+			modified.hitType = perk.hitType || modified.hitType;
+			modified.damageType = perk.damageType || modified.damageType;
+			modified.rangeType = perk.rangeType || modified.rangeType;
+			modified.shape = perk.shape || modified.shape;
 			modified.ammoType = perk.ammoType || modified.ammoType;
 			modified.isMagic = perk.isMagic || modified.isMagic;
 		}
@@ -346,8 +335,8 @@ const weapon = computed<Weapon>(() => {
 					/>
 					<span
 						:style="'color: ' + colorsElement(weapon.element)"
-						:title="weapon.damage.dmgShort"
-						>{{ weapon.damage.dmgShort }}</span
+						:title="weapon.dmgShort"
+						>{{ weapon.dmgShort }}</span
 					>
 				</div>
 				<div class="damage-sub">
@@ -372,34 +361,34 @@ const weapon = computed<Weapon>(() => {
 				<tbody class="weapon-cells">
 					<tr>
 						<td class="weapon-stat-label">Average Dmg</td>
-						<td class="weapon-stat-data alt">{{ weapon.damage.dmgAvg }}</td>
+						<td class="weapon-stat-data alt">{{ weapon.dmgAvg }}</td>
 						<td class="weapon-stat-label">To Hit</td>
 						<td
 							class="weapon-stat-data"
 							:style="
-								hitRangeMod > 0 && weapon.damage.rangeType !== 'Melee'
+								hitRangeMod > 0 && weapon.rangeType !== 'Melee'
 									? 'color: var(--color-debuff)'
 									: ''
 							"
 						>
-							{{ toHitCalc }} v. {{ weapon.damage.hitType }}
+							{{ toHitCalc }} v. {{ weapon.hitType }}
 						</td>
 						<td class="weapon-stat-label">Range</td>
 						<td class="weapon-stat-data">
-							{{ weapon.damage.rangeType }} {{ weapon.damage.range }}ft. 
+							{{ weapon.rangeType }} {{ weapon.range }}ft. 
 						</td>
 					</tr>
 					<tr>
 						<td class="weapon-stat-label">Min Dmg</td>
-						<td class="weapon-stat-data">{{ weapon.damage.dmgMin }}</td>
+						<td class="weapon-stat-data">{{ weapon.dmgMin }}</td>
 						<td class="weapon-stat-label">Crit</td>
 						<td class="weapon-stat-data">{{ getCritDisplay() }}</td>
 						<td class="weapon-stat-label">Shape</td>
 						<td
-							v-if="weapon.damage.size"
+							v-if="weapon.size"
 							class="weapon-stat-data"
 						>
-							{{ weapon.damage.size }}ft. {{ weapon.damage.shape }}
+							{{ weapon.size }}ft. {{ weapon.shape }}
 						</td>
 						<td
 							v-else
@@ -410,16 +399,16 @@ const weapon = computed<Weapon>(() => {
 					</tr>
 					<tr>
 						<td class="weapon-stat-label">Max Dmg</td>
-						<td class="weapon-stat-data">{{ weapon.damage.dmgMax }}</td>
+						<td class="weapon-stat-data">{{ weapon.dmgMax }}</td>
 						<td class="weapon-stat-label">Ammo</td>
 						<td class="weapon-stat-data">{{ weapon.ammo }}</td>
 						<td class="weapon-stat-label">Duration</td>
 						<td
-							v-if="weapon.damage.duration"
+							v-if="weapon.duration"
 							class="weapon-stat-data"
 						>
-							{{ weapon.damage.duration }}
-							{{ weapon.damage.duration === 1 ? 'round' : 'rounds' }}
+							{{ weapon.duration }}
+							{{ weapon.duration === 1 ? 'round' : 'rounds' }}
 						</td>
 						<td
 							v-else
@@ -430,7 +419,7 @@ const weapon = computed<Weapon>(() => {
 					</tr>
 					<tr>
 						<td class="weapon-stat-label">Attack Type</td>
-						<td class="weapon-stat-data">{{ weapon.damage.attackType }}</td>
+						<td class="weapon-stat-data">{{ weapon.attackType }}</td>
 						<td class="weapon-stat-label">Magazine</td>
 						<td class="weapon-stat-data">
 							{{ weapon.ammoCapacity }} {{ weapon.ammoType }}

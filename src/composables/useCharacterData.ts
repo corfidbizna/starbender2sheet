@@ -1314,14 +1314,13 @@ export type ImportedWeapon = Characters & {
 	buffsActive?: string;
 	perks?: string;
 };
-export type Weapon = {
+export type Weapon = DamageComponent & {
 	name: string;
 	flavortext: string;
 	rarity: Rarity;
 	element: Element;
 	weaponClass: WeaponClasses;
 	slots: number;
-	damage: DamageComponent;
 	handed: number;
 	ammo: number;
 	ammoCurrent: number;
@@ -1368,7 +1367,7 @@ type ImportedWeaponPerk = {
 	isMagic: boolean;
 	buffs: string;
 };
-export type WeaponPerk = {
+export type WeaponPerk = DamageComponent & {
 	name: string;
 	description: string;
 	passive: boolean;
@@ -1378,7 +1377,6 @@ export type WeaponPerk = {
 	stackAffectedStats: string[];
 	stacks: number;
 	replaceStats: boolean;
-	damage: DamageComponent;
 	ammo: number;
 	ammoCapacity: number;
 	ammoReloadAmount: number;
@@ -1776,26 +1774,26 @@ function useCharacterDataUncached(characterId: string) {
 				stackAffectedStats: (p.stackAffectedStats || '').split(', '),
 				stacks: 0,
 				replaceStats: p.replaceStats,
-				damage: {
-					attackType: p.attackType,
-					hitType: p.hitType,
-					hitBonus: p.hitBonus,
-					critRange: p.critRange,
-					critMult: p.critMult,
-					damageFormula: damageStats.damageFormula,
-					dmgShort: damageStats.dmgShort,
-					dmgMin: damageStats.dmgMin,
-					dmgAvg: damageStats.dmgAvg,
-					dmgMax: damageStats.dmgMax,
-					damageType: p.damageType,
-					rangeType: p.rangeType,
-					range: p.range,
-					rangePenalty: p.rangePenalty || 2,
-					rangeIncrementsModifier: p.rangeIncrementsModifier || p.range,
-					size: p.size,
-					shape: p.shape,
-					duration: p.duration,
-				},
+				// Damage Component
+				attackType: p.attackType,
+				hitType: p.hitType,
+				hitBonus: p.hitBonus,
+				critRange: p.critRange,
+				critMult: p.critMult,
+				damageFormula: damageStats.damageFormula,
+				dmgShort: damageStats.dmgShort,
+				dmgMin: damageStats.dmgMin,
+				dmgAvg: damageStats.dmgAvg,
+				dmgMax: damageStats.dmgMax,
+				damageType: p.damageType,
+				rangeType: p.rangeType,
+				range: p.range,
+				rangePenalty: p.rangePenalty || 2,
+				rangeIncrementsModifier: p.rangeIncrementsModifier || p.range,
+				size: p.size,
+				shape: p.shape,
+				duration: p.duration,
+				//
 				ammo: p.ammo,
 				ammoCapacity: p.ammoCapacity,
 				ammoReloadAmount: p.ammoReloadAmount || p.ammoCapacity,
@@ -1847,26 +1845,26 @@ function useCharacterDataUncached(characterId: string) {
 					element: ogWeapon.element,
 					weaponClass: ogWeapon.weaponClass,
 					slots: ogWeapon.slots,
-					damage: {
-						attackType: ogWeapon.attackType,
-						hitType: ogWeapon.hitType,
-						hitBonus: ogWeapon.hitBonus || 0,
-						critRange: ogWeapon.critRange || 0,
-						critMult: ogWeapon.critMult || 0,
-						damageFormula: dmgStatStuff.damageFormula,
-						dmgShort: dmgStatStuff.dmgShort,
-						dmgMin: dmgStatStuff.dmgMin,
-						dmgAvg: dmgStatStuff.dmgAvg,
-						dmgMax: dmgStatStuff.dmgMax,
-						damageType: ogWeapon.damageType,
-						rangeType: ogWeapon.rangeType,
-						range: ogWeapon.range,
-						rangePenalty: ogWeapon.rangePenalty || 2,
-						rangeIncrementsModifier: ogWeapon.rangeIncrementsModifier,
-						size: ogWeapon.size || 0,
-						shape: ogWeapon.shape || '',
-						duration: ogWeapon.duration || 0,
-					},
+					// Damage Component
+					attackType: ogWeapon.attackType,
+					hitType: ogWeapon.hitType,
+					hitBonus: ogWeapon.hitBonus || 0,
+					critRange: ogWeapon.critRange || 0,
+					critMult: ogWeapon.critMult || 0,
+					damageFormula: dmgStatStuff.damageFormula,
+					dmgShort: dmgStatStuff.dmgShort,
+					dmgMin: dmgStatStuff.dmgMin,
+					dmgAvg: dmgStatStuff.dmgAvg,
+					dmgMax: dmgStatStuff.dmgMax,
+					damageType: ogWeapon.damageType,
+					rangeType: ogWeapon.rangeType,
+					range: ogWeapon.range,
+					rangePenalty: ogWeapon.rangePenalty || 2,
+					rangeIncrementsModifier: ogWeapon.rangeIncrementsModifier,
+					size: ogWeapon.size || 0,
+					shape: ogWeapon.shape || '',
+					duration: ogWeapon.duration || 0,
+					//
 					handed: ogWeapon.handed,
 					ammo: ogWeapon.ammo,
 					ammoCurrent: ogWeapon.ammoCapacity,
