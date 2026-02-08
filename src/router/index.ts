@@ -26,6 +26,7 @@ const router = createRouter({
 					name: 'characterGameplay',
 					props: true,
 					component: () => import('../views/CharacterGameplay.vue'),
+					redirect: { name: 'characterGameplayWeapons' },
 					children: [
 						{
 							path: 'weapons',
@@ -79,7 +80,8 @@ const router = createRouter({
 				},
 				{
 					path: 'loadout',
-					name: 'characterLoadoutButPleaseDontUseThisOneDirectly',
+					name: 'characterLoadout',
+					redirect: { name: 'characterWeapons' },
 					props: true,
 					component: () => import('../views/CharacterLoadout.vue'),
 					children: [

@@ -593,8 +593,7 @@ const encumberanceColor = computed<string>(() => {
 				</div>
 				<div class="right-block">
 					<div class="tab-header">
-						<RouterLink
-							:to="{ name: 'characterGameplayWeapons', params: { characterId } }"
+						<RouterLink :to="{ name: 'characterGameplay', params: { characterId } }"
 							>Weapons</RouterLink
 						>
 						<RouterLink
@@ -710,7 +709,7 @@ const encumberanceColor = computed<string>(() => {
 	color: #fff;
 	background-color: #fff1;
 }
-.tab-header .router-link-active {
+.tab-header .router-link-exact-active {
 	color: #ffff;
 	background-color: #fff4;
 }

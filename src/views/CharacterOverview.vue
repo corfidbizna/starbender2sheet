@@ -39,7 +39,7 @@ const isLoading = computed(() => {
 	return !initialLoadComplete;
 });
 const names = [
-	'characterGameplay',
+	'characterGameplayWeapons',
 	'characterSkills',
 	'characterBuffs',
 	'characterWeapons',
@@ -58,11 +58,11 @@ const keyHandler = (e: KeyboardEvent) => {
 		const currentRouteIndex = names.indexOf(currentRouteName);
 		const direction = e.key === 'ArrowLeft' ? -1 : 1;
 		const targetIndex = (currentRouteIndex + direction + names.length) % names.length;
-		console.log(
-			`key: ${e.key}`,
-			{ currentRouteName, currentRouteIndex },
-			JSON.parse(JSON.stringify(router.currentRoute.value)),
-		);
+		// console.log(
+		// 	`key: ${e.key}`,
+		// 	{ currentRouteName, currentRouteIndex },
+		// 	JSON.parse(JSON.stringify(router.currentRoute.value)),
+		// );
 		router.push(routeList[targetIndex]);
 	}
 };
