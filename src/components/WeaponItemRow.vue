@@ -331,7 +331,12 @@ const weapon = computed<Weapon>(() => {
 							class="ammo-bar"
 						/>
 						<span>{{ currentAmmo }} ⁄ {{ weapon.ammoCapacity }}</span>
-						<button @click="reload()">↺</button>
+						<button
+							class="button-reload"
+							@click="reload()"
+						>
+							↺
+						</button>
 					</div>
 				</div>
 				<table class="weapon-details">
@@ -520,7 +525,7 @@ input[type='checkbox'].hidden {
 	display: flex;
 }
 .damage-main {
-	font-size: 2.8em;
+	font-size: 2.4em;
 	line-height: 1em;
 	font-weight: bold;
 	padding-right: 16px;
@@ -624,13 +629,15 @@ input[type='checkbox'].hidden {
 	height: 1em;
 	filter: invert(100%);
 }
+.button-reload {
+	margin-left: 3px;
+}
 button {
 	color: #fff;
 	text-decoration: none;
 	border: 1px solid #fff8;
 	background: #0003;
 	transition: background 0.1s;
-	margin: 3px;
 }
 button .glyph {
 	font-family: 'Destiny Symbols Common';

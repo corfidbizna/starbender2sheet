@@ -247,6 +247,12 @@ const abilityFilter = ref<string>('Universal');
 	scrollbar-width: none;
 	font-size: 0.9rem;
 }
+.gameplay-ability-list :first-child {
+	margin-top: 0;
+}
+.gameplay-ability-list :last-child {
+	margin-bottom: 0;
+}
 .ability-box-icon {
 	filter: invert(100%);
 	height: 3em;
