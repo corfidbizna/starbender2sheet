@@ -138,7 +138,7 @@ const props = defineProps<DBox>();
 .d-box .footer {
 	background-color: #000a;
 	text-align: right;
-	height: 1em;
+	height: 1.25em;
 }
 .d-box.active .footer {
 	background-color: #ffff;

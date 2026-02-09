@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { updateLog } from '@/sharedState.ts';
 import useCharacterData, { type Weapon } from '@/composables/useCharacterData';
+import DBox from '@/components/DBox.vue';
 import DGlyph from './DGlyph.vue';
 import CapacityBar from './CapacityBar.vue';
-import { DiceFormula } from '@/business_logic/diceFormula';
+import { DiceFormula, getStatByCharacter } from '@/business_logic/diceFormula';
 import { computed, ref } from 'vue';
 
 const props = defineProps<Weapon & { characterId: string; activatable?: boolean }>();
@@ -30,21 +31,6 @@ const getCritDisplay = (): string => {
 };
 const getAmmoTypeDisplay = (): string => {
 	return weapon.value.ammoType.split(' ')[0];
-};
-const colorsRarity = (rarity: string): string => {
-	if (rarity === 'Uncommon') {
-		return '#356f42';
-	}
-	if (rarity === 'Rare') {
-		return '#5076a3';
-	}
-	if (rarity === 'Legendary') {
-		return '#522e65';
-	}
-	if (rarity === 'Exotic') {
-		return '#cdae34';
-	}
-	return '#c2bdb4';
 };
 const colorsElement = (element: string): string => {
 	if (element === 'Solar') {
@@ -134,7 +120,8 @@ const toHitCalc = computed<number>(() => {
 });
 const hitFormula = new DiceFormula('1d20');
 const rollDamage = () => {
-	const result = weapon.value.damageFormula.roll(() => 0);
+	const statFunction = getStatByCharacter(buffsAsStats.value);
+	const result = weapon.value.damageFormula.roll(statFunction);
 	let string =
 		glyphMap[props.weaponClass] +
 		props.name +
@@ -187,6 +174,7 @@ const reload = () => {
 // Perks stuff lives here
 const weapon = computed<Weapon>(() => {
 	const modified = JSON.parse(JSON.stringify(props));
+	modified.damageFormula = props.damageFormula;
 	const perkKeys = Object.keys(props.perks);
 	for (let i = 0; i < perkKeys.length; i++) {
 		const perk = props.perks[perkKeys[i]];
@@ -268,34 +256,49 @@ const weapon = computed<Weapon>(() => {
 <template>
 	<label
 		class="weapon-row"
-		:class="
-			(isEquipped && !activatable ? 'equipped' : '') +
-			' ' +
-			(isActive && activatable ? 'equipped' : '')
-		"
 		:for="name + '-equip'"
 	>
-		<div
-			class="weapon-header"
-			:class="rarity.toLocaleLowerCase()"
-			:style="'background-color: ' + colorsRarity(rarity)"
+		<DBox
+			v-bind="{
+				rarity: props.rarity,
+				title: props.name,
+				subtitle: props.weaponClass,
+				flavortext: props.flavortext,
+			}"
+			:class="
+				(isEquipped && !activatable ? 'active' : '') +
+				' ' +
+				(isActive && activatable ? 'active' : '')
+			"
 		>
-			<div class="weapon-titles">
+			<template #header-icon>
 				<input
 					v-if="activatable"
+					class="hidden"
 					type="checkbox"
 					:id="name + '-equip'"
 					v-model="weapons[weaponIndex].isActive"
 				/>
 				<input
 					v-else
+					class="hidden"
 					type="checkbox"
 					:id="name + '-equip'"
 					v-model="weapons[weaponIndex].isEquipped"
 				/>
 				<div class="gun-icon"><DGlyph v-bind="{ name: weaponClass }" /></div>
-				<div class="gun-titles">
-					<h1>
+			</template>
+			<template #header-right>
+				<div class="action-buttons">
+					<button @click="rollHit"><span class="glyph"></span><span>Hit</span></button>
+					<button @click="rollDamage">
+						<span class="glyph"></span><span>Dmg</span>
+					</button>
+				</div>
+			</template>
+			<template #contents>
+				<div class="weapon-damage-info">
+					<div class="damage-main">
 						<DGlyph
 							v-if="weapon.element != 'Kinetic'"
 							v-bind="{ name: weapon.element }"
@@ -307,162 +310,131 @@ const weapon = computed<Weapon>(() => {
 							class="kinetic-icon"
 							src="/public/svgs/Kenetic.svg"
 						/>
-						<span>{{ name }}</span>
-					</h1>
-					<h2>
-						{{ weaponClass.toUpperCase() }}
-					</h2>
+						<span
+							:style="'color: ' + colorsElement(weapon.element)"
+							:title="weapon.dmgShort"
+							>{{ weapon.dmgShort }}</span
+						>
+					</div>
+					<div class="damage-sub">
+						<img
+							class="ammo-image"
+							:src="ammoImageSrc()"
+						/>
+						<span class="ammo-type">{{ ' ' + getAmmoTypeDisplay() }}</span>
+						<CapacityBar
+							v-bind="{
+								max: weapon.ammoCapacity,
+								current: currentAmmo,
+								color: colorsAmmo(weapon.ammoType),
+							}"
+							class="ammo-bar"
+						/>
+						<span>{{ currentAmmo }} ⁄ {{ weapon.ammoCapacity }}</span>
+						<button @click="reload()">↺</button>
+					</div>
 				</div>
-			</div>
-			<div class="action-buttons">
-				<button @click="rollHit"><span class="glyph"></span><span>Hit</span></button>
-				<button @click="rollDamage"><span class="glyph"></span><span>Dmg</span></button>
-			</div>
-		</div>
-		<div class="weapon-content">
-			<div class="weapon-damage-info">
-				<div class="damage-main">
-					<DGlyph
-						v-if="weapon.element != 'Kinetic'"
-						v-bind="{ name: weapon.element }"
-						class="element-glyph"
-						:style="'color: ' + colorsElement(weapon.element)"
-					/>
-					<img
-						v-else
-						class="kinetic-icon"
-						src="/public/svgs/Kenetic.svg"
-					/>
-					<span
-						:style="'color: ' + colorsElement(weapon.element)"
-						:title="weapon.dmgShort"
-						>{{ weapon.dmgShort }}</span
+				<table class="weapon-details">
+					<tbody class="weapon-cells">
+						<tr>
+							<td class="weapon-stat-label">Average Dmg</td>
+							<td class="weapon-stat-data alt">{{ weapon.dmgAvg }}</td>
+							<td class="weapon-stat-label">To Hit</td>
+							<td
+								class="weapon-stat-data"
+								:style="
+									hitRangeMod > 0 && weapon.rangeType !== 'Melee'
+										? 'color: var(--color-debuff)'
+										: ''
+								"
+							>
+								{{ toHitCalc }} v. {{ weapon.hitType }}
+							</td>
+							<td class="weapon-stat-label">Range</td>
+							<td class="weapon-stat-data">
+								{{ weapon.rangeType }} {{ weapon.range }}ft. 
+							</td>
+						</tr>
+						<tr>
+							<td class="weapon-stat-label">Min Dmg</td>
+							<td class="weapon-stat-data">{{ weapon.dmgMin }}</td>
+							<td class="weapon-stat-label">Crit</td>
+							<td class="weapon-stat-data">{{ getCritDisplay() }}</td>
+							<td class="weapon-stat-label">Shape</td>
+							<td
+								v-if="weapon.size"
+								class="weapon-stat-data"
+							>
+								{{ weapon.size }}ft. {{ weapon.shape }}
+							</td>
+							<td
+								v-else
+								class="weapon-stat-data"
+							>
+								--
+							</td>
+						</tr>
+						<tr>
+							<td class="weapon-stat-label">Max Dmg</td>
+							<td class="weapon-stat-data">{{ weapon.dmgMax }}</td>
+							<td class="weapon-stat-label">Ammo</td>
+							<td class="weapon-stat-data">{{ weapon.ammo }}</td>
+							<td class="weapon-stat-label">Duration</td>
+							<td
+								v-if="weapon.duration"
+								class="weapon-stat-data"
+							>
+								{{ weapon.duration }}
+								{{ weapon.duration === 1 ? 'round' : 'rounds' }}
+							</td>
+							<td
+								v-else
+								class="weapon-stat-data"
+							>
+								--
+							</td>
+						</tr>
+						<tr>
+							<td class="weapon-stat-label">Attack Type</td>
+							<td class="weapon-stat-data">{{ weapon.attackType }}</td>
+							<td class="weapon-stat-label">Magazine</td>
+							<td class="weapon-stat-data">
+								{{ weapon.ammoCapacity }} {{ weapon.ammoType }}
+							</td>
+							<td class="weapon-stat-label">Handed</td>
+							<td class="weapon-stat-data">{{ weapon.handed }}-handed</td>
+						</tr>
+					</tbody>
+				</table>
+				<div class="weapon-perks">
+					<details
+						v-for="perk in perks"
+						:key="perk.name"
+						class="weapon-perk"
+						:class="{ active: weapons[weaponIndex].perks[perk.name].isActive }"
+						:for="'perk ' + perk.name"
 					>
+						<summary>
+							<input
+								type="checkbox"
+								:class="{ hidden: perk.passive }"
+								:disabled="perk.passive"
+								v-model="weapons[weaponIndex].perks[perk.name].isActive"
+							/><span>{{ perk.name }}  </span>
+							<span v-if="perk.stacking"
+								><input
+									class="weapon-perk-stacks"
+									type="number"
+									min="0"
+									:max="perk.stacksMax || Infinity"
+									v-model="weapons[weaponIndex].perks[perk.name].stacks"
+							/></span>
+						</summary>
+						<div>{{ perk.description }}</div>
+					</details>
 				</div>
-				<div class="damage-sub">
-					<img
-						class="ammo-image"
-						:src="ammoImageSrc()"
-					/>
-					<span class="ammo-type">{{ ' ' + getAmmoTypeDisplay() }}</span>
-					<CapacityBar
-						v-bind="{
-							max: weapon.ammoCapacity,
-							current: currentAmmo,
-							color: colorsAmmo(weapon.ammoType),
-						}"
-						class="ammo-bar"
-					/>
-					<span>{{ currentAmmo }} ⁄ {{ weapon.ammoCapacity }}</span>
-					<button @click="reload()">↺</button>
-				</div>
-			</div>
-			<table class="weapon-details">
-				<tbody class="weapon-cells">
-					<tr>
-						<td class="weapon-stat-label">Average Dmg</td>
-						<td class="weapon-stat-data alt">{{ weapon.dmgAvg }}</td>
-						<td class="weapon-stat-label">To Hit</td>
-						<td
-							class="weapon-stat-data"
-							:style="
-								hitRangeMod > 0 && weapon.rangeType !== 'Melee'
-									? 'color: var(--color-debuff)'
-									: ''
-							"
-						>
-							{{ toHitCalc }} v. {{ weapon.hitType }}
-						</td>
-						<td class="weapon-stat-label">Range</td>
-						<td class="weapon-stat-data">
-							{{ weapon.rangeType }} {{ weapon.range }}ft. 
-						</td>
-					</tr>
-					<tr>
-						<td class="weapon-stat-label">Min Dmg</td>
-						<td class="weapon-stat-data">{{ weapon.dmgMin }}</td>
-						<td class="weapon-stat-label">Crit</td>
-						<td class="weapon-stat-data">{{ getCritDisplay() }}</td>
-						<td class="weapon-stat-label">Shape</td>
-						<td
-							v-if="weapon.size"
-							class="weapon-stat-data"
-						>
-							{{ weapon.size }}ft. {{ weapon.shape }}
-						</td>
-						<td
-							v-else
-							class="weapon-stat-data"
-						>
-							--
-						</td>
-					</tr>
-					<tr>
-						<td class="weapon-stat-label">Max Dmg</td>
-						<td class="weapon-stat-data">{{ weapon.dmgMax }}</td>
-						<td class="weapon-stat-label">Ammo</td>
-						<td class="weapon-stat-data">{{ weapon.ammo }}</td>
-						<td class="weapon-stat-label">Duration</td>
-						<td
-							v-if="weapon.duration"
-							class="weapon-stat-data"
-						>
-							{{ weapon.duration }}
-							{{ weapon.duration === 1 ? 'round' : 'rounds' }}
-						</td>
-						<td
-							v-else
-							class="weapon-stat-data"
-						>
-							--
-						</td>
-					</tr>
-					<tr>
-						<td class="weapon-stat-label">Attack Type</td>
-						<td class="weapon-stat-data">{{ weapon.attackType }}</td>
-						<td class="weapon-stat-label">Magazine</td>
-						<td class="weapon-stat-data">
-							{{ weapon.ammoCapacity }} {{ weapon.ammoType }}
-						</td>
-						<td class="weapon-stat-label">Handed</td>
-						<td class="weapon-stat-data">{{ weapon.handed }}-handed</td>
-					</tr>
-				</tbody>
-			</table>
-			<div class="weapon-perks">
-				<details
-					v-for="perk in perks"
-					:key="perk.name"
-					class="weapon-perk"
-					:class="{ active: weapons[weaponIndex].perks[perk.name].isActive }"
-					:for="'perk ' + perk.name"
-				>
-					<summary>
-						<input
-							type="checkbox"
-							:class="{ hidden: perk.passive }"
-							:disabled="perk.passive"
-							v-model="weapons[weaponIndex].perks[perk.name].isActive"
-						/><span>{{ perk.name }}  </span>
-						<span v-if="perk.stacking"
-							><input
-								class="weapon-perk-stacks"
-								type="number"
-								min="0"
-								:max="perk.stacksMax || Infinity"
-								v-model="weapons[weaponIndex].perks[perk.name].stacks"
-						/></span>
-					</summary>
-					<div>{{ perk.description }}</div>
-				</details>
-			</div>
-			<div
-				class="flavortext"
-				v-if="flavortext"
-			>
-				{{ flavortext }}
-			</div>
-			<div class="weapon-footer">
+			</template>
+			<template #footer-text>
 				<span
 					v-if="isEquipped && !activatable"
 					class="is-equipped"
@@ -473,22 +445,16 @@ const weapon = computed<Weapon>(() => {
 					class="is-equipped"
 					>CURRENTLY ACTIVE</span
 				>
-			</div>
-		</div>
+			</template>
+		</DBox>
 	</label>
 </template>
 <style scoped>
 .weapon-row {
 	display: block;
 	font-size: 0.9em;
-	margin: 0.5em auto;
 	max-width: 40em;
-	background-blend-mode: multiply;
-	border: 4px solid #fff0;
 	text-shadow: none;
-}
-.weapon-row.equipped {
-	border-color: #ffff;
 }
 .weapon-row.disabled {
 	opacity: 0.5;
@@ -536,11 +502,14 @@ h2 {
 	display: flex;
 	flex-grow: 1;
 }
-.weapon-titles input[type='checkbox'] {
+input[type='checkbox'].hidden {
 	visibility: collapse;
+	width: 0;
 }
 .action-buttons {
-	flex-shrink: 0;
+	display: flex;
+	align-items: normal;
+	flex-direction: column;
 }
 .weapon-content {
 	background-color: #0008;
@@ -635,7 +604,7 @@ h2 {
 	border-top: 2px solid #fff4;
 	border-bottom: 2px solid #fff4;
 }
-.weapon-footer {
+/* .is-equipped {
 	height: 1em;
 	padding: 0.2em;
 	padding-bottom: 0;
@@ -643,8 +612,12 @@ h2 {
 	text-align: right;
 	color: #000a;
 }
-.equipped .weapon-footer {
+.equipped .is-equipped {
 	background: #fff;
+} */
+.is-equipped {
+	padding-top: 2px;
+	display: block;
 }
 .kinetic-icon {
 	width: 1em;

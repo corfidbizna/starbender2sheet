@@ -1823,8 +1823,8 @@ function useCharacterDataUncached(characterId: string) {
 					return result + (getFinalStat('damagePrecision') || 0);
 				});
 				const dmgStatStuff = damageStringToDownstream(
-					ogWeapon.damage + '+' + damageBonus.value,
-					stats.value,
+					(ogWeapon.damage || '0') + '+' + damageBonus.value,
+					buffsAsStats.value,
 				);
 				const perkNameList = ogWeapon.perks?.split(', ') || [];
 				const perkList: Record<string, WeaponPerk> = {};
@@ -1860,7 +1860,8 @@ function useCharacterDataUncached(characterId: string) {
 					rangeType: ogWeapon.rangeType,
 					range: ogWeapon.range,
 					rangePenalty: ogWeapon.rangePenalty || 2,
-					rangeIncrementsModifier: ogWeapon.rangeIncrementsModifier,
+					rangeIncrementsModifier:
+						ogWeapon.rangeIncrementsModifier || ogWeapon.range || 1,
 					size: ogWeapon.size || 0,
 					shape: ogWeapon.shape || '',
 					duration: ogWeapon.duration || 0,
@@ -2120,7 +2121,7 @@ function useCharacterDataUncached(characterId: string) {
 					.map((num) => parseFloat(num));
 				const newDamage = parsedAbility.dmgDieQuantity + parsedAbility.dmgDieFormula;
 				parsedAbility.damageStatsBase = {
-					...damageStringToDownstream(newDamage, buffsAsStats.value),
+					...damageStringToDownstream(newDamage, stats.value),
 					attackType: 'Ability',
 					hitType: ability.hitType,
 					hitBonus: ability.hitBonus,
