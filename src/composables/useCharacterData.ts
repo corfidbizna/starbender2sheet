@@ -1567,7 +1567,9 @@ function useCharacterDataUncached(characterId: string) {
 			const abilityMod =
 				getFinalStat((skillInfo.baseStat + 'Skills') as StatsCalculatedKey) +
 				getFinalStat(skillInfo.baseStat as StatsCalculatedKey);
-			activeSkills[skillKey] = focus * getFinalStat('cpl') + abilityMod + (focus > 0 ? 3 : 0);
+			activeSkills[skillKey] = Math.trunc(
+				focus * getFinalStat('cpl') + abilityMod + (focus > 0 ? 3 : 0),
+			);
 		}
 		return activeSkills;
 	});

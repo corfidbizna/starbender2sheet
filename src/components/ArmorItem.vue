@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Armor } from '@/composables/useCharacterData';
 import useCharacterData from '@/composables/useCharacterData';
+import { computed } from 'vue';
 
 const props = defineProps<Armor & { characterId: string }>();
 const { namesOfEquippedArmor, namesOfActiveArmor, armorStackUpdate } = useCharacterData(
@@ -10,6 +11,19 @@ const changeStacksUpdate = (amount: Event) => {
 	const value = amount as InputEvent;
 	armorStackUpdate(props.name, parseInt(value.data || '0'));
 };
+const slotName = computed<string>(() => {
+	const slot = props.slots || '';
+	const slotName = slot.split(' ')[0].toLocaleLowerCase();
+	const map = {
+		full: 'overview',
+		helmet: 'helmet',
+		arm: 'arms',
+		chest: 'chest',
+		leg: 'leg',
+		class: 'class',
+	};
+	return map[slotName as keyof typeof map] || 'overview';
+});
 </script>
 <template>
 	<label
@@ -26,6 +40,10 @@ const changeStacksUpdate = (amount: Event) => {
 				type="checkbox"
 				:value="name + ' (Equipped)'"
 				v-model="namesOfEquippedArmor"
+			/>
+			<img
+				:src="'./src/assets/icons/slot_' + slotName + '.png'"
+				style="width: 2em"
 			/>
 			<div class="armor-titles">
 				<div class="name">{{ name }}</div>

@@ -54,16 +54,35 @@ const activeShieldType = computed<Element>(() => {
 const shieldColor = computed<string>(() => {
 	return elements[activeShieldType.value] || '#FeFFFd';
 });
-const infoAbilityScores = computed<StatBoxInfo>(
-	makeComputedOfStats(stats, buffsTallied, 'Ability Scores', [
-		'str',
-		'dex',
-		'con',
-		'int',
-		'wis',
-		'cha',
-	]),
-);
+// const infoAbilityScores = computed<StatBoxInfo>(
+// 	makeComputedOfStats(stats, buffsTallied, 'Ability Scores', [
+// 		'str',
+// 		'dex',
+// 		'con',
+// 		'int',
+// 		'wis',
+// 		'cha',
+// 	]),
+// );
+const infoAbilityScores = computed<StatBoxInfo>(() => {
+	const buffsValue = buffsTallied.value;
+	const keys = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+	return {
+		label: 'Ability Scores',
+		data: keys.map((key, i) => ({
+			key,
+			label:
+				keys[i].toLocaleUpperCase() +
+				' ' +
+				getFinalStat((keys[i] + 'Score') as StatsCalculatedKey),
+			stat: key,
+			hovertext: buffsValue[key as StatsCalculatedKey]?.summary,
+			value: stats.value[key as StatsCalculatedKey],
+			value2: getFinalStat(key as StatsCalculatedKey),
+		})),
+		noRoll: false,
+	};
+});
 const infoDefenseMods = computed<StatBoxInfo>(
 	makeComputedOfStats(
 		stats,
