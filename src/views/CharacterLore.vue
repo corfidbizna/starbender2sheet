@@ -5,7 +5,7 @@ type CharacterProps = {
 	characterId: CharacterNames;
 };
 const props = defineProps<CharacterProps>();
-const { character, stats, statsBase } = useCharacterData(props.characterId);
+const { character, stats, statsBase, subclassGet } = useCharacterData(props.characterId);
 </script>
 <template>
 	<div
@@ -85,7 +85,7 @@ const { character, stats, statsBase } = useCharacterData(props.characterId);
 		</table>
 		<div class="preview">
 			<h1>
-				{{ character.label }}, the {{ statsBase.guardianSubclass }}
+				{{ character.label }}, the {{ subclassGet }}
 				{{ statsBase.guardianClass }}
 			</h1>
 			<img

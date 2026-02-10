@@ -107,7 +107,7 @@ onBeforeUnmount(() => {
 				<RouterLink :to="{ name: 'characterBuffs', params: { characterId } }"
 					>Buffs</RouterLink
 				>
-				<RouterLink :to="{ name: 'characterWeapons', params: { characterId } }"
+				<RouterLink :to="{ name: 'characterLoadout', params: { characterId } }"
 					>Loadout</RouterLink
 				>
 				<RouterLink :to="{ name: 'seasonalArtifact', params: { characterId } }"

@@ -2091,7 +2091,7 @@ function useCharacterDataUncached(characterId: string) {
 				parsedAbility.flavortext = parsedAbility.flavortext || '';
 				parsedAbility.description = parsedAbility.description || '';
 				parsedAbility.specialProperties = parsedAbility.specialProperties || '';
-				parsedAbility.element = parsedAbility.element || 'Void';
+				parsedAbility.element = parsedAbility.element || 'Kinetic';
 				parsedAbility.prerequisites = parsedAbility.prerequisites || [];
 				// parsedAbility.damageStatsBase = parsedAbility.damageStatsBase || {};
 				parsedAbility.dmgDieQuantity = parsedAbility.dmgDieQuantity || 0;
@@ -2415,28 +2415,81 @@ function useCharacterDataUncached(characterId: string) {
 			return buffsTallied.value[name].total;
 		}
 	};
-	const actionResources = ref<Record<string, number>>({
-		subclassIndex: 0,
-		turns: 0,
-		health: getFinalStat('hpMax'),
-		shields: getFinalStat('hpShieldMax'),
-		actionsMove: getFinalStat('actionsMove'),
-		actionsAttack: getFinalStat('actionsAttack'),
-		actionsReaction: getFinalStat('actionsReaction'),
-		actionsOther: getFinalStat('actionsBonus'),
-		ammoKinetic: getFinalStat('capacityKinetic'),
-		ammoSpecial: getFinalStat('capacitySpecial'),
-		ammoHeavy: getFinalStat('capacityHeavy'),
-		energySuper: getFinalStat('energySuper'),
-		energyMelee: getFinalStat('energyMelee'),
-		energyGrenade: getFinalStat('energyGrenade'),
-		energyClass: getFinalStat('energyClass'),
-		energyUniversal: getFinalStat('energyUniversal'),
-		armorCharges: getFinalStat('capacityArmorCharge'),
-		targetRange: 0,
+	const actionResourcesLocal = JSON.parse(
+		localStorage.getItem(characterId + '_actionResources') || 'null',
+	);
+	const actionResources = ref<Record<string, number>>(
+		!!actionResourcesLocal
+			? { ...actionResourcesLocal }
+			: {
+					subclassIndex: 0,
+					turns: 0,
+					health: getFinalStat('hpMax'),
+					shields: getFinalStat('hpShieldMax'),
+					actionsMove: getFinalStat('actionsMove'),
+					actionsAttack: getFinalStat('actionsAttack'),
+					actionsReaction: getFinalStat('actionsReaction'),
+					actionsOther: getFinalStat('actionsBonus'),
+					ammoKinetic: getFinalStat('capacityKinetic'),
+					ammoSpecial: getFinalStat('capacitySpecial'),
+					ammoHeavy: getFinalStat('capacityHeavy'),
+					energySuper: getFinalStat('energySuper'),
+					energyMelee: getFinalStat('energyMelee'),
+					energyGrenade: getFinalStat('energyGrenade'),
+					energyClass: getFinalStat('energyClass'),
+					energyUniversal: getFinalStat('energyUniversal'),
+					armorCharges: getFinalStat('capacityArmorCharge'),
+					targetRange: 0,
+				},
+	);
+	// const actionResources = ref<Record<string, number>>({
+	// 	subclassIndex: 0,
+	// 	turns: 0,
+	// 	health: getFinalStat('hpMax'),
+	// 	shields: getFinalStat('hpShieldMax'),
+	// 	actionsMove: getFinalStat('actionsMove'),
+	// 	actionsAttack: getFinalStat('actionsAttack'),
+	// 	actionsReaction: getFinalStat('actionsReaction'),
+	// 	actionsOther: getFinalStat('actionsBonus'),
+	// 	ammoKinetic: getFinalStat('capacityKinetic'),
+	// 	ammoSpecial: getFinalStat('capacitySpecial'),
+	// 	ammoHeavy: getFinalStat('capacityHeavy'),
+	// 	energySuper: getFinalStat('energySuper'),
+	// 	energyMelee: getFinalStat('energyMelee'),
+	// 	energyGrenade: getFinalStat('energyGrenade'),
+	// 	energyClass: getFinalStat('energyClass'),
+	// 	energyUniversal: getFinalStat('energyUniversal'),
+	// 	armorCharges: getFinalStat('capacityArmorCharge'),
+	// 	targetRange: 0,
+	// });
+	watch(statsImported, () => {
+		if (!localStorage.getItem(characterId + '_actionResources')) {
+			const elementKeys = Object.keys(elements);
+			actionResources.value.subclassIndex = elementKeys.findIndex(
+				// Update what subclass you are when data's done being imported.
+				(element) => element === statsImported.value.guardianSubclass,
+			);
+		}
+	});
+	watch(actionResources.value, () => {
+		// Store the current state of `actionResources` to Local Storage whenever it changes.
+		console.log('Action resources changed!');
+		localStorage.setItem(
+			characterId + '_actionResources',
+			JSON.stringify(actionResources.value),
+		);
 	});
 	const actionResourceUpdate = (destination: keyof ActionResource, amount: number) => {
 		actionResources.value[destination] += amount;
+	};
+	const subclassGet = computed<Element>(
+		() => Object.keys(elements)[actionResources.value.subclassIndex] as Element,
+	);
+	const subclassSet = (element: Element) => {
+		actionResources.value.subclassIndex = Math.max(
+			0,
+			Object.keys(elements).findIndex((a) => a === element),
+		);
 	};
 
 	// STATS END
@@ -2499,6 +2552,8 @@ function useCharacterDataUncached(characterId: string) {
 		statsBase: statsImported,
 		actionResources,
 		actionResourceUpdate,
+		subclassGet,
+		subclassSet,
 		getFinalStat,
 		stats,
 		statsLoading,

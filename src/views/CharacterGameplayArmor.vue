@@ -13,10 +13,7 @@ const { character, armor } = useCharacterData(props.characterId);
 const equippedArmor = computed<Armor[]>(() => armor.value.filter((armor) => armor.equipped));
 </script>
 <template>
-	<div
-		class="CharacterSkills"
-		v-if="character"
-	>
+	<div v-if="character">
 		<h2>Equipped Armor</h2>
 		<div v-if="equippedArmor.length === 0">
 			<h1 style="text-align: center">No armor equipped</h1>

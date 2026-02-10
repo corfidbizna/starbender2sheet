@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { Rarity } from '@/composables/useCharacterData';
+import type { Rarity, Element } from '@/composables/useCharacterData';
 
 export type DBox = {
-	rarity: Rarity;
+	rarity: Rarity | Element;
 	title: string;
 	subtitle: string;
 	flavortext?: string;
@@ -82,6 +82,21 @@ const props = defineProps<DBox>();
 }
 .d-box .header.exotic {
 	background-color: #cdae34;
+}
+.d-box .header.solar {
+	background-color: #b44a19;
+}
+.d-box .header.arc {
+	background-color: #517f93;
+}
+.d-box .header.void {
+	background-color: #6e4f73;
+}
+.d-box .header.stasis {
+	background-color: #3153b3;
+}
+.d-box .header.strand {
+	background-color: #2f7242;
 }
 .d-box .header-icon {
 	margin-right: 8px;

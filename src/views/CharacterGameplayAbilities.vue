@@ -21,10 +21,13 @@ const mainAbilities = computed<Ability[]>(() => {
 });
 const filteredAbilities = computed<Ability[]>(() => {
 	return mainAbilities.value.filter((ability) => {
-		if (abilityFilter.value === 'Universal') {
-			return true;
+		if (ability.element === Object.keys(elements)[actionResources.value.subclassIndex]) {
+			if (abilityFilter.value === 'All') {
+				return true;
+			}
+			return ability.type === abilityFilter.value;
 		}
-		return ability.type === abilityFilter.value;
+		return false;
 	});
 });
 const classIcon = computed<string>(() => {
@@ -44,10 +47,10 @@ const energyImage: Record<string, string> = {
 	Universal: '/public/svgs/Tricorn.svg',
 };
 const subclassColor = computed<string>(() => {
-	const subclass = statsBase.value.guardianSubclass as Element;
+	const subclass = Object.keys(elements)[actionResources.value.subclassIndex] as Element;
 	return elements[subclass] || '#FFFFFF'; // Kinetic
 });
-const abilityFilter = ref<string>('Universal');
+const abilityFilter = ref<string>('All');
 </script>
 <template>
 	<div
@@ -85,7 +88,7 @@ const abilityFilter = ref<string>('Universal');
 										label: 'Super',
 										stat: 'energySuper',
 										color: subclassColor,
-										colorMax: '#ff6',
+										colorFull: '#ff6',
 										max: getFinalStat('energySuper'),
 										current: actionResources.energySuper,
 									}"
@@ -147,17 +150,32 @@ const abilityFilter = ref<string>('Universal');
 					</tbody>
 				</table>
 			</div>
-			<h2>{{ abilityFilter === 'Universal' ? 'All' : abilityFilter }} Abilities</h2>
+			<h2>
+				<span>{{ abilityFilter }} Abilities</span>
+				<span style="float: right">
+					Show:
+					<select
+						style="width: 10em"
+						v-model="abilityFilter"
+					>
+						<option value="All">ALL</option>
+						<option
+							v-for="ability in Object.keys(energyImage)"
+							:key="ability"
+							:value="ability"
+						>
+							{{ ability }}
+						</option>
+					</select>
+				</span>
+			</h2>
 			<div class="gameplay-ability-list">
-				<div
+				<AbilityItemRow
 					v-for="ability in filteredAbilities"
 					:key="ability.name"
-				>
-					<AbilityItemRow
-						v-bind="ability"
-						:character-id="characterId"
-					/>
-				</div>
+					v-bind="ability"
+					:character-id="characterId"
+				/>
 			</div>
 		</div>
 	</div>
@@ -247,14 +265,10 @@ const abilityFilter = ref<string>('Universal');
 	scrollbar-width: none;
 	font-size: 0.9rem;
 }
-.gameplay-ability-list :first-child {
+.gameplay-ability-list > * > :first-child {
 	margin-top: 0;
 }
-.gameplay-ability-list :last-child {
+.gameplay-ability-list > * > :last-child {
 	margin-bottom: 0;
-}
-.ability-box-icon {
-	filter: invert(100%);
-	height: 3em;
 }
 </style>

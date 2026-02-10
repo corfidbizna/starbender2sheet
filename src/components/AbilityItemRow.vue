@@ -260,7 +260,7 @@ const updateEnergy = () => {
 	<div class="ability-item">
 		<DBox
 			v-bind="{
-				rarity: 'Legendary',
+				rarity: props.element,
 				title: props.name,
 				subtitle: props.type + ' Ability',
 				flavortext: props.flavortext,
@@ -528,14 +528,15 @@ const updateEnergy = () => {
 	</div>
 </template>
 <style>
+.ability-box-icon {
+	filter: invert(100%);
+	height: 3em;
+}
 .debuffed {
 	color: var(--color-debuff);
 }
 .ability-item button {
 	font-family: 'Destiny Symbols Common', sans-serif;
-}
-.ability-item button:disabled {
-	color: #888;
 }
 .cast-ability-button {
 	height: 3em;

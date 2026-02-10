@@ -26,7 +26,6 @@ const props = defineProps<CharacterProps>();
 const {
 	character,
 	buffsTallied,
-	statsBase,
 	stats,
 	actionResources,
 	getFinalStat,
@@ -40,10 +39,6 @@ const {
 	actionResourceUpdate,
 } = useCharacterData(props.characterId);
 
-const subclassColor = computed<string>(() => {
-	const subclass = statsBase.value.guardianSubclass as Element;
-	return elements[subclass] || '#FFFFFF'; // Kinetic
-});
 const activeShieldType = computed<Element>(() => {
 	const shieldTotals = [
 		{ e: 'Kinetic', n: getFinalStat('hpShieldKinetic') },
@@ -269,46 +264,7 @@ const actionsCapacity = computed<CapacityBoxStatField[]>(() => {
 		},
 	];
 });
-const energyCapacity = computed<CapacityBoxStatField[]>(() => {
-	return [
-		{
-			label: 'Super',
-			stat: 'energySuper',
-			color: subclassColor.value,
-			colorMax: '#ff6',
-			max: getFinalStat('energySuper'),
-			current: actionResources.value.energySuper,
-		},
-		{
-			label: 'Class',
-			stat: 'energyClass',
-			color: subclassColor.value,
-			max: getFinalStat('energyClass'),
-			current: actionResources.value.energyClass,
-		},
-		{
-			label: 'Melee',
-			stat: 'energyMelee',
-			color: subclassColor.value,
-			max: getFinalStat('energyMelee'),
-			current: actionResources.value.energyMelee,
-		},
-		{
-			label: 'Grenade',
-			stat: 'energyGrenade',
-			color: subclassColor.value,
-			max: getFinalStat('energyGrenade'),
-			current: actionResources.value.energyGrenade,
-		},
-		{
-			label: 'Universal',
-			stat: 'energyUniversal',
-			color: '#eee',
-			max: getFinalStat('energyUniversal'),
-			current: actionResources.value.energyUniversal,
-		},
-	];
-});
+
 const encumberanceTEMP = computed<number>(() => {
 	return Math.trunc(
 		Math.max(
@@ -578,13 +534,6 @@ const encumberanceColor = computed<string>(() => {
 										},
 									],
 									hideRefillAll: true,
-								}"
-								:characterId="characterId"
-							/>
-							<StatCapacityBox
-								v-bind="{
-									label: 'Energy',
-									data: energyCapacity,
 								}"
 								:characterId="characterId"
 							/>
