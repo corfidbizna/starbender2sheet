@@ -33,18 +33,18 @@ const filteredAbilities = computed<Ability[]>(() => {
 const classIcon = computed<string>(() => {
 	const gClass = statsBase.value.guardianClass;
 	const classMap: Record<string, string> = {
-		Titan: '/public/svgs/class_titan_proportional.svg',
-		Warlock: '/public/svgs/class_warlock_proportional.svg',
-		Hunter: '/public/svgs/class_hunter_proportional.svg',
+		Titan: './public/svgs/class_titan_proportional.svg',
+		Warlock: './public/svgs/class_warlock_proportional.svg',
+		Hunter: './public/svgs/class_hunter_proportional.svg',
 	};
 	return classMap[gClass] || '/public/svgs/Tricorn.svg';
 });
 const energyImage: Record<string, string> = {
-	Super: '/public/svgs/stat_intellect.svg',
-	Grenade: '/public/svgs/stat_discipline.svg',
-	Melee: '/public/svgs/stat_melee.svg',
+	Super: './public/svgs/stat_intellect.svg',
+	Grenade: './public/svgs/stat_discipline.svg',
+	Melee: './public/svgs/stat_melee.svg',
 	Class: classIcon.value,
-	Universal: '/public/svgs/Tricorn.svg',
+	Universal: './public/svgs/Tricorn.svg',
 };
 const subclassColor = computed<string>(() => {
 	const subclass = Object.keys(elements)[actionResources.value.subclassIndex] as Element;

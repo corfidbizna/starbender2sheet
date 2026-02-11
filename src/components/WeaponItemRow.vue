@@ -53,12 +53,12 @@ const colorsElement = (element: string): string => {
 const ammoImageSrc = () => {
 	const ammo = weapon.value.ammoType.toLocaleLowerCase();
 	if (ammo.includes('energy') || ammo.includes('special')) {
-		return '/public/svgs/ammo_special.svg';
+		return './public/svgs/ammo_special.svg';
 	}
 	if (ammo.includes('heavy')) {
-		return '/public/svgs/ammo_heavy.svg';
+		return './public/svgs/ammo_heavy.svg';
 	}
-	return '/public/svgs/ammo_primary.svg';
+	return './public/svgs/ammo_primary.svg';
 };
 const colorsAmmo = (ammoType: string) => {
 	const alpha = 'ff';

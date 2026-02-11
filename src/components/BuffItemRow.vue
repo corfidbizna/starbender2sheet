@@ -188,4 +188,7 @@ const changeStacksUpdate = (amount: Event) => {
 .buff-label > input:disabled {
 	opacity: 0;
 }
+.buff-text.description {
+	white-space: pre-line;
+}
 </style>
