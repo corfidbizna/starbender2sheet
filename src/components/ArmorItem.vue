@@ -42,7 +42,7 @@ const slotName = computed<string>(() => {
 				v-model="namesOfEquippedArmor"
 			/>
 			<img
-				:src="'./src/assets/icons/slot_' + slotName + '.png'"
+				:src="'./icons/slot_' + slotName + '.png'"
 				style="width: 2em"
 			/>
 			<div class="armor-titles">

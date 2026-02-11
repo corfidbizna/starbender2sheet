@@ -34,7 +34,7 @@ const skillsInfo = computed<StatBoxInfo>(() => {
 </script>
 <template>
 	<div
-		class="CharacterSkills"
+		class="skills-gameplay-block"
 		v-if="character"
 	>
 		<div class="gameplay-skills-list">

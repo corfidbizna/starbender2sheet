@@ -16,7 +16,7 @@ const artifactList = computed<ArtifactMod[]>(() => {
 </script>
 <template>
 	<div
-		class="gameplay-artifact-list"
+		class="artifact-gameplay-block"
 		v-if="character && !artifactLoading"
 	>
 		<div

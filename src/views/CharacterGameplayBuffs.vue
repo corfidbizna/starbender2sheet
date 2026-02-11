@@ -11,7 +11,7 @@ const { character } = useCharacterData(props.characterId);
 </script>
 <template>
 	<div
-		class="CharacterSkills"
+		class="buff-gameplay-block"
 		v-if="character"
 	>
 		<BuffActivator

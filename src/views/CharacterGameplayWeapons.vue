@@ -42,7 +42,7 @@ const equippedWeapons = computed<Weapon[]>(() => {
 </script>
 <template>
 	<div
-		class="CharacterSkills"
+		class="weapon-gameplay-block"
 		v-if="character"
 	>
 		<div class="weapon-block">
