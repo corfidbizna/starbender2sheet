@@ -92,6 +92,24 @@ const infoDefenseMods = computed<StatBoxInfo>(
 		true,
 	),
 );
+const expendables = computed<CapacityBoxStatField[]>(() => {
+	return [
+		{
+			label: 'Rerolls',
+			stat: 'rerolls',
+			max: getFinalStat('rerolls'),
+			current: actionResources.value.rerolls,
+			color: '#fff',
+		},
+		{
+			label: 'Charges',
+			stat: 'armorCharges',
+			color: '#8df',
+			max: getFinalStat('capacityArmorCharge'),
+			current: actionResources.value.armorCharges,
+		},
+	];
+});
 const infoSaves = computed<StatBoxInfo>(
 	makeComputedOfStats(stats, buffsTallied, 'Saving Throws', ['fort', 'ref', 'will']),
 );
@@ -359,6 +377,12 @@ const encumberanceColor = computed<string>(() => {
 							v-bind="infoDefenseMods"
 							class="hover-highlight"
 						/>
+						<StatCapacityBox
+							v-bind="{ label: 'Expendables', data: expendables }"
+							:characterId="characterId"
+							class="hover-highlight"
+							style="margin: 0.5em"
+						/>
 					</div>
 					<div class="stat-column-b">
 						<StatCapacityBox
@@ -538,26 +562,9 @@ const encumberanceColor = computed<string>(() => {
 							</tr>
 						</table>
 					</div>
-					<div class="stat-column-c">
-						<div class="ability-block">
-							<StatCapacityBox
-								v-bind="{
-									label: 'Armor Charges',
-									data: [
-										{
-											label: 'Charges',
-											stat: 'armorCharges',
-											color: '#8df',
-											max: getFinalStat('capacityArmorCharge'),
-											current: actionResources.armorCharges,
-										},
-									],
-									hideRefillAll: true,
-								}"
-								:characterId="characterId"
-							/>
-						</div>
-					</div>
+					<!-- <div class="stat-column-c">
+						<div class="ability-block">nothing here</div>
+					</div> -->
 				</div>
 				<div class="right-block">
 					<div class="tab-header">

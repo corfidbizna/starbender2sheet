@@ -821,6 +821,7 @@ export type ActionResource = {
 	energyClass: number;
 	energyUniversal: number;
 	armorCharges: number;
+	rerolls: number;
 };
 export type ActionResourceKey = keyof ActionResource;
 

@@ -82,6 +82,8 @@ const activeBuffNames = computed<string>(() => {
 				<div>{{ activeBuffNames.split(', ').join('\n') }}</div>
 				<h2>Stat Totals</h2>
 				<div>{{ buffTotals.split(', ').join('\n') }}</div>
+				<h2>Buffable Stat List</h2>
+				<div>{{ Object.values(labelMap).join('\n') }}</div>
 			</div>
 			<!-- <table>
 				<tbody>

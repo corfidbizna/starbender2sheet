@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { BuffInfo } from '@/business_logic/buffs';
 import useCharacterData from '@/composables/useCharacterData';
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps<BuffInfo & { characterId: string; condensed: boolean }>();
 const { namesOfActivatedBuffs, buffsStackUpdate } = useCharacterData(props.characterId);
@@ -13,11 +13,14 @@ const imageSrc = computed<string>(() => {
 });
 
 const idName = props.name.replace(/ /g, '-').toLocaleLowerCase();
+const stackCount = ref<number>(props.stacks);
 
-const changeStacksUpdate = (amount: Event) => {
-	const value = amount as InputEvent;
-	return buffsStackUpdate(props.name, parseInt(value.data || '0'));
+const changeStacksUpdate = (amount: number) => {
+	return buffsStackUpdate(props.name, amount);
 };
+watch(stackCount, () => {
+	changeStacksUpdate(stackCount.value);
+});
 </script>
 <template>
 	<label
@@ -56,16 +59,13 @@ const changeStacksUpdate = (amount: Event) => {
 				<span
 					v-if="props.isStacking"
 					class="stacks"
-					>x{{ props.stacks
-					}}<input
+					><input
 						:id="'spinbox-' + idName"
 						class="stacks-input"
 						type="number"
 						min="0"
-						onkeydown="return false"
 						:max="props.stackMax || Infinity"
-						:value="props.stacks"
-						@input="changeStacksUpdate"
+						v-model="stackCount"
 					/>
 					<span v-if="props.stackMax">⁄{{ props.stackMax }}</span></span
 				>
@@ -178,12 +178,7 @@ const changeStacksUpdate = (amount: Event) => {
 	margin-left: auto;
 }
 .stacks-input {
-	max-width: 1.5em;
-	background: none;
-	border: none;
-	color: #fff0;
-	text-align: right;
-	padding: 0;
+	max-width: 4em;
 }
 .buff-label > input:disabled {
 	opacity: 0;
