@@ -76,12 +76,13 @@ watch(stackCount, () => {
 			>
 				<span>{{ props.effects }}</span>
 			</div>
-			<div
+			<details
 				v-if="props.description && !condensed"
 				class="buff-text description"
 			>
+				<summary>Description</summary>
 				{{ props.description }}
-			</div>
+			</details>
 		</div>
 	</label>
 </template>

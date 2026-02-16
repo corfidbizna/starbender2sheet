@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { bgColor, banner, storeVisuals, resetVisuals } from '@/sharedState';
+import { bgColor, banner, storeVisuals, resetVisuals, rotateBGs } from '@/sharedState';
 const identifyUnicodeSymbols = (start: number, length: number) => {
 	const strings = [];
 	for (let i = start; i < start + length; i++) {
@@ -43,6 +43,20 @@ const clearLocalStorage = () => {
 			</tr>
 			<tr class="header">
 				<td colspan="2"><h2>Visuals</h2></td>
+			</tr>
+			<tr
+				title="Whether or not per-tab SVG backgrounds rotate (having this enabled will cause your computer to get warm)."
+			>
+				<td class="setting-label">
+					<label for="setting-animate-bg">Animate Backgrounds</label>
+				</td>
+				<td class="setting-content">
+					<input
+						id="setting-animate-bg"
+						type="checkbox"
+						v-model="rotateBGs"
+					/>
+				</td>
 			</tr>
 			<tr title="The primary color the background will use.">
 				<td class="setting-label">

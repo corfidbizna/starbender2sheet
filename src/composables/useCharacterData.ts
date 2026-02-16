@@ -402,6 +402,10 @@ export type StatsCalculated = {
 	energyGrenadeRecharge: number;
 	energySuperRecharge: number;
 	energyClassRecharge: number;
+	energyDiscountMelee: number;
+	energyDiscountGrenade: number;
+	energyDiscountSuper: number;
+	energyDiscountClass: number;
 	rerolls: number;
 	//
 	slotsArmorHead: number;
@@ -436,6 +440,7 @@ export type StatsCalculated = {
 	damageMelee: number;
 	damageRanged: number;
 	damageSpell: number;
+	damageWeapon: number;
 	damagePrecision: number;
 	//
 	strSave: number;
@@ -530,7 +535,7 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	actionsMoveBaseFly: 'Move Base Fly',
 	actionsMoveBaseClimb: 'Move Base Climb',
 	actionsMoveMult: 'Move Mult',
-	actionsMoveLand: 'Move (Base Land)',
+	actionsMoveLand: 'Move (Land)',
 	actionsMoveSwim: 'Move (Swim)',
 	actionsMoveFly: 'Move (Fly)',
 	actionsMoveClimb: 'Move (Climb)',
@@ -574,6 +579,10 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	energyGrenadeRecharge: 'Grenade Energy Recharge',
 	energySuperRecharge: 'Super Energy Recharge',
 	energyClassRecharge: 'Class Energy Recharge',
+	energyDiscountMelee: 'Melee Energy Discount',
+	energyDiscountGrenade: 'Grenade Energy Discount',
+	energyDiscountSuper: 'Super Energy Discount',
+	energyDiscountClass: 'Class Energy Discount',
 	rerolls: 'Rerolls',
 	slotsArmorHead: 'Head Slot',
 	slotsArmorArm: 'Arm Slot',
@@ -601,10 +610,11 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	toHitRanged: 'Ranged to hit',
 	toHitMelee: 'Melee to hit',
 	toHitSpell: 'Spell to hit',
-	damageMelee: 'Melee Damage Bonus',
-	damageRanged: 'Ranged Damage Bonus',
-	damageSpell: 'Spell Damage Bonus',
-	damagePrecision: 'Precision Damage Bonus',
+	damageMelee: 'Melee Damage',
+	damageRanged: 'Ranged Damage',
+	damageSpell: 'Spell Damage',
+	damageWeapon: 'Weapon Damage',
+	damagePrecision: 'Precision Damage',
 	strSave: 'Str Save DC',
 	dexSave: 'Dex Save DC',
 	conSave: 'Con Save DC',
@@ -1807,23 +1817,47 @@ function useCharacterDataUncached(characterId: string) {
 			return resultPerk;
 		});
 	});
+	type WeaponVariables = {
+		ammo: number;
+		equipped: boolean;
+		active: boolean;
+	};
+	const weaponVariables = computed<Record<string, WeaponVariables>>(() => {
+		const result: Record<string, WeaponVariables> = {};
+		for (let i = 0; i < weapons.value.length; i++) {
+			const wep = weapons.value[i];
+			result[wep.name] = {
+				ammo: wep.ammoCurrent,
+				equipped: wep.isEquipped,
+				active: wep.isActive,
+			};
+		}
+		return result;
+	});
+	watch(weaponVariables, () => {
+		localStorage.setItem(
+			characterId + '_weaponVariables',
+			JSON.stringify(weaponVariables.value),
+		);
+	});
 	watch([weaponsForFiltering, weaponPerks], () => {
 		weapons.value = weaponsForFiltering.value
 			.filter((item) => item[characterId as CharacterNames])
 			.map((ogWeapon) => {
 				const damageBonus = computed<number>(() => {
-					let result = 0;
+					let bonus = 0;
 					if (buffsTallied.value === undefined) {
-						return result;
+						return bonus;
 					}
 					if (ogWeapon.rangeType === 'Melee') {
-						result += getFinalStat('damageMelee');
+						bonus += getFinalStat('damageMelee');
 					} else if (ogWeapon.rangeType === 'Ranged') {
-						result += getFinalStat('damageRanged');
+						bonus += getFinalStat('damageRanged');
 					} else if (ogWeapon.rangeType === 'Spell') {
-						result += getFinalStat('damageSpell');
+						bonus += getFinalStat('damageSpell');
 					}
-					return result + (getFinalStat('damagePrecision') || 0);
+					bonus += getFinalStat('damageWeapon');
+					return bonus + (getFinalStat('damagePrecision') || 0);
 				});
 				const dmgStatStuff = damageStringToDownstream(
 					(ogWeapon.damage || '0') + '+' + damageBonus.value,
@@ -2122,7 +2156,11 @@ function useCharacterDataUncached(characterId: string) {
 					.split(', ')
 					.filter((item) => !!item)
 					.map((num) => parseFloat(num));
-				const newDamage = parsedAbility.dmgDieQuantity + parsedAbility.dmgDieFormula;
+				const assembledDamage = parsedAbility.dmgDieQuantity + parsedAbility.dmgDieFormula;
+				const newDamage =
+					assembledDamage === '0d0'
+						? '0'
+						: assembledDamage + '+' + getFinalStat('damageSpell');
 				parsedAbility.damageStatsBase = {
 					...damageStringToDownstream(newDamage, stats.value),
 					attackType: 'Ability',
@@ -2296,6 +2334,10 @@ function useCharacterDataUncached(characterId: string) {
 			energyGrenadeRecharge: 1,
 			energySuperRecharge: 1,
 			energyClassRecharge: 1,
+			energyDiscountMelee: 0,
+			energyDiscountGrenade: 0,
+			energyDiscountSuper: 0,
+			energyDiscountClass: 0,
 			rerolls: 0,
 			slotsArmorHead: 3,
 			slotsArmorArm: 3,
@@ -2326,6 +2368,7 @@ function useCharacterDataUncached(characterId: string) {
 			damageMelee: 0,
 			damageRanged: 0,
 			damageSpell: 0,
+			damageWeapon: 0,
 			damagePrecision: 0,
 			strSave: 0,
 			dexSave: 0,

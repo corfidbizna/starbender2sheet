@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
+import { getBGString } from '@/sharedState';
 // import WeaponItemRow from './WeaponItemRow.vue';
 type CharacterProps = {
 	characterId: CharacterNames;
@@ -13,6 +14,10 @@ const { character } = useCharacterData(props.characterId);
 		class="CharacterEquipment"
 		v-if="character"
 	>
+		<div
+			class="rotating-bg"
+			:style="getBGString('./public/svgs/Lines_Loadout.svg')"
+		></div>
 		<div class="stacked-nav">
 			<RouterLink :to="{ name: 'characterWeapons', params: { characterId } }"
 				><img src="/src/assets/icons/slot_weapon.png"

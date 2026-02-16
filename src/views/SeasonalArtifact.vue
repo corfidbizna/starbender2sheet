@@ -2,6 +2,7 @@
 import CapacityBar from '@/components/CapacityBar.vue';
 import LoadingModal from '@/components/LoadingModal.vue';
 import useCharacterData, { type ArtifactMod } from '@/composables/useCharacterData';
+import { getBGString } from '@/sharedState';
 import { computed } from 'vue';
 type CharacterProps = {
 	characterId: string;
@@ -37,7 +38,14 @@ const grid = computed<ArtifactMod[][]>(() => {
 	<div v-if="artifactLoading || statsLoading || buffsLoading">
 		<LoadingModal />
 	</div>
-	<div v-else>
+	<div
+		v-else
+		class="seasonal-artifact"
+	>
+		<div
+			class="rotating-bg"
+			:style="getBGString('./public/svgs/Lines_SeasonalArtifact.svg')"
+		></div>
 		<h1 class="artifact-name">Iron Decree</h1>
 		<h2 class="artifact-subtitle">Artifact</h2>
 		<div class="artifact-container">
@@ -138,16 +146,6 @@ const grid = computed<ArtifactMod[][]>(() => {
 					</tr>
 				</tbody>
 			</table>
-			<div class="artifact-mod-info">
-				<div
-					v-for="artifactMod in artifactMods.filter((mod) => mod.active)"
-					:key="artifactMod.name"
-				>
-					<h2>{{ artifactMod.name }}</h2>
-					<div>{{ artifactMod.buffs }}</div>
-					<div>{{ artifactMod.description }}</div>
-				</div>
-			</div>
 		</div>
 	</div>
 </template>
@@ -242,10 +240,5 @@ const grid = computed<ArtifactMod[][]>(() => {
 }
 .artifact-stage-capacity > td {
 	padding: 0 4px;
-}
-.artifact-mod-info {
-	display: inline;
-	max-width: 34em;
-	padding: 1em;
 }
 </style>

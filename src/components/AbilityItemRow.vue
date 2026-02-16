@@ -45,7 +45,12 @@ const maxEnergy = computed<number>(() =>
 );
 // The amount of energy it will take to use the Ability.
 // Takes "partial power" into account.
-const energyUseAmount = computed<number>(() => props.energyMax - partialPowerIncrement.value);
+const energyUseAmount = computed<number>(
+	() =>
+		props.energyMax -
+		partialPowerIncrement.value -
+		getFinalStat(('energyDiscount' + props.type) as StatsCalculatedKey),
+);
 // Assembles the gradient string used for the energy usage bar.
 const energyUsageGradientString = computed<string>(() => {
 	const colRemaining = '#fff';
@@ -101,19 +106,19 @@ const glyphMap = {
 };
 // Image URL for the Ability header.
 const energyImage: Record<string, string> = {
-	Super: '/public/svgs/stat_intellect.svg',
-	Grenade: '/public/svgs/stat_discipline.svg',
-	Melee: '/public/svgs/stat_melee.svg',
+	Super: './svgs/stat_intellect.svg',
+	Grenade: './svgs/stat_discipline.svg',
+	Melee: './svgs/stat_melee.svg',
 	Class: computed<string>(() => {
 		const gClass = statsBase.value?.guardianClass || 'Titan';
 		const classMap: Record<string, string> = {
-			Titan: '/public/svgs/class_titan_proportional.svg',
-			Warlock: '/public/svgs/class_warlock_proportional.svg',
-			Hunter: '/public/svgs/class_hunter_proportional.svg',
+			Titan: './svgs/class_titan_proportional.svg',
+			Warlock: './svgs/class_warlock_proportional.svg',
+			Hunter: './svgs/class_hunter_proportional.svg',
 		};
 		return classMap[gClass] || '/public/svgs/Tricorn.svg';
 	}).value,
-	Universal: '/public/svgs/Tricorn.svg',
+	Universal: './svgs/Tricorn.svg',
 };
 // Assembles the Critical Hit info string for the attack stats.
 const getCritDisplay = (): string => {

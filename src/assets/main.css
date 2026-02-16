@@ -7,6 +7,14 @@
 	font-display: auto;
 	src: url('/src/assets/fonts/destiny_symbols_common.woff') format('woff');
 }
+@keyframes bgRotate {
+	from {
+		rotate: 0deg;
+	}
+	to {
+		rotate: 360deg;
+	}
+}
 
 body {
 	--content-height: calc(100vh - 80px);
@@ -89,6 +97,38 @@ h2 {
 .d-glyph {
 	font-family: 'Destiny Symbols Common';
 }
+
+.rotating-bg {
+	position: absolute;
+	overflow: hidden;
+	width: 100vw;
+	height: 100vh;
+	left: 0;
+	top: 0;
+	z-index: -1;
+	mix-blend-mode: lighten;
+}
+.rotating-bg:before {
+	animation-name: var(--bg-anim);
+	animation-duration: 350s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+	content: '';
+	display: block;
+	width: 150%;
+	height: 150%;
+	background-image: var(--bg-image);
+	background-size: cover;
+	background-attachment: fixed;
+	background-position: center;
+	background-blend-mode: difference;
+	filter: invert();
+	opacity: 0.25;
+	position: absolute;
+	left: -25%;
+	top: -25%;
+}
+
 input[type='number'] {
 	background-color: #0002;
 	color: #fff;

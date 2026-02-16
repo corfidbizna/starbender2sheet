@@ -30,8 +30,12 @@ const artifactList = computed<ArtifactMod[]>(() => {
 			v-for="mod in artifactList"
 			:key="mod.name"
 		>
-			<h2>{{ mod.name }}</h2>
-			<div>{{ mod.description }}</div>
+			<details class="gameplay-mod">
+				<summary>
+					{{ mod.name }}
+				</summary>
+				<div>{{ mod.description }}</div>
+			</details>
 		</div>
 	</div>
 	<div v-else><h1>Loading seasonal artifact…</h1></div>
@@ -41,5 +45,11 @@ const artifactList = computed<ArtifactMod[]>(() => {
 	height: calc(100vh - 125px);
 	overflow-y: scroll;
 	scrollbar-width: none;
+}
+.gameplay-mod summary {
+	text-transform: uppercase;
+	border-bottom: 2px solid #fff8;
+	padding: 0.25em 0;
+	margin: 0.25em;
 }
 </style>
