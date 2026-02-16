@@ -329,7 +329,7 @@ const encumberanceColor = computed<string>(() => {
 	>
 		<div
 			class="rotating-bg"
-			:style="getBGString('./public/svgs/Lines_Traveler.svg')"
+			:style="getBGString('./svgs/Lines_Traveler.svg')"
 		></div>
 		<div v-if="statsLoading || skillsLoading">
 			<LoadingModal />

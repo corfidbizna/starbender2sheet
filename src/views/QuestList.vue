@@ -27,7 +27,7 @@ const bounties = computed<Quest[]>(() => {
 	<div v-else>
 		<div
 			class="rotating-bg"
-			:style="getBGString('./public/svgs/Lines_Quests.svg')"
+			:style="getBGString('./svgs/Lines_Quests.svg')"
 		></div>
 		<div class="quest-list">
 			<button
