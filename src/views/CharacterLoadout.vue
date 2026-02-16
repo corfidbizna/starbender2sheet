@@ -16,7 +16,7 @@ const { character } = useCharacterData(props.characterId);
 	>
 		<div
 			class="rotating-bg"
-			:style="getBGString('./svgs/Lines_Loadout.svg')"
+			:style="getBGString('/svgs/Lines_Loadout.svg')"
 		></div>
 		<div class="stacked-nav">
 			<RouterLink :to="{ name: 'characterWeapons', params: { characterId } }"
