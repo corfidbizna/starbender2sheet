@@ -44,7 +44,7 @@ const grid = computed<ArtifactMod[][]>(() => {
 	>
 		<div
 			class="rotating-bg"
-			:style="getBGString('/svgs/Lines_SeasonalArtifact.svg')"
+			:style="getBGString('./svgs/Lines_SeasonalArtifact.svg')"
 		></div>
 		<h1 class="artifact-name">Iron Decree</h1>
 		<h2 class="artifact-subtitle">Artifact</h2>

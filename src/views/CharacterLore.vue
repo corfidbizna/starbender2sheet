@@ -15,7 +15,7 @@ const { character, stats, statsBase, subclassGet } = useCharacterData(props.char
 	>
 		<div
 			class="rotating-bg"
-			:style="getBGString('/svgs/Lines_Lore.svg')"
+			:style="getBGString('./svgs/Lines_Lore.svg')"
 		></div>
 		<!-- <h1>{{ character.label }}, the Void Hunter</h1> -->
 		<table class="summary">
