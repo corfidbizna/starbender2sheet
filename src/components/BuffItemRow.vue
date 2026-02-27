@@ -21,6 +21,30 @@ const changeStacksUpdate = (amount: number) => {
 watch(stackCount, () => {
 	changeStacksUpdate(stackCount.value);
 });
+type BuffPerk = {
+	label: string;
+	description?: string;
+	effects?: string;
+	passive: boolean;
+};
+const perkList = computed<BuffPerk[]>(() => {
+	return (props.perks || '').split('\n').map((line) => {
+		const passive = line.slice(0, 2) === '##';
+		const effects = /{[^}]*}/.exec(line)?.join();
+		const splitLine = line
+			.slice(passive ? 2 : 0)
+			.split('{')[0]
+			.split('`');
+		const label = splitLine[0].trim();
+		const description = (splitLine[1] || '').trim();
+		return {
+			label,
+			description,
+			effects,
+			passive,
+		};
+	});
+});
 </script>
 <template>
 	<label
@@ -83,6 +107,20 @@ watch(stackCount, () => {
 				<summary>Description</summary>
 				{{ props.description }}
 			</details>
+			<div v-if="props.perks">
+				<details
+					v-for="perk in perkList"
+					:key="perk.label"
+				>
+					<summary>
+						<input
+							v-if="perk.passive"
+							type="checkbox"
+						/>{{ perk.label }}
+					</summary>
+					{{ perk.description }} :::: {{ perk.effects }}
+				</details>
+			</div>
 		</div>
 	</label>
 </template>

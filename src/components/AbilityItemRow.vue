@@ -4,7 +4,7 @@ import type {
 	ActionResourceKey,
 	CharacterNames,
 	DamageComponent,
-	StatsCalculatedKey,
+	StatName,
 } from '@/composables/useCharacterData';
 import useCharacterData from '@/composables/useCharacterData';
 import DBox from '@/components/DBox.vue';
@@ -20,10 +20,9 @@ type CharacterProps = {
 };
 const props = defineProps<Ability & CharacterProps>();
 const {
-	stats,
 	statsBase,
 	buffs,
-	buffsAsStats,
+	statsBuffed: buffsAsStats,
 	buffsTallied,
 	getFinalStat,
 	actionResources,
@@ -40,16 +39,14 @@ const isDisabled = computed<boolean>(() => {
 // The current amount of the Ability's energy type available.
 const currentEnergy = computed<number>(() => actionResources.value['energy' + props.type]);
 // The maximum amount of the Ability's energy type that can be available.
-const maxEnergy = computed<number>(() =>
-	getFinalStat(('energy' + props.type) as StatsCalculatedKey),
-);
+const maxEnergy = computed<number>(() => getFinalStat(('energy' + props.type) as StatName));
 // The amount of energy it will take to use the Ability.
 // Takes "partial power" into account.
 const energyUseAmount = computed<number>(
 	() =>
 		props.energyMax -
 		partialPowerIncrement.value -
-		getFinalStat(('energyDiscount' + props.type) as StatsCalculatedKey),
+		getFinalStat(('energyDiscount' + props.type) as StatName),
 );
 // Assembles the gradient string used for the energy usage bar.
 const energyUsageGradientString = computed<string>(() => {
@@ -239,14 +236,9 @@ const rollHit = () => {
 		'\n  ' +
 		result +
 		' (dice) ' +
-		('+ ' + (buffsTallied.value.toHitSpell?.total || stats.value.toHitSpell)).replace(
-			'+-',
-			'-',
-		) +
+		('+ ' + buffsTallied.value.toHitSpell.total).replace('+-', '-') +
 		' (bonus)';
-	string +=
-		'\n  Hit result ⇒ ' +
-		(result + (buffsTallied.value.toHitSpell?.total || stats.value.toHitSpell));
+	string += '\n  Hit result ⇒ ' + (result + buffsTallied.value.toHitSpell.total);
 	if (result <= 1) {
 		string += '\n == Natural 1! ==';
 	}
@@ -388,7 +380,7 @@ const updateEnergy = () => {
 						>
 					</div>
 					<div class="damage-sub">
-						{{ props.type }} 
+						{{ props.type }}
 						<span
 							class="energy-bar"
 							:style="'background-image: ' + energyUsageGradientString"
@@ -433,7 +425,7 @@ const updateEnergy = () => {
 								:class="{ debuffed: debuffed.range }"
 							>
 								{{ props.rangeType }}
-								{{ partialPowerStats.range }}ft. 
+								{{ partialPowerStats.range }}ft.
 							</td>
 						</tr>
 						<tr>

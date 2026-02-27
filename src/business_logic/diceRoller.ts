@@ -1,4 +1,4 @@
-import type { StatsCalculated } from '@/composables/useCharacterData';
+import type { Stats } from './buffs';
 
 type DiceFormula = {
 	quantity: number;
@@ -7,7 +7,7 @@ type DiceFormula = {
 	multiplier: number;
 };
 
-const parseDiceFormula = (formula: string, stats?: StatsCalculated): DiceFormula => {
+const parseDiceFormula = (formula: string, stats?: Stats): DiceFormula => {
 	// Example formulas:
 	// 1d20
 	// 4d8+6

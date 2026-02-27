@@ -12,11 +12,8 @@
 // d6+dex mod
 // 4d8 + 4 * Str Mod
 
-import {
-	labelToStatName,
-	type StatsCalculated,
-	type StatsCalculatedKey,
-} from '@/composables/useCharacterData';
+import { labelToStatName, type StatName } from '@/composables/useCharacterData';
+import type { Stats } from './buffs';
 
 // What is a dice formula?
 // FORMULA ::= ELEMENT [OPERATOR ELEMENT]*
@@ -412,6 +409,7 @@ export class DiceFormula {
 		let currentFormula: object[] = [];
 		let pos = 0;
 		let curChar;
+		formula.replace(/\+-/g, '-');
 		while (true) {
 			// skip any leading whitespace
 			while (formula[pos] === ' ') ++pos;
@@ -574,13 +572,13 @@ export class DiceFormula {
 	// }
 }
 
-export const getStatByCharacter = (stats: Partial<StatsCalculated>) => {
+export const getStatByCharacter = (stats: Partial<Stats>) => {
 	return (name: string): number => {
 		// name may be 'Str Mod' or 'str mod' or 'sTr MoD' or whatver
 		const propertyName = labelToStatName[name.toLocaleLowerCase()];
 		if (!propertyName) {
 			throw new Error(`Invalid property name: ${name}`);
 		}
-		return stats[propertyName as StatsCalculatedKey] || 0;
+		return stats[propertyName as StatName]?.total || 0;
 	};
 };

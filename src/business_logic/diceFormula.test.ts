@@ -1,17 +1,53 @@
 import { describe, test, expect } from 'vitest';
-import { type StatsCalculated } from '@/composables/useCharacterData';
 import { DiceFormula, getStatByCharacter } from './diceFormula';
+import type { Stats } from './buffs';
 
-const testCharacterSimple: Partial<StatsCalculated> = {
-	actionsMoveLand: 10,
-	ac: 20,
-	str: 10,
-	dex: 10,
-	con: 10,
-	int: 10,
-	wis: 10,
-	cha: 10,
-	rolls: 10,
+const testCharacterSimple: Partial<Stats> = {
+	actionsMoveLand: {
+		total: 10,
+		categories: {},
+		summary: [],
+	},
+	ac: {
+		total: 20,
+		categories: {},
+		summary: [],
+	},
+	str: {
+		total: 10,
+		categories: {},
+		summary: [],
+	},
+	dex: {
+		total: 10,
+		categories: {},
+		summary: [],
+	},
+	con: {
+		total: 10,
+		categories: {},
+		summary: [],
+	},
+	int: {
+		total: 10,
+		categories: {},
+		summary: [],
+	},
+	wis: {
+		total: 10,
+		categories: {},
+		summary: [],
+	},
+	cha: {
+		total: 10,
+		categories: {},
+		summary: [],
+	},
+	rolls: {
+		total: 10,
+		categories: {},
+		summary: [],
+	},
 };
 
 const getStat = getStatByCharacter(testCharacterSimple);

@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import useCharacterData, {
-	labelMap,
-	type StatsCalculatedKey,
-} from '@/composables/useCharacterData';
+import useCharacterData, { labelMap, type StatName } from '@/composables/useCharacterData';
 import LoadingModal from '@/components/LoadingModal.vue';
 import BuffActivator from '@/components/BuffActivator.vue';
 import { computed } from 'vue';
@@ -14,17 +11,17 @@ const props = defineProps<CharacterProps>();
 const {
 	character,
 	stats,
+	statsBuffed,
 	statsLoading,
 	activatedPartyBuffs,
-	buffsTallied,
 	buffsLoading,
 	buffsRefresh,
 } = useCharacterData(props.characterId);
 
 const buffTotals = computed<string>(() => {
 	let result = '';
-	const keys = Object.keys(buffsTallied.value);
-	const disallowedLabels: StatsCalculatedKey[] = [
+	const keys = Object.keys(statsBuffed.value);
+	const disallowedLabels: StatName[] = [
 		'armor',
 		'armorNatural',
 		'armorShield',
@@ -45,13 +42,13 @@ const buffTotals = computed<string>(() => {
 		'hpPerLevel',
 	];
 	const filtered = keys.filter((key) => {
-		return disallowedLabels.indexOf(key as StatsCalculatedKey) < 0;
+		return disallowedLabels.indexOf(key as StatName) < 0;
 	});
 	filtered.forEach((keyy) => {
-		const key = keyy as StatsCalculatedKey;
-		const diff = (buffsTallied.value[key as StatsCalculatedKey]?.total || 0) - stats.value[key];
+		const key = keyy as StatName;
+		const diff = (statsBuffed.value[key as StatName]?.total || 0) - stats.value[key].total;
 		if (diff !== 0) {
-			result += labelMap[key as StatsCalculatedKey] + (diff > 0 ? ' +' : ' ') + diff + ', ';
+			result += labelMap[key as StatName] + (diff > 0 ? ' +' : ' ') + diff + ', ';
 		}
 	});
 	return result;

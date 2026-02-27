@@ -3,7 +3,7 @@ import {
 	tallyBuffs,
 	type BuffEffect,
 	type BuffInfo,
-	type CharacterBuffSummary,
+	type Stats,
 	type PartyBuffInfo,
 } from '@/business_logic/buffs';
 import { DiceFormula, getStatByCharacter } from '@/business_logic/diceFormula';
@@ -195,7 +195,7 @@ export type DamageComponent = {
 	shape: string; // sphere
 	duration: number; // 1
 };
-export const damageStringToDownstream = (damage: string, sourceStats: StatsCalculated) => {
+export const damageStringToDownstream = (damage: string, sourceStats: Stats) => {
 	const statFunction = getStatByCharacter(sourceStats);
 	const formula = new DiceFormula(damage);
 	return {
@@ -349,187 +349,190 @@ export type StatSheet = {
 };
 export type StatSheetKey = keyof StatSheet;
 
-export type StatsCalculated = {
-	actionsMoveBaseLand: number;
-	actionsMoveBaseSwim: number;
-	actionsMoveBaseFly: number;
-	actionsMoveBaseClimb: number;
-	actionsMoveMult: number;
-	actionsMoveLand: number;
-	actionsMoveSwim: number;
-	actionsMoveFly: number;
-	actionsMoveClimb: number;
-	//
-	ac: number;
-	acFF: number;
-	acTouch: number;
-	acFFTouch: number;
-	drBase: number;
-	dr: number;
-	drFF: number;
-	//
-	drArc: number;
-	drFFArc: number;
-	resistArc: number;
-	drSolar: number;
-	drFFSolar: number;
-	resistSolar: number;
-	drVoid: number;
-	drFFVoid: number;
-	resistVoid: number;
-	drStasis: number;
-	drFFStasis: number;
-	resistStasis: number;
-	drStrand: number;
-	drFFStrand: number;
-	resistStrand: number;
-	drPrismatic: number;
-	drFFPrismatic: number;
-	resistPrismatic: number;
-	drDark: number;
-	drFFDark: number;
-	resistDark: number;
-	//
-	capacityCarrying: number;
-	capacityKinetic: number;
-	capacitySpecial: number;
-	capacityHeavy: number;
-	energyMelee: number;
-	energyGrenade: number;
-	energySuper: number;
-	energyClass: number;
-	energyMeleeRecharge: number;
-	energyGrenadeRecharge: number;
-	energySuperRecharge: number;
-	energyClassRecharge: number;
-	energyDiscountMelee: number;
-	energyDiscountGrenade: number;
-	energyDiscountSuper: number;
-	energyDiscountClass: number;
-	rerolls: number;
-	//
-	slotsArmorHead: number;
-	slotsArmorArm: number;
-	slotsArmorChest: number;
-	slotsArmorLegs: number;
-	slotsArmorClass: number;
-	slotsArmorFull: number;
-	slotsArmorExotic: number;
-	slotsAspects: number;
-	slotsFragments: number;
-	equipArmorHead: number;
-	equipArmorArm: number;
-	equipArmorChest: number;
-	equipArmorLegs: number;
-	equipArmorClass: number;
-	equipArmorFull: number;
-	equipArmorExotic: number;
-	//
-	slotsWeapon: number;
-	slotsWeaponUsed: number;
-	hands: number;
-	handsUsed: number;
-	//
-	equipAspects: number;
-	equipFragments: number;
-	capacityArmorCharge: number;
-	//
-	toHitRanged: number;
-	toHitMelee: number;
-	toHitSpell: number;
-	damageMelee: number;
-	damageRanged: number;
-	damageSpell: number;
-	damageWeapon: number;
-	damagePrecision: number;
-	//
-	strSave: number;
-	dexSave: number;
-	conSave: number;
-	intSave: number;
-	wisSave: number;
-	chaSave: number;
-	strSkillCheck: number;
-	dexSkillCheck: number;
-	conSkillCheck: number;
-	intSkillCheck: number;
-	wisSkillCheck: number;
-	chaSkillCheck: number;
-	strSkills: number;
-	dexSkills: number;
-	conSkills: number;
-	intSkills: number;
-	wisSkills: number;
-	chaSkills: number;
-	initiative: number;
-	ref: number;
-	fort: number;
-	will: number;
-	//
-	hpMax: number;
-	hpRecharge: number;
-	hpTempMax: number;
-	hpShieldMax: number;
-	hpShieldRecharge: number;
-	hpShieldKinetic: number;
-	hpShieldSolar: number;
-	hpShieldArc: number;
-	hpShieldVoid: number;
-	hpShieldStasis: number;
-	hpShieldStrand: number;
-	hpShieldPrismatic: number;
-	hpShieldType: number;
-	skillFocus: number;
-	//
-	energyUniversal: number;
-	energyUniversalRecharge: number;
-	//
-	armor: number;
-	armorNatural: number;
-	armorShield: number;
-	armorDeflection: number;
-	armorDodge: number;
-	bab: number;
-	bdb: number;
-	//
-	str: number;
-	dex: number;
-	con: number;
-	int: number;
-	wis: number;
-	cha: number;
-	rolls: number;
-	//
-	actionsAttack: number;
-	actionsMove: number;
-	actionsReaction: number;
-	actionsBonus: number;
-	//
-	strScore: number;
-	dexScore: number;
-	conScore: number;
-	intScore: number;
-	wisScore: number;
-	chaScore: number;
-	//
-	cpl: number;
-	weightBase: number;
-	weightCurrent: number;
-	weightTotal: number;
-	size: number;
-	reach: number;
-	encumberance: number;
-	babPerLevel: number;
-	bdbPerLevel: number;
-	hpPerLevel: number;
-	fortPerLevel: number;
-	refPerLevel: number;
-	willPerLevel: number;
-	//
-	artifact: number;
-};
-export type StatsCalculatedKey = keyof StatsCalculated;
-export const labelMap: Record<StatsCalculatedKey, string> = {
+// export type StatsCalculated = {
+// 	actionsMoveBaseLand: number;
+// 	actionsMoveBaseSwim: number;
+// 	actionsMoveBaseFly: number;
+// 	actionsMoveBaseClimb: number;
+// 	actionsMoveMult: number;
+// 	actionsMoveLand: number;
+// 	actionsMoveSwim: number;
+// 	actionsMoveFly: number;
+// 	actionsMoveClimb: number;
+// 	//
+// 	ac: number;
+// 	acFF: number;
+// 	acTouch: number;
+// 	acFFTouch: number;
+// 	drBase: number;
+// 	dr: number;
+// 	drFF: number;
+// 	//
+// 	drArc: number;
+// 	drFFArc: number;
+// 	resistArc: number;
+// 	drSolar: number;
+// 	drFFSolar: number;
+// 	resistSolar: number;
+// 	drVoid: number;
+// 	drFFVoid: number;
+// 	resistVoid: number;
+// 	drStasis: number;
+// 	drFFStasis: number;
+// 	resistStasis: number;
+// 	drStrand: number;
+// 	drFFStrand: number;
+// 	resistStrand: number;
+// 	drPrismatic: number;
+// 	drFFPrismatic: number;
+// 	resistPrismatic: number;
+// 	drDark: number;
+// 	drFFDark: number;
+// 	resistDark: number;
+// 	//
+// 	capacityCarrying: number;
+// 	capacityKinetic: number;
+// 	capacitySpecial: number;
+// 	capacityHeavy: number;
+// 	energyMelee: number;
+// 	energyGrenade: number;
+// 	energySuper: number;
+// 	energyClass: number;
+// 	energyMeleeRecharge: number;
+// 	energyGrenadeRecharge: number;
+// 	energySuperRecharge: number;
+// 	energyClassRecharge: number;
+// 	energyDiscountMelee: number;
+// 	energyDiscountGrenade: number;
+// 	energyDiscountSuper: number;
+// 	energyDiscountClass: number;
+// 	rerolls: number;
+// 	//
+// 	slotsArmorHead: number;
+// 	slotsArmorArm: number;
+// 	slotsArmorChest: number;
+// 	slotsArmorLegs: number;
+// 	slotsArmorClass: number;
+// 	slotsArmorFull: number;
+// 	slotsArmorExotic: number;
+// 	slotsAspects: number;
+// 	slotsFragments: number;
+// 	equipArmorHead: number;
+// 	equipArmorArm: number;
+// 	equipArmorChest: number;
+// 	equipArmorLegs: number;
+// 	equipArmorClass: number;
+// 	equipArmorFull: number;
+// 	equipArmorExotic: number;
+// 	//
+// 	slotsWeapon: number;
+// 	slotsWeaponUsed: number;
+// 	hands: number;
+// 	handsUsed: number;
+// 	//
+// 	equipAspects: number;
+// 	equipFragments: number;
+// 	capacityArmorCharge: number;
+// 	//
+// 	toHitRanged: number;
+// 	toHitMelee: number;
+// 	toHitSpell: number;
+// 	damageMelee: number;
+// 	damageRanged: number;
+// 	damageSpell: number;
+// 	damageWeapon: number;
+// 	damagePrecision: number;
+// 	//
+// 	strSave: number;
+// 	dexSave: number;
+// 	conSave: number;
+// 	intSave: number;
+// 	wisSave: number;
+// 	chaSave: number;
+// 	strSkillCheck: number;
+// 	dexSkillCheck: number;
+// 	conSkillCheck: number;
+// 	intSkillCheck: number;
+// 	wisSkillCheck: number;
+// 	chaSkillCheck: number;
+// 	strSkills: number;
+// 	dexSkills: number;
+// 	conSkills: number;
+// 	intSkills: number;
+// 	wisSkills: number;
+// 	chaSkills: number;
+// 	initiative: number;
+// 	ref: number;
+// 	fort: number;
+// 	will: number;
+// 	//
+// 	hpMax: number;
+// 	hpRecharge: number;
+// 	hpTempMax: number;
+// 	hpShieldMax: number;
+// 	hpShieldRecharge: number;
+// 	hpShieldKinetic: number;
+// 	hpShieldSolar: number;
+// 	hpShieldArc: number;
+// 	hpShieldVoid: number;
+// 	hpShieldStasis: number;
+// 	hpShieldStrand: number;
+// 	hpShieldPrismatic: number;
+// 	hpShieldType: number;
+// 	skillFocus: number;
+// 	//
+// 	energyUniversal: number;
+// 	energyUniversalRecharge: number;
+// 	//
+// 	armor: number;
+// 	armorNatural: number;
+// 	armorShield: number;
+// 	armorDeflection: number;
+// 	armorDodge: number;
+// 	bab: number;
+// 	bdb: number;
+// 	//
+// 	str: number;
+// 	dex: number;
+// 	con: number;
+// 	int: number;
+// 	wis: number;
+// 	cha: number;
+// 	rolls: number;
+// 	//
+// 	actionsAttack: number;
+// 	actionsMove: number;
+// 	actionsReaction: number;
+// 	actionsBonus: number;
+// 	//
+// 	strScore: number;
+// 	dexScore: number;
+// 	conScore: number;
+// 	intScore: number;
+// 	wisScore: number;
+// 	chaScore: number;
+// 	//
+// 	cpl: number;
+// 	weightBase: number;
+// 	weightCurrent: number;
+// 	weightTotal: number;
+// 	size: number;
+// 	reach: number;
+// 	encumberance: number;
+// 	babPerLevel: number;
+// 	bdbPerLevel: number;
+// 	hpPerLevel: number;
+// 	fortPerLevel: number;
+// 	refPerLevel: number;
+// 	willPerLevel: number;
+// 	//
+// 	artifact: number;
+// };
+//type ActionsStatName = "actionsMoveBaseLand"|"actionsMoveBaseSwim"|...;
+//type ACStatName = "ac"|"acFF"|"acTouch"|"acFFTouch"|...;
+//type StatName = ActionsStatName | ACStatName | ...;
+
+export const labelMap = {
 	actionsMoveBaseLand: 'Move Base Land',
 	actionsMoveBaseSwim: 'Move Base Swim',
 	actionsMoveBaseFly: 'Move Base Fly',
@@ -539,6 +542,7 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	actionsMoveSwim: 'Move (Swim)',
 	actionsMoveFly: 'Move (Fly)',
 	actionsMoveClimb: 'Move (Climb)',
+	//
 	ac: 'AC',
 	acFF: 'FF AC',
 	acTouch: 'Touch AC',
@@ -546,6 +550,7 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	drBase: 'Base DR',
 	dr: 'DR',
 	drFF: 'FF DR',
+	//
 	drArc: 'Arc DR',
 	drFFArc: 'Arc FF DR',
 	resistArc: 'Arc Resistance',
@@ -567,6 +572,7 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	drDark: 'Darkness DR',
 	drFFDark: 'Darkness FF DR',
 	resistDark: 'Darkness Resistance',
+	//
 	capacityCarrying: 'Carrying Capacity',
 	capacityKinetic: 'Kinetic Ammo Capacity',
 	capacitySpecial: 'Special Ammo Capacity',
@@ -584,6 +590,7 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	energyDiscountSuper: 'Super Energy Discount',
 	energyDiscountClass: 'Class Energy Discount',
 	rerolls: 'Rerolls',
+	//
 	slotsArmorHead: 'Head Slot',
 	slotsArmorArm: 'Arm Slot',
 	slotsArmorChest: 'Chest Slot',
@@ -600,13 +607,16 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	equipArmorClass: 'Class Equipment',
 	equipArmorFull: 'Full Armor Equipment',
 	equipArmorExotic: 'Exotic Equipment',
+	//
 	slotsWeapon: 'Weapon Slots',
 	slotsWeaponUsed: 'Weapons Equipped',
 	hands: 'Hands',
 	handsUsed: 'Hands Used',
+	//
 	equipAspects: 'Aspect Slots',
 	equipFragments: 'Fragment Slots',
 	capacityArmorCharge: 'Max Armor Charge',
+	//
 	toHitRanged: 'Ranged to hit',
 	toHitMelee: 'Melee to hit',
 	toHitSpell: 'Spell to hit',
@@ -615,6 +625,7 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	damageSpell: 'Spell Damage',
 	damageWeapon: 'Weapon Damage',
 	damagePrecision: 'Precision Damage',
+	//
 	strSave: 'Str Save DC',
 	dexSave: 'Dex Save DC',
 	conSave: 'Con Save DC',
@@ -637,8 +648,10 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	ref: 'Ref Save',
 	fort: 'Fort Save',
 	will: 'Will Save',
+	//
 	hpMax: 'Max HP',
 	hpRecharge: 'HP Recharge',
+	//
 	hpTempMax: 'Max Temp HP',
 	hpShieldMax: 'Max Shield HP',
 	hpShieldRecharge: 'Shield Recharge',
@@ -653,6 +666,7 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	skillFocus: 'Skill Focus',
 	energyUniversal: 'Max Universal Energy',
 	energyUniversalRecharge: 'Universal Energy Recharge',
+	//
 	armor: 'Armor',
 	armorNatural: 'Natural Armor',
 	armorShield: 'Shield',
@@ -660,6 +674,7 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	armorDodge: 'Dodge',
 	bab: 'Base Attack',
 	bdb: 'Base Defense',
+	//
 	str: 'Str Mod',
 	dex: 'Dex Mod',
 	con: 'Con Mod',
@@ -667,10 +682,12 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	wis: 'Wis Mod',
 	cha: 'Cha Mod',
 	rolls: 'Rolls',
+	//
 	actionsAttack: 'Attack Action',
 	actionsMove: 'Movement Action',
 	actionsReaction: 'Reaction',
 	actionsBonus: 'Bonus Action',
+	//
 	strScore: 'Str Score',
 	dexScore: 'Dex Score',
 	conScore: 'Con Score',
@@ -690,8 +707,10 @@ export const labelMap: Record<StatsCalculatedKey, string> = {
 	fortPerLevel: 'Level Up Fort',
 	refPerLevel: 'Level Up Ref',
 	willPerLevel: 'Level Up Will',
+	//
 	artifact: 'Artifact Points',
 };
+export type StatName = keyof typeof labelMap;
 export const labelToStatName: Record<string, string> = {};
 // Object.entries(labelMap).forEach((stringPair) => labelToStatName[stringPair[1].toLocaleLowerCase()] = stringPair[0]);
 // These two lines ^^^^ vvvv do the same work.
@@ -703,55 +722,55 @@ export const makeEmptyStats = () => {
 	Object.keys(labelToStatName).forEach((key) => {
 		result[key] = 0;
 	});
-	return result as Record<StatsCalculatedKey, number>;
+	return result as Record<StatName, number>;
 };
-export const statsDistribute = (source: StatsCalculated) => {
-	source.str = Math.floor((source.strScore - 10) / 2);
-	source.dex = Math.floor((source.dexScore - 10) / 2);
-	source.con = Math.floor((source.conScore - 10) / 2);
-	source.int = Math.floor((source.intScore - 10) / 2);
-	source.wis = Math.floor((source.wisScore - 10) / 2);
-	source.cha = Math.floor((source.chaScore - 10) / 2);
-	source.actionsMoveLand = source.actionsMoveBaseLand * source.actionsMoveMult;
-	source.actionsMoveSwim = source.actionsMoveBaseSwim * source.actionsMoveMult;
-	source.actionsMoveFly = source.actionsMoveBaseFly * source.actionsMoveMult;
-	source.actionsMoveClimb = source.actionsMoveBaseClimb * source.actionsMoveMult;
-	source.ac =
-		10 +
-		source.armor +
-		source.armorNatural +
-		source.armorShield +
-		source.armorDeflection +
-		source.armorDodge +
-		source.dex +
-		source.bdb +
-		sizeMap[source.size || 0].ac;
-	source.acFF = 10 + source.armor + source.armorNatural + source.armorDeflection + source.bdb;
-	source.acTouch = 10 + source.armorDeflection + source.armorDodge + source.bdb + source.dex;
-	source.acFFTouch = 10 + source.armorDeflection + source.bdb;
-	source.dr =
-		source.armor + source.armorNatural + source.armorShield + source.drBase + source.con;
-	source.drFF = source.armor + source.armorNatural + source.drBase + source.con;
-	source.capacityCarrying =
-		25 *
-		Math.floor(Math.pow(4, Math.max(source.strScore / 10, 0))) *
-		sizeMap[source.size || 0].carryingCapacity;
-	source.toHitRanged = source.bab + source.dex;
-	source.toHitMelee = source.bab + source.str;
-	source.toHitSpell = source.bab + source.cha;
-	source.strSave = 10 + Math.floor(source.cpl / 2) + source.str;
-	source.dexSave = 10 + Math.floor(source.cpl / 2) + source.dex;
-	source.conSave = 10 + Math.floor(source.cpl / 2) + source.con;
-	source.intSave = 10 + Math.floor(source.cpl / 2) + source.int;
-	source.wisSave = 10 + Math.floor(source.cpl / 2) + source.wis;
-	source.chaSave = 10 + Math.floor(source.cpl / 2) + source.cha;
-	source.initiative = source.dex;
-	source.ref = Math.floor(source.cpl * source.refPerLevel + source.dex);
-	source.fort = Math.floor(source.cpl * source.fortPerLevel + source.con);
-	source.will = Math.floor(source.cpl * source.willPerLevel + source.wis);
-	source.hpMax = (source.hpPerLevel + source.con) * source.cpl;
-	source.energyUniversal = Math.floor((2 + source.cha) * source.cpl);
-};
+// export const statsDistribute = (source: StatsCalculated) => {
+// 	source.str = Math.floor((source.strScore - 10) / 2);
+// 	source.dex = Math.floor((source.dexScore - 10) / 2);
+// 	source.con = Math.floor((source.conScore - 10) / 2);
+// 	source.int = Math.floor((source.intScore - 10) / 2);
+// 	source.wis = Math.floor((source.wisScore - 10) / 2);
+// 	source.cha = Math.floor((source.chaScore - 10) / 2);
+// 	source.actionsMoveLand = source.actionsMoveBaseLand * source.actionsMoveMult;
+// 	source.actionsMoveSwim = source.actionsMoveBaseSwim * source.actionsMoveMult;
+// 	source.actionsMoveFly = source.actionsMoveBaseFly * source.actionsMoveMult;
+// 	source.actionsMoveClimb = source.actionsMoveBaseClimb * source.actionsMoveMult;
+// 	source.ac =
+// 		10 +
+// 		source.armor +
+// 		source.armorNatural +
+// 		source.armorShield +
+// 		source.armorDeflection +
+// 		source.armorDodge +
+// 		source.dex +
+// 		source.bdb +
+// 		sizeMap[source.size || 0].ac;
+// 	source.acFF = 10 + source.armor + source.armorNatural + source.armorDeflection + source.bdb;
+// 	source.acTouch = 10 + source.armorDeflection + source.armorDodge + source.bdb + source.dex;
+// 	source.acFFTouch = 10 + source.armorDeflection + source.bdb;
+// 	source.dr =
+// 		source.armor + source.armorNatural + source.armorShield + source.drBase + source.con;
+// 	source.drFF = source.armor + source.armorNatural + source.drBase + source.con;
+// 	source.capacityCarrying =
+// 		25 *
+// 		Math.floor(Math.pow(4, Math.max(source.strScore / 10, 0))) *
+// 		sizeMap[source.size || 0].carryingCapacity;
+// 	source.toHitRanged = source.bab + source.dex;
+// 	source.toHitMelee = source.bab + source.str;
+// 	source.toHitSpell = source.bab + source.cha;
+// 	source.strSave = 10 + Math.floor(source.cpl / 2) + source.str;
+// 	source.dexSave = 10 + Math.floor(source.cpl / 2) + source.dex;
+// 	source.conSave = 10 + Math.floor(source.cpl / 2) + source.con;
+// 	source.intSave = 10 + Math.floor(source.cpl / 2) + source.int;
+// 	source.wisSave = 10 + Math.floor(source.cpl / 2) + source.wis;
+// 	source.chaSave = 10 + Math.floor(source.cpl / 2) + source.cha;
+// 	source.initiative = source.dex;
+// 	source.ref = Math.floor(source.cpl * source.refPerLevel + source.dex);
+// 	source.fort = Math.floor(source.cpl * source.fortPerLevel + source.con);
+// 	source.will = Math.floor(source.cpl * source.willPerLevel + source.wis);
+// 	source.hpMax = (source.hpPerLevel + source.con) * source.cpl;
+// 	source.energyUniversal = Math.floor((2 + source.cha) * source.cpl);
+// };
 
 // Character Stat Destinations
 
@@ -789,23 +808,22 @@ export type CapacityBoxStatField = {
 
 //
 export const makeComputedOfStats = (
-	stats: ComputedRef<StatsCalculated>,
-	buffs: ComputedRef<CharacterBuffSummary>,
+	base: ComputedRef<Stats>,
+	buffs: ComputedRef<Stats>,
 	label: string,
-	keys: StatsCalculatedKey[],
+	keys: StatName[],
 	noRoll?: boolean,
 ): (() => StatBoxInfo) => {
 	return (): StatBoxInfo => {
-		const buffsValue = buffs.value;
 		return {
 			label,
 			data: keys.map((key) => ({
 				key,
 				label: labelMap[key],
 				stat: key,
-				hovertext: buffsValue[key]?.summary,
-				value: stats.value[key],
-				value2: buffsValue[key]?.total,
+				hovertext: buffs.value[key].summary.join('\n'),
+				value: base.value[key].total,
+				value2: buffs.value[key].total,
 			})),
 			noRoll,
 		};
@@ -837,22 +855,21 @@ export type ActionResourceKey = keyof ActionResource;
 
 //
 export const makeComputedOfCapacities = (
-	stats: ComputedRef<StatsCalculated>,
-	tally: ComputedRef<CharacterBuffSummary>,
+	base: ComputedRef<Stats>,
+	buffs: ComputedRef<Stats>,
 	label: string,
-	keys: StatsCalculatedKey[],
+	keys: StatName[],
 ): (() => StatBoxInfo) => {
 	return (): StatBoxInfo => {
-		const buffsValue = tally.value;
 		return {
 			label,
 			data: keys.map((key) => ({
 				key,
 				label: labelMap[key],
 				stat: key,
-				hovertext: buffsValue[key]?.summary,
-				value: stats.value[key],
-				value2: buffsValue[key]?.total,
+				hovertext: buffs.value[key].summary.join('\n'),
+				value: base.value[key].total,
+				value2: buffs.value[key].total,
 			})),
 		};
 	};
@@ -932,7 +949,7 @@ export type Skill = {
 export type SkillKey = keyof Skill;
 export type SkillInfoKey = {
 	label: string;
-	baseStat: StatsCalculatedKey;
+	baseStat: StatName;
 	description: string;
 };
 export const skillsInfoMap: Record<SkillKey, Record<string, string>> = {
@@ -1418,7 +1435,7 @@ export type Armor = Characters & {
 	active: boolean;
 };
 
-// ABility Types
+// Ability Types
 export type AbilityClass = 'Super' | 'Grenade' | 'Melee' | 'Class Ability' | 'Subcomponent';
 type ImportedAbility = Characters &
 	Ability & {
@@ -1560,6 +1577,7 @@ function useCharacterDataUncached(characterId: string) {
 		refresh: skillsRefresh,
 	} = getSheetForCharacter<Skill>(characterId, 'skills');
 	const skills = computed<Partial<Skill>>(() => {
+		const statsToUse = stats.value;
 		const activeSkills: Partial<Skill> = {};
 		const skillList = Object.keys(skillsThatNeedToBeFiltered.value[0]);
 		for (let i = 0; i < skillList.length; i++) {
@@ -1576,10 +1594,38 @@ function useCharacterDataUncached(characterId: string) {
 			const focus = skillsThatNeedToBeFiltered.value[0][skill as SkillKey];
 			const skillInfo = skillsInfoMap[skillKey];
 			const abilityMod =
-				getFinalStat((skillInfo.baseStat + 'Skills') as StatsCalculatedKey) +
-				getFinalStat(skillInfo.baseStat as StatsCalculatedKey);
+				statsToUse[(skillInfo.baseStat + 'Skills') as StatName].total +
+				statsToUse[skillInfo.baseStat as StatName].total;
 			activeSkills[skillKey] = Math.trunc(
-				focus * getFinalStat('cpl') + abilityMod + (focus > 0 ? 3 : 0),
+				focus * statsToUse.cpl.total + abilityMod + (focus > 0 ? 3 : 0),
+			);
+		}
+		return activeSkills;
+	});
+	const skillsBuffed = computed<Partial<Skill>>(() => {
+		// Currently the only difference between `skills` and `skillsBuffed` is which layer of stats they're sourcing.
+		// However, ideally, this will need to be changed when `skills` and `stats` are integrated. ¬_¬
+		const statsToUse = statsBuffed.value;
+		const activeSkills: Partial<Skill> = {};
+		const skillList = Object.keys(skillsThatNeedToBeFiltered.value[0]);
+		for (let i = 0; i < skillList.length; i++) {
+			const skill = skillList[i];
+			// const skillShortName = skill
+			// 	.toLocaleLowerCase()
+			// 	.slice(0, skill.indexOf('(') < 0 ? skill.length : skill.indexOf('('))
+			// 	.trim();
+			const skillKey = labelToSkillName[skill.toLocaleLowerCase()] as SkillKey;
+			if (skillKey === undefined) {
+				console.warn("Couldn't find the skill " + skill);
+				continue;
+			}
+			const focus = skillsThatNeedToBeFiltered.value[0][skill as SkillKey];
+			const skillInfo = skillsInfoMap[skillKey];
+			const abilityMod =
+				statsToUse[(skillInfo.baseStat + 'Skills') as StatName].total +
+				statsToUse[skillInfo.baseStat as StatName].total;
+			activeSkills[skillKey] = Math.trunc(
+				focus * statsToUse.cpl.total + abilityMod + (focus > 0 ? 3 : 0),
 			);
 		}
 		return activeSkills;
@@ -1616,12 +1662,17 @@ function useCharacterDataUncached(characterId: string) {
 			...armorsAsBuffs.value,
 			...artifactAsBuffs.value,
 		];
-		return result.map((buff) => {
-			buff.stacks = buff.stacks || 0;
-			buff.active = buff.isPassive || buff.active || false;
-			buff.type = buff.type || 'Buff';
-			return buff;
+		const resultWithDefaults = result.map((buff) => {
+			const newBuff = { ...buff };
+			newBuff.stacks = buff.stacks || 0;
+			newBuff.active = buff.isPassive || buff.active || false;
+			newBuff.type = buff.type || 'Buff';
+			newBuff.perks = buff.perks || '';
+			return newBuff;
 		});
+		return resultWithDefaults;
+		// const allBuffs = resultWithDefaults.map((buff) => getBuffEffects(buff)).flat();
+		// return tallyBuffs(allBuffs, stats.value);
 	});
 	const buffsLoading = computed<boolean>(() => {
 		return playerBuffsLoading.value || partyBuffsLoading.value;
@@ -1671,22 +1722,22 @@ function useCharacterDataUncached(characterId: string) {
 
 	const buffArrayFlat = computed<BuffEffect[]>(() => {
 		const allBuffs = activatedPartyBuffs.value;
-		const result = allBuffs.map((buff) => getBuffEffects(buff, stats.value));
+		const result = allBuffs.map((buff) => getBuffEffects(buff));
 		return result.flat();
 		// return buffs.map((buff) => getBuffEffects(buff, stats.value)).flat();
 	});
-	const buffsTallied = computed<CharacterBuffSummary>(() => {
-		return tallyBuffs(buffArrayFlat.value, stats.value);
-	});
-	const buffsAsStats = computed<StatsCalculated>(() => {
-		const statNames = Object.keys(labelMap);
-		const newStats: StatsCalculated = Object.fromEntries(
-			statNames.map((key) => [key, 0]),
-		) as StatsCalculated;
-		statNames.forEach((name) => {
-			newStats[name as StatsCalculatedKey] = getFinalStat(name as StatsCalculatedKey);
-		});
-		return newStats;
+	// const buffsTallied = computed<Stats>(() => {
+	// 	return tallyBuffs(buffArrayFlat.value, stats.value);
+	// });
+	const statsBuffed = computed<Stats>(() => {
+		if (statsFirstBuffPass.value.length <= 0) {
+			return tallyBuffs([]);
+		}
+		const allEffects = [
+			...statsFirstBuffPass.value,
+			...activatedPartyBuffs.value.map((buff) => getBuffEffects(buff)).flat(),
+		];
+		return tallyBuffs(allEffects);
 	});
 	const buffsStackUpdate = (name: string, amount: number) => {
 		const targetBuff: BuffInfo | undefined = partyBuffs.value.find(
@@ -1846,7 +1897,7 @@ function useCharacterDataUncached(characterId: string) {
 			.map((ogWeapon) => {
 				const damageBonus = computed<number>(() => {
 					let bonus = 0;
-					if (buffsTallied.value === undefined) {
+					if (statsBuffed.value === undefined) {
 						return bonus;
 					}
 					if (ogWeapon.rangeType === 'Melee') {
@@ -1861,7 +1912,7 @@ function useCharacterDataUncached(characterId: string) {
 				});
 				const dmgStatStuff = damageStringToDownstream(
 					(ogWeapon.damage || '0') + '+' + damageBonus.value,
-					buffsAsStats.value,
+					statsBuffed.value,
 				);
 				const perkNameList = ogWeapon.perks?.split(', ') || [];
 				const perkList: Record<string, WeaponPerk> = {};
@@ -2275,139 +2326,18 @@ function useCharacterDataUncached(characterId: string) {
 		refresh: statsRefresh,
 	} = getSheetForCharacter<StatSheet>(characterId, 'variables');
 	const statsImported = computed<StatSheet>(() => statsArray.value[0]);
-	const stats = computed<StatsCalculated>(() => {
+	const statsFirstBuffPass = computed<BuffEffect[]>(() => {
 		const source = statsImported.value;
 		if (!source) {
-			return Object.fromEntries(
-				Object.keys(labelMap).map((key) => [key, 0]),
-			) as StatsCalculated;
+			// Stats aren't done importing yet
+			return [];
 		}
-		// Buff tallying goes here.
-		// The object below is where "default values" live.
-		const result: StatsCalculated = {
-			actionsMoveBaseLand: 30,
-			actionsMoveBaseSwim: 0,
-			actionsMoveBaseFly: 0,
-			actionsMoveBaseClimb: 0,
-			actionsMoveMult: 1,
-			actionsMoveLand: 0,
-			actionsMoveSwim: 0,
-			actionsMoveFly: 0,
-			actionsMoveClimb: 0,
-			ac: 0,
-			acFF: 0,
-			acTouch: 0,
-			acFFTouch: 0,
-			drBase: 0,
-			dr: 0,
-			drFF: 0,
-			drArc: 0,
-			drFFArc: 0,
-			resistArc: 0,
-			drSolar: 0,
-			drFFSolar: 0,
-			resistSolar: 0,
-			drVoid: 0,
-			drFFVoid: 0,
-			resistVoid: 0,
-			drStasis: 0,
-			drFFStasis: 0,
-			resistStasis: 0,
-			drStrand: 0,
-			drFFStrand: 0,
-			resistStrand: 0,
-			drPrismatic: 0,
-			drFFPrismatic: 0,
-			resistPrismatic: 0,
-			drDark: 0,
-			drFFDark: 0,
-			resistDark: 0,
-			capacityCarrying: 0,
-			capacityKinetic: 0,
-			capacitySpecial: 18,
-			capacityHeavy: 8,
+		const baseTotals: Partial<Record<StatName, number>> = {
 			energyMelee: source.energyMelee,
 			energyGrenade: source.energyGrenade,
 			energySuper: source.energySuper,
 			energyClass: source.energyClass,
-			energyMeleeRecharge: 1,
-			energyGrenadeRecharge: 1,
-			energySuperRecharge: 1,
-			energyClassRecharge: 1,
-			energyDiscountMelee: 0,
-			energyDiscountGrenade: 0,
-			energyDiscountSuper: 0,
-			energyDiscountClass: 0,
-			rerolls: 0,
-			slotsArmorHead: 3,
-			slotsArmorArm: 3,
-			slotsArmorChest: 3,
-			slotsArmorLegs: 3,
-			slotsArmorClass: 1,
-			slotsArmorFull: 1,
-			slotsArmorExotic: 1,
-			equipArmorHead: 0,
-			equipArmorArm: 0,
-			equipArmorChest: 0,
-			equipArmorLegs: 0,
-			equipArmorClass: 0,
-			equipArmorFull: 0,
-			equipArmorExotic: 0,
-			slotsWeapon: 3,
-			slotsWeaponUsed: 0,
-			hands: 2,
-			handsUsed: 0,
-			equipAspects: 0,
-			equipFragments: 0,
-			slotsAspects: 0,
-			slotsFragments: 0,
-			capacityArmorCharge: 0,
-			toHitRanged: 0,
-			toHitMelee: 0,
-			toHitSpell: 0,
-			damageMelee: 0,
-			damageRanged: 0,
-			damageSpell: 0,
-			damageWeapon: 0,
-			damagePrecision: 0,
-			strSave: 0,
-			dexSave: 0,
-			conSave: 0,
-			intSave: 0,
-			wisSave: 0,
-			chaSave: 0,
-			strSkillCheck: 0,
-			dexSkillCheck: 0,
-			conSkillCheck: 0,
-			intSkillCheck: 0,
-			wisSkillCheck: 0,
-			chaSkillCheck: 0,
-			strSkills: 0,
-			dexSkills: 0,
-			conSkills: 0,
-			intSkills: 0,
-			wisSkills: 0,
-			chaSkills: 0,
-			initiative: 0,
-			ref: 0,
-			fort: 0,
-			will: 0,
-			hpMax: 0,
-			hpRecharge: 0,
-			hpTempMax: 0,
-			hpShieldMax: 0,
-			hpShieldRecharge: 0,
-			hpShieldKinetic: 0,
-			hpShieldSolar: 0,
-			hpShieldArc: 0,
-			hpShieldVoid: 0,
-			hpShieldStasis: 0,
-			hpShieldStrand: 0,
-			hpShieldPrismatic: 0,
-			hpShieldType: 0,
 			skillFocus: source.skillFocus,
-			energyUniversal: 0,
-			energyUniversalRecharge: 0,
 			armor: source.armor,
 			armorNatural: source.armorNatural,
 			armorShield: source.armorShield,
@@ -2415,17 +2345,9 @@ function useCharacterDataUncached(characterId: string) {
 			armorDodge: source.armorDodge,
 			bab: source.babPerLevel * source.cpl,
 			bdb: source.bdbPerLevel * source.cpl,
-			str: 0,
-			dex: 0,
-			con: 0,
-			int: 0,
-			wis: 0,
-			cha: 0,
-			rolls: 0,
 			actionsAttack: source.attacks,
 			actionsMove: source.moves,
 			actionsReaction: source.reactions,
-			actionsBonus: 0,
 			strScore: source.strScore,
 			dexScore: source.dexScore,
 			conScore: source.conScore,
@@ -2434,32 +2356,49 @@ function useCharacterDataUncached(characterId: string) {
 			chaScore: source.chaScore,
 			cpl: source.cpl,
 			weightBase: 0, // ???
-			weightCurrent: 0, // ???
-			weightTotal: 0, // ???
 			size: source.size,
 			reach: sizeMap[source.size || 0].reach,
-			encumberance: 0, // ???
 			babPerLevel: source.babPerLevel,
 			bdbPerLevel: source.bdbPerLevel,
 			hpPerLevel: source.hpPerLevel,
 			fortPerLevel: source.fortPerLevel,
 			refPerLevel: source.refPerLevel,
 			willPerLevel: source.willPerLevel,
-			artifact: 0,
 		};
-		statsDistribute(result);
-		return result;
-	});
-	const getFinalStat = (name: StatsCalculatedKey) => {
-		if (buffsTallied.value[name] === undefined) {
-			if (stats.value[name] === undefined) {
-				return 0;
-			} else {
-				return stats.value[name];
-			}
-		} else {
-			return buffsTallied.value[name].total;
+		const effects = [];
+		for (const key in baseTotals) {
+			effects.push(
+				labelMap[key as StatName] + (' +' + baseTotals[key as StatName]).replace('+-', '-'),
+			);
 		}
+		const buffInfo: BuffInfo = {
+			name: '.',
+			type: 'Hidden',
+			isStory: false,
+			stacks: 0,
+			active: true,
+			effects: effects.join(', '),
+		};
+		return getBuffEffects(buffInfo);
+	});
+	const stats = computed<Stats>(() => {
+		if (statsFirstBuffPass.value.length <= 0) {
+			// The data hasn't finished importing yet
+			return tallyBuffs([]);
+		}
+		return tallyBuffs(statsFirstBuffPass.value);
+	});
+	const getFinalStat = (name: StatName) => {
+		return stats.value[name].total;
+		// if (buffsTallied.value[name] === undefined) {
+		// 	if (stats.value[name] === undefined) {
+		// 		return 0;
+		// 	} else {
+		// 		return stats.value[name];
+		// 	}
+		// } else {
+		// 	return buffsTallied.value[name].total;
+		// }
 	};
 	const actionResourcesLocal = JSON.parse(
 		localStorage.getItem(characterId + '_actionResources') || 'null',
@@ -2488,26 +2427,6 @@ function useCharacterDataUncached(characterId: string) {
 					targetRange: 0,
 				},
 	);
-	// const actionResources = ref<Record<string, number>>({
-	// 	subclassIndex: 0,
-	// 	turns: 0,
-	// 	health: getFinalStat('hpMax'),
-	// 	shields: getFinalStat('hpShieldMax'),
-	// 	actionsMove: getFinalStat('actionsMove'),
-	// 	actionsAttack: getFinalStat('actionsAttack'),
-	// 	actionsReaction: getFinalStat('actionsReaction'),
-	// 	actionsOther: getFinalStat('actionsBonus'),
-	// 	ammoKinetic: getFinalStat('capacityKinetic'),
-	// 	ammoSpecial: getFinalStat('capacitySpecial'),
-	// 	ammoHeavy: getFinalStat('capacityHeavy'),
-	// 	energySuper: getFinalStat('energySuper'),
-	// 	energyMelee: getFinalStat('energyMelee'),
-	// 	energyGrenade: getFinalStat('energyGrenade'),
-	// 	energyClass: getFinalStat('energyClass'),
-	// 	energyUniversal: getFinalStat('energyUniversal'),
-	// 	armorCharges: getFinalStat('capacityArmorCharge'),
-	// 	targetRange: 0,
-	// });
 	watch(statsImported, () => {
 		if (!localStorage.getItem(characterId + '_actionResources')) {
 			const elementKeys = Object.keys(elements);
@@ -2552,12 +2471,13 @@ function useCharacterDataUncached(characterId: string) {
 		activatedPartyBuffs,
 		buffsStackUpdate,
 		buffArrayFlat,
-		buffsTallied,
-		buffsAsStats,
+		buffsTallied: statsBuffed,
+		statsBuffed,
 		buffsLoading,
 		buffsRefresh,
 		// Skills
 		skills,
+		skillsBuffed,
 		skillsLoading,
 		skillsRefresh,
 		// Weapons
@@ -2604,6 +2524,15 @@ function useCharacterDataUncached(characterId: string) {
 		stats,
 		statsLoading,
 		statsRefresh,
+		// Data Loading Statuses
+		anythingLoading:
+			buffsLoading.value ||
+			skillsLoading.value ||
+			// weaponsLoading.value ||
+			// weaponPerksLoading.value ||
+			// armorLoading.value ||
+			// abilitiesLoading.value ||
+			statsLoading.value,
 	};
 	return composable;
 }

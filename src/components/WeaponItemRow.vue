@@ -13,7 +13,7 @@ const {
 	weaponAmmoUpdate,
 	damageStringToDownstream,
 	getFinalStat,
-	buffsAsStats,
+	statsBuffed: buffsAsStats,
 	actionResources,
 } = useCharacterData(props.characterId);
 const weaponIndex = computed<number>(() =>
@@ -357,7 +357,7 @@ const weapon = computed<Weapon>(() => {
 							</td>
 							<td class="weapon-stat-label">Range</td>
 							<td class="weapon-stat-data">
-								{{ weapon.rangeType }} {{ weapon.range }}ft. 
+								{{ weapon.rangeType }} {{ weapon.range }}ft.
 							</td>
 						</tr>
 						<tr>

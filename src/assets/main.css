@@ -123,7 +123,7 @@ h2 {
 	background-position: center;
 	background-blend-mode: difference;
 	filter: invert();
-	opacity: 0.25;
+	opacity: 0.1;
 	position: absolute;
 	left: -25%;
 	top: -25%;

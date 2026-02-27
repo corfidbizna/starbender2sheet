@@ -2,13 +2,10 @@
 import { computed, ref } from 'vue';
 import useCharacterData, {
 	type StatBoxInfo,
-	// type BarBoxStatField,
 	makeComputedOfStats,
 	type CapacityBoxStatField,
 	sizeMap,
-	type StatsCalculatedKey,
-	// type SkillKey,
-	// skillsInfoMap,
+	type StatName,
 	elements,
 	type Element,
 } from '@/composables/useCharacterData';
@@ -27,11 +24,10 @@ const {
 	character,
 	buffsTallied,
 	stats,
+	statsBuffed,
 	actionResources,
-	getFinalStat,
 	statsLoading,
 	statsRefresh,
-	// skills,
 	skillsLoading,
 	skillsRefresh,
 	weapons,
@@ -41,13 +37,13 @@ const {
 
 const activeShieldType = computed<Element>(() => {
 	const shieldTotals = [
-		{ e: 'Kinetic', n: getFinalStat('hpShieldKinetic') },
-		{ e: 'Solar', n: getFinalStat('hpShieldSolar') },
-		{ e: 'Arc', n: getFinalStat('hpShieldArc') },
-		{ e: 'Void', n: getFinalStat('hpShieldVoid') },
-		{ e: 'Stasis', n: getFinalStat('hpShieldStasis') },
-		{ e: 'Strand', n: getFinalStat('hpShieldStrand') },
-		{ e: 'Prismatic', n: getFinalStat('hpShieldPrismatic') },
+		{ e: 'Kinetic', n: statsBuffed.value['hpShieldKinetic'].total },
+		{ e: 'Solar', n: statsBuffed.value['hpShieldSolar'].total },
+		{ e: 'Arc', n: statsBuffed.value['hpShieldArc'].total },
+		{ e: 'Void', n: statsBuffed.value['hpShieldVoid'].total },
+		{ e: 'Stasis', n: statsBuffed.value['hpShieldStasis'].total },
+		{ e: 'Strand', n: statsBuffed.value['hpShieldStrand'].total },
+		{ e: 'Prismatic', n: statsBuffed.value['hpShieldPrismatic'].total },
 	].sort((a, b) => b.n - a.n);
 	return (shieldTotals[0].e as Element) || 'Kinetic';
 });
@@ -65,7 +61,6 @@ const shieldColor = computed<string>(() => {
 // 	]),
 // );
 const infoAbilityScores = computed<StatBoxInfo>(() => {
-	const buffsValue = buffsTallied.value;
 	const keys = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 	return {
 		label: 'Ability Scores',
@@ -74,11 +69,11 @@ const infoAbilityScores = computed<StatBoxInfo>(() => {
 			label:
 				keys[i].toLocaleUpperCase() +
 				' ' +
-				getFinalStat((keys[i] + 'Score') as StatsCalculatedKey),
+				statsBuffed.value[(keys[i] + 'Score') as StatName].total,
 			stat: key,
-			hovertext: buffsValue[key as StatsCalculatedKey]?.summary,
-			value: stats.value[key as StatsCalculatedKey],
-			value2: getFinalStat(key as StatsCalculatedKey),
+			hovertext: statsBuffed.value[key as StatName].summary.join('\n'),
+			value: stats.value[key as StatName].total,
+			value2: statsBuffed.value[key as StatName].total,
 		})),
 		noRoll: false,
 	};
@@ -86,7 +81,7 @@ const infoAbilityScores = computed<StatBoxInfo>(() => {
 const infoDefenseMods = computed<StatBoxInfo>(
 	makeComputedOfStats(
 		stats,
-		buffsTallied,
+		statsBuffed,
 		'Defense Mods',
 		['ac', 'acTouch', 'acFF', 'acFFTouch', 'dr', 'drFF'],
 		true,
@@ -97,7 +92,7 @@ const expendables = computed<CapacityBoxStatField[]>(() => {
 		{
 			label: 'Rerolls',
 			stat: 'rerolls',
-			max: getFinalStat('rerolls'),
+			max: statsBuffed.value.rerolls.total,
 			current: actionResources.value.rerolls,
 			color: '#fff',
 		},
@@ -105,13 +100,13 @@ const expendables = computed<CapacityBoxStatField[]>(() => {
 			label: 'Charges',
 			stat: 'armorCharges',
 			color: '#8df',
-			max: getFinalStat('capacityArmorCharge'),
+			max: statsBuffed.value.capacityArmorCharge.total,
 			current: actionResources.value.armorCharges,
 		},
 	];
 });
 const infoSaves = computed<StatBoxInfo>(
-	makeComputedOfStats(stats, buffsTallied, 'Saving Throws', ['fort', 'ref', 'will']),
+	makeComputedOfStats(stats, statsBuffed, 'Saving Throws', ['fort', 'ref', 'will']),
 );
 const incrementTurn = () => {
 	const source = stats.value;
@@ -122,22 +117,25 @@ const incrementTurn = () => {
 	actionResourceUpdate('turns', 1);
 	// Energy Regen
 	['Super', 'Class', 'Melee', 'Grenade', 'Universal'].forEach((energy) => {
-		const energyKey = ('energy' + energy) as StatsCalculatedKey;
-		const energyRechargeKey = ('energy' + energy + 'Recharge') as StatsCalculatedKey;
-		if (resource[energyKey] < getFinalStat(energyKey) || getFinalStat(energyRechargeKey) < 0) {
-			resource[energyKey] += getFinalStat(energyRechargeKey);
+		const energyKey = ('energy' + energy) as StatName;
+		const energyRechargeKey = ('energy' + energy + 'Recharge') as StatName;
+		if (
+			resource[energyKey] < statsBuffed.value[energyKey].total ||
+			statsBuffed.value[energyRechargeKey].total < 0
+		) {
+			resource[energyKey] += statsBuffed.value[energyRechargeKey].total;
 		}
 	});
 	// Action Refresh
-	resource.actionsMove += source.actionsMove - resource.actionsMove;
-	resource.actionsAttack += source.actionsAttack - resource.actionsAttack;
-	resource.actionsReaction += source.actionsReaction - resource.actionsReaction;
+	resource.actionsMove += source.actionsMove.total - resource.actionsMove;
+	resource.actionsAttack += source.actionsAttack.total - resource.actionsAttack;
+	resource.actionsReaction += source.actionsReaction.total - resource.actionsReaction;
 	// Healths Regen
-	if (resource.health < source.hpMax) {
-		resource.health += getFinalStat('hpRegen' as StatsCalculatedKey);
+	if (resource.health < source.hpMax.total) {
+		resource.health += statsBuffed.value.hpRecharge.total;
 	}
-	if (resource.shields < source.hpShieldMax) {
-		resource.shields += getFinalStat('hpShieldRegen' as StatsCalculatedKey);
+	if (resource.shields < source.hpShieldMax.total) {
+		resource.shields += statsBuffed.value.hpShieldRecharge.total;
 	}
 };
 const rallyBanner = () => {
@@ -146,13 +144,13 @@ const rallyBanner = () => {
 	updateLog('    Rallying to a banner!\nAll energies and health refilled');
 	// Energy Regen
 	['Super', 'Class', 'Melee', 'Grenade', 'Universal'].forEach((energy) => {
-		const energyKey = ('energy' + energy) as StatsCalculatedKey;
-		resource[energyKey] += getFinalStat(energyKey) - resource[energyKey];
+		const energyKey = ('energy' + energy) as StatName;
+		resource[energyKey] += statsBuffed.value[energyKey].total - resource[energyKey];
 	});
 	// Action Refresh
-	resource.actionsMove += getFinalStat('actionsMove') - resource.actionsMove;
-	resource.actionsAttack += getFinalStat('actionsAttack') - resource.actionsAttack;
-	resource.actionsReaction += getFinalStat('actionsReaction') - resource.actionsReaction;
+	resource.actionsMove += statsBuffed.value.actionsMove.total - resource.actionsMove;
+	resource.actionsAttack += statsBuffed.value.actionsAttack.total - resource.actionsAttack;
+	resource.actionsReaction += statsBuffed.value.actionsReaction.total - resource.actionsReaction;
 	// Ammo Refresh
 	// resource.ammoKinetic += source.capacityKinetic - resource.ammoKinetic;
 	// resource.ammoSpecial += source.capacitySpecial - resource.ammoSpecial;
@@ -163,22 +161,22 @@ const rallyBanner = () => {
 			weaponAmmoUpdate(weapon.name, weapon.ammoCapacity - weapon.ammoCurrent);
 		});
 	// Healths Refresh
-	resource.health += getFinalStat('hpMax') - resource.health;
-	resource.shields += getFinalStat('hpShieldMax') - resource.shields;
+	resource.health += statsBuffed.value.hpMax.total - resource.health;
+	resource.shields += statsBuffed.value.hpShieldMax.total - resource.shields;
 };
 const healthCapacity = computed<CapacityBoxStatField[]>(() => {
 	return [
 		{
 			label: 'Hit Points',
 			stat: 'health',
-			max: getFinalStat('hpMax'),
+			max: statsBuffed.value.hpMax.total,
 			current: actionResources.value.health,
 			color: '#fff',
 		},
 		{
 			label: activeShieldType.value + ' Shields',
 			stat: 'shields',
-			max: getFinalStat('hpShieldMax'),
+			max: statsBuffed.value.hpShieldMax.total,
 			current: actionResources.value.shields,
 			color: shieldColor.value,
 		},
@@ -206,9 +204,10 @@ const currentDR = computed<number>(() => {
 		Dark: 'Dark',
 		Darkness: 'Dark',
 	};
-	const totalDR: number = getFinalStat(drString as StatsCalculatedKey);
+	const totalDR: number = statsBuffed.value[drString as StatName].total || 0;
 	return (
-		totalDR + getFinalStat((drString + elementString[dmgType.value]) as StatsCalculatedKey) || 0
+		totalDR +
+		(statsBuffed.value[(drString + elementString[dmgType.value]) as StatName]?.total || 0)
 	);
 });
 const currentDamage = computed<number>(() => {
@@ -278,25 +277,25 @@ const actionsCapacity = computed<CapacityBoxStatField[]>(() => {
 		{
 			label: 'Moves',
 			stat: 'actionsMove',
-			max: getFinalStat('actionsMove'),
+			max: statsBuffed.value.actionsMove.total,
 			current: actionResources.value.actionsMove,
 		},
 		{
 			label: 'Attacks',
 			stat: 'actionsAttack',
-			max: getFinalStat('actionsAttack'),
+			max: statsBuffed.value.actionsAttack.total,
 			current: actionResources.value.actionsAttack,
 		},
 		{
 			label: 'Reactions',
 			stat: 'actionsReaction',
-			max: getFinalStat('actionsReaction'),
+			max: statsBuffed.value.actionsReaction.total,
 			current: actionResources.value.actionsReaction,
 		},
 		{
 			label: 'Bonus Actions',
 			stat: 'actionsBonus',
-			max: getFinalStat('actionsBonus'),
+			max: statsBuffed.value.actionsBonus.total,
 			current: actionResources.value.actionsBonus,
 		},
 	];
@@ -306,12 +305,15 @@ const encumberanceTEMP = computed<number>(() => {
 	return Math.trunc(
 		Math.max(
 			0,
-			Math.min(3, (getFinalStat('weightCurrent') / getFinalStat('capacityCarrying')) * 3),
+			Math.min(
+				3,
+				(statsBuffed.value.weightCurrent.total / statsBuffed.value.capacityCarrying.total) *
+					3,
+			),
 		),
 	);
 });
 const encumberanceColor = computed<string>(() => {
-	// const alpha = getFinalStat('encumberance');
 	// Right now 'encumberance' is broken, so I'm reusing the math for encumberanceTEMP.
 	const colors: Record<number, string> = {
 		0: '#fff',
@@ -523,25 +525,27 @@ const encumberanceColor = computed<string>(() => {
 							<caption>
 								<h2>Derived Information</h2>
 							</caption>
-							<tr :title="buffsTallied.actionsMoveBaseLand?.summary || 'd'">
+							<tr :title="buffsTallied.actionsMoveBaseLand.summary.join('\n') || ''">
 								<td class="stat-label">Movement per move</td>
 								<td class="stat-value">
-									{{ getFinalStat('actionsMoveBaseLand') }} ft.
+									{{ statsBuffed['actionsMoveBaseLand'].total }} ft.
 								</td>
 							</tr>
 							<tr>
 								<td class="stat-label">Reach</td>
-								<td class="stat-value">{{ getFinalStat('reach') }} ft.</td>
+								<td class="stat-value">{{ statsBuffed['reach'].total }} ft.</td>
 							</tr>
 							<tr>
 								<td class="stat-label">Size</td>
-								<td class="stat-value">{{ sizeMap[getFinalStat('size')].name }}</td>
+								<td class="stat-value">
+									{{ sizeMap[statsBuffed['size'].total].name }}
+								</td>
 							</tr>
 							<tr>
 								<td class="stat-label">Carrying Capacity</td>
 								<td class="stat-value">
-									{{ getFinalStat('weightCurrent') }} ⁄
-									{{ getFinalStat('capacityCarrying') }} lbs.
+									{{ statsBuffed['weightCurrent'].total }} ⁄
+									{{ statsBuffed['capacityCarrying'].total }} lbs.
 								</td>
 							</tr>
 							<tr>
@@ -556,8 +560,8 @@ const encumberanceColor = computed<string>(() => {
 								<td>
 									<CapacityBar
 										v-bind="{
-											max: getFinalStat('capacityCarrying'),
-											current: getFinalStat('weightCurrent') || 0,
+											max: statsBuffed.capacityCarrying.total,
+											current: statsBuffed.weightCurrent.total || 0,
 											color: encumberanceColor,
 										}"
 										style="height: 0.8em"

@@ -25,7 +25,7 @@ const makeBar = (min: number, max: number, value: number, value2?: number): stri
 		green: 'var(--color-buff)',
 		red: 'var(--color-debuff)',
 	};
-	const realValue2 = value2 === undefined ? value : value2 || 0;
+	const realValue2 = value2 === undefined ? value : value2;
 	const color1 = '#ffff';
 	const color2 = realValue2 > value ? colors.green : colors.red;
 	const colorEmpty = '#fff3';
@@ -46,9 +46,7 @@ const stats = computed<
 			label +
 			': ' +
 			value +
-			(value2 != undefined
-				? ' base, ' + (value2 != undefined ? value2 : value) + ' total'
-				: '') +
+			(value2 !== undefined && value2 !== value ? ' base, ' + value2 + ' total' : '') +
 			(hovertext ? '\n' + hovertext : ''),
 		bar: makeBar(0, max, value, value2),
 		value: value2 != undefined ? value2 : value,

@@ -12,7 +12,7 @@ const props = defineProps<{
 const {
 	statsLoading,
 	actionResources,
-	buffsAsStats,
+	statsBuffed: buffsAsStats,
 	buffsLoading,
 	armor: armorList,
 	namesOfEquippedArmor,

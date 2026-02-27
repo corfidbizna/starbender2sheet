@@ -13,7 +13,7 @@ type CharacterProps = {
 	characterId: CharacterNames;
 };
 const props = defineProps<CharacterProps>();
-const { character, skills } = useCharacterData(props.characterId);
+const { character, skills, skillsBuffed } = useCharacterData(props.characterId);
 
 const skillsInfo = computed<StatBoxInfo>(() => {
 	const fieldArray = <BarBoxStatField[]>[];
@@ -24,6 +24,7 @@ const skillsInfo = computed<StatBoxInfo>(() => {
 			label: skillsInfoMap[key].label,
 			stat: 'str',
 			value: skills.value[key] || 0,
+			value2: skillsBuffed.value[key],
 		});
 	});
 	return {

@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import type {
-	Ability,
-	CharacterNames,
-	Element,
-	StatsCalculatedKey,
-} from '@/composables/useCharacterData';
+import type { Ability, CharacterNames, Element, StatName } from '@/composables/useCharacterData';
 import useCharacterData, { elements } from '@/composables/useCharacterData';
 import CapacityBar from '@/components/CapacityBar.vue';
 import { computed, ref } from 'vue';
@@ -127,9 +122,7 @@ const abilityFilter = ref<string>('All');
 										label: energyType,
 										stat: 'energy' + energyType,
 										color: energyType === 'Universal' ? '#eee' : subclassColor,
-										max: getFinalStat(
-											('energy' + energyType) as StatsCalculatedKey,
-										),
+										max: getFinalStat(('energy' + energyType) as StatName),
 										current: actionResources['energy' + energyType],
 									}"
 									:characterId="characterId"
@@ -144,7 +137,7 @@ const abilityFilter = ref<string>('All');
 							</td>
 							<td>⁄</td>
 							<td>
-								{{ getFinalStat(('energy' + energyType) as StatsCalculatedKey) }}
+								{{ getFinalStat(('energy' + energyType) as StatName) }}
 							</td>
 						</tr>
 					</tbody>
