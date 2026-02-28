@@ -35,7 +35,10 @@ const activeBuffs = computed<BuffInfo[]>(() => [
 // invertFilter.value = false;
 </script>
 <template>
-	<div class="buff-activator">
+	<div
+		class="buff-activator"
+		v-if="buffs.length > 0"
+	>
 		<div
 			class="buff-table"
 			v-if="storyBuffs.length > 0"
@@ -68,6 +71,7 @@ const activeBuffs = computed<BuffInfo[]>(() => [
 			/>
 		</div>
 	</div>
+	<div v-else><h1>Buffs are loading…</h1></div>
 </template>
 <style scoped>
 .buff-activator {

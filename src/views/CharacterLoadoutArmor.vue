@@ -12,7 +12,7 @@ const props = defineProps<{
 const {
 	statsLoading,
 	actionResources,
-	statsBuffed: buffsAsStats,
+	statsBuffed,
 	buffsLoading,
 	armor: armorList,
 	namesOfEquippedArmor,
@@ -94,7 +94,7 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 					"
 				>
 					<h2>
-						Full: {{ buffsAsStats.equipArmorFull }} ⁄
+						Full: {{ statsBuffed.equipArmorFull.total }} ⁄
 						{{ getFinalStat('slotsArmorFull') }}
 					</h2>
 					<span>{{ findArmorSlots.full || '--' }}</span>
@@ -108,7 +108,7 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 					"
 				>
 					<h2>
-						Helmet: {{ buffsAsStats.equipArmorHead }} ⁄
+						Helmet: {{ statsBuffed.equipArmorHead.total }} ⁄
 						{{ getFinalStat('slotsArmorHead') }}
 					</h2>
 					<span>{{ findArmorSlots.head || '--' }}</span>
@@ -122,7 +122,8 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 					"
 				>
 					<h2>
-						Arm: {{ buffsAsStats.equipArmorArm }} ⁄ {{ getFinalStat('slotsArmorArm') }}
+						Arm: {{ statsBuffed.equipArmorArm.total }} ⁄
+						{{ getFinalStat('slotsArmorArm') }}
 					</h2>
 					<span>{{ findArmorSlots.arm || '--' }}</span>
 				</div>
@@ -135,7 +136,7 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 					"
 				>
 					<h2>
-						Torso: {{ buffsAsStats.equipArmorChest }} ⁄
+						Torso: {{ statsBuffed.equipArmorChest.total }} ⁄
 						{{ getFinalStat('slotsArmorChest') }}
 					</h2>
 					<span>{{ findArmorSlots.chest || '--' }}</span>
@@ -149,7 +150,7 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 					"
 				>
 					<h2>
-						Legs: {{ buffsAsStats.equipArmorLegs }} ⁄
+						Legs: {{ statsBuffed.equipArmorLegs.total }} ⁄
 						{{ getFinalStat('slotsArmorLegs') }}
 					</h2>
 					<span>{{ findArmorSlots.leg || '--' }}</span>
@@ -163,7 +164,7 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 					"
 				>
 					<h2>
-						Class: {{ buffsAsStats.equipArmorClass }} ⁄
+						Class: {{ statsBuffed.equipArmorClass.total }} ⁄
 						{{ getFinalStat('slotsArmorClass') }}
 					</h2>
 					<span>{{ findArmorSlots.class || '--' }}</span>
@@ -177,7 +178,7 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 					"
 				>
 					<h2>
-						Exotic: {{ buffsAsStats.equipArmorExotic }} ⁄
+						Exotic: {{ statsBuffed.equipArmorExotic.total }} ⁄
 						{{ getFinalStat('slotsArmorExotic') }}
 					</h2>
 					<span>{{ findArmorSlots.exotic || '--' }}</span>

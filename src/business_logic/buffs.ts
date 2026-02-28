@@ -380,10 +380,10 @@ const buffDistributionMap: Partial<Record<StatName, Distribution>> = {
 			'conSave',
 			'dr',
 			'drFF',
-			// { stat: 'hpMax', ratio: (buffs) => buffs.cpl.total }, // TODO
-			// { stat: 'hpTempMax', ratio: (buffs) => buffs.cpl.total }, // TODO
-			{ stat: 'hpMax', ratio: 7 },
-			{ stat: 'hpTempMax', ratio: 7 },
+			{ stat: 'hpMax', ratio: (buffs) => buffs.cpl.total }, // TODO
+			{ stat: 'hpTempMax', ratio: (buffs) => buffs.cpl.total }, // TODO
+			// { stat: 'hpMax', ratio: 7 },
+			// { stat: 'hpTempMax', ratio: 7 },
 		],
 	},
 	int: {
@@ -397,8 +397,8 @@ const buffDistributionMap: Partial<Record<StatName, Distribution>> = {
 			'toHitSpell',
 			'damageSpell',
 			'chaSave',
-			// { stat: 'energyUniversal', ratio: (buffs) => buffs.cpl.total }, // TODO
-			{ stat: 'energyUniversal', ratio: 7 },
+			{ stat: 'energyUniversal', ratio: (buffs) => buffs.cpl.total }, // TODO
+			// { stat: 'energyUniversal', ratio: 7 },
 		],
 	},
 	strScore: {

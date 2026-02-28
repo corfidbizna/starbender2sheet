@@ -1647,26 +1647,24 @@ function useCharacterDataUncached(characterId: string) {
 		isLoading: playerBuffsLoading,
 		refresh: refreshPlayerBuffs,
 	} = getSheetForCharacter<BuffInfo>(characterId, 'buffs');
-
+	const buffs = ref<BuffInfo[]>([]);
 	const partyBuffs = computed<BuffInfo[]>(() => {
 		const filteredPartyBuffs: BuffInfo[] = allPartyBuffs.value.filter(
 			(item) => item[characterId as CharacterNames],
 		);
 		const result = [
 			...filteredPartyBuffs,
-			...playerBuffs.value.map((buff) => {
-				buff.isStory = buff.isStory || false;
-				return buff;
-			}),
+			...playerBuffs.value,
 			...weaponsAsBuffs.value,
 			...armorsAsBuffs.value,
 			...artifactAsBuffs.value,
 		];
-		const resultWithDefaults = result.map((buff) => {
+		const resultWithDefaults: BuffInfo[] = result.map((buff) => {
 			const newBuff = { ...buff };
 			newBuff.stacks = buff.stacks || 0;
 			newBuff.active = buff.isPassive || buff.active || false;
 			newBuff.type = buff.type || 'Buff';
+			newBuff.isStory = buff.isStory || false;
 			newBuff.perks = buff.perks || '';
 			return newBuff;
 		});
@@ -1681,10 +1679,9 @@ function useCharacterDataUncached(characterId: string) {
 		refreshPartyBuffs();
 		refreshPlayerBuffs();
 	};
-
 	const namesOfActivatedBuffs = ref<string[]>([]);
 	const activatablePartyBuffs = computed<BuffInfo[]>(() =>
-		partyBuffs.value.filter((buff) => !buff.isPassive),
+		buffs.value.filter((buff) => !buff.isPassive),
 	);
 	const activatedPartyBuffs = computed<BuffInfo[]>(() => {
 		const addThese = [
@@ -1709,15 +1706,14 @@ function useCharacterDataUncached(characterId: string) {
 			...namesOfActiveArmor.value,
 			...namesOfActiveArtifactMods.value,
 		];
-		const buffs = partyBuffs.value;
-		buffs.forEach((buff) => {
+		buffs.value.forEach((buff) => {
 			if (buff.isPassive || addThese.includes(buff.name)) {
 				buff.active = true;
 			} else {
 				buff.active = false;
 			}
 		});
-		return buffs.filter((buff) => buff.isPassive || addThese.includes(buff.name));
+		return buffs.value.filter((buff) => buff.isPassive || addThese.includes(buff.name));
 	});
 
 	const buffArrayFlat = computed<BuffEffect[]>(() => {
@@ -1740,9 +1736,7 @@ function useCharacterDataUncached(characterId: string) {
 		return tallyBuffs(allEffects);
 	});
 	const buffsStackUpdate = (name: string, amount: number) => {
-		const targetBuff: BuffInfo | undefined = partyBuffs.value.find(
-			(buff) => buff.name === name,
-		);
+		const targetBuff: BuffInfo | undefined = buffs.value.find((buff) => buff.name === name);
 		if (targetBuff !== undefined) {
 			// If the buff was found...
 			if (targetBuff.isStacking) {
@@ -2389,16 +2383,7 @@ function useCharacterDataUncached(characterId: string) {
 		return tallyBuffs(statsFirstBuffPass.value);
 	});
 	const getFinalStat = (name: StatName) => {
-		return stats.value[name].total;
-		// if (buffsTallied.value[name] === undefined) {
-		// 	if (stats.value[name] === undefined) {
-		// 		return 0;
-		// 	} else {
-		// 		return stats.value[name];
-		// 	}
-		// } else {
-		// 	return buffsTallied.value[name].total;
-		// }
+		return statsBuffed.value[name].total;
 	};
 	const actionResourcesLocal = JSON.parse(
 		localStorage.getItem(characterId + '_actionResources') || 'null',
@@ -2459,13 +2444,21 @@ function useCharacterDataUncached(characterId: string) {
 
 	// STATS END
 
+	// WATCHERS
+
+	watch(partyBuffs, () => {
+		buffs.value = JSON.parse(JSON.stringify(partyBuffs.value));
+	});
+
+	// WATCHERS END
+
 	// ==================================================================================================
 	// Export Stuff
 	const composable = {
 		// Characters
 		character,
 		// Buffs
-		buffs: partyBuffs,
+		buffs,
 		namesOfActivatedBuffs,
 		activatablePartyBuffs,
 		activatedPartyBuffs,

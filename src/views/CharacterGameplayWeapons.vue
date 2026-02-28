@@ -9,8 +9,15 @@ type CharacterProps = {
 	characterId: CharacterNames;
 };
 const props = defineProps<CharacterProps>();
-const { character, weapons, weaponsLoading, weaponPerksLoading, actionResources, getFinalStat } =
-	useCharacterData(props.characterId);
+const {
+	character,
+	statsBuffed,
+	weapons,
+	weaponsLoading,
+	weaponPerksLoading,
+	actionResources,
+	getFinalStat,
+} = useCharacterData(props.characterId);
 const ammoCapacity = computed<CapacityBoxStatField[]>(() => {
 	return [
 		{
@@ -64,15 +71,15 @@ const equippedWeapons = computed<Weapon[]>(() => {
 									label: 'Equipped',
 									stat: '',
 									color: '#eee',
-									max: getFinalStat('slotsWeapon'),
-									current: getFinalStat('slotsWeaponUsed'),
+									max: statsBuffed.slotsWeapon.total,
+									current: statsBuffed.slotsWeaponUsed.total,
 								},
 								{
 									label: 'Hands Used',
 									stat: '',
 									color: '#eee',
-									max: getFinalStat('hands'),
-									current: getFinalStat('handsUsed'),
+									max: statsBuffed.hands.total,
+									current: statsBuffed.handsUsed.total,
 								},
 							],
 							hideRefillAll: true,

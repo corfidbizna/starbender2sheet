@@ -6,7 +6,7 @@ type CharacterProps = {
 	characterId: CharacterNames;
 };
 const props = defineProps<CharacterProps>();
-const { character, stats, statsBase, subclassGet } = useCharacterData(props.characterId);
+const { character, statsBuffed, statsBase, subclassGet } = useCharacterData(props.characterId);
 </script>
 <template>
 	<div
@@ -100,34 +100,36 @@ const { character, stats, statsBase, subclassGet } = useCharacterData(props.char
 		<div class="ability-scores">
 			<h2>Ability Scores</h2>
 			<div>
-				<span>Strength </span><span class="score">({{ stats.strScore }})</span>
+				<span>Strength </span><span class="score">({{ statsBuffed.strScore.total }})</span>
 			</div>
 			<div class="score-summary">
 				He will challenge you to an arm wrestle and be <i>fairly</i> confident about it.
 			</div>
 			<div>
-				<span>Dexterity </span><span class="score">({{ stats.dexScore }})</span>
+				<span>Dexterity </span><span class="score">({{ statsBuffed.dexScore.total }})</span>
 			</div>
 			<div class="score-summary">
 				I mean, are you trying to say you <i>can't</i> just parkor up the side of a
 				skyscraper?
 			</div>
 			<div>
-				<span>Constitution </span><span class="score">({{ stats.conScore }})</span>
+				<span>Constitution </span
+				><span class="score">({{ statsBuffed.conScore.total }})</span>
 			</div>
 			<div class="score-summary">
 				Fairly solidly built. There is quite a lot he can bounce back from.
 			</div>
 			<div>
-				<span>Intelligence </span><span class="score">({{ stats.intScore }})</span>
+				<span>Intelligence </span
+				><span class="score">({{ statsBuffed.intScore.total }})</span>
 			</div>
 			<div class="score-summary">He's not the sharpest bulb in the shed.</div>
 			<div>
-				<span>Wisdom </span><span class="score">({{ stats.wisScore }})</span>
+				<span>Wisdom </span><span class="score">({{ statsBuffed.wisScore.total }})</span>
 			</div>
 			<div class="score-summary">He left his brain cell in his original reality.</div>
 			<div>
-				<span>Charisma </span><span class="score">({{ stats.chaScore }})</span>
+				<span>Charisma </span><span class="score">({{ statsBuffed.chaScore.total }})</span>
 			</div>
 			<div class="score-summary">Fairly easy to get along with.</div>
 		</div>
