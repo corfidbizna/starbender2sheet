@@ -117,7 +117,8 @@ export const getGameState = () => {
 
 // Settings
 const defaultBGColor = '#ffffff';
-const defaultBanner = 'https://wallpapershigh.com/wp-content/uploads/destiny-2-logo-5.webp';
+const defaultBanner = 'https://wallpaperaccess.com/full/2099863.jpg';
+// const defaultBanner = 'https://wallpapershigh.com/wp-content/uploads/destiny-2-logo-5.webp';
 export const bgColor = ref<string>(localStorage.getItem('bgColor') || defaultBGColor);
 export const banner = ref<string>(localStorage.getItem('banner') || defaultBanner);
 export const storeVisuals = () => {
