@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { labelMap, skillsInfoMap, type SkillKey } from '@/composables/useCharacterData';
 import { bgColor, banner, storeVisuals, resetVisuals, rotateBGs } from '@/sharedState';
 const identifyUnicodeSymbols = (start: number, length: number) => {
 	const strings = [];
@@ -10,6 +11,8 @@ const identifyUnicodeSymbols = (start: number, length: number) => {
 const clearLocalStorage = () => {
 	localStorage.clear();
 };
+const labelsStats = Object.values(labelMap);
+const labelsSkills = Object.keys(skillsInfoMap).map((key) => skillsInfoMap[key as SkillKey].label);
 </script>
 <template>
 	<div class="settings-box">
@@ -140,6 +143,34 @@ const clearLocalStorage = () => {
 			</tr>
 		</table>
 		<div class="settings-list">
+			<h2>Buffable Stat List</h2>
+			<div class="scrollable-box">
+				<ul
+					class="label-item"
+					v-for="label in labelsStats"
+					:key="label"
+				>
+					{{
+						label
+					}}
+				</ul>
+			</div>
+		</div>
+		<div class="settings-list">
+			<h2>All Skills List</h2>
+			<div class="scrollable-box">
+				<ul
+					class="label-item"
+					v-for="label in labelsSkills"
+					:key="label"
+				>
+					{{
+						label
+					}}
+				</ul>
+			</div>
+		</div>
+		<div class="settings-list">
 			<h2>Destiny 2 Available Glyphs</h2>
 			<div class="scrollable-box">
 				<pre class="d-glyph">{{ identifyUnicodeSymbols(57344, 500) }}</pre>
@@ -183,6 +214,17 @@ td {
 .scrollable-box {
 	overflow-y: scroll;
 	height: calc(100% - 40px);
-	scrollbar-width: none;
+	scrollbar-width: thin;
+	white-space: pre-line;
+	background-color: #0002;
+	padding: 0.5em;
+}
+.label-item {
+	margin: 0;
+	padding: 0;
+}
+.label-item::before {
+	content: '•';
+	padding-right: 0.25em;
 }
 </style>

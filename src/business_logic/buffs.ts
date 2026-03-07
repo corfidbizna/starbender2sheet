@@ -14,6 +14,7 @@ export type BuffInfo = {
 	icon?: string;
 	category?: string;
 	isStory: boolean;
+	isBasic: boolean;
 	isStacking?: boolean;
 	stackMax?: number;
 	stacks: number;
@@ -24,6 +25,7 @@ export type BuffInfo = {
 	effects?: string;
 	isPassive?: boolean;
 	active: boolean;
+	isCustom?: boolean;
 };
 export type PartyBuffInfo = BuffInfo & Characters;
 // An INDIVIDUAL effect, post-parsing.

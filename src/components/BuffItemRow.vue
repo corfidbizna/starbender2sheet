@@ -4,7 +4,9 @@ import useCharacterData from '@/composables/useCharacterData';
 import { computed, ref, watch } from 'vue';
 
 const props = defineProps<BuffInfo & { characterId: string; condensed: boolean }>();
-const { namesOfActivatedBuffs, buffsStackUpdate } = useCharacterData(props.characterId);
+const { namesOfActivatedBuffs, buffsStackUpdate, customBuffs } = useCharacterData(
+	props.characterId,
+);
 
 const imageSrc = computed<string>(() => {
 	return (
@@ -17,6 +19,9 @@ const stackCount = ref<number>(props.stacks);
 
 const changeStacksUpdate = (amount: number) => {
 	return buffsStackUpdate(props.name, amount);
+};
+const removeBuff = () => {
+	delete customBuffs.value[props.name];
 };
 watch(stackCount, () => {
 	changeStacksUpdate(stackCount.value);
@@ -80,19 +85,26 @@ const perkList = computed<BuffPerk[]>(() => {
 					v-if="props.roundsRemaining"
 					>{{ props.roundsRemaining }} rounds remaining</span
 				>
-				<span
-					v-if="props.isStacking"
-					class="stacks"
-					><input
-						:id="'spinbox-' + idName"
-						class="stacks-input"
-						type="number"
-						min="0"
-						:max="props.stackMax || Infinity"
-						v-model="stackCount"
-					/>
-					<span v-if="props.stackMax">⁄{{ props.stackMax }}</span></span
-				>
+				<span class="stacks">
+					<span
+						v-if="props.isStacking"
+						class="stacks"
+						><input
+							:id="'spinbox-' + idName"
+							class="stacks-input"
+							type="number"
+							min="0"
+							:max="props.stackMax || Infinity"
+							v-model="stackCount"
+						/>
+						<span v-if="props.stackMax">⁄{{ props.stackMax }}</span></span
+					>
+					<span
+						v-if="props.isCustom"
+						title="Remove this buff"
+						> <button @click="removeBuff">×</button></span
+					>
+				</span>
 			</div>
 			<div
 				v-if="props.effects && !condensed"

@@ -170,7 +170,6 @@ const { character, statsBuffed, statsBase, subclassGet } = useCharacterData(prop
 }
 .notes {
 	display: block;
-	vertical-align: top;
 }
 .notes textarea {
 	/* min-width: 32em; */

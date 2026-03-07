@@ -184,7 +184,7 @@ const weapon = computed<Weapon>(() => {
 			}
 			return 1;
 		};
-		if (weapons.value[weaponIndex.value].perks[perk.name].isActive) {
+		if (weapons.value[weaponIndex.value]?.perks[perk.name]?.isActive) {
 			if (perk.replaceStats) {
 				// The perk needs to replace the weapon stat rather than supplement it.
 				// Note, this will also be replaced by perks further down the line.

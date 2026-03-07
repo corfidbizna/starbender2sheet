@@ -1134,7 +1134,7 @@ export const skillsInfoMap: Record<SkillKey, Record<string, string>> = {
 		description: 'Identify Effects, Hazards, Lore, Monsters',
 	},
 	knowledgePhysicalSciEngineering: {
-		label: 'Knowledge (Physical Sci & Engeneering)',
+		label: 'Knowledge (Physical Sci & Engineering)',
 		baseStat: 'int',
 		description: 'Identify Effects, Hazards, Lore, Monsters',
 	},
@@ -1648,11 +1648,13 @@ function useCharacterDataUncached(characterId: string) {
 		refresh: refreshPlayerBuffs,
 	} = getSheetForCharacter<BuffInfo>(characterId, 'buffs');
 	const buffs = ref<BuffInfo[]>([]);
+	const customBuffs = ref<Record<string, BuffInfo>>({});
 	const partyBuffs = computed<BuffInfo[]>(() => {
 		const filteredPartyBuffs: BuffInfo[] = allPartyBuffs.value.filter(
 			(item) => item[characterId as CharacterNames],
 		);
 		const result = [
+			...Object.values(customBuffs.value),
 			...filteredPartyBuffs,
 			...playerBuffs.value,
 			...weaponsAsBuffs.value,
@@ -1665,6 +1667,7 @@ function useCharacterDataUncached(characterId: string) {
 			newBuff.active = buff.isPassive || buff.active || false;
 			newBuff.type = buff.type || 'Buff';
 			newBuff.isStory = buff.isStory || false;
+			newBuff.isBasic = buff.isBasic || false;
 			newBuff.perks = buff.perks || '';
 			return newBuff;
 		});
@@ -1879,93 +1882,6 @@ function useCharacterDataUncached(characterId: string) {
 		}
 		return result;
 	});
-	watch(weaponVariables, () => {
-		localStorage.setItem(
-			characterId + '_weaponVariables',
-			JSON.stringify(weaponVariables.value),
-		);
-	});
-	watch([weaponsForFiltering, weaponPerks], () => {
-		weapons.value = weaponsForFiltering.value
-			.filter((item) => item[characterId as CharacterNames])
-			.map((ogWeapon) => {
-				const damageBonus = computed<number>(() => {
-					let bonus = 0;
-					if (statsBuffed.value === undefined) {
-						return bonus;
-					}
-					if (ogWeapon.rangeType === 'Melee') {
-						bonus += getFinalStat('damageMelee');
-					} else if (ogWeapon.rangeType === 'Ranged') {
-						bonus += getFinalStat('damageRanged');
-					} else if (ogWeapon.rangeType === 'Spell') {
-						bonus += getFinalStat('damageSpell');
-					}
-					bonus += getFinalStat('damageWeapon');
-					return bonus + (getFinalStat('damagePrecision') || 0);
-				});
-				const dmgStatStuff = damageStringToDownstream(
-					(ogWeapon.damage || '0') + '+' + damageBonus.value,
-					statsBuffed.value,
-				);
-				const perkNameList = ogWeapon.perks?.split(', ') || [];
-				const perkList: Record<string, WeaponPerk> = {};
-				for (let i = 0; i < perkNameList.length; i++) {
-					const targetPerk = weaponPerks.value.find(
-						(perk) => perk.name === perkNameList[i],
-					);
-					if (targetPerk) {
-						// It needs to be a copy of the perk or else it references
-						// the original perk.
-						perkList[perkNameList[i]] = { ...targetPerk };
-					}
-				}
-				const weapon: Weapon = {
-					name: ogWeapon.name,
-					flavortext: ogWeapon.flavortext || '',
-					rarity: ogWeapon.rarity,
-					element: ogWeapon.element,
-					weaponClass: ogWeapon.weaponClass,
-					slots: ogWeapon.slots,
-					// Damage Component
-					attackType: ogWeapon.attackType,
-					hitType: ogWeapon.hitType,
-					hitBonus: ogWeapon.hitBonus || 0,
-					critRange: ogWeapon.critRange || 0,
-					critMult: ogWeapon.critMult || 0,
-					damageFormula: dmgStatStuff.damageFormula,
-					dmgShort: dmgStatStuff.dmgShort,
-					dmgMin: dmgStatStuff.dmgMin,
-					dmgAvg: dmgStatStuff.dmgAvg,
-					dmgMax: dmgStatStuff.dmgMax,
-					damageType: ogWeapon.damageType,
-					rangeType: ogWeapon.rangeType,
-					range: ogWeapon.range,
-					rangePenalty: ogWeapon.rangePenalty || 2,
-					rangeIncrementsModifier:
-						ogWeapon.rangeIncrementsModifier || ogWeapon.range || 1,
-					size: ogWeapon.size || 0,
-					shape: ogWeapon.shape || '',
-					duration: ogWeapon.duration || 0,
-					//
-					handed: ogWeapon.handed,
-					ammo: ogWeapon.ammo,
-					ammoCurrent: ogWeapon.ammoCapacity,
-					ammoCapacity: ogWeapon.ammoCapacity,
-					ammoReloadAmount: ogWeapon.ammoReloadAmount || ogWeapon.ammoCapacity,
-					ammoType: ogWeapon.ammoType,
-					isMagic: ogWeapon.isMagic,
-					ranks: ogWeapon.ranks || 0,
-					buffsEquipped: ogWeapon.buffsEquipped || '',
-					buffsActive: ogWeapon.buffsActive || '',
-					isEquipped: false,
-					isActive: false,
-					perks: perkList,
-				};
-				// Put whether or not the weapon is active / equipped from Local Storage here!!
-				return weapon;
-			});
-	});
 	const weaponsAsBuffs = computed<BuffInfo[]>(() => {
 		// using the weapons computed from above causes a cyclic dependency,
 		// thankfully we don't need those buffs, or even character filtering here.
@@ -1985,6 +1901,7 @@ function useCharacterDataUncached(characterId: string) {
 					type: 'Hidden',
 					category: 'Misc',
 					isStory: false,
+					isBasic: false,
 					stacks: 0,
 					effects: buffString || '',
 					active: true,
@@ -2003,6 +1920,7 @@ function useCharacterDataUncached(characterId: string) {
 					type: 'Hidden',
 					category: 'Misc',
 					isStory: false,
+					isBasic: false,
 					stacks: 0,
 					effects: buffString || '',
 					active: true,
@@ -2022,6 +1940,7 @@ function useCharacterDataUncached(characterId: string) {
 						type: 'Hidden',
 						category: 'Misc',
 						isStory: false,
+						isBasic: false,
 						stacks: perk.stacks || 0,
 						effects: perk.buffs,
 						active: true,
@@ -2093,6 +2012,7 @@ function useCharacterDataUncached(characterId: string) {
 					type: 'Hidden',
 					category: armor.buffCategory,
 					isStory: false,
+					isBasic: false,
 					isStacking: !!armor.stacksMax || armor.isStacking,
 					stacks: armor.stacks,
 					effects: buffString || '',
@@ -2108,6 +2028,7 @@ function useCharacterDataUncached(characterId: string) {
 					type: 'Hidden',
 					category: armor.buffsChargedCategory || 'Misc',
 					isStory: false,
+					isBasic: false,
 					isStacking: !!armor.stacksMax || armor.isStacking,
 					stacks: armor.stacks,
 					effects: armor.buffsCharged || '',
@@ -2282,7 +2203,9 @@ function useCharacterDataUncached(characterId: string) {
 		partyDataSources.documentId,
 		partyDataSources.sheets.artifact,
 	);
-	const namesOfActiveArtifactMods = ref<string[]>([]);
+	const namesOfActiveArtifactMods = ref<string[]>(
+		localStorage.getItem(characterId + '_artifact')?.split('»') || [],
+	);
 	const artifactMods = computed<ArtifactMod[]>(() => {
 		return artifactModsForProcessing.value.map((item) => {
 			if (namesOfActiveArtifactMods.value.includes(item.name)) {
@@ -2302,6 +2225,7 @@ function useCharacterDataUncached(characterId: string) {
 					type: 'Hidden',
 					category: artifactMod.buffCategory || 'Misc',
 					isStory: false,
+					isBasic: false,
 					stacks: 0,
 					effects: artifactMod.buffs || '',
 					active: true,
@@ -2369,6 +2293,7 @@ function useCharacterDataUncached(characterId: string) {
 			name: '.',
 			type: 'Hidden',
 			isStory: false,
+			isBasic: false,
 			stacks: 0,
 			active: true,
 			effects: effects.join(', '),
@@ -2380,6 +2305,14 @@ function useCharacterDataUncached(characterId: string) {
 			// The data hasn't finished importing yet
 			return tallyBuffs([]);
 		}
+		// const allEffects = [
+		// 	...statsFirstBuffPass.value,
+		// 	...activatedPartyBuffs.value
+		// 		.filter((buff) => buff.isBasic)
+		// 		.map((buff) => getBuffEffects(buff))
+		// 		.flat(),
+		// ];
+		// return tallyBuffs(allEffects);
 		return tallyBuffs(statsFirstBuffPass.value);
 	});
 	const getFinalStat = (name: StatName) => {
@@ -2449,6 +2382,102 @@ function useCharacterDataUncached(characterId: string) {
 	watch(partyBuffs, () => {
 		buffs.value = JSON.parse(JSON.stringify(partyBuffs.value));
 	});
+	watch(weaponVariables, () => {
+		localStorage.setItem(
+			characterId + '_weaponVariables',
+			JSON.stringify(weaponVariables.value),
+		);
+	});
+	watch([weaponsForFiltering, weaponPerks], () => {
+		const storedWeapons = JSON.parse(
+			localStorage.getItem(characterId + '_weaponVariables') || 'null',
+		) as Record<string, WeaponVariables>;
+		weapons.value = weaponsForFiltering.value
+			.filter((item) => item[characterId as CharacterNames])
+			.map((ogWeapon) => {
+				const damageBonus = computed<number>(() => {
+					let bonus = 0;
+					if (statsBuffed.value === undefined) {
+						return bonus;
+					}
+					if (ogWeapon.rangeType === 'Melee') {
+						bonus += getFinalStat('damageMelee');
+					} else if (ogWeapon.rangeType === 'Ranged') {
+						bonus += getFinalStat('damageRanged');
+					} else if (ogWeapon.rangeType === 'Spell') {
+						bonus += getFinalStat('damageSpell');
+					}
+					bonus += getFinalStat('damageWeapon');
+					return bonus + (getFinalStat('damagePrecision') || 0);
+				});
+				const dmgStatStuff = damageStringToDownstream(
+					(ogWeapon.damage || '0') + '+' + damageBonus.value,
+					statsBuffed.value,
+				);
+				const perkNameList = ogWeapon.perks?.split(', ') || [];
+				const perkList: Record<string, WeaponPerk> = {};
+				for (let i = 0; i < perkNameList.length; i++) {
+					const targetPerk = weaponPerks.value.find(
+						(perk) => perk.name === perkNameList[i],
+					);
+					if (targetPerk) {
+						// It needs to be a copy of the perk or else it references
+						// the original perk.
+						perkList[perkNameList[i]] = { ...targetPerk };
+					}
+				}
+				const weapon: Weapon = {
+					name: ogWeapon.name,
+					flavortext: ogWeapon.flavortext || '',
+					rarity: ogWeapon.rarity,
+					element: ogWeapon.element,
+					weaponClass: ogWeapon.weaponClass,
+					slots: ogWeapon.slots,
+					// Damage Component
+					attackType: ogWeapon.attackType,
+					hitType: ogWeapon.hitType,
+					hitBonus: ogWeapon.hitBonus || 0,
+					critRange: ogWeapon.critRange || 0,
+					critMult: ogWeapon.critMult || 0,
+					damageFormula: dmgStatStuff.damageFormula,
+					dmgShort: dmgStatStuff.dmgShort,
+					dmgMin: dmgStatStuff.dmgMin,
+					dmgAvg: dmgStatStuff.dmgAvg,
+					dmgMax: dmgStatStuff.dmgMax,
+					damageType: ogWeapon.damageType,
+					rangeType: ogWeapon.rangeType,
+					range: ogWeapon.range,
+					rangePenalty: ogWeapon.rangePenalty || 2,
+					rangeIncrementsModifier:
+						ogWeapon.rangeIncrementsModifier || ogWeapon.range || 1,
+					size: ogWeapon.size || 0,
+					shape: ogWeapon.shape || '',
+					duration: ogWeapon.duration || 0,
+					//
+					handed: ogWeapon.handed,
+					ammo: ogWeapon.ammo,
+					// ammoCurrent: ogWeapon.ammoCapacity,
+					ammoCurrent: storedWeapons[ogWeapon.name]?.ammo || ogWeapon.ammoCapacity,
+					ammoCapacity: ogWeapon.ammoCapacity,
+					ammoReloadAmount: ogWeapon.ammoReloadAmount || ogWeapon.ammoCapacity,
+					ammoType: ogWeapon.ammoType,
+					isMagic: ogWeapon.isMagic,
+					ranks: ogWeapon.ranks || 0,
+					buffsEquipped: ogWeapon.buffsEquipped || '',
+					buffsActive: ogWeapon.buffsActive || '',
+					// isEquipped: false,
+					isEquipped: storedWeapons[ogWeapon.name]?.equipped || false,
+					// isActive: false,
+					isActive: storedWeapons[ogWeapon.name]?.active || false,
+					perks: perkList,
+				};
+				// Put whether or not the weapon is active / equipped from Local Storage here!!
+				return weapon;
+			});
+	});
+	watch(namesOfActiveArtifactMods, () => {
+		localStorage.setItem(characterId + '_artifact', namesOfActiveArtifactMods.value.join('»'));
+	});
 
 	// WATCHERS END
 
@@ -2459,6 +2488,7 @@ function useCharacterDataUncached(characterId: string) {
 		character,
 		// Buffs
 		buffs,
+		customBuffs,
 		namesOfActivatedBuffs,
 		activatablePartyBuffs,
 		activatedPartyBuffs,

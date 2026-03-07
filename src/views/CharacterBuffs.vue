@@ -3,6 +3,7 @@ import useCharacterData, { labelMap, type StatName } from '@/composables/useChar
 import LoadingModal from '@/components/LoadingModal.vue';
 import BuffActivator from '@/components/BuffActivator.vue';
 import { computed } from 'vue';
+import MakeBuffInterface from '@/components/MakeBuffInterface.vue';
 
 type CharacterProps = {
 	characterId: string;
@@ -79,8 +80,6 @@ const activeBuffNames = computed<string>(() => {
 				<div>{{ activeBuffNames.split(', ').join('\n') }}</div>
 				<h2>Stat Totals</h2>
 				<div>{{ buffTotals.split(', ').join('\n') }}</div>
-				<h2>Buffable Stat List</h2>
-				<div>{{ Object.values(labelMap).join('\n') }}</div>
 			</div>
 			<!-- <table>
 				<tbody>
@@ -94,10 +93,13 @@ const activeBuffNames = computed<string>(() => {
 					</tr>
 				</tbody>
 			</table> -->
-			<BuffActivator
-				:character-id="characterId"
-				:condensed="false"
-			/>
+			<div>
+				<MakeBuffInterface v-bind:character-id="characterId" />
+				<BuffActivator
+					:character-id="characterId"
+					:condensed="false"
+				/>
+			</div>
 			<!-- <pre>activatedPartyBuffs: {{ activatedPartyBuffs }}</pre> -->
 		</div>
 	</div>
