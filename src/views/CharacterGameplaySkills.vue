@@ -4,6 +4,7 @@ import useCharacterData, {
 	type CharacterNames,
 	type SkillKey,
 	type StatBoxInfo,
+	type StatName,
 	skillsInfoMap,
 } from '@/composables/useCharacterData';
 import StatBarsBox from '@/components/StatBarsBox.vue';
@@ -13,7 +14,7 @@ type CharacterProps = {
 	characterId: CharacterNames;
 };
 const props = defineProps<CharacterProps>();
-const { character, skills, skillsBuffed } = useCharacterData(props.characterId);
+const { character, skills, skillsBuffed, stats, statsBuffed } = useCharacterData(props.characterId);
 
 const skillsInfo = computed<StatBoxInfo>(() => {
 	const fieldArray = <BarBoxStatField[]>[];
@@ -23,8 +24,14 @@ const skillsInfo = computed<StatBoxInfo>(() => {
 		fieldArray.push({
 			label: skillsInfoMap[key].label,
 			stat: 'str',
-			value: skills.value[key] || 0,
-			value2: skillsBuffed.value[key],
+			hovertext: [
+				...statsBuffed.value[key as StatName].summary,
+				...statsBuffed.value[(skillsInfoMap[key].baseStat + 'Skills') as StatName].summary,
+				...statsBuffed.value[skillsInfoMap[key].baseStat as StatName].summary,
+			].join('\n'),
+			value: (skills.value[key] || 0) + (stats.value[key as StatName].total || 0),
+			value2:
+				(skillsBuffed.value[key] || 0) + (statsBuffed.value[key as StatName].total || 0),
 		});
 	});
 	return {

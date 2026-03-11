@@ -299,6 +299,517 @@ export const sizeMap: Record<number, SizeEffect> = {
 	},
 };
 
+// Character Stat Destinations
+
+// The type to be handed to a `StatBoxInfo` component, used for making
+// horizontal bar graphs of numerical character stats.
+export type StatBoxInfo = {
+	label: string;
+	data: BarBoxStatField[];
+	noRoll?: boolean;
+};
+export type BarBoxStatField = {
+	label: string;
+	stat: string;
+	hovertext?: string;
+	description?: string;
+	value: number;
+	value2?: number;
+};
+export type CapacityBoxInfo = {
+	label: string;
+	data: CapacityBoxStatField[];
+	hideRefillAll?: boolean;
+	noInteract?: boolean;
+};
+export type CapacityBoxStatField = {
+	label: string;
+	stat: string;
+	color?: string;
+	colorMax?: string;
+	hovertext?: string;
+	max: number;
+	current: number;
+	current2?: number;
+};
+
+//
+export const makeComputedOfStats = (
+	base: ComputedRef<Stats>,
+	buffs: ComputedRef<Stats>,
+	label: string,
+	keys: StatName[],
+	noRoll?: boolean,
+): (() => StatBoxInfo) => {
+	return (): StatBoxInfo => {
+		return {
+			label,
+			data: keys.map((key) => ({
+				key,
+				label: labelMap[key],
+				stat: key,
+				hovertext: buffs.value[key].summary.join('\n'),
+				value: base.value[key].total,
+				value2: buffs.value[key].total,
+			})),
+			noRoll,
+		};
+	};
+};
+
+// The type and destination of character stats that describe "capacities" rather than straight-up values.
+export type ActionResource = {
+	turns: number;
+	health: number;
+	shields: number;
+	//
+	actionMoves: number;
+	actionAttacks: number;
+	actionReactions: number;
+	actionOthers: number;
+	ammoKinetic: number;
+	ammoSpecial: number;
+	ammoHeavy: number;
+	energySuper: number;
+	energyMelee: number;
+	energyGrenade: number;
+	energyClass: number;
+	energyUniversal: number;
+	armorCharges: number;
+	rerolls: number;
+};
+export type ActionResourceKey = keyof ActionResource;
+
+//
+export const makeComputedOfCapacities = (
+	base: ComputedRef<Stats>,
+	buffs: ComputedRef<Stats>,
+	label: string,
+	keys: StatName[],
+): (() => StatBoxInfo) => {
+	return (): StatBoxInfo => {
+		return {
+			label,
+			data: keys.map((key) => ({
+				key,
+				label: labelMap[key],
+				stat: key,
+				hovertext: buffs.value[key].summary.join('\n'),
+				value: base.value[key].total,
+				value2: buffs.value[key].total,
+			})),
+		};
+	};
+};
+
+// The type describing a character's skill.
+export type Skill = {
+	// Str Skills
+	strRoll: number;
+	climb: number;
+	swim: number;
+	// Dex Skills
+	dexRoll: number;
+	acrobatics: number;
+	disableDevice: number;
+	escapeArtist: number;
+	fly: number;
+	ride: number;
+	sleightOfHand: number;
+	stealth: number;
+	// Con Skills
+	conRoll: number;
+	concentration: number;
+	// Int Skills
+	intRoll: number;
+	appraise: number;
+	craft: number;
+	craftCooking: number;
+	craftElectronic: number;
+	craftExplosives: number;
+	craftMechanical: number;
+	craftSculpture: number;
+	knowledge: number;
+	knowledgeAgriculture: number;
+	knowledgeArcana: number;
+	knowledgeAll: number;
+	knowledgeBiologyNature: number;
+	knowledgeDungeoneering: number;
+	knowledgeEngineering: number;
+	knowledgeFinance: number;
+	knowledgeGeography: number;
+	knowledgeHistory: number;
+	knowledgeLocal: number;
+	knowledgeNature: number;
+	knowledgeNobility: number;
+	knowledgePhysicalEdHealthNutrition: number;
+	knowledgePhysicalSciEngineering: number;
+	knowledgePlanes: number;
+	knowledgeReligion: number;
+	knowledgeTactics: number;
+	knowledgeTechnology: number;
+	linguistics: number;
+	spellcraft: number;
+	// Wis Skills
+	wisRoll: number;
+	heal: number;
+	perception: number;
+	profession: number;
+	professionAdmin: number;
+	professionAll: number;
+	professionGuard: number;
+	professionTeacher: number;
+	senseMotive: number;
+	survival: number;
+	// Cha Skills
+	chaRoll: number;
+	bluff: number;
+	diplomacy: number;
+	disguise: number;
+	handleAnimal: number;
+	intimidate: number;
+	perform: number;
+	performSingingAndDancing: number;
+	useMagicDevice: number;
+	//
+};
+export type SkillKey = keyof Skill;
+export type SkillInfoKey = {
+	label: string;
+	baseStat: StatName;
+	description: string;
+};
+export const skillsInfoMap: Record<SkillKey, Record<string, string>> = {
+	// Str Skills
+	strRoll: {
+		label: 'Str Roll',
+		baseStat: 'str',
+		description: 'text',
+	},
+	climb: {
+		label: 'Climb',
+		baseStat: 'str',
+		description: 'Climb, Make Handholds, Catch Yourself',
+	},
+	swim: {
+		label: 'Swim',
+		baseStat: 'str',
+		description: 'Swim at half Speed',
+	},
+	// Dex Skills
+	dexRoll: {
+		label: 'Dex Roll',
+		baseStat: 'dex',
+		description: 'text',
+	},
+	acrobatics: {
+		label: 'Acrobatics',
+		baseStat: 'dex',
+		description:
+			'Cross Narrow Surfaces/Uneven Ground, Move Through Threatened Squares, Jumping and Falling',
+	},
+	disableDevice: {
+		label: 'Disable Device',
+		baseStat: 'dex',
+		description: 'Disarm Device, Open Lock, Sabotage Mechanical Item',
+	},
+	escapeArtist: {
+		label: 'Escape Artist',
+		baseStat: 'dex',
+		description: 'slip bonds, escape grapples, Move Through Tight Space',
+	},
+	fly: {
+		label: 'Fly',
+		baseStat: 'dex',
+		description: 'Tight Turns, Avoid Falls, Handle Wind',
+	},
+	ride: {
+		label: 'Ride',
+		baseStat: 'dex',
+		description: 'Do special manuvers, Tricks, or actions, Ride, Drive, Pilot',
+	},
+	sleightOfHand: {
+		label: 'Sleight of Hand',
+		baseStat: 'dex',
+		description: 'Take Something Unnoticed, Hide or Retrieve an Object, Entertain',
+	},
+	stealth: {
+		label: 'Stealth',
+		baseStat: 'dex',
+		description: 'Hide',
+	},
+	// Con Skills
+	conRoll: {
+		label: 'Con Roll',
+		baseStat: 'con',
+		description: 'text',
+	},
+	concentration: {
+		label: 'Concentration',
+		baseStat: 'con',
+		description: 'text',
+	},
+	// Int Skills
+	intRoll: {
+		label: 'Int Roll',
+		baseStat: 'int',
+		description: 'text',
+	},
+	appraise: {
+		label: 'Appraise',
+		baseStat: 'int',
+		description: 'Appraise Value of Item, Identify its properties',
+	},
+	craft: {
+		label: 'Craft',
+		baseStat: 'int',
+		description: 'Practice a Trade, Make Something, Identify properties of your craft',
+	},
+	craftCooking: {
+		label: 'Craft (Cooking)',
+		baseStat: 'int',
+		description: 'Practice a Trade, Make Something, Identify properties of your craft',
+	},
+	craftElectronic: {
+		label: 'Craft (Electronic)',
+		baseStat: 'int',
+		description: 'Practice a Trade, Make Something, Identify properties of your craft',
+	},
+	craftExplosives: {
+		label: 'Craft (Explosives)',
+		baseStat: 'int',
+		description: 'Practice a Trade, Make Something, Identify properties of your craft',
+	},
+	craftMechanical: {
+		label: 'Craft (Mechanical)',
+		baseStat: 'int',
+		description: 'Practice a Trade, Make Something, Identify properties of your craft',
+	},
+	craftSculpture: {
+		label: 'Craft (Sculpture)',
+		baseStat: 'int',
+		description: 'Practice a Trade, Make Something, Identify properties of your craft',
+	},
+	knowledge: {
+		label: 'Knowledge',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeAll: {
+		label: 'Knowledge (All)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeAgriculture: {
+		label: 'Knowledge (Agriculture)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeArcana: {
+		label: 'Knowledge (Arcana)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeBiologyNature: {
+		label: 'Knowledge (Biology & Nature)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeDungeoneering: {
+		label: 'Knowledge (Dungeoneering)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeEngineering: {
+		label: 'Knowledge (Engineering)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeFinance: {
+		label: 'Knowledge (Finance)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeGeography: {
+		label: 'Knowledge (Geography)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeHistory: {
+		label: 'Knowledge (History)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeLocal: {
+		label: 'Knowledge (Local)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeNature: {
+		label: 'Knowledge (Nature)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeNobility: {
+		label: 'Knowledge (Nobility)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgePhysicalEdHealthNutrition: {
+		label: 'Knowledge (Physical Ed & Health & Nutrition)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgePhysicalSciEngineering: {
+		label: 'Knowledge (Physical Sci & Engineering)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgePlanes: {
+		label: 'Knowledge (Planes)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeReligion: {
+		label: 'Knowledge (Religion)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeTactics: {
+		label: 'Knowledge (Tactics)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	knowledgeTechnology: {
+		label: 'Knowledge (Technology)',
+		baseStat: 'int',
+		description: 'Identify Effects, Hazards, Lore, Monsters',
+	},
+	linguistics: {
+		label: 'Linguistics',
+		baseStat: 'int',
+		description: 'Decypher Language, Create or Detect Forgeries, Codes and Cyphers',
+	},
+	spellcraft: {
+		label: 'Spellcraft',
+		baseStat: 'int',
+		description: 'Identify Spell, Determine Properties of Magic item',
+	},
+	// Wis Skills
+	wisRoll: {
+		label: 'Wis Roll',
+		baseStat: 'wis',
+		description: 'text',
+	},
+	heal: {
+		label: 'Heal',
+		baseStat: 'wis',
+		description: 'Treat ailment, Identify drugs',
+	},
+	perception: {
+		label: 'Perception',
+		baseStat: 'wis',
+		description: 'Notice Something',
+	},
+	profession: {
+		label: 'Profession',
+		baseStat: 'wis',
+		description: 'Earn a Living, Complete Tasks',
+	},
+	professionAdmin: {
+		label: 'Profession (Admin)',
+		baseStat: 'wis',
+		description: 'Earn a Living, Complete Tasks',
+	},
+	professionAll: {
+		label: 'Profession (All)',
+		baseStat: 'wis',
+		description: 'Earn a Living, Complete Tasks',
+	},
+	professionGuard: {
+		label: 'Profession (Guard)',
+		baseStat: 'wis',
+		description: 'Earn a Living, Complete Tasks',
+	},
+	professionTeacher: {
+		label: 'Profession (Teacher)',
+		baseStat: 'wis',
+		description: 'Earn a Living, Complete Tasks',
+	},
+	senseMotive: {
+		label: 'Sense Motive',
+		baseStat: 'wis',
+		description: 'Hunch, Sense Enchantment, Discern Secret Message',
+	},
+	survival: {
+		label: 'Survival',
+		baseStat: 'wis',
+		description: 'Tracking, Find your way, Avoid Hazards',
+	},
+	// Cha Skills
+	chaRoll: {
+		label: 'Cha Roll',
+		baseStat: 'cha',
+		description: 'text',
+	},
+	bluff: {
+		label: 'Bluff',
+		baseStat: 'cha',
+		description:
+			'Deceive or Lie, Convey Secret Message, Feint or Diversions in Combat, Suggest an Action',
+	},
+	diplomacy: {
+		label: 'Diplomacy',
+		baseStat: 'cha',
+		description: 'Influence Attitude, Gather Information, Make Request, Suggest an Action',
+	},
+	disguise: {
+		label: 'Disguise',
+		baseStat: 'cha',
+		description: 'change your appearance',
+	},
+	handleAnimal: {
+		label: 'Handle Animal',
+		baseStat: 'cha',
+		description: 'teach tricks, Give Commandes, Tame',
+	},
+	intimidate: {
+		label: 'Intimidate',
+		baseStat: 'cha',
+		description: 'Demoralize, Influence, Coerce',
+	},
+	perform: {
+		label: 'Perform',
+		baseStat: 'cha',
+		description: 'Entertain, Inspire, Destract, Earn Money',
+	},
+	performSingingAndDancing: {
+		label: 'Perform (Singing and Dancing)',
+		baseStat: 'cha',
+		description: 'Entertain, Inspire, Destract, Earn Money',
+	},
+	useMagicDevice: {
+		label: 'Use Magic Device',
+		baseStat: 'cha',
+		description: 'Activate magical Device, Cause Mishap',
+	},
+	//
+};
+export const labelToSkillName: Record<string, string> = {};
+Object.entries(skillsInfoMap).forEach(
+	([stat, info]) => (labelToSkillName[info.label.toLocaleLowerCase()] = stat),
+);
+const skillLabelMap = Object.entries(skillsInfoMap).reduce(
+	(acc, entry) => ({ ...acc, [entry[0]]: entry[1].label }),
+	{},
+);
+export type SkillsTableItem = {
+	Bonus: number;
+	Name: string;
+	Score: string;
+	Focused: boolean;
+};
+
 // Character Stats, as imported from the sheet.
 export type StatSheet = {
 	// Character info
@@ -348,189 +859,6 @@ export type StatSheet = {
 	size: number;
 };
 export type StatSheetKey = keyof StatSheet;
-
-// export type StatsCalculated = {
-// 	actionsMoveBaseLand: number;
-// 	actionsMoveBaseSwim: number;
-// 	actionsMoveBaseFly: number;
-// 	actionsMoveBaseClimb: number;
-// 	actionsMoveMult: number;
-// 	actionsMoveLand: number;
-// 	actionsMoveSwim: number;
-// 	actionsMoveFly: number;
-// 	actionsMoveClimb: number;
-// 	//
-// 	ac: number;
-// 	acFF: number;
-// 	acTouch: number;
-// 	acFFTouch: number;
-// 	drBase: number;
-// 	dr: number;
-// 	drFF: number;
-// 	//
-// 	drArc: number;
-// 	drFFArc: number;
-// 	resistArc: number;
-// 	drSolar: number;
-// 	drFFSolar: number;
-// 	resistSolar: number;
-// 	drVoid: number;
-// 	drFFVoid: number;
-// 	resistVoid: number;
-// 	drStasis: number;
-// 	drFFStasis: number;
-// 	resistStasis: number;
-// 	drStrand: number;
-// 	drFFStrand: number;
-// 	resistStrand: number;
-// 	drPrismatic: number;
-// 	drFFPrismatic: number;
-// 	resistPrismatic: number;
-// 	drDark: number;
-// 	drFFDark: number;
-// 	resistDark: number;
-// 	//
-// 	capacityCarrying: number;
-// 	capacityKinetic: number;
-// 	capacitySpecial: number;
-// 	capacityHeavy: number;
-// 	energyMelee: number;
-// 	energyGrenade: number;
-// 	energySuper: number;
-// 	energyClass: number;
-// 	energyMeleeRecharge: number;
-// 	energyGrenadeRecharge: number;
-// 	energySuperRecharge: number;
-// 	energyClassRecharge: number;
-// 	energyDiscountMelee: number;
-// 	energyDiscountGrenade: number;
-// 	energyDiscountSuper: number;
-// 	energyDiscountClass: number;
-// 	rerolls: number;
-// 	//
-// 	slotsArmorHead: number;
-// 	slotsArmorArm: number;
-// 	slotsArmorChest: number;
-// 	slotsArmorLegs: number;
-// 	slotsArmorClass: number;
-// 	slotsArmorFull: number;
-// 	slotsArmorExotic: number;
-// 	slotsAspects: number;
-// 	slotsFragments: number;
-// 	equipArmorHead: number;
-// 	equipArmorArm: number;
-// 	equipArmorChest: number;
-// 	equipArmorLegs: number;
-// 	equipArmorClass: number;
-// 	equipArmorFull: number;
-// 	equipArmorExotic: number;
-// 	//
-// 	slotsWeapon: number;
-// 	slotsWeaponUsed: number;
-// 	hands: number;
-// 	handsUsed: number;
-// 	//
-// 	equipAspects: number;
-// 	equipFragments: number;
-// 	capacityArmorCharge: number;
-// 	//
-// 	toHitRanged: number;
-// 	toHitMelee: number;
-// 	toHitSpell: number;
-// 	damageMelee: number;
-// 	damageRanged: number;
-// 	damageSpell: number;
-// 	damageWeapon: number;
-// 	damagePrecision: number;
-// 	//
-// 	strSave: number;
-// 	dexSave: number;
-// 	conSave: number;
-// 	intSave: number;
-// 	wisSave: number;
-// 	chaSave: number;
-// 	strSkillCheck: number;
-// 	dexSkillCheck: number;
-// 	conSkillCheck: number;
-// 	intSkillCheck: number;
-// 	wisSkillCheck: number;
-// 	chaSkillCheck: number;
-// 	strSkills: number;
-// 	dexSkills: number;
-// 	conSkills: number;
-// 	intSkills: number;
-// 	wisSkills: number;
-// 	chaSkills: number;
-// 	initiative: number;
-// 	ref: number;
-// 	fort: number;
-// 	will: number;
-// 	//
-// 	hpMax: number;
-// 	hpRecharge: number;
-// 	hpTempMax: number;
-// 	hpShieldMax: number;
-// 	hpShieldRecharge: number;
-// 	hpShieldKinetic: number;
-// 	hpShieldSolar: number;
-// 	hpShieldArc: number;
-// 	hpShieldVoid: number;
-// 	hpShieldStasis: number;
-// 	hpShieldStrand: number;
-// 	hpShieldPrismatic: number;
-// 	hpShieldType: number;
-// 	skillFocus: number;
-// 	//
-// 	energyUniversal: number;
-// 	energyUniversalRecharge: number;
-// 	//
-// 	armor: number;
-// 	armorNatural: number;
-// 	armorShield: number;
-// 	armorDeflection: number;
-// 	armorDodge: number;
-// 	bab: number;
-// 	bdb: number;
-// 	//
-// 	str: number;
-// 	dex: number;
-// 	con: number;
-// 	int: number;
-// 	wis: number;
-// 	cha: number;
-// 	rolls: number;
-// 	//
-// 	actionsAttack: number;
-// 	actionsMove: number;
-// 	actionsReaction: number;
-// 	actionsBonus: number;
-// 	//
-// 	strScore: number;
-// 	dexScore: number;
-// 	conScore: number;
-// 	intScore: number;
-// 	wisScore: number;
-// 	chaScore: number;
-// 	//
-// 	cpl: number;
-// 	weightBase: number;
-// 	weightCurrent: number;
-// 	weightTotal: number;
-// 	size: number;
-// 	reach: number;
-// 	encumberance: number;
-// 	babPerLevel: number;
-// 	bdbPerLevel: number;
-// 	hpPerLevel: number;
-// 	fortPerLevel: number;
-// 	refPerLevel: number;
-// 	willPerLevel: number;
-// 	//
-// 	artifact: number;
-// };
-//type ActionsStatName = "actionsMoveBaseLand"|"actionsMoveBaseSwim"|...;
-//type ACStatName = "ac"|"acFF"|"acTouch"|"acFFTouch"|...;
-//type StatName = ActionsStatName | ACStatName | ...;
 
 export const labelMap = {
 	actionsMoveBaseLand: 'Move Base Land',
@@ -709,6 +1037,7 @@ export const labelMap = {
 	willPerLevel: 'Level Up Will',
 	//
 	artifact: 'Artifact Points',
+	...skillLabelMap,
 };
 export type StatName = keyof typeof labelMap;
 export const labelToStatName: Record<string, string> = {};
@@ -723,561 +1052,6 @@ export const makeEmptyStats = () => {
 		result[key] = 0;
 	});
 	return result as Record<StatName, number>;
-};
-// export const statsDistribute = (source: StatsCalculated) => {
-// 	source.str = Math.floor((source.strScore - 10) / 2);
-// 	source.dex = Math.floor((source.dexScore - 10) / 2);
-// 	source.con = Math.floor((source.conScore - 10) / 2);
-// 	source.int = Math.floor((source.intScore - 10) / 2);
-// 	source.wis = Math.floor((source.wisScore - 10) / 2);
-// 	source.cha = Math.floor((source.chaScore - 10) / 2);
-// 	source.actionsMoveLand = source.actionsMoveBaseLand * source.actionsMoveMult;
-// 	source.actionsMoveSwim = source.actionsMoveBaseSwim * source.actionsMoveMult;
-// 	source.actionsMoveFly = source.actionsMoveBaseFly * source.actionsMoveMult;
-// 	source.actionsMoveClimb = source.actionsMoveBaseClimb * source.actionsMoveMult;
-// 	source.ac =
-// 		10 +
-// 		source.armor +
-// 		source.armorNatural +
-// 		source.armorShield +
-// 		source.armorDeflection +
-// 		source.armorDodge +
-// 		source.dex +
-// 		source.bdb +
-// 		sizeMap[source.size || 0].ac;
-// 	source.acFF = 10 + source.armor + source.armorNatural + source.armorDeflection + source.bdb;
-// 	source.acTouch = 10 + source.armorDeflection + source.armorDodge + source.bdb + source.dex;
-// 	source.acFFTouch = 10 + source.armorDeflection + source.bdb;
-// 	source.dr =
-// 		source.armor + source.armorNatural + source.armorShield + source.drBase + source.con;
-// 	source.drFF = source.armor + source.armorNatural + source.drBase + source.con;
-// 	source.capacityCarrying =
-// 		25 *
-// 		Math.floor(Math.pow(4, Math.max(source.strScore / 10, 0))) *
-// 		sizeMap[source.size || 0].carryingCapacity;
-// 	source.toHitRanged = source.bab + source.dex;
-// 	source.toHitMelee = source.bab + source.str;
-// 	source.toHitSpell = source.bab + source.cha;
-// 	source.strSave = 10 + Math.floor(source.cpl / 2) + source.str;
-// 	source.dexSave = 10 + Math.floor(source.cpl / 2) + source.dex;
-// 	source.conSave = 10 + Math.floor(source.cpl / 2) + source.con;
-// 	source.intSave = 10 + Math.floor(source.cpl / 2) + source.int;
-// 	source.wisSave = 10 + Math.floor(source.cpl / 2) + source.wis;
-// 	source.chaSave = 10 + Math.floor(source.cpl / 2) + source.cha;
-// 	source.initiative = source.dex;
-// 	source.ref = Math.floor(source.cpl * source.refPerLevel + source.dex);
-// 	source.fort = Math.floor(source.cpl * source.fortPerLevel + source.con);
-// 	source.will = Math.floor(source.cpl * source.willPerLevel + source.wis);
-// 	source.hpMax = (source.hpPerLevel + source.con) * source.cpl;
-// 	source.energyUniversal = Math.floor((2 + source.cha) * source.cpl);
-// };
-
-// Character Stat Destinations
-
-// The type to be handed to a `StatBoxInfo` component, used for making
-// horizontal bar graphs of numerical character stats.
-export type StatBoxInfo = {
-	label: string;
-	data: BarBoxStatField[];
-	noRoll?: boolean;
-};
-export type BarBoxStatField = {
-	label: string;
-	stat: string;
-	hovertext?: string;
-	description?: string;
-	value: number;
-	value2?: number;
-};
-export type CapacityBoxInfo = {
-	label: string;
-	data: CapacityBoxStatField[];
-	hideRefillAll?: boolean;
-	noInteract?: boolean;
-};
-export type CapacityBoxStatField = {
-	label: string;
-	stat: string;
-	color?: string;
-	colorMax?: string;
-	hovertext?: string;
-	max: number;
-	current: number;
-	current2?: number;
-};
-
-//
-export const makeComputedOfStats = (
-	base: ComputedRef<Stats>,
-	buffs: ComputedRef<Stats>,
-	label: string,
-	keys: StatName[],
-	noRoll?: boolean,
-): (() => StatBoxInfo) => {
-	return (): StatBoxInfo => {
-		return {
-			label,
-			data: keys.map((key) => ({
-				key,
-				label: labelMap[key],
-				stat: key,
-				hovertext: buffs.value[key].summary.join('\n'),
-				value: base.value[key].total,
-				value2: buffs.value[key].total,
-			})),
-			noRoll,
-		};
-	};
-};
-
-// The type and destination of character stats that describe "capacities" rather than straight-up values.
-export type ActionResource = {
-	turns: number;
-	health: number;
-	shields: number;
-	//
-	actionMoves: number;
-	actionAttacks: number;
-	actionReactions: number;
-	actionOthers: number;
-	ammoKinetic: number;
-	ammoSpecial: number;
-	ammoHeavy: number;
-	energySuper: number;
-	energyMelee: number;
-	energyGrenade: number;
-	energyClass: number;
-	energyUniversal: number;
-	armorCharges: number;
-	rerolls: number;
-};
-export type ActionResourceKey = keyof ActionResource;
-
-//
-export const makeComputedOfCapacities = (
-	base: ComputedRef<Stats>,
-	buffs: ComputedRef<Stats>,
-	label: string,
-	keys: StatName[],
-): (() => StatBoxInfo) => {
-	return (): StatBoxInfo => {
-		return {
-			label,
-			data: keys.map((key) => ({
-				key,
-				label: labelMap[key],
-				stat: key,
-				hovertext: buffs.value[key].summary.join('\n'),
-				value: base.value[key].total,
-				value2: buffs.value[key].total,
-			})),
-		};
-	};
-};
-
-// The type describing a character's skill.
-export type Skill = {
-	// Str Skills
-	str: number;
-	climb: number;
-	swim: number;
-	// Dex Skills
-	dex: number;
-	acrobatics: number;
-	disableDevice: number;
-	escapeArtist: number;
-	fly: number;
-	ride: number;
-	sleightOfHand: number;
-	stealth: number;
-	// Con Skills
-	con: number;
-	concentration: number;
-	// Int Skills
-	int: number;
-	appraise: number;
-	craft: number;
-	craftCooking: number;
-	craftElectronic: number;
-	craftExplosives: number;
-	craftMechanical: number;
-	craftSculpture: number;
-	knowledge: number;
-	knowledgeAgriculture: number;
-	knowledgeArcana: number;
-	knowledgeAll: number;
-	knowledgeBiologyNature: number;
-	knowledgeDungeoneering: number;
-	knowledgeEngineering: number;
-	knowledgeFinance: number;
-	knowledgeGeography: number;
-	knowledgeHistory: number;
-	knowledgeLocal: number;
-	knowledgeNature: number;
-	knowledgeNobility: number;
-	knowledgePhysicalEdHealthNutrition: number;
-	knowledgePhysicalSciEngineering: number;
-	knowledgePlanes: number;
-	knowledgeReligion: number;
-	knowledgeTactics: number;
-	knowledgeTechnology: number;
-	linguistics: number;
-	spellcraft: number;
-	// Wis Skills
-	wis: number;
-	heal: number;
-	perception: number;
-	profession: number;
-	professionAdmin: number;
-	professionAll: number;
-	professionGuard: number;
-	professionTeacher: number;
-	senseMotive: number;
-	survival: number;
-	// Cha Skills
-	cha: number;
-	bluff: number;
-	diplomacy: number;
-	disguise: number;
-	handleAnimal: number;
-	intimidate: number;
-	perform: number;
-	performSingingAndDancing: number;
-	useMagicDevice: number;
-	//
-};
-export type SkillKey = keyof Skill;
-export type SkillInfoKey = {
-	label: string;
-	baseStat: StatName;
-	description: string;
-};
-export const skillsInfoMap: Record<SkillKey, Record<string, string>> = {
-	// Str Skills
-	str: {
-		label: 'Str Roll',
-		baseStat: 'str',
-		description: 'text',
-	},
-	climb: {
-		label: 'Climb',
-		baseStat: 'str',
-		description: 'Climb, Make Handholds, Catch Yourself',
-	},
-	swim: {
-		label: 'Swim',
-		baseStat: 'str',
-		description: 'Swim at half Speed',
-	},
-	// Dex Skills
-	dex: {
-		label: 'Dex Roll',
-		baseStat: 'dex',
-		description: 'text',
-	},
-	acrobatics: {
-		label: 'Acrobatics',
-		baseStat: 'dex',
-		description:
-			'Cross Narrow Surfaces/Uneven Ground, Move Through Threatened Squares, Jumping and Falling',
-	},
-	disableDevice: {
-		label: 'Disable Device',
-		baseStat: 'dex',
-		description: 'Disarm Device, Open Lock, Sabotage Mechanical Item',
-	},
-	escapeArtist: {
-		label: 'Escape Artist',
-		baseStat: 'dex',
-		description: 'slip bonds, escape grapples, Move Through Tight Space',
-	},
-	fly: {
-		label: 'Fly',
-		baseStat: 'dex',
-		description: 'Tight Turns, Avoid Falls, Handle Wind',
-	},
-	ride: {
-		label: 'Ride',
-		baseStat: 'dex',
-		description: 'Do special manuvers, Tricks, or actions, Ride, Drive, Pilot',
-	},
-	sleightOfHand: {
-		label: 'Sleight of Hand',
-		baseStat: 'dex',
-		description: 'Take Something Unnoticed, Hide or Retrieve an Object, Entertain',
-	},
-	stealth: {
-		label: 'Stealth',
-		baseStat: 'dex',
-		description: 'Hide',
-	},
-	// Con Skills
-	con: {
-		label: 'Con Roll',
-		baseStat: 'con',
-		description: 'text',
-	},
-	concentration: {
-		label: 'Concentration',
-		baseStat: 'con',
-		description: 'text',
-	},
-	// Int Skills
-	int: {
-		label: 'Int Roll',
-		baseStat: 'int',
-		description: 'text',
-	},
-	appraise: {
-		label: 'Appraise',
-		baseStat: 'int',
-		description: 'Appraise Value of Item, Identify its properties',
-	},
-	craft: {
-		label: 'Craft',
-		baseStat: 'int',
-		description: 'Practice a Trade, Make Something, Identify properties of your craft',
-	},
-	craftCooking: {
-		label: 'Craft (Cooking)',
-		baseStat: 'int',
-		description: 'Practice a Trade, Make Something, Identify properties of your craft',
-	},
-	craftElectronic: {
-		label: 'Craft (Electronic)',
-		baseStat: 'int',
-		description: 'Practice a Trade, Make Something, Identify properties of your craft',
-	},
-	craftExplosives: {
-		label: 'Craft (Explosives)',
-		baseStat: 'int',
-		description: 'Practice a Trade, Make Something, Identify properties of your craft',
-	},
-	craftMechanical: {
-		label: 'Craft (Mechanical)',
-		baseStat: 'int',
-		description: 'Practice a Trade, Make Something, Identify properties of your craft',
-	},
-	craftSculpture: {
-		label: 'Craft (Sculpture)',
-		baseStat: 'int',
-		description: 'Practice a Trade, Make Something, Identify properties of your craft',
-	},
-	knowledge: {
-		label: 'Knowledge',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	knowledgeAll: {
-		label: 'Knowledge (All)',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	knowledgeAgriculture: {
-		label: 'Knowledge (Agriculture)',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	knowledgeArcana: {
-		label: 'Knowledge (Arcana)',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	knowledgeBiologyNature: {
-		label: 'Knowledge (Biology & Nature)',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	knowledgeDungeoneering: {
-		label: 'Knowledge (Dungeoneering)',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	knowledgeEngineering: {
-		label: 'Knowledge (Engineering)',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	knowledgeFinance: {
-		label: 'Knowledge (Finance)',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	knowledgeGeography: {
-		label: 'Knowledge (Geography)',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	knowledgeHistory: {
-		label: 'Knowledge (History)',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	knowledgeLocal: {
-		label: 'Knowledge (Local)',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	knowledgeNature: {
-		label: 'Knowledge (Nature)',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	knowledgeNobility: {
-		label: 'Knowledge (Nobility)',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	knowledgePhysicalEdHealthNutrition: {
-		label: 'Knowledge (Physical Ed & Health & Nutrition)',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	knowledgePhysicalSciEngineering: {
-		label: 'Knowledge (Physical Sci & Engineering)',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	knowledgePlanes: {
-		label: 'Knowledge (Planes)',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	knowledgeReligion: {
-		label: 'Knowledge (Religion)',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	knowledgeTactics: {
-		label: 'Knowledge (Tactics)',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	knowledgeTechnology: {
-		label: 'Knowledge (Technology)',
-		baseStat: 'int',
-		description: 'Identify Effects, Hazards, Lore, Monsters',
-	},
-	linguistics: {
-		label: 'Linguistics',
-		baseStat: 'int',
-		description: 'Decypher Language, Create or Detect Forgeries, Codes and Cyphers',
-	},
-	spellcraft: {
-		label: 'Spellcraft',
-		baseStat: 'int',
-		description: 'Identify Spell, Determine Properties of Magic item',
-	},
-	// Wis Skills
-	wis: {
-		label: 'Wis Roll',
-		baseStat: 'wis',
-		description: 'text',
-	},
-	heal: {
-		label: 'Heal',
-		baseStat: 'wis',
-		description: 'Treat ailment, Identify drugs',
-	},
-	perception: {
-		label: 'Perception',
-		baseStat: 'wis',
-		description: 'Notice Something',
-	},
-	profession: {
-		label: 'Profession',
-		baseStat: 'wis',
-		description: 'Earn a Living, Complete Tasks',
-	},
-	professionAdmin: {
-		label: 'Profession (Admin)',
-		baseStat: 'wis',
-		description: 'Earn a Living, Complete Tasks',
-	},
-	professionAll: {
-		label: 'Profession (All)',
-		baseStat: 'wis',
-		description: 'Earn a Living, Complete Tasks',
-	},
-	professionGuard: {
-		label: 'Profession (Guard)',
-		baseStat: 'wis',
-		description: 'Earn a Living, Complete Tasks',
-	},
-	professionTeacher: {
-		label: 'Profession (Teacher)',
-		baseStat: 'wis',
-		description: 'Earn a Living, Complete Tasks',
-	},
-	senseMotive: {
-		label: 'Sense Motive',
-		baseStat: 'wis',
-		description: 'Hunch, Sense Enchantment, Discern Secret Message',
-	},
-	survival: {
-		label: 'Survival',
-		baseStat: 'wis',
-		description: 'Tracking, Find your way, Avoid Hazards',
-	},
-	// Cha Skills
-	cha: {
-		label: 'Cha Roll',
-		baseStat: 'cha',
-		description: 'text',
-	},
-	bluff: {
-		label: 'Bluff',
-		baseStat: 'cha',
-		description:
-			'Deceive or Lie, Convey Secret Message, Feint or Diversions in Combat, Suggest an Action',
-	},
-	diplomacy: {
-		label: 'Diplomacy',
-		baseStat: 'cha',
-		description: 'Influence Attitude, Gather Information, Make Request, Suggest an Action',
-	},
-	disguise: {
-		label: 'Disguise',
-		baseStat: 'cha',
-		description: 'change your appearance',
-	},
-	handleAnimal: {
-		label: 'Handle Animal',
-		baseStat: 'cha',
-		description: 'teach tricks, Give Commandes, Tame',
-	},
-	intimidate: {
-		label: 'Intimidate',
-		baseStat: 'cha',
-		description: 'Demoralize, Influence, Coerce',
-	},
-	perform: {
-		label: 'Perform',
-		baseStat: 'cha',
-		description: 'Entertain, Inspire, Destract, Earn Money',
-	},
-	performSingingAndDancing: {
-		label: 'Perform (Singing and Dancing)',
-		baseStat: 'cha',
-		description: 'Entertain, Inspire, Destract, Earn Money',
-	},
-	useMagicDevice: {
-		label: 'Use Magic Device',
-		baseStat: 'cha',
-		description: 'Activate magical Device, Cause Mishap',
-	},
-	//
-};
-export const labelToSkillName: Record<string, string> = {};
-Object.entries(skillsInfoMap).forEach(
-	([stat, info]) => (labelToSkillName[info.label.toLocaleLowerCase()] = stat),
-);
-
-export type SkillsTableItem = {
-	Bonus: number;
-	Name: string;
-	Score: string;
-	Focused: boolean;
 };
 
 // Weapon Types
@@ -2345,23 +2119,6 @@ function useCharacterDataUncached(characterId: string) {
 					targetRange: 0,
 				},
 	);
-	watch(statsImported, () => {
-		if (!localStorage.getItem(characterId + '_actionResources')) {
-			const elementKeys = Object.keys(elements);
-			actionResources.value.subclassIndex = elementKeys.findIndex(
-				// Update what subclass you are when data's done being imported.
-				(element) => element === statsImported.value.guardianSubclass,
-			);
-		}
-	});
-	watch(actionResources.value, () => {
-		// Store the current state of `actionResources` to Local Storage whenever it changes.
-		console.log('Action resources changed!');
-		localStorage.setItem(
-			characterId + '_actionResources',
-			JSON.stringify(actionResources.value),
-		);
-	});
 	const actionResourceUpdate = (destination: keyof ActionResource, amount: number) => {
 		actionResources.value[destination] += amount;
 	};
@@ -2379,6 +2136,23 @@ function useCharacterDataUncached(characterId: string) {
 
 	// WATCHERS
 
+	watch(statsImported, () => {
+		if (!localStorage.getItem(characterId + '_actionResources')) {
+			const elementKeys = Object.keys(elements);
+			actionResources.value.subclassIndex = elementKeys.findIndex(
+				// Update what subclass you are when data's done being imported.
+				(element) => element === statsImported.value.guardianSubclass,
+			);
+		}
+	});
+	watch(actionResources.value, () => {
+		// Store the current state of `actionResources` to Local Storage whenever it changes.
+		console.log('Action resources changed!');
+		localStorage.setItem(
+			characterId + '_actionResources',
+			JSON.stringify(actionResources.value),
+		);
+	});
 	watch(partyBuffs, () => {
 		buffs.value = JSON.parse(JSON.stringify(partyBuffs.value));
 	});
