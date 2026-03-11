@@ -26,6 +26,7 @@ export type BuffInfo = {
 	isPassive?: boolean;
 	active: boolean;
 	isCustom?: boolean;
+	isMagic?: boolean;
 };
 export type PartyBuffInfo = BuffInfo & Characters;
 // An INDIVIDUAL effect, post-parsing.

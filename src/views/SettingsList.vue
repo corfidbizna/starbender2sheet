@@ -213,7 +213,7 @@ td {
 }
 .scrollable-box {
 	overflow-y: scroll;
-	height: calc(100% - 40px);
+	height: calc(100% - 64px);
 	scrollbar-width: thin;
 	white-space: pre-line;
 	background-color: #0002;

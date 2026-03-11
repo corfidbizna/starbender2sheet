@@ -1097,6 +1097,7 @@ export type ImportedWeapon = Characters & {
 	critMult?: number;
 	damage: string;
 	damagePrecision?: string;
+	techMult: number;
 	damageType: Element;
 	rangeType: string;
 	range: number;
@@ -1442,6 +1443,7 @@ function useCharacterDataUncached(characterId: string) {
 			newBuff.type = buff.type || 'Buff';
 			newBuff.isStory = buff.isStory || false;
 			newBuff.isBasic = buff.isBasic || false;
+			newBuff.isMagic = buff.isMagic || false;
 			newBuff.perks = buff.perks || '';
 			return newBuff;
 		});
@@ -1511,6 +1513,9 @@ function useCharacterDataUncached(characterId: string) {
 			...activatedPartyBuffs.value.map((buff) => getBuffEffects(buff)).flat(),
 		];
 		return tallyBuffs(allEffects);
+	});
+	const lightLevel = computed<number>(() => {
+		return activatablePartyBuffs.value.filter((buff) => buff.active && buff.isMagic).length;
 	});
 	const buffsStackUpdate = (name: string, amount: number) => {
 		const targetBuff: BuffInfo | undefined = buffs.value.find((buff) => buff.name === name);
@@ -2270,6 +2275,7 @@ function useCharacterDataUncached(characterId: string) {
 		buffArrayFlat,
 		buffsTallied: statsBuffed,
 		statsBuffed,
+		lightLevel,
 		buffsLoading,
 		buffsRefresh,
 		// Skills

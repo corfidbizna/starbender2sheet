@@ -23,6 +23,7 @@ const currentState = ref<BuffInfo>({
 	isPassive: false, //
 	active: false,
 	isCustom: true,
+	isMagic: false,
 });
 const effectsList = ref<string[]>([]);
 const effectsForDisplay = computed<string>(() =>
@@ -145,18 +146,15 @@ const statLabelList = Object.values(labelMap);
 					style="position: relative"
 				>
 					<td class="custom-buff-info-label">Icon</td>
-					<td>
+					<td colspan="2">
 						<select v-model="currentState.icon">
 							<option
 								v-for="icon in iconList"
 								:key="icon"
 							>
 								{{ icon }}
-							</option>
-						</select>
-					</td>
-					<td colspan="3">
-						<select v-model="currentState.type">
+							</option></select
+						><select v-model="currentState.type">
 							<option
 								v-for="type in buffTypeList"
 								:key="type"
@@ -164,6 +162,13 @@ const statLabelList = Object.values(labelMap);
 								{{ type }}
 							</option>
 						</select>
+					</td>
+					<td class="custom-buff-info-label">Is Magic</td>
+					<td>
+						<input
+							type="checkbox"
+							v-model="currentState.isMagic"
+						/>
 					</td>
 					<td>
 						<img

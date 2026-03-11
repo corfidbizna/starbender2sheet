@@ -28,6 +28,7 @@ const {
 	actionResources,
 	statsLoading,
 	statsRefresh,
+	lightLevel,
 	skillsLoading,
 	skillsRefresh,
 	weapons,
@@ -567,6 +568,10 @@ const encumberanceColor = computed<string>(() => {
 										style="height: 0.8em"
 									/>
 								</td>
+							</tr>
+							<tr>
+								<td class="stat-label">Light Level</td>
+								<td class="stat-value">{{ lightLevel }}</td>
 							</tr>
 						</table>
 					</div>
