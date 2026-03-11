@@ -20,6 +20,23 @@ const {
 	armorRefresh,
 	getFinalStat,
 } = useCharacterData(props.characterId);
+const armorSlotSortOrder: Record<string, number> = {
+	full: 0,
+	head: 1,
+	arm: 2,
+	chest: 3,
+	leg: 4,
+	class: 5,
+	exotic: 6,
+	other: 7,
+};
+const sortedArmorList = computed<Armor[]>(() => {
+	return [...armorList.value].sort(
+		(a, b) =>
+			armorSlotSortOrder[(a.slots || 'full').split(' ')[0]] -
+			armorSlotSortOrder[(b.slots || 'full').split(' ')[0]],
+	);
+});
 const findArmorSlots = computed<Record<string, string>>(() => {
 	const result: Record<string, string> = {
 		full: '',
@@ -194,9 +211,10 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 		</div>
 		<div class="armor-list">
 			<ArmorItem
-				v-for="armor in armorList"
+				v-for="armor in sortedArmorList"
 				:key="armor.name"
 				v-bind="armor"
+				:activatable="true"
 				:characterId="characterId"
 			/>
 		</div>
@@ -222,16 +240,13 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 	width: auto;
 	flex: 1;
 }
-.armor-list > * {
-	margin: 0.5em auto;
-}
 .armor-slots-active {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
 }
 .armor-slots-active h2 {
-	width: 13em;
+	width: 14em;
 }
 .armor-slot {
 	flex: 1 1 auto;
@@ -240,6 +255,9 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 	padding: 0.25em;
 	background-repeat: no-repeat;
 	background-position: right;
+	background-size: 6em;
+	background-color: #0002;
+	background-position-y: 0.4em;
 }
 .armor-slot.overfull h2 {
 	color: #d64;
@@ -251,19 +269,22 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 .armor-slot span {
 	white-space: pre-line;
 }
+.armor-slot.full {
+	background-image: url('/public/icons/Slot_Overview.svg');
+}
 .armor-slot.helmet {
-	background-image: url('/src/assets/icons/slot_helmet.png');
+	background-image: url('/public/icons/Slot_Helmet.svg');
 }
 .armor-slot.arm {
-	background-image: url('/src/assets/icons/slot_arms.png');
+	background-image: url('/public/icons/Slot_Arms.svg');
 }
 .armor-slot.torso {
-	background-image: url('/src/assets/icons/slot_chest.png');
+	background-image: url('/public/icons/Slot_Chest.svg');
 }
 .armor-slot.legs {
-	background-image: url('/src/assets/icons/slot_leg.png');
+	background-image: url('/public/icons/Slot_Leg.svg');
 }
 .armor-slot.class {
-	background-image: url('/src/assets/icons/slot_class.png');
+	background-image: url('/public/icons/Slot_Class.svg');
 }
 </style>

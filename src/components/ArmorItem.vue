@@ -1,29 +1,32 @@
 <script setup lang="ts">
 import type { Armor } from '@/composables/useCharacterData';
 import useCharacterData from '@/composables/useCharacterData';
-import { computed } from 'vue';
+import DBox from '@/components/DBox.vue';
+import { computed, ref, watch } from 'vue';
 
-const props = defineProps<Armor & { characterId: string }>();
+const props = defineProps<Armor & { characterId: string; activatable?: boolean }>();
 const { namesOfEquippedArmor, namesOfActiveArmor, armorStackUpdate } = useCharacterData(
 	props.characterId,
 );
-const changeStacksUpdate = (amount: Event) => {
-	const value = amount as InputEvent;
-	armorStackUpdate(props.name, parseInt(value.data || '0'));
-};
+const currentStacks = ref<number>(props.stacks);
+watch(currentStacks, () => {
+	armorStackUpdate(props.name, currentStacks.value);
+});
 const slotName = computed<string>(() => {
 	const slot = props.slots || '';
 	const slotName = slot.split(' ')[0].toLocaleLowerCase();
 	const map = {
-		full: 'overview',
-		helmet: 'helmet',
-		arm: 'arms',
-		chest: 'chest',
-		leg: 'leg',
-		class: 'class',
+		full: 'Overview',
+		helmet: 'Helmet',
+		arm: 'Arms',
+		chest: 'Chest',
+		leg: 'Leg',
+		class: 'Class',
 	};
 	return map[slotName as keyof typeof map] || 'overview';
 });
+const imageURL =
+	'./icons/Slot_' + slotName.value[0].toLocaleUpperCase() + slotName.value.slice(1) + '.svg';
 </script>
 <template>
 	<label
@@ -31,18 +34,103 @@ const slotName = computed<string>(() => {
 		:class="equipped ? 'equipped' : ''"
 		:for="name + '-equip'"
 	>
-		<div
+		<DBox
+			v-bind="{
+				rarity: props.rarity,
+				title: props.name,
+				subtitle: (props.slots || 'full').split(' ')[0] + ' equipment',
+				flavortext: props.flavortext,
+			}"
+			:class="equipped && activatable ? 'active' : ''"
+		>
+			<template #header-icon>
+				<input
+					:id="name + '-equip'"
+					type="checkbox"
+					style="width: 0; margin: 0"
+					:value="name + ' (Equipped)'"
+					:disabled="!activatable"
+					v-model="namesOfEquippedArmor"
+				/>
+				<img
+					:src="imageURL"
+					style="width: 4em; translate: -1em"
+				/>
+			</template>
+			<template #header-right>
+				<div v-if="isStacking">
+					{{ stacksName || 'Stacks' }} x
+					<input
+						type="number"
+						min="0"
+						class="stacks-input"
+						:max="stacksMax || Infinity"
+						:value="props.stacks"
+						v-model="currentStacks"
+					/>
+				</div>
+			</template>
+			<template #contents>
+				<div v-if="buffs !== undefined || buffsCharged !== undefined">
+					<div
+						v-if="buffs"
+						class="armor-stats passive"
+					>
+						<span class="armor-stats-label">Stats</span>
+						<span class="armor-stats-list">{{ buffs }}</span>
+					</div>
+					<div
+						v-if="buffsCharged"
+						class="armor-stats active"
+					>
+						<span class="armor-stats-label">
+							<label
+								v-if="isActivatable"
+								class="activate"
+								:class="active ? 'activated' : ''"
+								:for="name + '-active'"
+								>Activate<input
+									:id="name + '-active'"
+									type="checkbox"
+									:value="name + ' (Active)'"
+									v-model="namesOfActiveArmor"
+							/></label>
+						</span>
+						<span
+							class="armor-stats-list"
+							:class="active ? '' : 'deactivated'"
+							>{{ buffsCharged }}</span
+						>
+					</div>
+				</div>
+				<div
+					v-if="description"
+					class="description"
+				>
+					{{ description }}
+				</div>
+			</template>
+			<template #footer-text>
+				<span
+					v-if="equipped && activatable"
+					class="is-equipped"
+					>CURRENTLY EQUIPPED</span
+				>
+			</template>
+		</DBox>
+		<!-- <div
 			class="header"
 			:class="rarity.toLocaleLowerCase()"
 		>
 			<input
 				:id="name + '-equip'"
 				type="checkbox"
+				style="visibility: collapse"
 				:value="name + ' (Equipped)'"
 				v-model="namesOfEquippedArmor"
 			/>
 			<img
-				:src="'./icons/slot_' + slotName + '.png'"
+				:src="'./icons/slot_' + slotName.toLocaleLowerCase() + '.png'"
 				style="width: 2em"
 			/>
 			<div class="armor-titles">
@@ -114,68 +202,16 @@ const slotName = computed<string>(() => {
 					>CURRENTLY EQUIPPED</span
 				>
 			</div>
-		</div>
+		</div> -->
 	</label>
 </template>
 <style>
 .armor-item {
 	display: block;
-	width: 576px;
-	margin: 6px;
-	border: 4px solid #fff0;
+	margin: 0.5em 0;
 	text-shadow: none;
 }
-.armor-item.equipped {
-	border-color: #ffff;
-}
-.armor-item .header {
-	background-color: #c2bdb4;
-	color: #000;
-	padding: 0.5em;
-	display: flex;
-	align-items: start;
-}
-.armor-item .header input {
-	display: inline;
-	vertical-align: top;
-}
-.armor-titles {
-	display: inline-block;
-	flex: 1;
-}
-.armor-item .name {
-	font-weight: bold;
-	font-size: 1.3em;
-}
-.armor-item .coverage {
-	text-transform: uppercase;
-	padding-top: 0.25em;
-	opacity: 0.5;
-}
-.armor-item .uncommon {
-	background-color: #356f42;
-	color: #fff;
-}
-.armor-item .rare {
-	background-color: #5076a3;
-	color: #fff;
-}
-.armor-item .legendary {
-	background-color: #522e65;
-	color: #fff;
-}
-.armor-item .exotic {
-	background-color: #cdae34;
-	color: #fff;
-}
 
-.armor-item .armor-content {
-	background-color: #0008;
-}
-.armor-content > div {
-	padding: 8px;
-	border-bottom: 2px solid #fff4;
-}
 .armor-stats {
 	display: flex;
 	align-items: center;
@@ -199,12 +235,7 @@ const slotName = computed<string>(() => {
 	flex: 1;
 }
 .stacks-input {
-	max-width: 1.5em;
-	background: none;
-	border: none;
-	color: #fff0;
-	text-align: right;
-	padding: 0;
+	max-width: 3em;
 }
 .armor-stats-list.deactivated {
 	color: #fff5;
@@ -232,12 +263,6 @@ const slotName = computed<string>(() => {
 .description {
 	white-space: pre-line;
 }
-.flavortext {
-	font-style: italic;
-	font-weight: 100;
-	color: #fffa;
-	padding: 0.75em;
-}
 .armor-content .footer {
 	height: 1em;
 	background: #000a;
@@ -246,11 +271,5 @@ const slotName = computed<string>(() => {
 	padding-bottom: 0;
 	text-align: right;
 	color: #000a;
-}
-.equipped .armor-content .footer {
-	background: #fff;
-}
-.armor-content .is-equipped {
-	display: block;
 }
 </style>

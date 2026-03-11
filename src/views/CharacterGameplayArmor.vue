@@ -25,10 +25,6 @@ const equippedArmor = computed<Armor[]>(() => armor.value.filter((armor) => armo
 			v-else
 			class="gameplay-armor-list"
 		>
-			<div>
-				Note: unequipping armor from here will remove the armor entirely. Be careful where
-				you click!
-			</div>
 			<ArmorItem
 				class="armor-equipped"
 				v-for="armor in equippedArmor"
@@ -43,10 +39,7 @@ const equippedArmor = computed<Armor[]>(() => armor.value.filter((armor) => armo
 .gameplay-armor-list {
 	height: calc(100vh - 173px);
 	overflow-y: scroll;
-	scrollbar-width: none;
+	scrollbar-width: thin;
 	font-size: 0.9rem;
-}
-.gameplay-armor-list .armor-equipped {
-	width: calc(100% - 2em);
 }
 </style>
