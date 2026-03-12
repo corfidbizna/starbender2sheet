@@ -34,6 +34,7 @@ const {
 	weapons,
 	weaponAmmoUpdate,
 	actionResourceUpdate,
+	subclassGet,
 } = useCharacterData(props.characterId);
 
 const activeShieldType = computed<Element>(() => {
@@ -50,6 +51,16 @@ const activeShieldType = computed<Element>(() => {
 });
 const shieldColor = computed<string>(() => {
 	return elements[activeShieldType.value] || '#FeFFFd';
+});
+const subclassColor = computed<string>(() => {
+	return (
+		'background: linear-gradient(3deg, var(--color-' +
+		subclassGet.value.toLocaleLowerCase() +
+		') -50%, #ddd0 50%'
+	);
+});
+const lightLevelColor = computed<string>(() => {
+	return lightLevel.value + statsBuffed.value.lightLevel.total >= 20 ? '#fe8' : '#fff';
 });
 // const infoAbilityScores = computed<StatBoxInfo>(
 // 	makeComputedOfStats(stats, buffsTallied, 'Ability Scores', [
@@ -371,6 +382,30 @@ const encumberanceColor = computed<string>(() => {
 					></textarea>
 				</div>
 				<div class="left-block">
+					<div
+						class="character-header"
+						:style="subclassColor"
+					>
+						<img
+							:src="'/public/icons/headshot_' + characterId + '.png'"
+							style="height: 48px; position: absolute; top: -12px; left: -20px"
+						/>
+						<span style="flex-grow: 1">{{ character.label }}</span>
+						<span class="label">CPL</span>
+						<span>{{ statsBuffed.cpl.total }}</span>
+						<span class="label">LIGHT LEVEL</span>
+						<span :style="'color: ' + lightLevelColor"
+							><span
+								class="d-glyph"
+								style="
+									font-size: 0.75em;
+									translate: 0 -0.45em;
+									display: inline-block;
+								"
+								></span
+							><span>{{ lightLevel + statsBuffed.lightLevel.total }}</span></span
+						>
+					</div>
 					<div class="stat-column-a">
 						<StatBarsBox
 							v-bind="infoAbilityScores"
@@ -569,10 +604,6 @@ const encumberanceColor = computed<string>(() => {
 									/>
 								</td>
 							</tr>
-							<tr>
-								<td class="stat-label">Light Level</td>
-								<td class="stat-value">{{ lightLevel }}</td>
-							</tr>
 						</table>
 					</div>
 					<!-- <div class="stat-column-c">
@@ -619,6 +650,21 @@ const encumberanceColor = computed<string>(() => {
 	border-top: 2px solid #ddd;
 	border-bottom: 2px solid #ddd;
 	margin: 8px 0;
+}
+.character-header {
+	display: flex;
+	position: relative;
+	font-size: 2em;
+	font-weight: bold;
+	margin: 8px 1em 0px 1em;
+	border-bottom: var(--line);
+	padding-left: 1em;
+}
+.character-header > .label {
+	font-size: 0.5em;
+	font-weight: normal;
+	margin-left: 2em;
+	margin-right: 0.25em;
 }
 .hover-highlight {
 	/* color: #e8e8e8; */

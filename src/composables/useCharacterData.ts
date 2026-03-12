@@ -1037,6 +1037,8 @@ export const labelMap = {
 	willPerLevel: 'Level Up Will',
 	//
 	artifact: 'Artifact Points',
+	lightLevel: 'Light Level',
+	//
 	...skillLabelMap,
 };
 export type StatName = keyof typeof labelMap;

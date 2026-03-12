@@ -496,6 +496,8 @@ const buffDistributionMap: Partial<Record<StatName, Distribution>> = {
 			// When buffing skills is implemented, make sure to implement Stealth and Fly pls!!
 			const size = buffs.size.total;
 			const addAC = sizeMap[size].ac;
+			const addStealth = sizeMap[size].stealth;
+			const addFly = sizeMap[size].fly;
 			const multCarrying = sizeMap[size].carryingCapacity;
 			const invertedReach: Record<number, number> = {
 				'-4': -4,
@@ -514,6 +516,19 @@ const buffDistributionMap: Partial<Record<StatName, Distribution>> = {
 			buffs.ac.total += addAC;
 			if (addAC !== 0) {
 				buffs.ac.summary.push('Size ' + ('+' + addAC).replace('+-', '-'));
+			}
+			// Stealth Distribution
+			//     vvvvvvvvvvvvvvvvvvv is because `buffs.stealth` is an error; same with fly
+			buffs['stealth' as StatName].total += addStealth;
+			if (addStealth !== 0) {
+				buffs['stealth' as StatName].summary.push(
+					'Size ' + ('+' + addStealth).replace('+-', '-'),
+				);
+			}
+			// Fly Distribution
+			buffs['fly' as StatName].total += addFly;
+			if (addFly !== 0) {
+				buffs['fly' as StatName].summary.push('Size ' + ('+' + addFly).replace('+-', '-'));
 			}
 			// Carrying Capacity Distribution
 			buffs.capacityCarrying.total *= multCarrying;

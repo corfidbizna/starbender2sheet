@@ -28,6 +28,7 @@ body {
 	--color-buff: #afaf;
 	--color-debuff: #fa9f;
 	--color-masterwork: #eb3f;
+	--line: 2px solid #fff8;
 	background-size: cover;
 	background-attachment: fixed;
 	background-position: center;
@@ -75,7 +76,7 @@ h2 {
 	margin: 0;
 	margin-bottom: 0.25em;
 	padding: 0.25em 0;
-	border-bottom: 2px solid #fff8;
+	border-bottom: var(--line);
 	text-align: left;
 	text-transform: uppercase;
 	font-weight: 100;
