@@ -363,18 +363,21 @@ export type ActionResource = {
 	health: number;
 	shields: number;
 	//
-	actionMoves: number;
-	actionAttacks: number;
-	actionReactions: number;
-	actionOthers: number;
+	actionsMove: number;
+	actionsAttack: number;
+	actionsReaction: number;
+	actionsOther: number;
+	//
 	ammoKinetic: number;
 	ammoSpecial: number;
 	ammoHeavy: number;
+	//
 	energySuper: number;
 	energyMelee: number;
 	energyGrenade: number;
 	energyClass: number;
 	energyUniversal: number;
+	//
 	armorCharges: number;
 	rerolls: number;
 };
@@ -1514,7 +1517,22 @@ function useCharacterDataUncached(characterId: string) {
 			...statsFirstBuffPass.value,
 			...activatedPartyBuffs.value.map((buff) => getBuffEffects(buff)).flat(),
 		];
-		return tallyBuffs(allEffects);
+		const result = tallyBuffs(allEffects);
+		if (!actionResourcesCaps.value.firstRun) {
+			actionResourcesCaps.value.firstRun = 1;
+			maxesPairs.forEach(([resource, stat]) => {
+				actionResourcesCaps.value[resource] = result[stat as StatName].total;
+			});
+		} else {
+			maxesPairs.forEach(([resource, stat]) => {
+				const diff = actionResourcesCaps.value[resource] - actionResources.value[resource];
+				const newCap = result[stat as StatName].total;
+				const newValue = newCap - diff;
+				actionResources.value[resource] = newValue;
+				actionResourcesCaps.value[resource] = newCap;
+			});
+		}
+		return result;
 	});
 	const lightLevel = computed<number>(() => {
 		return activatablePartyBuffs.value.filter((buff) => buff.active && buff.isMagic).length;
@@ -2105,7 +2123,7 @@ function useCharacterDataUncached(characterId: string) {
 	const actionResources = ref<Record<string, number>>(
 		!!actionResourcesLocal
 			? { ...actionResourcesLocal }
-			: {
+			: <Record<ActionResourceKey, number>>{
 					subclassIndex: 0,
 					turns: 0,
 					health: getFinalStat('hpMax'),
@@ -2124,8 +2142,48 @@ function useCharacterDataUncached(characterId: string) {
 					energyUniversal: getFinalStat('energyUniversal'),
 					armorCharges: getFinalStat('capacityArmorCharge'),
 					targetRange: 0,
+					rerolls: getFinalStat('rerolls'),
 				},
 	);
+	const maxesPairs = [
+		['health', 'hpMax'],
+		['shields', 'hpShieldMax'],
+		['actionsMove', 'actionsMove'],
+		['actionsAttack', 'actionsAttack'],
+		['actionsReaction', 'actionsReaction'],
+		['actionsOther', 'actionsBonus'],
+		['ammoKinetic', 'capacityKinetic'],
+		['ammoSpecial', 'capacitySpecial'],
+		['ammoHeavy', 'capacityHeavy'],
+		['energySuper', 'energySuper'],
+		['energyMelee', 'energyMelee'],
+		['energyGrenade', 'energyGrenade'],
+		['energyClass', 'energyClass'],
+		['energyUniversal', 'energyUniversal'],
+		['armorCharges', 'capacityArmorCharge'],
+		['rerolls', 'rerolls'],
+	];
+	const actionResourcesCaps = ref<Record<string, number>>({
+		firstRun: 0,
+		// This is a numerical "flag" for whether or not I've run before,
+		// to bypass a bug that happens when you first refresh.
+		health: getFinalStat('hpMax'),
+		shields: getFinalStat('hpShieldMax'),
+		actionsMove: getFinalStat('actionsMove'),
+		actionsAttack: getFinalStat('actionsAttack'),
+		actionsReaction: getFinalStat('actionsReaction'),
+		actionsOther: getFinalStat('actionsBonus'),
+		ammoKinetic: getFinalStat('capacityKinetic'),
+		ammoSpecial: getFinalStat('capacitySpecial'),
+		ammoHeavy: getFinalStat('capacityHeavy'),
+		energySuper: getFinalStat('energySuper'),
+		energyMelee: getFinalStat('energyMelee'),
+		energyGrenade: getFinalStat('energyGrenade'),
+		energyClass: getFinalStat('energyClass'),
+		energyUniversal: getFinalStat('energyUniversal'),
+		armorCharges: getFinalStat('capacityArmorCharge'),
+		rerolls: getFinalStat('rerolls'),
+	});
 	const actionResourceUpdate = (destination: keyof ActionResource, amount: number) => {
 		actionResources.value[destination] += amount;
 	};
@@ -2154,11 +2212,13 @@ function useCharacterDataUncached(characterId: string) {
 	});
 	watch(actionResources.value, () => {
 		// Store the current state of `actionResources` to Local Storage whenever it changes.
-		console.log('Action resources changed!');
-		localStorage.setItem(
-			characterId + '_actionResources',
-			JSON.stringify(actionResources.value),
-		);
+		if (!!actionResourcesCaps.value.firstRun) {
+			console.log('Action resources changed! Storing locally…');
+			localStorage.setItem(
+				characterId + '_actionResources',
+				JSON.stringify(actionResources.value),
+			);
+		}
 	});
 	watch(partyBuffs, () => {
 		buffs.value = JSON.parse(JSON.stringify(partyBuffs.value));

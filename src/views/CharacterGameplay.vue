@@ -8,6 +8,7 @@ import useCharacterData, {
 	type StatName,
 	elements,
 	type Element,
+	type ActionResourceKey,
 } from '@/composables/useCharacterData';
 import StatBarsBox from '@/components/StatBarsBox.vue';
 import LoadingModal from '@/components/LoadingModal.vue';
@@ -145,9 +146,11 @@ const incrementTurn = () => {
 	// Healths Regen
 	if (resource.health < source.hpMax.total) {
 		resource.health += statsBuffed.value.hpRecharge.total;
+		resource.healthDamage -= statsBuffed.value.hpRecharge.total;
 	}
 	if (resource.shields < source.hpShieldMax.total) {
 		resource.shields += statsBuffed.value.hpShieldRecharge.total;
+		resource.shieldsDamage -= statsBuffed.value.hpShieldRecharge.total;
 	}
 };
 const rallyBanner = () => {
@@ -173,8 +176,10 @@ const rallyBanner = () => {
 			weaponAmmoUpdate(weapon.name, weapon.ammoCapacity - weapon.ammoCurrent);
 		});
 	// Healths Refresh
-	resource.health += statsBuffed.value.hpMax.total - resource.health;
-	resource.shields += statsBuffed.value.hpShieldMax.total - resource.shields;
+	resource.health = statsBuffed.value.hpMax.total;
+	resource.shields = statsBuffed.value.hpShieldMax.total;
+	resource.healthDamage = 0;
+	resource.shieldsDamage = 0;
 };
 const healthCapacity = computed<CapacityBoxStatField[]>(() => {
 	return [
@@ -288,25 +293,25 @@ const actionsCapacity = computed<CapacityBoxStatField[]>(() => {
 	return [
 		{
 			label: 'Moves',
-			stat: 'actionsMove',
+			stat: 'actionsMove' as ActionResourceKey,
 			max: statsBuffed.value.actionsMove.total,
 			current: actionResources.value.actionsMove,
 		},
 		{
 			label: 'Attacks',
-			stat: 'actionsAttack',
+			stat: 'actionsAttack' as ActionResourceKey,
 			max: statsBuffed.value.actionsAttack.total,
 			current: actionResources.value.actionsAttack,
 		},
 		{
 			label: 'Reactions',
-			stat: 'actionsReaction',
+			stat: 'actionsReaction' as ActionResourceKey,
 			max: statsBuffed.value.actionsReaction.total,
 			current: actionResources.value.actionsReaction,
 		},
 		{
 			label: 'Bonus Actions',
-			stat: 'actionsBonus',
+			stat: 'actionsOther' as ActionResourceKey,
 			max: statsBuffed.value.actionsBonus.total,
 			current: actionResources.value.actionsBonus,
 		},
@@ -656,7 +661,7 @@ const encumberanceColor = computed<string>(() => {
 	position: relative;
 	font-size: 2em;
 	font-weight: bold;
-	margin: 8px 1em 0px 1em;
+	margin: 8px 0.5em 0px 1em;
 	border-bottom: var(--line);
 	padding-left: 1em;
 }

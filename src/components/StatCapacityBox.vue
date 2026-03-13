@@ -1,14 +1,22 @@
 <script setup lang="ts">
 import useCharacterData from '@/composables/useCharacterData';
-import type { ActionResource, CapacityBoxInfo } from '@/composables/useCharacterData';
+import type {
+	ActionResourceKey,
+	CapacityBoxInfo,
+	CapacityBoxStatField,
+} from '@/composables/useCharacterData';
 import CapacityBar from './CapacityBar.vue';
 
 const props = defineProps<CapacityBoxInfo & { characterId: string }>();
-const { actionResourceUpdate } = useCharacterData(props.characterId);
+const { actionResources, actionResourceUpdate } = useCharacterData(props.characterId);
+
+const refillStat = (stat: CapacityBoxStatField) => {
+	const diff = stat.max - stat.current;
+	actionResourceUpdate(stat.stat as ActionResourceKey, diff);
+};
 const refillAll = () => {
 	props.data.forEach((stat) => {
-		const diff = stat.max - stat.current;
-		actionResourceUpdate(stat.stat as keyof ActionResource, diff);
+		refillStat(stat);
 	});
 };
 // const setCurrentToNew = (value: number, stat: string) => {
@@ -53,44 +61,43 @@ const refillAll = () => {
 						}"
 					/>
 				</td>
-				<!-- <td>
+				<td
+					v-if="!noInteract"
+					class="increment-container"
+				>
 					<input
 						type="number"
 						id="current"
-						@change="setCurrentToNew(stat.current, stat.stat)"
+						v-model="actionResources[stat.stat]"
 					/>
-				</td> -->
-				<td class="capacity">{{ stat.current || 0 }}</td>
+				</td>
+				<td
+					v-else
+					class="capacity"
+				>
+					{{ stat.current || 0 }}
+				</td>
 				<td class="divider">⁄</td>
 				<td class="capacity">{{ stat.max }}</td>
-				<td
+				<!-- <td
 					v-if="!noInteract"
 					class="increment-container"
 				>
 					<button
 						class="increment-button"
-						@click="actionResourceUpdate(stat.stat as keyof ActionResource, -1)"
+						@click="actionResourceUpdate(stat.stat, -1)"
 					>
 						<span> - </span>
 					</button>
 					<button
 						class="increment-button"
-						@click="actionResourceUpdate(stat.stat as keyof ActionResource, 1)"
+						@click="actionResourceUpdate(stat.stat, 1)"
 					>
 						<span> + </span>
 					</button>
-				</td>
+				</td> -->
 				<td v-if="!noInteract">
-					<button
-						@click="
-							actionResourceUpdate(
-								stat.stat as keyof ActionResource,
-								stat.max - stat.current,
-							)
-						"
-					>
-						⤒
-					</button>
+					<button @click="refillStat(stat)">⤒</button>
 				</td>
 			</tr>
 		</tbody>
@@ -152,7 +159,7 @@ const refillAll = () => {
 }
 .increment-container {
 	display: inline-block;
-	margin-right: 0.25em;
+	margin: 0 0.25em;
 }
 .increment-container :last-child {
 	border-left: 0;
