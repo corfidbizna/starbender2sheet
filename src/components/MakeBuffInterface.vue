@@ -118,9 +118,7 @@ let currentLabel = '';
 for (let i = 0; i < statLabelList.length; i++) {
 	if (statLabelGroupHeaderMap[statLabelList[i]]) {
 		currentLabel = statLabelGroupHeaderMap[statLabelList[i]];
-		console.log('New group found: ' + currentLabel);
 	}
-	console.log('  Adding label to label group: ' + statLabelList[i]);
 	statLabelGroups[currentLabel].push(statLabelList[i]);
 }
 </script>
@@ -244,7 +242,10 @@ for (let i = 0; i < statLabelList.length; i++) {
 				<tr>
 					<td class="custom-buff-info-label">Effects</td>
 					<td>
-						<select v-model="currentEffectKey">
+						<select
+							v-model="currentEffectKey"
+							style="width: 18em"
+						>
 							<hr />
 							<optgroup
 								v-for="group in statLabelGroupNames"

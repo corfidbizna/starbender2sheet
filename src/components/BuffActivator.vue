@@ -21,6 +21,9 @@ const activeBuffs = computed<BuffInfo[]>(() => [
 	...storyBuffs.value.filter((buff) => buff.active),
 	...otherBuffs.value.filter((buff) => buff.active),
 ]);
+console.log('Story buffs: ', storyBuffs.value);
+console.log('Other buffs: ', otherBuffs.value);
+console.log('Active buffs: ', activeBuffs.value, '\n');
 // const activeBuffs = computed<BuffInfo[]>(() => {
 // 	return otherBuffs.value.filter((buff) => buff.active);
 // });

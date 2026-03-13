@@ -1441,17 +1441,19 @@ function useCharacterDataUncached(characterId: string) {
 			...armorsAsBuffs.value,
 			...artifactAsBuffs.value,
 		];
-		const resultWithDefaults: BuffInfo[] = result.map((buff) => {
-			const newBuff = { ...buff };
-			newBuff.stacks = buff.stacks || 0;
-			newBuff.active = buff.isPassive || buff.active || false;
-			newBuff.type = buff.type || 'Buff';
-			newBuff.isStory = buff.isStory || false;
-			newBuff.isBasic = buff.isBasic || false;
-			newBuff.isMagic = buff.isMagic || false;
-			newBuff.perks = buff.perks || '';
-			return newBuff;
-		});
+		const resultWithDefaults: BuffInfo[] = result
+			.filter((buff) => buff.name)
+			.map((buff) => {
+				const newBuff = { ...buff };
+				newBuff.stacks = buff.stacks || 0;
+				newBuff.active = buff.isPassive || buff.active || false;
+				newBuff.type = buff.type || 'Buff';
+				newBuff.isStory = buff.isStory || false;
+				newBuff.isBasic = buff.isBasic || false;
+				newBuff.isMagic = buff.isMagic || false;
+				newBuff.perks = buff.perks || '';
+				return newBuff;
+			});
 		return resultWithDefaults;
 		// const allBuffs = resultWithDefaults.map((buff) => getBuffEffects(buff)).flat();
 		// return tallyBuffs(allBuffs, stats.value);
@@ -2212,13 +2214,10 @@ function useCharacterDataUncached(characterId: string) {
 	});
 	watch(actionResources.value, () => {
 		// Store the current state of `actionResources` to Local Storage whenever it changes.
-		if (!!actionResourcesCaps.value.firstRun) {
-			console.log('Action resources changed! Storing locally…');
-			localStorage.setItem(
-				characterId + '_actionResources',
-				JSON.stringify(actionResources.value),
-			);
-		}
+		localStorage.setItem(
+			characterId + '_actionResources',
+			JSON.stringify(actionResources.value),
+		);
 	});
 	watch(partyBuffs, () => {
 		buffs.value = JSON.parse(JSON.stringify(partyBuffs.value));
