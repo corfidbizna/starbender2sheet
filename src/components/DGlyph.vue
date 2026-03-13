@@ -31,6 +31,8 @@ const glyphMap = {
 	Prismatic: '',
 	Dark: '',
 	Darkness: '',
+	// Symbols
+	Light: '',
 };
 type FontEntries = keyof typeof glyphMap;
 type Glyph = {
@@ -40,14 +42,25 @@ const props = defineProps<Glyph>();
 const lookupGlyph = (text: string): string => {
 	return glyphMap[text as FontEntries] || '';
 };
+const superscript = props.name === 'Light';
 </script>
 <template>
-	<div class="destiny-symbols">{{ lookupGlyph(props.name) }}</div>
+	<div
+		class="destiny-symbols"
+		:class="{ superscript }"
+	>
+		{{ lookupGlyph(props.name) }}
+	</div>
 	<!-- <div>{{ props.name }}</div> -->
 </template>
 <style>
 .destiny-symbols {
 	font-size: 1.5em;
 	font-family: 'Destiny Symbols Common';
+}
+.superscript {
+	font-size: 0.75em;
+	translate: 0 -0.45em;
+	display: inline-block;
 }
 </style>

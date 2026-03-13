@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { BuffInfo } from '@/business_logic/buffs';
 import useCharacterData from '@/composables/useCharacterData';
+import DGlyph from '@/components/DGlyph.vue';
 import { computed, ref, watch } from 'vue';
 
 const props = defineProps<BuffInfo & { characterId: string; condensed: boolean }>();
@@ -73,7 +74,10 @@ const perkList = computed<BuffPerk[]>(() => {
 				<span
 					class="buff-name"
 					:class="props.type.toLocaleLowerCase()"
-					>{{ props.name }}</span
+					><DGlyph
+						v-if="props.isMagic"
+						v-bind="{ name: 'Light' }"
+					/>{{ props.name }}</span
 				>
 				<span
 					v-if="!condensed"

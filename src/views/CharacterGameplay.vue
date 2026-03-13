@@ -399,16 +399,9 @@ const encumberanceColor = computed<string>(() => {
 						<span class="label">CPL</span>
 						<span>{{ statsBuffed.cpl.total }}</span>
 						<span class="label">LIGHT LEVEL</span>
-						<span :style="'color: ' + lightLevelColor"
-							><span
-								class="d-glyph"
-								style="
-									font-size: 0.75em;
-									translate: 0 -0.45em;
-									display: inline-block;
-								"
-								></span
-							><span>{{ lightLevel + statsBuffed.lightLevel.total }}</span></span
+						<span :style="'color: ' + lightLevelColor">
+							<DGlyph v-bind="{ name: 'Light' }" />
+							<span>{{ lightLevel + statsBuffed.lightLevel.total }}</span></span
 						>
 					</div>
 					<div class="stat-column-a">
