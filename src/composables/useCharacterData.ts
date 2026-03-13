@@ -920,6 +920,8 @@ export const labelMap = {
 	energyDiscountGrenade: 'Grenade Energy Discount',
 	energyDiscountSuper: 'Super Energy Discount',
 	energyDiscountClass: 'Class Energy Discount',
+	energyUniversal: 'Max Universal Energy',
+	energyUniversalRecharge: 'Universal Energy Recharge',
 	rerolls: 'Rerolls',
 	//
 	slotsArmorHead: 'Head Slot',
@@ -982,7 +984,6 @@ export const labelMap = {
 	//
 	hpMax: 'Max HP',
 	hpRecharge: 'HP Recharge',
-	//
 	hpTempMax: 'Max Temp HP',
 	hpShieldMax: 'Max Shield HP',
 	hpShieldRecharge: 'Shield Recharge',
@@ -994,9 +995,6 @@ export const labelMap = {
 	hpShieldStrand: 'Strand Overshield',
 	hpShieldPrismatic: 'Prismatic Overshield',
 	hpShieldType: 'Shield Type',
-	skillFocus: 'Skill Focus',
-	energyUniversal: 'Max Universal Energy',
-	energyUniversalRecharge: 'Universal Energy Recharge',
 	//
 	armor: 'Armor',
 	armorNatural: 'Natural Armor',
@@ -1012,26 +1010,21 @@ export const labelMap = {
 	int: 'Int Mod',
 	wis: 'Wis Mod',
 	cha: 'Cha Mod',
-	rolls: 'Rolls',
-	//
-	actionsAttack: 'Attack Action',
-	actionsMove: 'Movement Action',
-	actionsReaction: 'Reaction',
-	actionsBonus: 'Bonus Action',
-	//
 	strScore: 'Str Score',
 	dexScore: 'Dex Score',
 	conScore: 'Con Score',
 	intScore: 'Int Score',
 	wisScore: 'Wis Score',
 	chaScore: 'Cha Score',
+	//
+	actionsAttack: 'Attack Action',
+	actionsMove: 'Movement Action',
+	actionsReaction: 'Reaction',
+	actionsBonus: 'Bonus Action',
+	//
 	cpl: 'CPL',
-	weightBase: 'Base Character Weight',
-	weightCurrent: 'Weight Carried',
-	weightTotal: 'Total Character Weight',
 	size: 'Size',
 	reach: 'Reach',
-	encumberance: 'Encumberance',
 	babPerLevel: 'Level Up Base Attack',
 	bdbPerLevel: 'Level Up Base Defense',
 	hpPerLevel: 'Level Up HP',
@@ -1039,7 +1032,14 @@ export const labelMap = {
 	refPerLevel: 'Level Up Ref',
 	willPerLevel: 'Level Up Will',
 	//
+	weightBase: 'Base Character Weight',
+	weightCurrent: 'Weight Carried',
+	weightTotal: 'Total Character Weight',
+	encumberance: 'Encumberance',
+	//
 	artifact: 'Artifact Points',
+	skillFocus: 'Skill Focus',
+	rolls: 'Rolls',
 	lightLevel: 'Light Level',
 	//
 	...skillLabelMap,

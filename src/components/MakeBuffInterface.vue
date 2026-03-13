@@ -83,7 +83,46 @@ const imageSrc = computed<string>(() => {
 	return './buff_icons/' + currentState.value.icon + '_' + currentState.value.type + '.svg';
 });
 const buffTypeList = ['Buff', 'Debuff', 'Neutral', 'Warning'];
+
 const statLabelList = Object.values(labelMap);
+const statLabelGroupHeaderMap: Record<string, string> = {
+	'Move Base Land': 'Movement Actions',
+	AC: 'Defenses',
+	'Arc DR': 'Elemental Defenses',
+	'Carrying Capacity': 'Capacities',
+	'Head Slot': 'Armor Slots',
+	'Weapon Slots': 'Weapon Slots',
+	'Aspect Slots': 'Class Slots',
+	'Ranged to hit': 'Damage',
+	'Str Save DC': 'Ability Related & Saves',
+	'Max HP': 'Health & Shields',
+	Armor: 'Armor',
+	'Str Mod': 'Ability Mods & Scores',
+	'Attack Action': 'Actions',
+	CPL: 'Level-up',
+	'Base Character Weight': 'Weight',
+	'Artifact Points': 'Misc Stats',
+	'Str Roll': 'Strength Skills',
+	'Dex Roll': 'Dexterity Skills',
+	'Con Roll': 'Constitution Skills',
+	'Int Roll': 'Intelligence Skills',
+	'Wis Roll': 'Wisdom Skills',
+	'Cha Roll': 'Charisma Skills',
+};
+const statLabelGroupNames = Object.values(statLabelGroupHeaderMap);
+const statLabelGroups: Record<string, string[]> = statLabelGroupNames.reduce(
+	(acc, key) => ({ ...acc, [key]: [] }),
+	{},
+);
+let currentLabel = '';
+for (let i = 0; i < statLabelList.length; i++) {
+	if (statLabelGroupHeaderMap[statLabelList[i]]) {
+		currentLabel = statLabelGroupHeaderMap[statLabelList[i]];
+		console.log('New group found: ' + currentLabel);
+	}
+	console.log('  Adding label to label group: ' + statLabelList[i]);
+	statLabelGroups[currentLabel].push(statLabelList[i]);
+}
 </script>
 <template>
 	<div class="custom-buff-info">
@@ -206,12 +245,26 @@ const statLabelList = Object.values(labelMap);
 					<td class="custom-buff-info-label">Effects</td>
 					<td>
 						<select v-model="currentEffectKey">
-							<option
+							<hr />
+							<optgroup
+								v-for="group in statLabelGroupNames"
+								:key="group"
+								:label="group"
+							>
+								<option
+									v-for="label in statLabelGroups[group]"
+									:key="label"
+								>
+									{{ label }}
+								</option>
+								<hr />
+							</optgroup>
+							<!-- <option
 								v-for="label in statLabelList"
 								:key="label"
 							>
 								{{ label }}
-							</option>
+							</option> -->
 						</select>
 					</td>
 					<td>
