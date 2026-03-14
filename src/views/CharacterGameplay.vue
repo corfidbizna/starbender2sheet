@@ -560,9 +560,20 @@ const encumberanceColor = computed<string>(() => {
 								<h2>Derived Information</h2>
 							</caption>
 							<tr :title="buffsTallied.actionsMoveBaseLand.summary.join('\n') || ''">
-								<td class="stat-label">Movement per move</td>
+								<td class="stat-label">Movement Per Move</td>
 								<td class="stat-value">
 									{{ statsBuffed['actionsMoveBaseLand'].total }} ft.
+								</td>
+							</tr>
+							<tr>
+								<td class="stat-label">Jump Height</td>
+								<td class="stat-value">
+									{{
+										Math.trunc(
+											(statsBuffed['acrobatics' as StatName].total + 10) / 2,
+										)
+									}}
+									ft.
 								</td>
 							</tr>
 							<tr>
