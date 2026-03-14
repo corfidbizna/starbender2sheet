@@ -30,6 +30,7 @@ const {
 	statsLoading,
 	statsRefresh,
 	lightLevel,
+	skills,
 	skillsLoading,
 	skillsRefresh,
 	weapons,
@@ -318,6 +319,24 @@ const actionsCapacity = computed<CapacityBoxStatField[]>(() => {
 	];
 });
 
+const moveInfo = computed(() => ({
+	jump: Math.trunc(
+		((skills.value.acrobatics || 0) +
+			(statsBuffed.value['acrobatics' as StatName].total + 10)) /
+			2,
+	),
+	climb: Math.trunc(
+		((skills.value.climb || 0) + (statsBuffed.value['climb' as StatName].total + 10)) / 2,
+	),
+	swim: Math.trunc(
+		((skills.value.swim || 0) + (statsBuffed.value['swim' as StatName].total + 10)) / 2,
+	),
+}));
+const toTiles = (feet: number) => {
+	// Rounds to the nearest vv
+	const fractionalRound = 5; // 4
+	return Math.trunc((feet * fractionalRound) / 5) / fractionalRound;
+};
 const encumberanceTEMP = computed<number>(() => {
 	return Math.trunc(
 		Math.max(
@@ -562,23 +581,34 @@ const encumberanceColor = computed<string>(() => {
 							<tr :title="buffsTallied.actionsMoveBaseLand.summary.join('\n') || ''">
 								<td class="stat-label">Movement Per Move</td>
 								<td class="stat-value">
-									{{ statsBuffed['actionsMoveBaseLand'].total }} ft.
+									{{ statsBuffed['actionsMoveBaseLand'].total }} ft. /
+									{{ toTiles(statsBuffed['actionsMoveBaseLand'].total) }} tiles
 								</td>
 							</tr>
 							<tr>
 								<td class="stat-label">Jump Height</td>
 								<td class="stat-value">
-									{{
-										Math.trunc(
-											(statsBuffed['acrobatics' as StatName].total + 10) / 2,
-										)
-									}}
-									ft.
+									{{ moveInfo.jump }} ft. / {{ toTiles(moveInfo.jump) }} tiles
+								</td>
+							</tr>
+							<tr>
+								<td class="stat-label">Climb Rate</td>
+								<td class="stat-value">
+									{{ moveInfo.climb }} ft. / {{ toTiles(moveInfo.climb) }} tiles
+								</td>
+							</tr>
+							<tr>
+								<td class="stat-label">Swim Speed</td>
+								<td class="stat-value">
+									{{ moveInfo.swim }} ft. / {{ toTiles(moveInfo.swim) }} tiles
 								</td>
 							</tr>
 							<tr>
 								<td class="stat-label">Reach</td>
-								<td class="stat-value">{{ statsBuffed['reach'].total }} ft.</td>
+								<td class="stat-value">
+									{{ statsBuffed['reach'].total }} ft. /
+									{{ toTiles(statsBuffed['reach'].total) }} tiles
+								</td>
 							</tr>
 							<tr>
 								<td class="stat-label">Size</td>
