@@ -9,7 +9,6 @@ const { namesOfActivatedBuffs, buffsStackUpdate, customBuffs } = useCharacterDat
 	props.characterId,
 );
 
-console.log('  - Buff: ', props);
 const imageSrc = computed<string>(() => {
 	return (
 		'./buff_icons/' + (props.icon ? props.icon : 'General_Arrow') + '_' + props.type + '.svg'

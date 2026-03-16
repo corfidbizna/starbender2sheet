@@ -255,7 +255,7 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 	padding: 0.25em;
 	background-repeat: no-repeat;
 	background-position: right;
-	background-size: 6em;
+	background-size: 2.5em;
 	background-color: #0002;
 	background-position-y: 0.4em;
 }

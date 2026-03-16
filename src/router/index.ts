@@ -106,6 +106,12 @@ const router = createRouter({
 					],
 				},
 				{
+					path: 'features',
+					name: 'characterFeatures',
+					props: true,
+					component: () => import('../views/CharacterFeatures.vue'),
+				},
+				{
 					path: 'artifact',
 					name: 'seasonalArtifact',
 					props: true,

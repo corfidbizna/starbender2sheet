@@ -45,6 +45,7 @@ const names = [
 	'characterWeapons',
 	// 'characterArmor',
 	// 'characterClass',
+	'characterFeatures',
 	'seasonalArtifact',
 	'questList',
 	'characterLore',
@@ -109,6 +110,9 @@ onBeforeUnmount(() => {
 				>
 				<RouterLink :to="{ name: 'characterLoadout', params: { characterId } }"
 					>Loadout</RouterLink
+				>
+				<RouterLink :to="{ name: 'characterFeatures', params: { characterId } }"
+					>Features</RouterLink
 				>
 				<RouterLink :to="{ name: 'seasonalArtifact', params: { characterId } }"
 					>Seasonal Artifact</RouterLink

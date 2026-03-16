@@ -142,3 +142,6 @@ export const rotateAnimName = computed<string>(() =>
 export const getBGString = (filename: string) => {
 	return "--bg-image: url('" + filename + "'); " + (rotateBGs.value ? '--bg-anim: bgRotate' : '');
 };
+export const getBGData = (filename: string) => {
+	return '/public/svgs/' + filename + (rotateBGs.value ? '_anim' : '') + '.svg';
+};

@@ -21,6 +21,7 @@ export type CharacterDataSource = {
 		skills: string;
 		variables: string;
 		buffs: string;
+		features: string;
 	};
 };
 // The sheet IDs for the party and DM-managed sheets. These won't vary per character.
@@ -52,6 +53,7 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 			skills: '847620321',
 			variables: '711215743',
 			buffs: '1723104523',
+			features: '80035919',
 		},
 	},
 	aurora: {
@@ -61,6 +63,7 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 			skills: '392143893',
 			variables: '1217161183',
 			buffs: '900669394',
+			features: '244313239',
 		},
 	},
 	mark: {
@@ -70,6 +73,7 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 			skills: '1502753776',
 			variables: '769576778',
 			buffs: '919733175',
+			features: '',
 		},
 	},
 	lewis: {
@@ -79,6 +83,7 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 			skills: '1546065139',
 			variables: '625235028',
 			buffs: '858793392',
+			features: '',
 		},
 	},
 };
@@ -1059,6 +1064,43 @@ export const makeEmptyStats = () => {
 	return result as Record<StatName, number>;
 };
 
+// Feature Types
+type ImportedFeature = {
+	unlisted: boolean;
+	name: string;
+	group?: string;
+	modLabel?: string;
+	buffList?: string;
+	isMagic: boolean;
+	effects?: string;
+	subclass?: string;
+	dependencies?: string;
+	rank: string;
+	isCharacterDrawback: boolean;
+	description?: string;
+};
+export type FeatureMod = {
+	name: string;
+	description: string;
+	isDrawback: boolean;
+	buffList: string[];
+	rank: number;
+};
+export type Feature = {
+	unlisted: boolean;
+	name: string;
+	subtitle: string;
+	groups: Record<string, FeatureMod[]>;
+	buffList: string[];
+	isMagic: boolean;
+	effects: string;
+	subclass: string;
+	dependencies: string[];
+	rank: number;
+	isCharacterDrawback: boolean;
+	description: string;
+};
+
 // Weapon Types
 export const rarities = {
 	Common: 0,
@@ -1440,6 +1482,7 @@ function useCharacterDataUncached(characterId: string) {
 			...weaponsAsBuffs.value,
 			...armorsAsBuffs.value,
 			...artifactAsBuffs.value,
+			...featuresAsBuffs.value,
 		];
 		const resultWithDefaults: BuffInfo[] = result
 			.filter((buff) => buff.name)
@@ -1491,6 +1534,7 @@ function useCharacterDataUncached(characterId: string) {
 			...namesOfEquippedArmor.value,
 			...namesOfActiveArmor.value,
 			...namesOfActiveArtifactMods.value,
+			...features.value.map((feature) => feature.name),
 		];
 		buffs.value.forEach((buff) => {
 			if (buff.isPassive || addThese.includes(buff.name)) {
@@ -1520,7 +1564,11 @@ function useCharacterDataUncached(characterId: string) {
 			...activatedPartyBuffs.value.map((buff) => getBuffEffects(buff)).flat(),
 		];
 		const result = tallyBuffs(allEffects);
-		if (!actionResourcesCaps.value.firstRun) {
+		// if (!actionResourcesCaps.value.firstRun) {
+		if (
+			!actionResourcesCaps.value.firstRun &&
+			Object.values(actionResourcesCaps.value).filter((cap) => cap !== 0).length > 0
+		) {
 			actionResourcesCaps.value.firstRun = 1;
 			maxesPairs.forEach(([resource, stat]) => {
 				actionResourcesCaps.value[resource] = result[stat as StatName].total;
@@ -1561,6 +1609,91 @@ function useCharacterDataUncached(characterId: string) {
 		return 0;
 	};
 	// BUFFS END
+
+	// ==================================================================================================
+	// FEATURES START
+	const {
+		data: featuresForProcessing,
+		isLoading: featuresLoading,
+		refresh: featuresRefresh,
+	} = getSheetForCharacter<ImportedFeature>(characterId, 'features');
+	const features = computed<Feature[]>(() => {
+		// Find all unique Feature names
+		const featureNames = [
+			...new Set(featuresForProcessing.value.map((item) => item.name)),
+		].filter((item) => !!item);
+		const newFeatures: Feature[] = [];
+		// For every unique feature name, we're going to do some condensing.
+		for (const i in featureNames) {
+			const featureName = featureNames[i];
+			const featureRows = featuresForProcessing.value.filter(
+				(item) => item.name === featureName,
+			);
+			const newFeature: Feature = {
+				unlisted: featureRows.filter((row) => row.unlisted).length > 0,
+				name: featureName,
+				subtitle: !featureRows[0].group ? featureRows[0].modLabel || 'Feature' : 'Feature',
+				groups: {},
+				buffList: !featureRows[0].group ? featureRows[0].buffList?.split(', ') || [] : [],
+				isMagic: featureRows.filter((row) => row.isMagic).length > 0,
+				effects: featureRows
+					.filter((row) => row.effects && row.effects.length > 0)
+					.map((row) => row.effects?.replace(/, *$/g, ''))
+					.join(', '),
+				subclass: featureRows[0].subclass || '',
+				dependencies: featureRows[0].dependencies?.split(', ') || [],
+				rank: parseInt(featureRows[0].rank) || 0,
+				isCharacterDrawback:
+					featureRows.filter((row) => !row.isCharacterDrawback).length === 0,
+				description: !featureRows[0].group ? featureRows[0].description || '' : '',
+			};
+			// For every unique Feature name, go through all the groups.
+			const groupNames = [...new Set(featureRows.map((item) => item.group))].filter(
+				(item) => !!item,
+			);
+			const groups: Record<string, FeatureMod[]> = {};
+			for (const j in groupNames) {
+				// For every unique group name, go through all the mods.
+				const groupName = groupNames[j] || 'NO NAME GROUP pls fix';
+				const groupMods: FeatureMod[] = [];
+				featureRows
+					.filter((item) => item.group === groupName)
+					.forEach((row) => {
+						groupMods.push({
+							name: row.modLabel || '« No Label »',
+							description: row.description || '',
+							isDrawback: row.isCharacterDrawback,
+							buffList: row.buffList?.split(', ') || [],
+							rank: parseInt(row.rank) || 0,
+						});
+					});
+				// Gather the mods and put them in the group.
+				groups[groupName] = groupMods;
+			}
+			newFeature.groups = groups;
+			newFeatures.push(newFeature);
+		}
+		return newFeatures;
+	});
+	const featuresAsBuffs = computed<BuffInfo[]>(() => {
+		const result = features.value.map((feature) => {
+			const newBuff: BuffInfo = {
+				name: feature.name + '(Feature)',
+				type: 'Hidden',
+				category: 'Misc',
+				isStory: false,
+				isBasic: false,
+				stacks: 0,
+				effects: feature.effects || '',
+				isMagic: feature.isMagic,
+				active: true,
+			};
+			return newBuff;
+		});
+		return result;
+	});
+
+	// FEATURES END
 
 	// ==================================================================================================
 	// WEAPONS START
@@ -2085,11 +2218,24 @@ function useCharacterDataUncached(characterId: string) {
 			willPerLevel: source.willPerLevel,
 		};
 		const effects = [];
+		// All of the base effects
 		for (const key in baseTotals) {
 			effects.push(
 				labelMap[key as StatName] + (' +' + baseTotals[key as StatName]).replace('+-', '-'),
 			);
 		}
+		// Add in the features' effects
+		const featList = features.value.filter((feature) => feature.effects);
+		for (let i = 0; i < featList.length; i++) {
+			effects.push(features.value[i].effects);
+		}
+		// Add in the buffs marked as "basic"
+		// const basicBuffs = buffs.value.filter(
+		// 	(buff) => buff.active && buff.isBasic && buff.effects,
+		// );
+		// for (let i = 0; i < basicBuffs.length; i++) {
+		// 	effects.push(basicBuffs[i].effects);
+		// }
 		const buffInfo: BuffInfo = {
 			name: '.',
 			type: 'Hidden',
@@ -2097,7 +2243,7 @@ function useCharacterDataUncached(characterId: string) {
 			isBasic: false,
 			stacks: 0,
 			active: true,
-			effects: effects.join(', '),
+			effects: effects.join(', ').replace(/, *$/g, ''),
 		};
 		return getBuffEffects(buffInfo);
 	});
@@ -2344,6 +2490,10 @@ function useCharacterDataUncached(characterId: string) {
 		skillsBuffed,
 		skillsLoading,
 		skillsRefresh,
+		// Features,
+		features,
+		featuresLoading,
+		featuresRefresh,
 		// Weapons
 		weapons,
 		weaponAmmoUpdate,

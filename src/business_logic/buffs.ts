@@ -183,71 +183,94 @@ export const getBuffEffects = (buff: BuffInfo): BuffEffect[] => {
 	if (!buff.effects) {
 		return [];
 	} else {
-		return buff.effects.split(', ').map((effect): BuffEffect => {
-			const effectForSplit = effect.replace(/( )(?![A-Za-z])/g, '¶');
-			// Str Mod¶+2*Dex Mod
-			const [affectedStat, amount] = effectForSplit.split('¶');
-			if (!amount) {
-				throw new Error('Buff must have a target!');
-			}
-			let currentCategory = buff.category || 'Misc';
-			if (affectedStat.toLocaleLowerCase().slice(0, 4) === 'misc') {
-				currentCategory = 'Misc';
-			}
-			const splitAmount = amount.split('*');
-			let multFlag = false;
-			const newFactors = [];
-			for (let i = 0; i < splitAmount.length; i++) {
-				const item = splitAmount[i];
-				if (!item) {
-					multFlag = true;
-				} else if (!isNaN(Number(item))) {
-					// If the item was just a number
-					newFactors.push(Number(item));
-				} else if (item.replace('+', '') === 'stacks') {
-					// If the stacks has a plus in front of it
-					// or had nothing
-					newFactors.push(buff.stacks);
-				} else if (item.replace('-', '') === 'stacks') {
-					// If the stacks was negative
-					newFactors.push(-buff.stacks);
-				} else {
-					// Should be either the name of a stat or a typo
-					console.log("Hey! I reached a state I shouldn't while trying to parse a buff!");
-					// const statResult = Number(
-					// 	stats[labelToStatName[item.toLocaleLowerCase()] as StatName],
-					// );
-					// if (item[0] === '-') {
-					// 	newFactors.push(-statResult);
-					// } else {
-					// 	newFactors.push(statResult);
-					// }
+		return buff.effects
+			.split(', ')
+			.filter((item) => !!item)
+			.map((effect): BuffEffect => {
+				const effectForSplit = effect.replace(/( )(?![A-Za-z\(\)&])/g, '¶');
+				// Str Mod¶+2*Dex Mod
+				const [affectedStat, amount] = effectForSplit.split('¶');
+				if (!amount) {
+					throw new Error('Buff must have a target!');
 				}
-			}
-			const magnitude = newFactors.reduce((accumulator, currentValue) => {
-				return accumulator * (currentValue === undefined ? 1 : currentValue);
-			}, 1);
-			let result: number;
-			if (multFlag) {
-				console.log(
-					"Hey!  Multiplies of this nature aren't properly supported anymore!!! Maybe???",
-				);
-				result = 0; // This is so that `result` has a number
-				// result =
-				// 	stats[labelToStatName[affectedStat.toLocaleLowerCase()] as StatName] *
-				// 	(Number(magnitude) - 1);
-			} else {
-				result = Number(magnitude);
-			}
-			return {
-				category: currentCategory,
-				sourceName: buff.name,
-				affectedStat: labelToStatName[
+				let currentCategory = buff.category || 'Misc';
+				if (affectedStat.toLocaleLowerCase().slice(0, 4) === 'misc') {
+					currentCategory = 'Misc';
+				}
+				const splitAmount = amount.split('*');
+				let multFlag = false;
+				const newFactors = [];
+				for (let i = 0; i < splitAmount.length; i++) {
+					const item = splitAmount[i];
+					if (!item) {
+						multFlag = true;
+					} else if (!isNaN(Number(item))) {
+						// If the item was just a number
+						newFactors.push(Number(item));
+					} else if (item.replace('+', '') === 'stacks') {
+						// If the stacks has a plus in front of it
+						// or had nothing
+						newFactors.push(buff.stacks);
+					} else if (item.replace('-', '') === 'stacks') {
+						// If the stacks was negative
+						newFactors.push(-buff.stacks);
+					} else {
+						// Should be either the name of a stat or a typo
+						console.log(
+							"Hey! I reached a state I shouldn't while trying to parse a buff!\n Was working on",
+							splitAmount,
+						);
+						// const statResult = Number(
+						// 	stats[labelToStatName[item.toLocaleLowerCase()] as StatName],
+						// );
+						// if (item[0] === '-') {
+						// 	newFactors.push(-statResult);
+						// } else {
+						// 	newFactors.push(statResult);
+						// }
+					}
+				}
+				const magnitude = newFactors.reduce((accumulator, currentValue) => {
+					return accumulator * (currentValue === undefined ? 1 : currentValue);
+				}, 1);
+				let result: number;
+				if (multFlag) {
+					console.log(
+						"Hey!  Multiplies of this nature aren't properly supported anymore!!! Maybe???",
+					);
+					result = 0; // This is so that `result` has a number
+					// result =
+					// 	stats[labelToStatName[affectedStat.toLocaleLowerCase()] as StatName] *
+					// 	(Number(magnitude) - 1);
+				} else {
+					result = Number(magnitude);
+				}
+				const labelResult = labelToStatName[
 					affectedStat.replace(/^[Mm]isc /, '').toLocaleLowerCase()
-				] as StatName,
-				amount: result,
-			};
-		});
+				] as StatName;
+				if (!labelResult) {
+					console.warn(
+						'Hey! The stat "' +
+							affectedStat +
+							"\" isn't an existing stat, so buffing it can't go anywhere. It came from " +
+							buff.name +
+							"\n  It's effect is being nullified.",
+					);
+					// Something harmless to return in the event of a nonexistent stat.
+					return {
+						category: 'Misc',
+						sourceName: '.',
+						affectedStat: 'ac' as StatName,
+						amount: 0,
+					};
+				}
+				return {
+					category: currentCategory,
+					sourceName: buff.name,
+					affectedStat: labelResult,
+					amount: result,
+				};
+			});
 	}
 };
 // Takes a set of cooked buffs and process them into a new set of stats, INCLUDING distribution.

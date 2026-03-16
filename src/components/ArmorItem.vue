@@ -54,7 +54,8 @@ const imageURL =
 				/>
 				<img
 					:src="imageURL"
-					style="width: 4em; translate: -1em"
+					style="width: 3em; margin: 0 0.25em"
+					:style="rarity === 'Common' ? 'filter: invert(1)' : ''"
 				/>
 			</template>
 			<template #header-right>

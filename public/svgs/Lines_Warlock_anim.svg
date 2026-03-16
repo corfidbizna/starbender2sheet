@@ -49,6 +49,7 @@
     <rect x="-556.39" y="-556.39" width="1976.78" height="1976.78"/>
   </g>
   <g id="Outer">
+<animateTransform attributeName="transform" type="rotate" dur="350s" values="0 432 432;360 432 432;" repeatCount="indefinite"/>
     <circle class="st3" cx="439.05" cy="431.89" r="582.25"/>
     <circle class="st3" cx="439.05" cy="431.89" r="600.32"/>
     <circle class="st3" cx="439.05" cy="431.89" r="776.22"/>

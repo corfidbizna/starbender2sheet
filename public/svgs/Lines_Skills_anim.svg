@@ -45,6 +45,7 @@
     <rect width="864" height="864"/>
   </g>
   <g id="Outer">
+<animateTransform attributeName="transform" type="rotate" dur="350s" values="0 432 432;360 432 432;" repeatCount="indefinite"/>
     <line class="st2" x1="758.34" y1="366.57" x2="708.62" y2="246.54"/>
     <line class="st2" x1="616.75" y1="154.67" x2="496.72" y2="104.95"/>
     <line class="st2" x1="246.77" y1="708.39" x2="366.8" y2="758.11"/>

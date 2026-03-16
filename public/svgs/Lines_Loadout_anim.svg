@@ -69,6 +69,7 @@
     <rect x="-74.04" y="-74.04" width="1012.07" height="1012.07"/>
   </g>
   <g id="Outer">
+<animateTransform attributeName="transform" type="rotate" dur="350s" values="0 432 432;360 432 432;" repeatCount="indefinite"/>
     <line class="st10" x1="374.27" y1="484.2" x2="392.69" y2="467.33"/>
     <circle class="st12" cx="373.4" cy="484.99" r=".42"/>
     <line class="st10" x1="489.24" y1="378.85" x2="470.83" y2="395.73"/>

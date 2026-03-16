@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
-import { getBGString } from '@/sharedState';
+import { getBGData } from '@/sharedState';
 
 type CharacterProps = {
 	characterId: CharacterNames;
@@ -13,10 +13,13 @@ const { character, statsBuffed, statsBase, subclassGet } = useCharacterData(prop
 		v-if="character"
 		class="centered"
 	>
-		<div
-			class="rotating-bg"
-			:style="getBGString('../svgs/Lines_Lore.svg')"
-		></div>
+		<div class="rotating-bg">
+			<object
+				:data="getBGData('Lines_Lore')"
+				type="image/svg+xml"
+				style="position: absolute; top: -20vw"
+			/>
+		</div>
 		<!-- <h1>{{ character.label }}, the Void Hunter</h1> -->
 		<table class="summary">
 			<tbody>
@@ -140,9 +143,6 @@ const { character, statsBuffed, statsBase, subclassGet } = useCharacterData(prop
 	</div>
 </template>
 <style scoped>
-.rotating-bg {
-	filter: invert(100%);
-}
 .centered {
 	text-align: center;
 }
