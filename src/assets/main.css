@@ -116,6 +116,7 @@ h2 {
 	top: 0;
 	z-index: -1;
 	mix-blend-mode: screen;
+	opacity: 0.3;
 }
 .rotating-bg:before {
 	animation-name: var(--bg-anim);
