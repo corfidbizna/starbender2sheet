@@ -3,7 +3,7 @@ import { rotateBGs } from '@/sharedState';
 
 const props = defineProps<{ bgName: string }>();
 const bgString =
-	"background-image: url('/svgs/Lines_" +
+	"background-image: url('./svgs/Lines_" +
 	props.bgName +
 	(rotateBGs.value ? '_anim' : '') +
 	".svg');";
