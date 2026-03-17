@@ -12,8 +12,17 @@ type CharacterProps = {
 	characterId: CharacterNames;
 };
 const props = defineProps<Feature & CharacterProps>();
-const { buffs } = useCharacterData(props.characterId);
+const { buffs, namesOfActivatedBuffs } = useCharacterData(props.characterId);
 
+const missingRequirements = computed<string[]>(() => {
+	return props.dependencies.filter((name) => !namesOfActivatedBuffs.value.includes(name));
+});
+const disabled = computed<boolean>(() => {
+	return (
+		namesOfActivatedBuffs.value.filter((name) => props.dependencies.includes(name)).length !==
+		props.dependencies.length
+	);
+});
 const effectsProcessed = props.effects.replace(/ /g, ' ').replace(/, /g, ', ');
 // The buffs that this feature is associated with, if any.
 const buffsFiltered = computed<BuffInfo[]>(() => {
@@ -28,7 +37,17 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 			subtitle: subtitle,
 		}"
 		style="width: 60em; max-width: none"
+		:class="{ disabled }"
 	>
+		<template
+			#header-right
+			v-if="disabled"
+		>
+			<span style="color: var(--color-debuff)">
+				Missing requirement{{ missingRequirements.length === 1 ? '' : 's' }}:
+				{{ missingRequirements.join(', ') }}</span
+			>
+		</template>
 		<template #contents>
 			<div
 				v-if="effects"

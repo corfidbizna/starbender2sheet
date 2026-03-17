@@ -58,6 +58,9 @@ const props = defineProps<DBox>();
 .d-box.active {
 	border-color: #ffff;
 }
+.d-box.disabled {
+	color: #888;
+}
 /* Header */
 .d-box .header {
 	padding: 8px;

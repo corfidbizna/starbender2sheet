@@ -79,7 +79,7 @@ const activeBuffNames = computed<string>(() => {
 			<div class="buff-list">
 				<div><button @click="buffsRefresh">Refresh Buffs</button></div>
 				<h2>Activated Buffs</h2>
-				<div>{{ activeBuffNames.split(', ').join('\n') }}</div>
+				<div>{{ activeBuffNames.split(', ').sort().join('\n') }}</div>
 				<h2>Stat Totals</h2>
 				<div>{{ buffTotals.split(', ').join('\n') }}</div>
 			</div>

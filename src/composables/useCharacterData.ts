@@ -1534,7 +1534,14 @@ function useCharacterDataUncached(characterId: string) {
 			...namesOfEquippedArmor.value,
 			...namesOfActiveArmor.value,
 			...namesOfActiveArtifactMods.value,
-			...features.value.map((feature) => feature.name),
+			...features.value
+				.filter(
+					(feature) =>
+						namesOfActivatedBuffs.value.filter((name) =>
+							feature.dependencies.includes(name),
+						).length === feature.dependencies.length,
+				)
+				.map((feature) => feature.name + ' (Feature)'),
 		];
 		buffs.value.forEach((buff) => {
 			if (buff.isPassive || addThese.includes(buff.name)) {
@@ -1564,24 +1571,25 @@ function useCharacterDataUncached(characterId: string) {
 			...activatedPartyBuffs.value.map((buff) => getBuffEffects(buff)).flat(),
 		];
 		const result = tallyBuffs(allEffects);
+		// Distance from / difference / delta from max caps
 		// if (!actionResourcesCaps.value.firstRun) {
-		if (
-			!actionResourcesCaps.value.firstRun &&
-			Object.values(actionResourcesCaps.value).filter((cap) => cap !== 0).length > 0
-		) {
-			actionResourcesCaps.value.firstRun = 1;
-			maxesPairs.forEach(([resource, stat]) => {
-				actionResourcesCaps.value[resource] = result[stat as StatName].total;
-			});
-		} else {
-			maxesPairs.forEach(([resource, stat]) => {
-				const diff = actionResourcesCaps.value[resource] - actionResources.value[resource];
-				const newCap = result[stat as StatName].total;
-				const newValue = newCap - diff;
-				actionResources.value[resource] = newValue;
-				actionResourcesCaps.value[resource] = newCap;
-			});
-		}
+		// if (
+		// 	!actionResourcesCaps.value.firstRun &&
+		// 	Object.values(actionResourcesCaps.value).filter((cap) => cap !== 0).length > 0
+		// ) {
+		// 	actionResourcesCaps.value.firstRun = 1;
+		// 	maxesPairs.forEach(([resource, stat]) => {
+		// 		actionResourcesCaps.value[resource] = result[stat as StatName].total;
+		// 	});
+		// } else {
+		// 	maxesPairs.forEach(([resource, stat]) => {
+		// 		const diff = actionResourcesCaps.value[resource] - actionResources.value[resource];
+		// 		const newCap = result[stat as StatName].total;
+		// 		const newValue = newCap - diff;
+		// 		actionResources.value[resource] = newValue;
+		// 		actionResourcesCaps.value[resource] = newCap;
+		// 	});
+		// }
 		return result;
 	});
 	const lightLevel = computed<number>(() => {
@@ -1678,7 +1686,7 @@ function useCharacterDataUncached(characterId: string) {
 	const featuresAsBuffs = computed<BuffInfo[]>(() => {
 		const result = features.value.map((feature) => {
 			const newBuff: BuffInfo = {
-				name: feature.name + '(Feature)',
+				name: feature.name + ' (Feature)',
 				type: 'Hidden',
 				category: 'Misc',
 				isStory: false,
@@ -1686,7 +1694,12 @@ function useCharacterDataUncached(characterId: string) {
 				stacks: 0,
 				effects: feature.effects || '',
 				isMagic: feature.isMagic,
-				active: true,
+				active:
+					feature.dependencies.length > 0
+						? namesOfActivatedBuffs.value.filter((name) =>
+								feature.dependencies.includes(name),
+							).length === feature.dependencies.length
+						: true,
 			};
 			return newBuff;
 		});
@@ -2252,15 +2265,15 @@ function useCharacterDataUncached(characterId: string) {
 			// The data hasn't finished importing yet
 			return tallyBuffs([]);
 		}
-		// const allEffects = [
-		// 	...statsFirstBuffPass.value,
-		// 	...activatedPartyBuffs.value
-		// 		.filter((buff) => buff.isBasic)
-		// 		.map((buff) => getBuffEffects(buff))
-		// 		.flat(),
-		// ];
-		// return tallyBuffs(allEffects);
-		return tallyBuffs(statsFirstBuffPass.value);
+		const allEffects = [
+			...statsFirstBuffPass.value,
+			...featuresAsBuffs.value
+				.filter((feature) => feature.active && feature.effects)
+				.map((feature) => getBuffEffects(feature))
+				.flat(),
+		];
+		return tallyBuffs(allEffects);
+		// return tallyBuffs(statsFirstBuffPass.value);
 	});
 	const getFinalStat = (name: StatName) => {
 		return statsBuffed.value[name].total;
@@ -2293,45 +2306,45 @@ function useCharacterDataUncached(characterId: string) {
 					rerolls: getFinalStat('rerolls'),
 				},
 	);
-	const maxesPairs = [
-		['health', 'hpMax'],
-		['shields', 'hpShieldMax'],
-		['actionsMove', 'actionsMove'],
-		['actionsAttack', 'actionsAttack'],
-		['actionsReaction', 'actionsReaction'],
-		['actionsOther', 'actionsBonus'],
-		['ammoKinetic', 'capacityKinetic'],
-		['ammoSpecial', 'capacitySpecial'],
-		['ammoHeavy', 'capacityHeavy'],
-		['energySuper', 'energySuper'],
-		['energyMelee', 'energyMelee'],
-		['energyGrenade', 'energyGrenade'],
-		['energyClass', 'energyClass'],
-		['energyUniversal', 'energyUniversal'],
-		['armorCharges', 'capacityArmorCharge'],
-		['rerolls', 'rerolls'],
-	];
-	const actionResourcesCaps = ref<Record<string, number>>({
-		firstRun: 0,
-		// This is a numerical "flag" for whether or not I've run before,
-		// to bypass a bug that happens when you first refresh.
-		health: getFinalStat('hpMax'),
-		shields: getFinalStat('hpShieldMax'),
-		actionsMove: getFinalStat('actionsMove'),
-		actionsAttack: getFinalStat('actionsAttack'),
-		actionsReaction: getFinalStat('actionsReaction'),
-		actionsOther: getFinalStat('actionsBonus'),
-		ammoKinetic: getFinalStat('capacityKinetic'),
-		ammoSpecial: getFinalStat('capacitySpecial'),
-		ammoHeavy: getFinalStat('capacityHeavy'),
-		energySuper: getFinalStat('energySuper'),
-		energyMelee: getFinalStat('energyMelee'),
-		energyGrenade: getFinalStat('energyGrenade'),
-		energyClass: getFinalStat('energyClass'),
-		energyUniversal: getFinalStat('energyUniversal'),
-		armorCharges: getFinalStat('capacityArmorCharge'),
-		rerolls: getFinalStat('rerolls'),
-	});
+	// const maxesPairs = [
+	// 	['health', 'hpMax'],
+	// 	['shields', 'hpShieldMax'],
+	// 	['actionsMove', 'actionsMove'],
+	// 	['actionsAttack', 'actionsAttack'],
+	// 	['actionsReaction', 'actionsReaction'],
+	// 	['actionsOther', 'actionsBonus'],
+	// 	['ammoKinetic', 'capacityKinetic'],
+	// 	['ammoSpecial', 'capacitySpecial'],
+	// 	['ammoHeavy', 'capacityHeavy'],
+	// 	['energySuper', 'energySuper'],
+	// 	['energyMelee', 'energyMelee'],
+	// 	['energyGrenade', 'energyGrenade'],
+	// 	['energyClass', 'energyClass'],
+	// 	['energyUniversal', 'energyUniversal'],
+	// 	['armorCharges', 'capacityArmorCharge'],
+	// 	['rerolls', 'rerolls'],
+	// ];
+	// const actionResourcesCaps = ref<Record<string, number>>({
+	// 	firstRun: 0,
+	// 	// This is a numerical "flag" for whether or not I've run before,
+	// 	// to bypass a bug that happens when you first refresh.
+	// 	health: getFinalStat('hpMax'),
+	// 	shields: getFinalStat('hpShieldMax'),
+	// 	actionsMove: getFinalStat('actionsMove'),
+	// 	actionsAttack: getFinalStat('actionsAttack'),
+	// 	actionsReaction: getFinalStat('actionsReaction'),
+	// 	actionsOther: getFinalStat('actionsBonus'),
+	// 	ammoKinetic: getFinalStat('capacityKinetic'),
+	// 	ammoSpecial: getFinalStat('capacitySpecial'),
+	// 	ammoHeavy: getFinalStat('capacityHeavy'),
+	// 	energySuper: getFinalStat('energySuper'),
+	// 	energyMelee: getFinalStat('energyMelee'),
+	// 	energyGrenade: getFinalStat('energyGrenade'),
+	// 	energyClass: getFinalStat('energyClass'),
+	// 	energyUniversal: getFinalStat('energyUniversal'),
+	// 	armorCharges: getFinalStat('capacityArmorCharge'),
+	// 	rerolls: getFinalStat('rerolls'),
+	// });
 	const actionResourceUpdate = (destination: keyof ActionResource, amount: number) => {
 		actionResources.value[destination] += amount;
 	};
