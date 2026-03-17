@@ -107,38 +107,6 @@ h2 {
 	font-family: 'Destiny Symbols Common';
 }
 
-.rotating-bg {
-	position: absolute;
-	overflow: hidden;
-	width: 100vw;
-	height: 100vh;
-	left: 0;
-	top: 0;
-	z-index: -1;
-	mix-blend-mode: screen;
-	opacity: 0.3;
-}
-.rotating-bg:before {
-	animation-name: var(--bg-anim);
-	animation-duration: 350s;
-	animation-iteration-count: infinite;
-	animation-timing-function: linear;
-	content: '';
-	display: block;
-	width: 150%;
-	height: 150%;
-	background-image: var(--bg-image);
-	background-size: cover;
-	background-attachment: fixed;
-	background-position: center;
-	/* background-blend-mode: difference; */
-	/* filter: invert(); */
-	opacity: 0.25;
-	position: absolute;
-	left: -25%;
-	top: -25%;
-}
-
 input[type='number'] {
 	background-color: #0002;
 	color: #fff;

@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import QuestBox from '@/components/QuestBox.vue';
 import useCharacterData, { type Quest } from '@/composables/useCharacterData';
 import LoadingModal from '@/components/LoadingModal.vue';
-import { getBGData } from '@/sharedState';
+import BGImage from '@/components/BGImage.vue';
 type CharacterProps = {
 	characterId: string;
 };
@@ -25,13 +25,7 @@ const bounties = computed<Quest[]>(() => {
 		<LoadingModal />
 	</div>
 	<div v-else>
-		<div class="rotating-bg">
-			<object
-				:data="getBGData('Lines_Quests')"
-				type="image/svg+xml"
-				style="position: absolute; top: -20vw"
-			/>
-		</div>
+		<BGImage :bgName="'Quests'" />
 		<div class="quest-list">
 			<button
 				@click="questsRefresh()"

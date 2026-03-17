@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import type { CharacterNames } from './composables/useCharacterData';
 
 type SavedCharacterData = {
@@ -136,12 +136,3 @@ export const resetVisuals = () => {
 	banner.value = defaultBanner;
 };
 export const rotateBGs = ref<boolean>(false);
-export const rotateAnimName = computed<string>(() =>
-	rotateBGs.value ? '--bg-anim: bgRotate' : '',
-);
-export const getBGString = (filename: string) => {
-	return "--bg-image: url('" + filename + "'); " + (rotateBGs.value ? '--bg-anim: bgRotate' : '');
-};
-export const getBGData = (filename: string) => {
-	return '/public/svgs/' + filename + (rotateBGs.value ? '_anim' : '') + '.svg';
-};

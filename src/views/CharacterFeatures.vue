@@ -2,7 +2,7 @@
 import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
 import LoadingModal from '@/components/LoadingModal.vue';
 import FeatureItem from '@/components/FeatureItem.vue';
-import { getBGData } from '@/sharedState';
+import BGImage from '@/components/BGImage.vue';
 
 type CharacterProps = {
 	characterId: CharacterNames;
@@ -17,13 +17,7 @@ const { statsBase, features, featuresLoading, featuresRefresh, buffsLoading } = 
 		<LoadingModal />
 	</div>
 	<div v-else>
-		<div class="rotating-bg">
-			<object
-				:data="getBGData('Lines_' + statsBase.guardianClass)"
-				type="image/svg+xml"
-				style="position: absolute; top: -20vw"
-			/>
-		</div>
+		<BGImage :bgName="statsBase.guardianClass" />
 		<div>
 			<button @click="featuresRefresh()">Reload Features</button>
 		</div>

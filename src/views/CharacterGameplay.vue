@@ -15,7 +15,8 @@ import LoadingModal from '@/components/LoadingModal.vue';
 import StatCapacityBox from '@/components/StatCapacityBox.vue';
 import CapacityBar from '@/components/CapacityBar.vue';
 import DGlyph from '@/components/DGlyph.vue';
-import { actionLog, getBGData, updateLog } from '@/sharedState';
+import { actionLog, updateLog } from '@/sharedState';
+import BGImage from '@/components/BGImage.vue';
 type CharacterProps = {
 	characterId: string;
 };
@@ -365,13 +366,7 @@ const encumberanceColor = computed<string>(() => {
 		class="CharacterGameplay"
 		v-if="character"
 	>
-		<div class="rotating-bg">
-			<object
-				:data="getBGData('Lines_Gameplay')"
-				type="image/svg+xml"
-				style="position: absolute; top: -20vw"
-			/>
-		</div>
+		<BGImage :bgName="'Gameplay'" />
 		<div v-if="statsLoading || skillsLoading">
 			<LoadingModal />
 		</div>

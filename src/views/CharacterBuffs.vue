@@ -4,7 +4,7 @@ import LoadingModal from '@/components/LoadingModal.vue';
 import BuffActivator from '@/components/BuffActivator.vue';
 import { computed } from 'vue';
 import MakeBuffInterface from '@/components/MakeBuffInterface.vue';
-import { getBGData } from '@/sharedState';
+import BGImage from '@/components/BGImage.vue';
 
 type CharacterProps = {
 	characterId: string;
@@ -75,13 +75,7 @@ const activeBuffNames = computed<string>(() => {
 			v-else
 			class="buff-test"
 		>
-			<div class="rotating-bg">
-				<object
-					:data="getBGData('Lines_Buffs')"
-					type="image/svg+xml"
-					style="position: absolute; top: -20vw"
-				/>
-			</div>
+			<BGImage :bgName="'Buffs'" />
 			<div class="buff-list">
 				<div><button @click="buffsRefresh">Refresh Buffs</button></div>
 				<h2>Activated Buffs</h2>

@@ -2,7 +2,7 @@
 import CapacityBar from '@/components/CapacityBar.vue';
 import LoadingModal from '@/components/LoadingModal.vue';
 import useCharacterData, { type ArtifactMod } from '@/composables/useCharacterData';
-import { getBGData } from '@/sharedState';
+import BGImage from '@/components/BGImage.vue';
 import { computed } from 'vue';
 type CharacterProps = {
 	characterId: string;
@@ -42,13 +42,7 @@ const grid = computed<ArtifactMod[][]>(() => {
 		v-else
 		class="seasonal-artifact"
 	>
-		<div class="rotating-bg">
-			<object
-				:data="getBGData('Lines_SeasonalArtifact')"
-				type="image/svg+xml"
-				style="position: absolute; top: -20vw"
-			/>
-		</div>
+		<BGImage :bgName="'SeasonalArtifact'" />
 		<h1 class="artifact-name">Iron Decree</h1>
 		<h2 class="artifact-subtitle">Artifact</h2>
 		<div class="artifact-container">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
-import { getBGData } from '@/sharedState';
+import BGImage from '@/components/BGImage.vue';
 
 type CharacterProps = {
 	characterId: CharacterNames;
@@ -13,13 +13,7 @@ const { character, statsBuffed, statsBase, subclassGet } = useCharacterData(prop
 		v-if="character"
 		class="centered"
 	>
-		<div class="rotating-bg">
-			<object
-				:data="getBGData('Lines_Lore')"
-				type="image/svg+xml"
-				style="position: absolute; top: -20vw"
-			/>
-		</div>
+		<BGImage :bgName="'Lore'" />
 		<!-- <h1>{{ character.label }}, the Void Hunter</h1> -->
 		<table class="summary">
 			<tbody>
