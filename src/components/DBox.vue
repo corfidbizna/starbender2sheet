@@ -2,7 +2,7 @@
 import type { Rarity, Element } from '@/composables/useCharacterData';
 
 export type DBox = {
-	rarity: Rarity | Element;
+	rarity: Rarity | Element | '';
 	title: string;
 	subtitle: string;
 	flavortext?: string;
@@ -14,7 +14,7 @@ const props = defineProps<DBox>();
 	<div class="d-box">
 		<div
 			class="header"
-			:class="props.rarity.toLocaleLowerCase() || 'legendary'"
+			:class="props.rarity.toLocaleLowerCase() || 'neutral'"
 		>
 			<div class="header-icon">
 				<slot name="header-icon"></slot>
@@ -70,6 +70,13 @@ const props = defineProps<DBox>();
 	align-items: center;
 	color: #fff;
 	height: 3em;
+}
+.d-box.disabled .header {
+	color: #aaa;
+	filter: brightness(80%);
+}
+.d-box .header.neutral {
+	background-color: #646463;
 }
 .d-box .header.common {
 	color: #000;

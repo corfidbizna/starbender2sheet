@@ -57,9 +57,9 @@ const shieldColor = computed<string>(() => {
 });
 const subclassColor = computed<string>(() => {
 	return (
-		'background: linear-gradient(3deg, var(--color-' +
+		'background: linear-gradient(90deg, var(--color-' +
 		subclassGet.value.toLocaleLowerCase() +
-		') -50%, #ddd0 50%'
+		') -50%, #ddd0 80%'
 	);
 });
 const lightLevelColor = computed<string>(() => {
@@ -410,7 +410,7 @@ const encumberanceColor = computed<string>(() => {
 					>
 						<img
 							:src="'./icons/headshot_' + characterId + '.png'"
-							style="height: 48px; position: absolute; top: -12px; left: -20px"
+							style="height: 48px; position: absolute; top: -8px; left: -20px"
 						/>
 						<span style="flex-grow: 1">{{ character.label }}</span>
 						<span class="label">CPL</span>
@@ -696,6 +696,7 @@ const encumberanceColor = computed<string>(() => {
 	margin: 8px 0.5em 0px 1em;
 	border-bottom: var(--line);
 	padding-left: 1em;
+	padding-top: 0.15em;
 }
 .character-header > .label {
 	font-size: 0.5em;

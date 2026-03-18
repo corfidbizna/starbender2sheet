@@ -37,7 +37,14 @@ const makeBar = (min: number, max: number, value: number, value2?: number): stri
 };
 
 const stats = computed<
-	{ label: string; hovertext: string; bar: string; value: number; description: string }[]
+	{
+		label: string;
+		hovertext: string;
+		bar: string;
+		value: number;
+		description: string;
+		hasNeutral: boolean;
+	}[]
 >(() => {
 	const max = rangeMax.value;
 	return props.data.map(({ label, hovertext, value, value2, description }) => ({
@@ -51,6 +58,7 @@ const stats = computed<
 		bar: makeBar(0, max, value, value2),
 		value: value2 != undefined ? value2 : value,
 		description: description || '',
+		hasNeutral: hovertext?.includes(' (+0 ') || false,
 	}));
 });
 const rollStat = (label: string, value: number) => {
@@ -73,6 +81,7 @@ const rollStat = (label: string, value: number) => {
 				v-for="stat in stats"
 				:key="stat.label"
 				:title="stat.hovertext"
+				:class="{ 'has-neutral': stat.hasNeutral }"
 			>
 				<td class="label">
 					{{ stat.label }}
@@ -108,8 +117,23 @@ table {
 tr {
 	width: 100%;
 }
+tr.has-neutral {
+	font-style: italic;
+}
+tr.has-neutral .label::after {
+	content: ' ';
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(346deg, #46b6 0, transparent 50%);
+	left: 0;
+	bottom: 1px;
+	text-align: center;
+	z-index: -1;
+}
 .label,
 .value {
+	position: relative;
 	text-align: right;
 	padding: 0 0.5em;
 	max-width: fit-content;

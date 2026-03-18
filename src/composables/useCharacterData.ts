@@ -1514,6 +1514,7 @@ function useCharacterDataUncached(characterId: string) {
 	);
 	const activatedPartyBuffs = computed<BuffInfo[]>(() => {
 		const addThese = [
+			subclassGet.value + ' Atunement',
 			...namesOfActivatedBuffs.value,
 			...weapons.value
 				.filter((weapon) => weapon.isEquipped)
@@ -1535,12 +1536,7 @@ function useCharacterDataUncached(characterId: string) {
 			...namesOfActiveArmor.value,
 			...namesOfActiveArtifactMods.value,
 			...features.value
-				.filter(
-					(feature) =>
-						namesOfActivatedBuffs.value.filter((name) =>
-							feature.dependencies.includes(name),
-						).length === feature.dependencies.length,
-				)
+				.filter((feature) => featureShouldBeActive(feature))
 				.map((feature) => feature.name + ' (Feature)'),
 		];
 		buffs.value.forEach((buff) => {
@@ -1683,6 +1679,13 @@ function useCharacterDataUncached(characterId: string) {
 		}
 		return newFeatures;
 	});
+	const featureShouldBeActive = (feature: Feature) => {
+		const requirementsMet =
+			feature.dependencies.filter((name) => !namesOfActivatedBuffs.value.includes(name))
+				.length === 0;
+		const subclassMet = feature.subclass ? feature.subclass === subclassGet.value : true;
+		return requirementsMet && subclassMet;
+	};
 	const featuresAsBuffs = computed<BuffInfo[]>(() => {
 		const result = features.value.map((feature) => {
 			const newBuff: BuffInfo = {
@@ -1694,12 +1697,7 @@ function useCharacterDataUncached(characterId: string) {
 				stacks: 0,
 				effects: feature.effects || '',
 				isMagic: feature.isMagic,
-				active:
-					feature.dependencies.length > 0
-						? namesOfActivatedBuffs.value.filter((name) =>
-								feature.dependencies.includes(name),
-							).length === feature.dependencies.length
-						: true,
+				active: featureShouldBeActive(feature),
 			};
 			return newBuff;
 		});
@@ -2238,7 +2236,9 @@ function useCharacterDataUncached(characterId: string) {
 			);
 		}
 		// Add in the features' effects
-		const featList = features.value.filter((feature) => feature.effects);
+		const featList = features.value.filter(
+			(feature) => feature.effects && featureShouldBeActive(feature),
+		);
 		for (let i = 0; i < featList.length; i++) {
 			effects.push(features.value[i].effects);
 		}
@@ -2505,6 +2505,7 @@ function useCharacterDataUncached(characterId: string) {
 		skillsRefresh,
 		// Features,
 		features,
+		featureShouldBeActive,
 		featuresLoading,
 		featuresRefresh,
 		// Weapons

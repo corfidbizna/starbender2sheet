@@ -68,6 +68,9 @@ const scrollTo = (id: string) => {
 	width: 18em;
 	display: flex;
 	flex-direction: column;
+	height: var(--content-height);
+	overflow-y: scroll;
+	scrollbar-width: none;
 }
 .features-list {
 	margin-left: 19em;

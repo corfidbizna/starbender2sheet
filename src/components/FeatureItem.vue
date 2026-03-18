@@ -1,27 +1,28 @@
 <script setup lang="ts">
 import useCharacterData, {
 	type CharacterNames,
+	type Element,
 	type Feature,
 } from '@/composables/useCharacterData';
 import DBox from '@/components/DBox.vue';
 import BuffItemRow from './BuffItemRow.vue';
 import { computed } from 'vue';
 import type { BuffInfo } from '@/business_logic/buffs';
+import DGlyph from './DGlyph.vue';
 
 type CharacterProps = {
 	characterId: CharacterNames;
 };
 const props = defineProps<Feature & CharacterProps>();
-const { buffs, namesOfActivatedBuffs } = useCharacterData(props.characterId);
+const { buffs, namesOfActivatedBuffs, featureShouldBeActive, subclassGet } = useCharacterData(
+	props.characterId,
+);
 
 const missingRequirements = computed<string[]>(() => {
 	return props.dependencies.filter((name) => !namesOfActivatedBuffs.value.includes(name));
 });
 const disabled = computed<boolean>(() => {
-	return (
-		namesOfActivatedBuffs.value.filter((name) => props.dependencies.includes(name)).length !==
-		props.dependencies.length
-	);
+	return !featureShouldBeActive(props);
 });
 const effectsProcessed = props.effects.replace(/ /g, ' ').replace(/, /g, ', ');
 // The buffs that this feature is associated with, if any.
@@ -33,7 +34,7 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 	<DBox
 		:id="name"
 		v-bind="{
-			rarity: 'Legendary',
+			rarity: (subclass as Element) || '',
 			title: name,
 			subtitle: subtitle,
 		}"
@@ -41,14 +42,28 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 		class="feature"
 		:class="{ disabled }"
 	>
+		<template #header-icon
+			><DGlyph
+				v-if="subclass"
+				:name="subclass"
+		/></template>
 		<template
 			#header-right
 			v-if="disabled"
 		>
-			<span style="color: var(--color-debuff)">
+			<div
+				v-if="!!subclass && subclass !== subclassGet"
+				class="feature-disabled-info"
+			>
+				Incorrect subclass
+			</div>
+			<div
+				v-if="missingRequirements.length"
+				class="feature-disabled-info"
+			>
 				Missing requirement{{ missingRequirements.length === 1 ? '' : 's' }}:
 				{{ missingRequirements.join(', ') }}
-			</span>
+			</div>
 		</template>
 		<template #contents>
 			<div
@@ -105,6 +120,10 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 	</DBox>
 </template>
 <style>
+.feature-disabled-info {
+	color: var(--color-debuff);
+	text-align: right;
+}
 .feature-effects {
 	font-style: italic;
 	padding: 0 1em;
