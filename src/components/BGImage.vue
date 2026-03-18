@@ -24,7 +24,7 @@ const bgString =
 	top: 0;
 	z-index: -1;
 	mix-blend-mode: screen;
-	opacity: 0.3;
+	opacity: 0.2;
 	background-size: cover;
 	background-attachment: fixed;
 	background-position: center;
