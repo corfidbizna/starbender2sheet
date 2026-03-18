@@ -411,7 +411,10 @@ const weapon = computed<Weapon>(() => {
 						</tr>
 					</tbody>
 				</table>
-				<div class="weapon-perks">
+				<div
+					class="weapon-perks"
+					v-if="Object.keys(perks).length"
+				>
 					<details
 						v-for="perk in perks"
 						:key="perk.name"
@@ -521,7 +524,7 @@ input[type='checkbox'].hidden {
 }
 .weapon-damage-info {
 	padding: 8px;
-	border-bottom: 2px solid #fff4;
+	border-bottom: var(--line);
 	display: flex;
 }
 .damage-main {
@@ -529,7 +532,7 @@ input[type='checkbox'].hidden {
 	line-height: 1em;
 	font-weight: bold;
 	padding-right: 16px;
-	border-right: 2px solid #fff8;
+	border-right: var(--line);
 	display: flex;
 }
 .damage-sub {
@@ -555,7 +558,7 @@ input[type='checkbox'].hidden {
 	margin: 0 0.3em;
 }
 .weapon-details {
-	border-bottom: 2px solid #fff4;
+	border-bottom: var(--line);
 	border-spacing: 0;
 	table-layout: fixed;
 	width: 100%;
@@ -566,7 +569,7 @@ input[type='checkbox'].hidden {
 	font-weight: 800;
 	text-align: right;
 	padding-right: 0.25em;
-	border-right: 2px solid #fff8;
+	border-right: var(--line);
 	margin-right: 0.25em;
 	white-space: nowrap;
 }
@@ -606,8 +609,8 @@ input[type='checkbox'].hidden {
 	font-weight: 100;
 	color: #fffa;
 	padding: 0.75em;
-	border-top: 2px solid #fff4;
-	border-bottom: 2px solid #fff4;
+	border-top: var(--line);
+	border-bottom: var(--line);
 }
 /* .is-equipped {
 	height: 1em;

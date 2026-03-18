@@ -76,6 +76,11 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 	listUnfiltered: sortedWeapons,
 	filter: { dataType: 'string', fieldName: 'name' },
 });
+const multipleExotics = computed<boolean>(() => {
+	return (
+		weapons.value.filter((weapon) => weapon.isEquipped && weapon.rarity === 'Exotic').length > 1
+	);
+});
 </script>
 <template>
 	<div class="weapon-tab-container">
@@ -109,6 +114,11 @@ const { queryValue, invertFilter, filteredData } = useFilter<Weapon, string>({
 					}}</span
 				>
 			</span>
+			<span
+				v-if="multipleExotics"
+				style="color: var(--color-debuff)"
+				>Sorry, but you can't equip more than one exotic at a time.</span
+			>
 			<h2>Filter</h2>
 			<div class="search">
 				<label>

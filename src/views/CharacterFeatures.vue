@@ -11,15 +11,34 @@ const props = defineProps<CharacterProps>();
 const { statsBase, features, featuresLoading, featuresRefresh, buffsLoading } = useCharacterData(
 	props.characterId,
 );
+
+const scrollTo = (id: string) => {
+	const element = document.getElementById(id);
+	if (element) {
+		element.scrollIntoView({ behavior: 'smooth' });
+	}
+};
 </script>
 <template>
 	<div v-if="featuresLoading || buffsLoading">
 		<LoadingModal />
 	</div>
-	<div v-else>
+	<div
+		v-else
+		style="background-image: linear-gradient(90deg, #0004 0, transparent 15em)"
+	>
 		<BGImage :bgName="statsBase.guardianClass" />
-		<div>
+		<div class="features-config">
 			<button @click="featuresRefresh()">Reload Features</button>
+			<h2>Scroll to</h2>
+			<button
+				v-for="feat in features"
+				:key="feat.name"
+				@click="scrollTo(feat.name)"
+				style="text-align: left"
+			>
+				{{ feat.name }}
+			</button>
 		</div>
 		<div class="features-list">
 			<FeatureItem
@@ -32,7 +51,14 @@ const { statsBase, features, featuresLoading, featuresRefresh, buffsLoading } = 
 	</div>
 </template>
 <style>
+.features-config {
+	position: absolute;
+	width: 18em;
+	display: flex;
+	flex-direction: column;
+}
 .features-list {
+	margin-left: 19em;
 	display: flex;
 	flex-wrap: wrap;
 }

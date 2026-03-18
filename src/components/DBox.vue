@@ -54,6 +54,7 @@ const props = defineProps<DBox>();
 	max-width: 576px;
 	margin: 0.5em 0;
 	border: 4px solid #0000;
+	--line: 2px solid #fff4;
 }
 .d-box.active {
 	border-color: #ffff;
@@ -137,7 +138,7 @@ const props = defineProps<DBox>();
 	background-color: #0008;
 }
 .d-box .contents > * {
-	border-bottom: 2px solid #fff4;
+	border-bottom: var(--line);
 	padding: 8px;
 }
 .d-box .contents > *:last-child {
@@ -149,8 +150,8 @@ const props = defineProps<DBox>();
 	font-style: italic;
 	font-weight: 100;
 	color: #fffa;
-	border-bottom: 2px solid #fff4;
-	border-top: 2px solid #fff4;
+	border-bottom: var(--line);
+	border-top: var(--line);
 }
 /* Footer */
 .d-box .footer {

@@ -31,12 +31,14 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 </script>
 <template>
 	<DBox
+		:id="name"
 		v-bind="{
 			rarity: 'Legendary',
 			title: name,
 			subtitle: subtitle,
 		}"
 		style="width: 60em; max-width: none"
+		class="feature"
 		:class="{ disabled }"
 	>
 		<template
@@ -45,8 +47,8 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 		>
 			<span style="color: var(--color-debuff)">
 				Missing requirement{{ missingRequirements.length === 1 ? '' : 's' }}:
-				{{ missingRequirements.join(', ') }}</span
-			>
+				{{ missingRequirements.join(', ') }}
+			</span>
 		</template>
 		<template #contents>
 			<div
@@ -55,7 +57,12 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 			>
 				{{ effectsProcessed }}
 			</div>
-			<div v-if="description">{{ description }}</div>
+			<div
+				v-if="description"
+				class="feature-description"
+			>
+				{{ description }}
+			</div>
 			<div v-if="buffList.length > 0">
 				<BuffItemRow
 					v-for="buff in buffsFiltered"
@@ -65,21 +72,33 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 					:condensed="true"
 				/>
 			</div>
-			<div
-				v-for="group in Object.keys(groups)"
-				:key="group"
-			>
-				<div class="feature-group-label">{{ group }}:</div>
+			<div class="feature-group-list">
 				<div
-					v-for="mod in groups[group]"
-					:key="mod.name"
-					class="feature-mod"
+					v-for="group in Object.keys(groups)"
+					:key="group"
+					class="feature-group"
 				>
-					<details v-if="mod.description">
-						<summary>{{ mod.name }}</summary>
-						<span style="padding-left: 2em">{{ mod.description }}</span>
-					</details>
-					<li v-else>{{ mod.name }}</li>
+					<div class="feature-group-label">{{ group }}:</div>
+					<div
+						v-for="mod in groups[group]"
+						:key="mod.name"
+						class="feature-mod"
+						:class="mod.isDrawback ? 'drawback' : ''"
+					>
+						<details
+							v-if="mod.description"
+							class="feature-mod-item"
+						>
+							<summary>{{ mod.name }}</summary>
+							<div class="feature-mod-description">{{ mod.description }}</div>
+						</details>
+						<li
+							v-else
+							class="feature-mod-item"
+						>
+							{{ mod.name }}
+						</li>
+					</div>
 				</div>
 			</div>
 		</template>
@@ -91,11 +110,44 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 	padding: 0 1em;
 	text-transform: capitalize;
 }
+.feature-description {
+	white-space: pre-line;
+}
+.feature-group-list {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+.feature-group-list :nth-child(4n) {
+	border-right: none;
+}
+.feature-group {
+	width: 23.5%;
+	border-right: var(--line);
+	margin: 4px;
+}
 .feature-group-label {
 	text-transform: uppercase;
-	padding-bottom: 0.5em;
+	padding: 0.5em 0;
+}
+.feature-mod.drawback {
+	color: #fea;
+}
+.disabled .feature-mod.drawback {
+	color: #874;
+}
+.feature-mod-item {
+	margin: 4px;
 }
 .feature-mod li {
-	margin-left: 0.9em;
+	margin-left: 1.1em;
+}
+.feature-mod-description {
+	padding-left: 1em;
+	padding-top: 2px;
+	margin-right: 6px;
+	font-size: 0.9em;
+	opacity: 0.9;
+	border-top: var(--line);
 }
 </style>

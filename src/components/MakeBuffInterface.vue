@@ -309,7 +309,7 @@ for (let i = 0; i < statLabelList.length; i++) {
 					<td>
 						<button
 							@click="addEffect"
-							:disabled="!currentEffectKey || !currentEffectValue"
+							:disabled="!currentEffectKey"
 							:title="
 								!currentEffectKey
 									? 'Cannot append an effect with no destination'

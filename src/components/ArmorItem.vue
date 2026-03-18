@@ -27,6 +27,12 @@ const slotName = computed<string>(() => {
 });
 const imageURL =
 	'./icons/Slot_' + slotName.value[0].toLocaleUpperCase() + slotName.value.slice(1) + '.svg';
+const buffsForDisplay = computed<Record<string, string>>(() => {
+	return {
+		buffs: props.buffs?.replace(/ /g, ' ').replace(/, /g, ', ') || '',
+		buffsCharged: props.buffsCharged?.replace(/ /g, ' ').replace(/, /g, ', ') || '',
+	};
+});
 </script>
 <template>
 	<label
@@ -78,7 +84,7 @@ const imageURL =
 						class="armor-stats passive"
 					>
 						<span class="armor-stats-label">Stats</span>
-						<span class="armor-stats-list">{{ buffs }}</span>
+						<span class="armor-stats-list">{{ buffsForDisplay.buffs }}</span>
 					</div>
 					<div
 						v-if="buffsCharged"
@@ -100,7 +106,7 @@ const imageURL =
 						<span
 							class="armor-stats-list"
 							:class="active ? '' : 'deactivated'"
-							>{{ buffsCharged }}</span
+							>{{ buffsForDisplay.buffsCharged }}</span
 						>
 					</div>
 				</div>
