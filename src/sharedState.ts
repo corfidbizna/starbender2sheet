@@ -116,23 +116,29 @@ export const getGameState = () => {
 };
 
 // Settings
+export const rotateBGs = ref<boolean>(false);
+
 const defaultBGColor = '#ffffff';
 const defaultBanner = 'https://wallpaperaccess.com/full/2099863.jpg';
 // const defaultBanner = 'https://wallpapershigh.com/wp-content/uploads/destiny-2-logo-5.webp';
 export const bgColor = ref<string>(localStorage.getItem('bgColor') || defaultBGColor);
 export const banner = ref<string>(localStorage.getItem('banner') || defaultBanner);
-export const storeVisuals = () => {
-	localStorage.setItem('bgColor', bgColor.value);
-	localStorage.setItem('banner', banner.value);
-};
 export const getBGColor = (): string => {
 	return localStorage.getItem('bgColor') || defaultBGColor;
 };
 export const getBanner = (): string => {
 	return localStorage.getItem('banner') || defaultBanner;
 };
+
 export const resetVisuals = () => {
 	bgColor.value = defaultBGColor;
 	banner.value = defaultBanner;
 };
-export const rotateBGs = ref<boolean>(false);
+export const storeVisuals = () => {
+	localStorage.setItem('bgColor', bgColor.value);
+	localStorage.setItem('banner', banner.value);
+};
+
+// Debug
+export const fullListBuff = ref<boolean>(true);
+export const fullListFeature = ref<boolean>(true);

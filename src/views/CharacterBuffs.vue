@@ -5,6 +5,7 @@ import BuffActivator from '@/components/BuffActivator.vue';
 import { computed } from 'vue';
 import MakeBuffInterface from '@/components/MakeBuffInterface.vue';
 import BGImage from '@/components/BGImage.vue';
+import { fullListBuff } from '@/sharedState';
 
 type CharacterProps = {
 	characterId: string;
@@ -15,6 +16,7 @@ const {
 	stats,
 	statsBuffed,
 	statsLoading,
+	buffs,
 	activatedPartyBuffs,
 	buffsLoading,
 	buffsRefresh,
@@ -55,12 +57,14 @@ const buffTotals = computed<string>(() => {
 	});
 	return result;
 });
-const activeBuffNames = computed<string>(() => {
-	const passiveBuffNames = activatedPartyBuffs.value.map((item) => {
-		return item.name;
-	});
-	const allNames = [...passiveBuffNames];
-	return allNames.sort().join(', ');
+const activeBuffNames = computed<string[]>(() => {
+	const result = [];
+	if (fullListBuff.value) {
+		result.push(...activatedPartyBuffs.value.map((item) => item.name));
+	} else {
+		result.push(...buffs.value.filter((buff) => buff.isPassive).map((buff) => buff.name));
+	}
+	return result.sort();
 });
 </script>
 <template>
@@ -79,22 +83,10 @@ const activeBuffNames = computed<string>(() => {
 			<div class="buff-list">
 				<div><button @click="buffsRefresh">Refresh Buffs</button></div>
 				<h2>Activated Buffs</h2>
-				<div>{{ activeBuffNames.split(', ').sort().join('\n') }}</div>
+				<div>{{ activeBuffNames.join('\n') }}</div>
 				<h2>Stat Totals</h2>
 				<div>{{ buffTotals.split(', ').join('\n') }}</div>
 			</div>
-			<!-- <table>
-				<tbody>
-					<tr>
-						<td>Names of Activated Buffs:</td>
-						<td>{{ activeBuffNames }}</td>
-					</tr>
-					<tr>
-						<td>Active Buff Effects (all):</td>
-						<td>{{ buffTotals }}</td>
-					</tr>
-				</tbody>
-			</table> -->
 			<div>
 				<MakeBuffInterface v-bind:character-id="characterId" />
 				<BuffActivator
@@ -102,7 +94,6 @@ const activeBuffNames = computed<string>(() => {
 					:condensed="false"
 				/>
 			</div>
-			<!-- <pre>activatedPartyBuffs: {{ activatedPartyBuffs }}</pre> -->
 		</div>
 	</div>
 </template>

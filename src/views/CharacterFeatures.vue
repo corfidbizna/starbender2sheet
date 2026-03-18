@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
+import useCharacterData, {
+	type CharacterNames,
+	type Feature,
+} from '@/composables/useCharacterData';
 import LoadingModal from '@/components/LoadingModal.vue';
 import FeatureItem from '@/components/FeatureItem.vue';
 import BGImage from '@/components/BGImage.vue';
+import { fullListFeature } from '@/sharedState';
+import { computed } from 'vue';
 
 type CharacterProps = {
 	characterId: CharacterNames;
@@ -12,6 +17,13 @@ const { statsBase, features, featuresLoading, featuresRefresh, buffsLoading } = 
 	props.characterId,
 );
 
+const featureList = computed<Feature[]>(() => {
+	if (fullListFeature.value) {
+		return features.value;
+	} else {
+		return features.value.filter((feature) => !feature.unlisted);
+	}
+});
 const scrollTo = (id: string) => {
 	const element = document.getElementById(id);
 	if (element) {
@@ -32,7 +44,7 @@ const scrollTo = (id: string) => {
 			<button @click="featuresRefresh()">Reload Features</button>
 			<h2>Scroll to</h2>
 			<button
-				v-for="feat in features"
+				v-for="feat in featureList"
 				:key="feat.name"
 				@click="scrollTo(feat.name)"
 				style="text-align: left"

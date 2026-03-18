@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { labelMap, skillsInfoMap, type SkillKey } from '@/composables/useCharacterData';
-import { bgColor, banner, storeVisuals, resetVisuals, rotateBGs } from '@/sharedState';
+import {
+	bgColor,
+	banner,
+	storeVisuals,
+	resetVisuals,
+	rotateBGs,
+	fullListBuff,
+	fullListFeature,
+} from '@/sharedState';
 const identifyUnicodeSymbols = (start: number, length: number) => {
 	const strings = [];
 	for (let i = start; i < start + length; i++) {
@@ -120,14 +128,29 @@ const labelsSkills = Object.keys(skillsInfoMap).map((key) => skillsInfoMap[key a
 			<tr class="header">
 				<td colspan="2"><h2>Debug</h2></td>
 			</tr>
-			<tr title="Whether or not to display the buff name list on the Buffs page.">
+			<tr
+				title="Whether or not to display the complete list of active buff names on the Buffs page."
+			>
 				<td class="setting-label">
-					<label for="setting-buff-names">Show Buff Names & Effects</label>
+					<label for="setting-full-buff-list">Show Entire Active Buff List</label>
 				</td>
 				<td class="setting-content">
 					<input
-						id="setting-buff-names"
+						id="setting-full-buff-list"
 						type="checkbox"
+						v-model="fullListBuff"
+					/>
+				</td>
+			</tr>
+			<tr title="Whether or not to display features that have been marked as unlisted.">
+				<td class="setting-label">
+					<label for="setting-full-feature-list">Show Entire Feature List</label>
+				</td>
+				<td class="setting-content">
+					<input
+						id="setting-full-feature-list"
+						type="checkbox"
+						v-model="fullListFeature"
 					/>
 				</td>
 			</tr>
