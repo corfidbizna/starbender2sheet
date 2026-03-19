@@ -1,16 +1,33 @@
 <script setup lang="ts">
 import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
 import BGImage from '@/components/BGImage.vue';
+import { ref } from 'vue';
+import LoadingModal from '@/components/LoadingModal.vue';
 
 type CharacterProps = {
 	characterId: CharacterNames;
 };
 const props = defineProps<CharacterProps>();
-const { character, statsBuffed, statsBase, subclassGet } = useCharacterData(props.characterId);
+const { character, statsBuffed, statsBase, subclassGet, statsLoading } = useCharacterData(
+	props.characterId,
+);
+
+const characterTitle =
+	character.value && !statsLoading.value
+		? character.value.label + ', the ' + subclassGet.value + ' ' + statsBase.value.guardianClass
+		: 'No Character';
+const currentImageURL = ref<string>(
+	character.value?.images
+		? character.value.images[0]
+		: 'https://static.wikia.nocookie.net/kingdomhearts/images/0/00/Sora_KHIII_RM.png',
+);
 </script>
 <template>
+	<div v-if="!character || statsLoading">
+		<LoadingModal />
+	</div>
 	<div
-		v-if="character"
+		v-else
 		class="centered"
 	>
 		<BGImage :bgName="'Lore'" />
@@ -87,12 +104,20 @@ const { character, statsBuffed, statsBase, subclassGet } = useCharacterData(prop
 		</table>
 		<div class="preview">
 			<h1>
-				{{ character.label }}, the {{ subclassGet }}
-				{{ statsBase.guardianClass }}
+				{{ characterTitle }}
 			</h1>
-			<img
-				src="https://static.wikia.nocookie.net/kingdomhearts/images/0/00/Sora_KHIII_RM.png"
-			/>
+			<select
+				v-if="!!character.images"
+				v-model="currentImageURL"
+			>
+				<option
+					v-for="url in character.images"
+					:key="url"
+				>
+					{{ url }}
+				</option>
+			</select>
+			<img :src="currentImageURL" />
 		</div>
 		<div class="ability-scores">
 			<h2>Ability Scores</h2>
@@ -141,9 +166,15 @@ const { character, statsBuffed, statsBase, subclassGet } = useCharacterData(prop
 	text-align: center;
 }
 .preview {
-	display: inline-block;
+	display: inline-flex;
+	flex-direction: column;
 	margin: 1em;
 	width: 24em;
+}
+.preview img {
+	height: 24em;
+	width: fit-content;
+	align-self: center;
 }
 .summary {
 	display: inline-block;

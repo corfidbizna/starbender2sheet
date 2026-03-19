@@ -23,6 +23,7 @@ export type CharacterDataSource = {
 		buffs: string;
 		features: string;
 	};
+	images?: string[];
 };
 // The sheet IDs for the party and DM-managed sheets. These won't vary per character.
 export type PartyDataSource = {
@@ -55,6 +56,14 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 			buffs: '1723104523',
 			features: '80035919',
 		},
+		images: [
+			'./character_images/guardian_Corfid.png',
+			'./character_images/guardian_Corfid_combat.png',
+			'./character_images/guardian_Corfid_sword.png',
+			'./character_images/guardian_Corfid_void.png',
+			'./character_images/guardian_Corfid_sparrow.png',
+			'https://static.wikia.nocookie.net/kingdomhearts/images/0/00/Sora_KHIII_RM.png',
+		],
 	},
 	aurora: {
 		label: 'Aurora',
@@ -65,6 +74,15 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 			buffs: '900669394',
 			features: '244313239',
 		},
+		images: [
+			'./character_images/guardian_Veris_noHelm.png',
+			'./character_images/guardian_Veris2_noHelm.png',
+			'./character_images/guardian_Veris3_noHelm.png',
+			'./character_images/guardian_Veris.png',
+			'./character_images/guardian_Veris2.png',
+			'./character_images/guardian_Veris3.png',
+			'./character_images/guardian_Veris_sparrow.png',
+		],
 	},
 	mark: {
 		label: 'Mark',
@@ -75,6 +93,11 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 			buffs: '919733175',
 			features: '',
 		},
+		images: [
+			'./character_images/guardian_Ardj.png',
+			'./character_images/guardian_Ardj_combat.png',
+			'./character_images/guardian_Ardj_sparrow.png',
+		],
 	},
 	lewis: {
 		label: 'Lewis Reed',
@@ -85,6 +108,11 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 			buffs: '858793392',
 			features: '',
 		},
+		images: [
+			'./character_images/guardian_Coleman.png',
+			'./character_images/guardian_Coleman_combat.png',
+			'./character_images/guardian_Coleman_sparrow.png',
+		],
 	},
 };
 // Party Sheet IDs
