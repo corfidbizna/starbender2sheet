@@ -2236,12 +2236,12 @@ function useCharacterDataUncached(characterId: string) {
 			);
 		}
 		// Add in the features' effects
-		const featList = features.value.filter(
-			(feature) => feature.effects && featureShouldBeActive(feature),
-		);
-		for (let i = 0; i < featList.length; i++) {
-			effects.push(features.value[i].effects);
-		}
+		// const featList = features.value.filter(
+		// 	(feature) => feature.effects && featureShouldBeActive(feature),
+		// );
+		// for (let i = 0; i < featList.length; i++) {
+		// 	effects.push(features.value[i].effects);
+		// }
 		// Add in the buffs marked as "basic"
 		// const basicBuffs = buffs.value.filter(
 		// 	(buff) => buff.active && buff.isBasic && buff.effects,

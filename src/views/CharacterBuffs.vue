@@ -81,13 +81,32 @@ const activeBuffNames = computed<string[]>(() => {
 		>
 			<BGImage :bgName="'Buffs'" />
 			<div class="buff-list">
-				<div><button @click="buffsRefresh">Refresh Buffs</button></div>
+				<button @click="buffsRefresh">Refresh Buffs</button>
 				<h2>Activated Buffs</h2>
 				<div>{{ activeBuffNames.join('\n') }}</div>
 				<h2>Stat Totals</h2>
 				<div>{{ buffTotals.split(', ').join('\n') }}</div>
+				<div
+					v-if="fullListBuff"
+					class="all-stats-list"
+				>
+					<h2>All Stats</h2>
+					<div
+						v-for="stat in Object.keys(statsBuffed)"
+						:key="stat"
+						class="all-stats-info"
+					>
+						<div>
+							{{ labelMap[stat as StatName] }} ⇒
+							{{ statsBuffed[stat as StatName].total }}
+						</div>
+						<div class="all-stats-info details">
+							{{ statsBuffed[stat as StatName].summary.join('\n') }}
+						</div>
+					</div>
+				</div>
 			</div>
-			<div>
+			<div style="margin-left: 17em">
 				<MakeBuffInterface v-bind:character-id="characterId" />
 				<BuffActivator
 					:character-id="characterId"
@@ -102,10 +121,27 @@ const activeBuffNames = computed<string[]>(() => {
 	display: flex;
 }
 .buff-list {
+	display: flex;
+	flex-direction: column;
 	white-space: pre-line;
 	width: 16em;
 	flex: 0 0 auto;
 	margin-right: 1em;
+	height: var(--content-height);
+	overflow-y: scroll;
+	overflow-x: hidden;
+	scrollbar-width: none;
+	position: fixed;
+}
+.all-stats-list {
+	font-size: 0.8em;
+	white-space: pre;
+}
+.all-stats-info {
+	margin-bottom: 0.25em;
+}
+.all-stats-info.details {
+	margin-left: 1em;
 }
 .buff-box input {
 	vertical-align: top;
