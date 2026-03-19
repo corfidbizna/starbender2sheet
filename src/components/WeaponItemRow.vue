@@ -536,7 +536,7 @@ input[type='checkbox'].hidden {
 	display: flex;
 }
 .damage-sub {
-	display: inline-block;
+	display: flex;
 	width: fit-content;
 	margin: auto 0;
 	font-size: 1.1em;
@@ -554,7 +554,7 @@ input[type='checkbox'].hidden {
 	text-transform: uppercase;
 }
 .ammo-bar {
-	width: 5em;
+	max-width: 5em;
 	margin: 0 0.3em;
 }
 .weapon-details {

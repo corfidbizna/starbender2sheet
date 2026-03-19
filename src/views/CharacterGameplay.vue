@@ -294,16 +294,39 @@ const applyDamage = () => {
 const actionsCapacity = computed<CapacityBoxStatField[]>(() => {
 	return [
 		{
-			label: 'Moves',
-			stat: 'actionsMove' as ActionResourceKey,
-			max: statsBuffed.value.actionsMove.total,
-			current: actionResources.value.actionsMove,
+			label: 'Major',
+			stat: 'actionsMajor' as ActionResourceKey,
+			max: statsBuffed.value.actionsMajor.total,
+			current: actionResources.value.actionsMajor,
 		},
 		{
 			label: 'Attacks',
 			stat: 'actionsAttack' as ActionResourceKey,
 			max: statsBuffed.value.actionsAttack.total,
 			current: actionResources.value.actionsAttack,
+			color: '#ddd',
+			underlined: true,
+		},
+		{
+			label: 'Tactical',
+			stat: 'actionsTactical' as ActionResourceKey,
+			max: statsBuffed.value.actionsTactical.total,
+			current: actionResources.value.actionsTactical,
+		},
+		{
+			label: 'Movement',
+			stat: 'actionsMove' as ActionResourceKey,
+			max: statsBuffed.value.actionsMove.total,
+			current: actionResources.value.actionsMove,
+			color: '#ddd',
+		},
+		{
+			label: 'Interactions',
+			stat: 'actionsInteraction' as ActionResourceKey,
+			max: statsBuffed.value.actionsInteraction.total,
+			current: actionResources.value.actionsInteraction,
+			color: '#ddd',
+			underlined: true,
 		},
 		{
 			label: 'Reactions',
@@ -311,12 +334,12 @@ const actionsCapacity = computed<CapacityBoxStatField[]>(() => {
 			max: statsBuffed.value.actionsReaction.total,
 			current: actionResources.value.actionsReaction,
 		},
-		{
-			label: 'Bonus Actions',
-			stat: 'actionsOther' as ActionResourceKey,
-			max: statsBuffed.value.actionsBonus.total,
-			current: actionResources.value.actionsBonus,
-		},
+		// {
+		// 	label: 'Bonus Actions',
+		// 	stat: 'actionsOther' as ActionResourceKey,
+		// 	max: statsBuffed.value.actionsBonus.total,
+		// 	current: actionResources.value.actionsBonus,
+		// },
 	];
 });
 

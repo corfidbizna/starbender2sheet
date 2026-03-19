@@ -332,6 +332,7 @@ export type CapacityBoxStatField = {
 	stat: string;
 	color?: string;
 	colorMax?: string;
+	underlined?: boolean;
 	hovertext?: string;
 	max: number;
 	current: number;
@@ -935,7 +936,7 @@ export const labelMap = {
 	slotsArmorLegs: 'Leg Slot',
 	slotsArmorClass: 'Class Slot',
 	slotsArmorFull: 'Armor Slot',
-	slotsArmorExotic: 'Exotic  Slot',
+	slotsArmorExotic: 'Exotic Slot',
 	slotsAspects: 'Aspect Slot',
 	slotsFragments: 'Fragment Slot',
 	equipArmorHead: 'Head Equipment',
@@ -1022,8 +1023,11 @@ export const labelMap = {
 	wisScore: 'Wis Score',
 	chaScore: 'Cha Score',
 	//
+	actionsMajor: 'Major Action',
 	actionsAttack: 'Attack Action',
+	actionsTactical: 'Tactical Action',
 	actionsMove: 'Movement Action',
+	actionsInteraction: 'Interaction',
 	actionsReaction: 'Reaction',
 	actionsBonus: 'Bonus Action',
 	//
@@ -1509,6 +1513,10 @@ function useCharacterDataUncached(characterId: string) {
 		refreshPlayerBuffs();
 	};
 	const namesOfActivatedBuffs = ref<string[]>([]);
+	// const namesOfActivatedBuffsAndSubclass = computed<string[]>(() => [
+	// 	subclassGet.value + ' Attunement',
+	// 	...namesOfActivatedBuffs.value,
+	// ]);
 	const activatablePartyBuffs = computed<BuffInfo[]>(() =>
 		buffs.value.filter((buff) => !buff.isPassive),
 	);

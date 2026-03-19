@@ -104,26 +104,26 @@ const neutralStatTotals: Record<string, number> = {
 	actionsMoveMult: 1,
 	actionsMoveBaseLand: 30,
 	capacityCarrying: 25,
-	capacitySpecial: 18,
-	capacityHeavy: 8,
+	capacitySpecial: 0, // 18
+	capacityHeavy: 0, // 8
 	energyUniversal: 2,
-	energyMeleeRecharge: 1,
-	energyGrenadeRecharge: 1,
-	energySuperRecharge: 1,
-	energyClassRecharge: 1,
+	energyMeleeRecharge: 0, // 1
+	energyGrenadeRecharge: 0, // 1
+	energySuperRecharge: 0, // 1
+	energyClassRecharge: 0, // 1
 	energyDiscountMelee: 0,
 	energyDiscountGrenade: 0,
 	energyDiscountSuper: 0,
 	energyDiscountClass: 0,
-	slotsArmorHead: 3,
-	slotsArmorArm: 3,
-	slotsArmorChest: 3,
-	slotsArmorLegs: 3,
-	slotsArmorClass: 1,
-	slotsArmorFull: 1,
-	slotsArmorExotic: 1,
-	slotsWeapon: 3,
-	hands: 2,
+	slotsArmorHead: 0, // 3
+	slotsArmorArm: 0, // 3
+	slotsArmorChest: 0, // 3
+	slotsArmorLegs: 0, // 3
+	slotsArmorClass: 0, // 1
+	slotsArmorFull: 0, // 1
+	slotsArmorExotic: 0, // 1
+	slotsWeapon: 0, // 3
+	hands: 0, // 2
 };
 // Creates a neutral starting state for all stats.
 export const makeNeutralStats = () => {
@@ -184,7 +184,7 @@ export const getBuffEffects = (buff: BuffInfo): BuffEffect[] => {
 		return [];
 	} else {
 		return buff.effects
-			.split(', ')
+			.split(/,\s/g)
 			.filter((item) => !!item)
 			.map((effect): BuffEffect => {
 				const effectForSplit = effect.replace(/( )(?![A-Za-z\(\)&])/g, '¶');

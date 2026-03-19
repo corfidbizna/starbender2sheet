@@ -49,6 +49,7 @@ const refillAll = () => {
 				v-for="stat in props.data"
 				:key="stat.label"
 				:title="stat.hovertext"
+				:class="{ underlined: stat.underlined }"
 			>
 				<td class="label">{{ stat.label }}</td>
 				<td class="capacity-bar">
@@ -106,7 +107,7 @@ const refillAll = () => {
 <style>
 .stat-box-table {
 	width: 100%;
-	border-spacing: 0;
+	border-collapse: collapse;
 }
 .stat-box-table .table-label {
 	width: 100%;
@@ -121,6 +122,9 @@ const refillAll = () => {
 	padding: 0;
 	margin: 0;
 	white-space: nowrap;
+}
+.stat-box-table tr.underlined {
+	border-bottom: var(--line);
 }
 .stat-box-table .label {
 	text-align: right;

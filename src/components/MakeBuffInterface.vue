@@ -98,7 +98,7 @@ const statLabelGroupHeaderMap: Record<string, string> = {
 	'Max HP': 'Health & Shields',
 	Armor: 'Armor',
 	'Str Mod': 'Ability Mods & Scores',
-	'Attack Action': 'Actions',
+	'Major Action': 'Actions',
 	CPL: 'Level-up',
 	'Base Character Weight': 'Weight',
 	'Artifact Points': 'Misc Stats',

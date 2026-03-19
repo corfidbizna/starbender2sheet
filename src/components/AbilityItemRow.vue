@@ -380,7 +380,7 @@ const updateEnergy = () => {
 						>
 					</div>
 					<div class="damage-sub">
-						{{ props.type }}
+						{{ props.type }} 
 						<span
 							class="energy-bar"
 							:style="'background-image: ' + energyUsageGradientString"
