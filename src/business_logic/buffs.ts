@@ -282,10 +282,10 @@ export const tallyBuffs = (buffs: BuffEffect[]): Stats => {
 		const summaryString =
 			buff.sourceName +
 			' ' +
-			('(+' + buff.amount).replace('+-', '-') +
+			(' ➟  +' + buff.amount).replace('+-', '-') +
 			' ' +
 			labelMap[buff.affectedStat] +
-			'), ' +
+			', ' +
 			buff.category;
 		if (!result[key]) {
 			// If there isn't already buff accumulation happening...

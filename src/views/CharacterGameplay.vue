@@ -77,6 +77,14 @@ const lightLevelColor = computed<string>(() => {
 // );
 const infoAbilityScores = computed<StatBoxInfo>(() => {
 	const keys = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+	const descriptions = [
+		'"Physical might"',
+		'"Agility, reflexes, and balance"',
+		'"Health and stamina"',
+		'"Reasoning and memory"',
+		'"Perceptiveness and mental fortitude"',
+		'"Confidence, poise, and charm"',
+	];
 	return {
 		label: 'Ability Scores',
 		data: keys.map((key, i) => ({
@@ -86,7 +94,8 @@ const infoAbilityScores = computed<StatBoxInfo>(() => {
 				' ' +
 				statsBuffed.value[(keys[i] + 'Score') as StatName].total,
 			stat: key,
-			hovertext: statsBuffed.value[key as StatName].summary.join('\n'),
+			hovertext:
+				descriptions[i] + '\n' + statsBuffed.value[key as StatName].summary.join('\n'),
 			value: stats.value[key as StatName].total,
 			value2: statsBuffed.value[key as StatName].total,
 		})),

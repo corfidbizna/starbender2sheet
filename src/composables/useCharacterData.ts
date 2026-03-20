@@ -1054,7 +1054,7 @@ export const labelMap = {
 	actionsMajor: 'Major Action',
 	actionsAttack: 'Attack Action',
 	actionsTactical: 'Tactical Action',
-	actionsMove: 'Movement Action',
+	actionsMove: 'Move Action',
 	actionsInteraction: 'Interaction',
 	actionsReaction: 'Reaction',
 	actionsBonus: 'Bonus Action',
@@ -1574,9 +1574,9 @@ function useCharacterDataUncached(characterId: string) {
 			...namesOfEquippedArmor.value,
 			...namesOfActiveArmor.value,
 			...namesOfActiveArtifactMods.value,
-			...features.value
-				.filter((feature) => featureShouldBeActive(feature).active)
-				.map((feature) => feature.name + ' (Feature)'),
+			...featuresAsBuffs.value
+				.filter((buff) => buff.active && buff.effects)
+				.map((buff) => buff.name),
 		];
 		buffs.value.forEach((buff) => {
 			if (buff.isPassive || addThese.includes(buff.name)) {
@@ -1730,7 +1730,8 @@ function useCharacterDataUncached(characterId: string) {
 		);
 		const subclassMet = thing.subclass ? thing.subclass === subclassGet.value : true;
 		const reasonList = [];
-		if (!subclassMet) reasonList.push('Incorrect subclass');
+		if (!subclassMet)
+			reasonList.push('Mismatched with current subclass; needs ' + thing.subclass);
 		if (unmetRequirements.length !== 0)
 			reasonList.push(
 				'Missing requirement' +
@@ -1741,35 +1742,46 @@ function useCharacterDataUncached(characterId: string) {
 		return { active: unmetRequirements.length === 0 && subclassMet, reasons: reasonList };
 	};
 	const featuresAsBuffs = computed<BuffInfo[]>(() => {
-		const result = features.value.map((feature) => {
-			const enabledEffects = [
-				feature.effects,
-				...Object.keys(feature.groups).map((groupKey) => {
-					return feature.groups[groupKey]
+		const featureModsResult = <BuffInfo[]>[];
+		const featuresResult = features.value.map((feature) => {
+			// For every feature...
+			const featureActive = featureShouldBeActive(feature).active;
+			if (featureActive) {
+				Object.keys(feature.groups).forEach((groupKey) => {
+					// Go through every group...
+					feature.groups[groupKey]
 						.filter((mod) => mod.effects || mod.subclass)
-						.map((mod) => {
-							if (featureShouldBeActive(mod).active) {
-								return mod.effects;
-							}
-							return '';
-						})
-						.join(', ');
-				}),
-			];
-			const newBuff: BuffInfo = {
+						.forEach((mod) => {
+							// Then provided the group's mods have a buff dependency OR a subclass requirement,
+							// add the mod to the `featureModsResult` array to be added at the end.
+							featureModsResult.push(<BuffInfo>{
+								name: feature.name + ' - ' + mod.name + ' (Feature Mod)',
+								type: 'Hidden',
+								category: 'Misc',
+								isStory: false,
+								isBasic: false,
+								stacks: 0,
+								effects: mod.effects,
+								isMagic: false, // If feature mods ever become magic-able, be sure to change this!
+								active: featureShouldBeActive(mod).active,
+							});
+						});
+				});
+			}
+			const featureBuff: BuffInfo = {
 				name: feature.name + ' (Feature)',
 				type: 'Hidden',
 				category: 'Misc',
 				isStory: false,
 				isBasic: false,
 				stacks: 0,
-				effects: enabledEffects.filter((effect) => !!effect).join(', '),
+				effects: feature.effects,
 				isMagic: feature.isMagic,
-				active: featureShouldBeActive(feature).active,
+				active: featureActive,
 			};
-			return newBuff;
+			return featureBuff;
 		});
-		return result;
+		return [...featuresResult, ...featureModsResult];
 	});
 
 	// FEATURES END
