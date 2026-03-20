@@ -119,22 +119,65 @@ const toHitCalc = computed<number>(() => {
 	return result;
 });
 const hitFormula = new DiceFormula('1d20');
+const isPrecise = ref<boolean>(false);
+const isCrit = ref<boolean>(false);
+const isSneak = ref<boolean>(false);
 const rollDamage = () => {
+	// Precision icon: 
 	const statFunction = getStatByCharacter(buffsAsStats.value);
 	const result = weapon.value.damageFormula.roll(statFunction);
-	let string =
-		glyphMap[props.weaponClass] +
-		props.name +
-		'\n  Damage:     ' +
-		glyphMap[weapon.value.damageType] +
-		result;
-	if (weapon.value.critMult && weapon.value.critMult > 1) {
-		string +=
-			'\n  Crit damage: ' +
-			glyphMap[weapon.value.damageType] +
-			result * weapon.value.critMult;
+	const glyph = glyphMap[weapon.value.damageType];
+	const stringList = [glyphMap[props.weaponClass] + props.name];
+	let total = 0;
+	let isMultipleComponents = false;
+	// Both a precise hit and a critical hit
+	// This combined the base damage & crit damage for single-display, but that's been removed upon request.
+	// If you want it back, un-comment this bit of code and turn the `if` beneath it to an `else if`
+	// if (isPrecise.value && isCrit.value) {
+	// 	stringList.push(' Damage:      ' + glyph + result * weapon.value.critMult);
+	// 	total += result * weapon.value.critMult;
+	if (isPrecise.value || isCrit.value) {
+		// Whether or not there was a precise main hit
+		isMultipleComponents = true;
+		if (isPrecise.value) {
+			stringList.push(' Damage:      ' + glyph + result);
+			total += result;
+		} else stringList.push('    Damage:      ' + glyph + result);
+		// Whether or not there is critical damage added to it
+		if (isCrit.value && weapon.value.critMult > 1) {
+			stringList.push(' Crit damage:  ' + glyph + result * (weapon.value.critMult - 1));
+			total += result * weapon.value.critMult;
+		}
+	} else {
+		stringList.push('    Damage:      ' + glyph + result);
+		total += result;
 	}
-	updateLog(string);
+	// This attack was a sneak attack
+	if (isSneak.value) {
+		isMultipleComponents = true;
+		const sneakResult = new DiceFormula('1d6').roll(statFunction);
+		if (isCrit.value) {
+			stringList.push(' Sneak Attack: ' + glyph + sneakResult * weapon.value.critMult);
+			total += sneakResult * weapon.value.critMult;
+		} else {
+			stringList.push(' Sneak Attack: ' + glyph + sneakResult);
+			total += sneakResult;
+		}
+	}
+	if (isMultipleComponents) stringList.push('    TOTAL:       ' + glyph + total);
+	// let string =
+	// 	glyphMap[props.weaponClass] +
+	// 	props.name +
+	// 	'\n    Damage:     ' +
+	// 	glyphMap[weapon.value.damageType] +
+	// 	result;
+	// if (weapon.value.critMult && weapon.value.critMult > 1) {
+	// 	string +=
+	// 		'\n Crit damage: ' +
+	// 		glyphMap[weapon.value.damageType] +
+	// 		result * weapon.value.critMult;
+	// }
+	updateLog(stringList.join('\n'));
 };
 const rollHit = () => {
 	const result = hitFormula.roll(() => 0);
@@ -412,6 +455,33 @@ const weapon = computed<Weapon>(() => {
 					</tbody>
 				</table>
 				<div
+					v-if="weapon.critRange"
+					class="weapon-damage-mods"
+					:class="{ disabled: !weapon.critRange }"
+				>
+					<label
+						><input
+							type="checkbox"
+							:disabled="!weapon.critRange"
+							v-model="isPrecise"
+						/>Precise Hit</label
+					>
+					<label
+						><input
+							type="checkbox"
+							:disabled="!weapon.critRange"
+							v-model="isCrit"
+						/>Critical Hit</label
+					>
+					<label
+						><input
+							type="checkbox"
+							:disabled="!weapon.critRange"
+							v-model="isSneak"
+						/>Sneak Attack</label
+					>
+				</div>
+				<div
 					class="weapon-perks"
 					v-if="Object.keys(perks).length"
 				>
@@ -536,7 +606,6 @@ input[type='checkbox'].hidden {
 	display: flex;
 }
 .damage-sub {
-	display: flex;
 	width: fit-content;
 	margin: auto 0;
 	font-size: 1.1em;
@@ -583,6 +652,19 @@ input[type='checkbox'].hidden {
 .weapon-stat-data.alt {
 	width: 7%;
 }
+
+.weapon-damage-mods {
+	background-color: #fff2;
+	border-bottom: none;
+	display: flex;
+}
+.weapon-damage-mods.disabled {
+	color: #888;
+}
+.weapon-damage-mods * {
+	flex-grow: 1;
+}
+
 .weapon-perks {
 	flex: 2;
 	/* max-height: 6em;
