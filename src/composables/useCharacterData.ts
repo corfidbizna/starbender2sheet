@@ -1116,6 +1116,9 @@ export type FeatureMod = {
 	description: string;
 	isDrawback: boolean;
 	buffList: string[];
+	effects: string;
+	subclass: string;
+	dependencies: string[];
 	rank: number;
 };
 export type Feature = {
@@ -1572,7 +1575,7 @@ function useCharacterDataUncached(characterId: string) {
 			...namesOfActiveArmor.value,
 			...namesOfActiveArtifactMods.value,
 			...features.value
-				.filter((feature) => featureShouldBeActive(feature))
+				.filter((feature) => featureShouldBeActive(feature).active)
 				.map((feature) => feature.name + ' (Feature)'),
 		];
 		buffs.value.forEach((buff) => {
@@ -1676,10 +1679,13 @@ function useCharacterDataUncached(characterId: string) {
 				groups: {},
 				buffList: !featureRows[0].group ? featureRows[0].buffList?.split(', ') || [] : [],
 				isMagic: featureRows.filter((row) => row.isMagic).length > 0,
-				effects: featureRows
-					.filter((row) => row.effects && row.effects.length > 0)
-					.map((row) => row.effects?.replace(/, *$/g, ''))
-					.join(', '),
+				effects: !featureRows[0].group
+					? featureRows[0].effects?.replace(/, $/, '') || ''
+					: '',
+				// effects: featureRows
+				// 	.filter((row) => row.effects && row.effects.length > 0)
+				// 	.map((row) => row.effects?.replace(/, *$/g, ''))
+				// 	.join(', '),
 				subclass: featureRows[0].subclass || '',
 				dependencies: featureRows[0].dependencies?.split(', ') || [],
 				rank: parseInt(featureRows[0].rank) || 0,
@@ -1704,6 +1710,9 @@ function useCharacterDataUncached(characterId: string) {
 							description: row.description || '',
 							isDrawback: row.isCharacterDrawback,
 							buffList: row.buffList?.split(', ') || [],
+							effects: row.effects?.replace(/, $/, '') || '',
+							subclass: row.subclass || '',
+							dependencies: row.dependencies?.split(', ') || [],
 							rank: parseInt(row.rank) || 0,
 						});
 					});
@@ -1715,15 +1724,38 @@ function useCharacterDataUncached(characterId: string) {
 		}
 		return newFeatures;
 	});
-	const featureShouldBeActive = (feature: Feature) => {
-		const requirementsMet =
-			feature.dependencies.filter((name) => !namesOfActivatedBuffs.value.includes(name))
-				.length === 0;
-		const subclassMet = feature.subclass ? feature.subclass === subclassGet.value : true;
-		return requirementsMet && subclassMet;
+	const featureShouldBeActive = (thing: Feature | FeatureMod) => {
+		const unmetRequirements = thing.dependencies.filter(
+			(name) => !namesOfActivatedBuffs.value.includes(name),
+		);
+		const subclassMet = thing.subclass ? thing.subclass === subclassGet.value : true;
+		const reasonList = [];
+		if (!subclassMet) reasonList.push('Incorrect subclass');
+		if (unmetRequirements.length !== 0)
+			reasonList.push(
+				'Missing requirement' +
+					(unmetRequirements.length === 1 ? '' : 's') +
+					': ' +
+					unmetRequirements.join(', '),
+			);
+		return { active: unmetRequirements.length === 0 && subclassMet, reasons: reasonList };
 	};
 	const featuresAsBuffs = computed<BuffInfo[]>(() => {
 		const result = features.value.map((feature) => {
+			const enabledEffects = [
+				feature.effects,
+				...Object.keys(feature.groups).map((groupKey) => {
+					return feature.groups[groupKey]
+						.filter((mod) => mod.effects || mod.subclass)
+						.map((mod) => {
+							if (featureShouldBeActive(mod).active) {
+								return mod.effects;
+							}
+							return '';
+						})
+						.join(', ');
+				}),
+			];
 			const newBuff: BuffInfo = {
 				name: feature.name + ' (Feature)',
 				type: 'Hidden',
@@ -1731,9 +1763,9 @@ function useCharacterDataUncached(characterId: string) {
 				isStory: false,
 				isBasic: false,
 				stacks: 0,
-				effects: feature.effects || '',
+				effects: enabledEffects.filter((effect) => !!effect).join(', '),
 				isMagic: feature.isMagic,
-				active: featureShouldBeActive(feature),
+				active: featureShouldBeActive(feature).active,
 			};
 			return newBuff;
 		});
@@ -2273,7 +2305,7 @@ function useCharacterDataUncached(characterId: string) {
 		}
 		// Add in the features' effects
 		// const featList = features.value.filter(
-		// 	(feature) => feature.effects && featureShouldBeActive(feature),
+		// 	(feature) => feature.effects && featureShouldBeActive(feature).active,
 		// );
 		// for (let i = 0; i < featList.length; i++) {
 		// 	effects.push(features.value[i].effects);

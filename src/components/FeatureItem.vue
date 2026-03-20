@@ -14,17 +14,41 @@ type CharacterProps = {
 	characterId: CharacterNames;
 };
 const props = defineProps<Feature & CharacterProps>();
-const { buffs, namesOfActivatedBuffs, featureShouldBeActive, subclassGet } = useCharacterData(
-	props.characterId,
-);
+const { buffs, featureShouldBeActive } = useCharacterData(props.characterId);
 
-const missingRequirements = computed<string[]>(() => {
-	return props.dependencies.filter((name) => !namesOfActivatedBuffs.value.includes(name));
-});
+const featureActiveStatus = computed<{ active: boolean; reasons: string[] }>(() =>
+	featureShouldBeActive(props),
+);
+// const missingRequirements = computed<string[]>(() => {
+// 	return props.dependencies.filter((name) => !namesOfActivatedBuffs.value.includes(name));
+// });value.
 const disabled = computed<boolean>(() => {
-	return !featureShouldBeActive(props);
+	return !featureActiveStatus.value.active;
 });
-const effectsProcessed = props.effects.replace(/ /g, ' ').replace(/, /g, ', ');
+
+const processEffects = (getEnabled: boolean) => {
+	const newEffects = Object.keys(props.groups).map((groupKey) => {
+		return props.groups[groupKey]
+			.filter((mod) => mod.effects || mod.subclass)
+			.map((mod) => {
+				if (featureShouldBeActive(mod).active === getEnabled) {
+					return mod.effects;
+				}
+				return '';
+			})
+			.filter((effect) => !!effect)
+			.join(', ');
+	});
+	if (props.effects && getEnabled) newEffects.unshift(props.effects);
+	return newEffects
+		.filter((effect) => !!effect)
+		.join(', ')
+		.replace(/ /g, ' ')
+		.replace(/, /g, ', ');
+};
+const yesEffects = computed<string>(() => processEffects(true));
+const noEffects = computed<string>(() => processEffects(false));
+
 // The buffs that this feature is associated with, if any.
 const buffsFiltered = computed<BuffInfo[]>(() => {
 	return buffs.value.filter((buff) => props.buffList.includes(buff.name));
@@ -52,25 +76,25 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 			v-if="disabled"
 		>
 			<div
-				v-if="!!subclass && subclass !== subclassGet"
+				v-if="!featureActiveStatus.active"
 				class="feature-disabled-info"
 			>
-				Incorrect subclass
-			</div>
-			<div
-				v-if="missingRequirements.length"
-				class="feature-disabled-info"
-			>
-				Missing requirement{{ missingRequirements.length === 1 ? '' : 's' }}:
-				{{ missingRequirements.join(', ') }}
+				{{ featureActiveStatus.reasons.join('\n') }}
 			</div>
 		</template>
 		<template #contents>
 			<div
-				v-if="effects"
+				v-if="yesEffects || noEffects"
 				class="feature-effects"
 			>
-				{{ effectsProcessed }}
+				<span>
+					{{ yesEffects + (noEffects ? ', ' : '') }}
+				</span>
+				<span
+					v-if="noEffects"
+					style="color: #888"
+					>{{ noEffects }}</span
+				>
 			</div>
 			<div
 				v-if="description"
@@ -98,7 +122,11 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 						v-for="mod in groups[group]"
 						:key="mod.name"
 						class="feature-mod"
-						:class="mod.isDrawback ? 'drawback' : ''"
+						:class="{
+							drawback: mod.isDrawback,
+							disabled: !featureShouldBeActive(mod).active,
+						}"
+						:title="featureShouldBeActive(mod).reasons.join('\n')"
 					>
 						<details
 							v-if="mod.description"
@@ -123,6 +151,7 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 .feature-disabled-info {
 	color: var(--color-debuff);
 	text-align: right;
+	white-space: pre-line;
 }
 .feature-effects {
 	font-style: italic;
@@ -151,6 +180,12 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 }
 .feature-mod.drawback {
 	color: #fea;
+}
+.feature-mod.disabled {
+	color: var(--color-debuff);
+}
+.disabled .feature-mod.disabled {
+	color: #888;
 }
 .disabled .feature-mod.drawback {
 	color: #874;

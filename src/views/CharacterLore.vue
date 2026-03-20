@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
 import BGImage from '@/components/BGImage.vue';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import LoadingModal from '@/components/LoadingModal.vue';
 
 type CharacterProps = {
@@ -12,10 +12,11 @@ const { character, statsBuffed, statsBase, subclassGet, statsLoading } = useChar
 	props.characterId,
 );
 
-const characterTitle =
+const characterTitle = computed<string>(() =>
 	character.value && !statsLoading.value
 		? character.value.label + ', the ' + subclassGet.value + ' ' + statsBase.value.guardianClass
-		: 'No Character';
+		: 'Loading…',
+);
 const currentImageURL = ref<string>(
 	character.value?.images
 		? character.value.images[0]
