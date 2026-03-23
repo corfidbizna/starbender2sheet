@@ -1095,6 +1095,86 @@ export const makeEmptyStats = () => {
 	});
 	return result as Record<StatName, number>;
 };
+const abilityScoreDescriptions: Record<string, Record<number, string>> = {
+	str: {
+		1: 'Lorem ipsum',
+	},
+	dex: {
+		1: 'barely mobile.',
+		2: 'badly uncoordinated, with little or no hand-eye coordination.',
+		4: 'often trips or stumbles, struggles with tasks that require manual precision.',
+		6: 'graceless, artless.',
+		8: 'sometimes clumsy.',
+		10: 'totally average.',
+		12: 'well poised and balanced, careful and crafty with their hands.',
+		14: 'moves elegantly, manipulates things carefully and precisely.',
+		16: "has a dancer's control over their body, and is capable of extremely subtle and precise manual tasks.",
+		18: 'the body of a ballerina and the hands of a locksmith. ',
+	},
+	con: {
+		1: 'just about breathing.',
+		2: 'frail, brittle, permanently exhausted.',
+		4: 'usually sickly, little resilience.',
+		6: 'out of shape, prone to illness.',
+		8: 'a little out of shape, a little more prone to getting sick.',
+		10: 'totally average.',
+		12: 'sturdy, in good health, pretty fit.',
+		14: 'tough, in great health, very fit.',
+		16: 'physically robust, almost never ill.',
+		18: 'a perfect physique, tireless, unyielding. ',
+	},
+	int: {
+		1: 'an instinctual animal.',
+		2: 'a conscious animal.',
+		4: 'minimum level for sentience - struggles to reason logically at all or to retain information.',
+		6: 'dim, may struggle to connect ideas, often comes to the wrong conclusions from information.',
+		8: 'makes more errors than usual when reasoning, sometimes struggles to retain knowledge.',
+		10: 'totally average.',
+		12: 'can reason quickly, make novel connections among ideas.',
+		14: 'can reason rapidly and accurately, retain and process complex information.',
+		16: 'can understand, retain, recall, and reason with very complex information rapidly.',
+		18: 'profound genius. ',
+	},
+	wis: {
+		1: 'extreme perceptual difficulties, a profound disconnect from reality, or both.',
+		2: 'struggles to perceive their surroundings and situation correctly, either due to sensory impairment or a lack of mental focus.',
+		4: 'usually distracted and easily misled - frequently misapprehends the situation.',
+		6: 'prone to zoning out, taking things at face value, or overlooking obvious clues.',
+		8: 'prone to errors or oversights in judgment and perception.',
+		10: 'totally average.',
+		12: 'a good eye for detail, quick wit, or clear head.',
+		14: 'very good senses, great situational awareness, canny in social situations.',
+		16: 'keenly aware of the environment and changes within it - seldom misses a clue, insinuation, or lie.',
+		18: 'perfect awareness of surroundings, context, and implications - extremely hard to get anything past them. ',
+	},
+	cha: {
+		1: 'profoundly hateful, repellent, or boring.',
+		2: 'deeply disagreeable, whether through incompetence, malice, or blandness.',
+		4: 'unlikable, tedious, or simply socially oblivious.',
+		6: 'prone to making gaffes, over-estimating their abilities, or boring others.',
+		8: 'somewhat socially inept or dull.',
+		10: 'totally average.',
+		12: 'good presence and social skills.',
+		14: 'assured social skills, a smooth operator.',
+		16: 'an accomplished orator, performer, diplomat, or liar.',
+		18: "even their worst enemies can't help but respond to them - their personality lights up a room. ",
+	},
+};
+export const getScoreDescription = (
+	stat: 'str' | 'dex' | 'con' | 'int' | 'wis' | 'cha',
+	score: number,
+) => {
+	const list = ["Score of zero? This shouldn't happen : /"];
+	for (let i = 1; i <= 18; i++) {
+		if (abilityScoreDescriptions[stat][i]) {
+			list.push(abilityScoreDescriptions[stat][i]);
+		} else list.push(list[i - 1]);
+	}
+	if (score >= list.length) {
+		return list[list.length - 1];
+	}
+	return list[score];
+};
 
 // Feature Types
 type ImportedFeature = {

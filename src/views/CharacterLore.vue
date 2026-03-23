@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
+import useCharacterData, {
+	type CharacterNames,
+	getScoreDescription,
+} from '@/composables/useCharacterData';
 import BGImage from '@/components/BGImage.vue';
 import { computed, ref } from 'vue';
 import LoadingModal from '@/components/LoadingModal.vue';
@@ -93,12 +96,7 @@ const currentImageURL = ref<string>(
 				</tr>
 				<tr>
 					<td colspan="2">
-						<div>
-							Short for a teen, Kara has a boisterous personality. There's not much
-							margin between him knowing your name and being your friend. He's not the
-							sharpest bulb in the drawer—he left his brain cell behind in his
-							original reality—but he's keen in ways that you might not expect.
-						</div>
+						<div>Character description goes here.</div>
 					</td>
 				</tr>
 			</tbody>
@@ -126,35 +124,40 @@ const currentImageURL = ref<string>(
 				<span>Strength </span><span class="score">({{ statsBuffed.strScore.total }})</span>
 			</div>
 			<div class="score-summary">
-				He will challenge you to an arm wrestle and be <i>fairly</i> confident about it.
+				{{ getScoreDescription('str', statsBuffed.strScore.total) }}
 			</div>
 			<div>
 				<span>Dexterity </span><span class="score">({{ statsBuffed.dexScore.total }})</span>
 			</div>
 			<div class="score-summary">
-				I mean, are you trying to say you <i>can't</i> just parkor up the side of a
-				skyscraper?
+				{{ getScoreDescription('dex', statsBuffed.dexScore.total) }}
 			</div>
 			<div>
 				<span>Constitution </span
 				><span class="score">({{ statsBuffed.conScore.total }})</span>
 			</div>
 			<div class="score-summary">
-				Fairly solidly built. There is quite a lot he can bounce back from.
+				{{ getScoreDescription('con', statsBuffed.conScore.total) }}
 			</div>
 			<div>
 				<span>Intelligence </span
 				><span class="score">({{ statsBuffed.intScore.total }})</span>
 			</div>
-			<div class="score-summary">He's not the sharpest bulb in the shed.</div>
+			<div class="score-summary">
+				{{ getScoreDescription('int', statsBuffed.intScore.total) }}
+			</div>
 			<div>
 				<span>Wisdom </span><span class="score">({{ statsBuffed.wisScore.total }})</span>
 			</div>
-			<div class="score-summary">He left his brain cell in his original reality.</div>
+			<div class="score-summary">
+				{{ getScoreDescription('wis', statsBuffed.wisScore.total) }}
+			</div>
 			<div>
 				<span>Charisma </span><span class="score">({{ statsBuffed.chaScore.total }})</span>
 			</div>
-			<div class="score-summary">Fairly easy to get along with.</div>
+			<div class="score-summary">
+				{{ getScoreDescription('cha', statsBuffed.chaScore.total) }}
+			</div>
 		</div>
 		<div class="notes">
 			<h2>Notes</h2>
