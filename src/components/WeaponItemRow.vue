@@ -305,7 +305,7 @@ const weapon = computed<Weapon>(() => {
 			v-bind="{
 				rarity: props.rarity,
 				title: props.name,
-				subtitle: props.weaponClass,
+				subtitle: (props.brand ? props.brand + ' ' : '') + props.weaponClass,
 				flavortext: props.flavortext,
 			}"
 			:class="
@@ -511,6 +511,12 @@ const weapon = computed<Weapon>(() => {
 						<div>{{ perk.description }}</div>
 					</details>
 				</div>
+				<div
+					v-if="description"
+					class="weapon-description"
+				>
+					{{ description }}
+				</div>
 			</template>
 			<template #footer-text>
 				<span
@@ -657,6 +663,7 @@ input[type='checkbox'].hidden {
 	background-color: #fff2;
 	border-bottom: none;
 	display: flex;
+	text-align: center;
 }
 .weapon-damage-mods.disabled {
 	color: #888;
@@ -733,5 +740,8 @@ button:hover {
 }
 button:active {
 	background: #fff8;
+}
+.weapon-description {
+	white-space: pre-line;
 }
 </style>

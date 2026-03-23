@@ -1168,6 +1168,8 @@ type WeaponClasses =
 export type ImportedWeapon = Characters & {
 	name: string;
 	flavortext?: string;
+	description?: string;
+	brand?: string;
 	rarity: Rarity;
 	element: Element;
 	weaponClass: WeaponClasses;
@@ -1202,6 +1204,8 @@ export type ImportedWeapon = Characters & {
 export type Weapon = DamageComponent & {
 	name: string;
 	flavortext: string;
+	description: string;
+	brand: string;
 	rarity: Rarity;
 	element: Element;
 	weaponClass: WeaponClasses;
@@ -2508,6 +2512,8 @@ function useCharacterDataUncached(characterId: string) {
 				const weapon: Weapon = {
 					name: ogWeapon.name,
 					flavortext: ogWeapon.flavortext || '',
+					description: ogWeapon.description || '',
+					brand: ogWeapon.brand || '',
 					rarity: ogWeapon.rarity,
 					element: ogWeapon.element,
 					weaponClass: ogWeapon.weaponClass,
