@@ -51,6 +51,7 @@ body {
 	font-family: sans-serif;
 	text-shadow: 1px 1px #0004;
 	margin: 0;
+	scrollbar-color: #bbb #4444;
 }
 /* body::before {
 	content: '';

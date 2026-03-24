@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import type { Rarity, Element } from '@/composables/useCharacterData';
+import { ref } from 'vue';
 
 export type DBox = {
 	rarity: Rarity | Element | '';
 	title: string;
 	subtitle: string;
 	flavortext?: string;
+	lore?: string;
 };
 
 const props = defineProps<DBox>();
+const showLore = ref<boolean>(false);
 </script>
 <template>
 	<div class="d-box">
@@ -45,8 +48,39 @@ const props = defineProps<DBox>();
 			{{ props.flavortext }}
 		</div>
 		<div class="footer">
+			<button
+				v-if="lore"
+				@click="showLore = !showLore"
+				style="float: left"
+			>
+				Show Lore
+			</button>
 			<slot name="footer-text"></slot>
 		</div>
+		<label
+			v-if="lore && showLore"
+			class="lore"
+			for="toggle-lore"
+		>
+			<button
+				id="toggle-lore"
+				@click="showLore = !showLore"
+			>
+				×
+			</button>
+			<h1>{{ title }}</h1>
+			<div class="lore-box">
+				<div class="lore-content">
+					<div
+						v-if="flavortext"
+						class="lore-title"
+					>
+						{{ flavortext }}
+					</div>
+					<div class="lore-text">{{ lore }}</div>
+				</div>
+			</div>
+		</label>
 	</div>
 </template>
 <style>
@@ -169,5 +203,73 @@ const props = defineProps<DBox>();
 .d-box.active .footer {
 	background-color: #ffff;
 	color: #000a;
+}
+.d-box.active .footer button {
+	background-color: #0007;
+}
+/* Lore display */
+.d-box .lore {
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	white-space: pre-line;
+	font-size: 1rem;
+	top: 0;
+	left: 0;
+	width: 40em;
+	height: calc(100vh - 14em);
+	background-color: #0026;
+	border-right: 3px solid #aaa;
+	padding: 6em;
+	padding-top: 8em;
+	backdrop-filter: blur(4px);
+	z-index: 1;
+}
+.d-box .lore button {
+	position: absolute;
+	top: 1em;
+	right: 1em;
+	display: none;
+}
+.d-box .lore .lore-box {
+	position: relative;
+	padding: 2em 0;
+	border-top: var(--line);
+	border-bottom: var(--line);
+	height: 0;
+	flex-shrink: 1;
+	flex-basis: fit-content;
+}
+.d-box .lore .lore-box::before {
+	content: '';
+	position: absolute;
+	width: 2em;
+	height: 2px;
+	top: -4px;
+	left: calc(50% - 1em);
+	background-color: #fff6;
+}
+.d-box .lore .lore-box::after {
+	content: '';
+	position: absolute;
+	width: 2em;
+	height: 2px;
+	bottom: -4px;
+	left: calc(50% - 1em);
+	background-color: #fff6;
+}
+.d-box .lore .lore-content {
+	overflow-y: auto;
+	scrollbar-width: thin;
+	padding-right: 1em;
+	max-height: 100%;
+}
+.d-box .lore .lore-title {
+	text-transform: uppercase;
+	font-weight: bold;
+	margin-bottom: 1em;
+}
+.d-box .lore .lore-text {
+	color: #ddd;
 }
 </style>

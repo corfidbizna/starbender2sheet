@@ -1250,6 +1250,7 @@ export type ImportedWeapon = Characters & {
 	flavortext?: string;
 	description?: string;
 	brand?: string;
+	lore?: string;
 	rarity: Rarity;
 	element: Element;
 	weaponClass: WeaponClasses;
@@ -1286,6 +1287,7 @@ export type Weapon = DamageComponent & {
 	flavortext: string;
 	description: string;
 	brand: string;
+	lore: string;
 	rarity: Rarity;
 	element: Element;
 	weaponClass: WeaponClasses;
@@ -1359,6 +1361,7 @@ export type Armor = Characters & {
 	name: string;
 	flavortext?: string;
 	description?: string;
+	lore?: string;
 	rarity: Rarity;
 	isActivatable: boolean;
 	isStacking: boolean;
@@ -2594,6 +2597,7 @@ function useCharacterDataUncached(characterId: string) {
 					flavortext: ogWeapon.flavortext || '',
 					description: ogWeapon.description || '',
 					brand: ogWeapon.brand || '',
+					lore: ogWeapon.lore || '',
 					rarity: ogWeapon.rarity,
 					element: ogWeapon.element,
 					weaponClass: ogWeapon.weaponClass,

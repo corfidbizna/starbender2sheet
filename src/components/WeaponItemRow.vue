@@ -307,6 +307,7 @@ const weapon = computed<Weapon>(() => {
 				title: props.name,
 				subtitle: (props.brand ? props.brand + ' ' : '') + props.weaponClass,
 				flavortext: props.flavortext,
+				lore: props.lore,
 			}"
 			:class="
 				(isEquipped && !activatable ? 'active' : '') +

@@ -46,6 +46,7 @@ const buffsForDisplay = computed<Record<string, string>>(() => {
 				title: props.name,
 				subtitle: (props.slots || 'full').split(' ')[0] + ' equipment',
 				flavortext: props.flavortext,
+				lore: props.lore,
 			}"
 			:class="equipped && activatable ? 'active' : ''"
 		>
