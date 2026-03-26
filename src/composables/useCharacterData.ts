@@ -365,6 +365,7 @@ export type CapacityBoxStatField = {
 	max: number;
 	current: number;
 	current2?: number;
+	inverted?: boolean;
 };
 
 //
@@ -946,14 +947,17 @@ export const labelMap = {
 	energyGrenade: 'Grenade Energy',
 	energySuper: 'Super Energy',
 	energyClass: 'Class Energy',
+	energyRitual: 'Ritual Energy',
 	energyMeleeRecharge: 'Melee Energy Recharge',
 	energyGrenadeRecharge: 'Grenade Energy Recharge',
 	energySuperRecharge: 'Super Energy Recharge',
 	energyClassRecharge: 'Class Energy Recharge',
+	energyRitualRecharge: 'Ritual Energy Recharge',
 	energyDiscountMelee: 'Melee Energy Discount',
 	energyDiscountGrenade: 'Grenade Energy Discount',
 	energyDiscountSuper: 'Super Energy Discount',
 	energyDiscountClass: 'Class Energy Discount',
+	energyDiscountRitual: 'Ritual Energy Discount',
 	energyUniversal: 'Max Universal Energy',
 	energyUniversalRecharge: 'Universal Energy Recharge',
 	rerolls: 'Rerolls',
@@ -1017,7 +1021,7 @@ export const labelMap = {
 	will: 'Will Save',
 	//
 	hpMax: 'Max HP',
-	hpRecharge: 'HP Recharge',
+	hpRecharge: 'Fast Healing',
 	hpTempMax: 'Max Temp HP',
 	hpShieldMax: 'Max Shield HP',
 	hpShieldRecharge: 'Shield Recharge',
@@ -1380,7 +1384,13 @@ export type Armor = Characters & {
 };
 
 // Ability Types
-export type AbilityClass = 'Super' | 'Grenade' | 'Melee' | 'Class Ability' | 'Subcomponent';
+export type AbilityClass =
+	| 'Super'
+	| 'Grenade'
+	| 'Melee'
+	| 'Class Ability'
+	| 'Subcomponent'
+	| 'Ritual';
 type ImportedAbility = Characters &
 	Ability & {
 		groupNameList: string;
@@ -2110,7 +2120,9 @@ function useCharacterDataUncached(characterId: string) {
 			return item;
 		});
 	});
-	const namesOfEquippedArmor = ref<string[]>([]);
+	const namesOfEquippedArmor = ref<string[]>(
+		localStorage.getItem(characterId + '_artifact')?.split('»') || [],
+	);
 	const namesOfActiveArmor = ref<string[]>([]);
 	const armorsAsBuffs = computed<BuffInfo[]>(() => {
 		const passive = armor.value
@@ -2455,22 +2467,40 @@ function useCharacterDataUncached(characterId: string) {
 					subclassIndex: 0,
 					turns: 0,
 					health: getFinalStat('hpMax'),
+					damage: 0,
 					shields: getFinalStat('hpShieldMax'),
+					damageShields: 0,
 					actionsMove: getFinalStat('actionsMove'),
+					actionsMoveUsed: 0,
 					actionsAttack: getFinalStat('actionsAttack'),
+					actionsAttackUsed: 0,
 					actionsReaction: getFinalStat('actionsReaction'),
+					actionsReactionUsed: 0,
 					actionsOther: getFinalStat('actionsBonus'),
+					actionsOtherUsed: 0,
 					ammoKinetic: getFinalStat('capacityKinetic'),
+					ammoKineticUsed: 0,
 					ammoSpecial: getFinalStat('capacitySpecial'),
+					ammoSpecialUsed: 0,
 					ammoHeavy: getFinalStat('capacityHeavy'),
+					ammoHeavyUsed: 0,
 					energySuper: getFinalStat('energySuper'),
+					energySuperUsed: 0,
 					energyMelee: getFinalStat('energyMelee'),
+					energyMeleeUsed: 0,
 					energyGrenade: getFinalStat('energyGrenade'),
+					energyGrenadeUsed: 0,
 					energyClass: getFinalStat('energyClass'),
+					energyClassUsed: 0,
 					energyUniversal: getFinalStat('energyUniversal'),
+					energyUniversalUsed: 0,
+					energyRitual: getFinalStat('energyRitual'),
+					energyRitualUsed: 0,
 					armorCharges: getFinalStat('capacityArmorCharge'),
+					armorChargesUsed: 0,
 					targetRange: 0,
 					rerolls: getFinalStat('rerolls'),
+					rerollsUsed: 0,
 				},
 	);
 	// const maxesPairs = [
@@ -2643,6 +2673,9 @@ function useCharacterDataUncached(characterId: string) {
 				// Put whether or not the weapon is active / equipped from Local Storage here!!
 				return weapon;
 			});
+	});
+	watch(namesOfEquippedArmor, () => {
+		localStorage.setItem(characterId + '_armorEquipped', namesOfEquippedArmor.value.join('»'));
 	});
 	watch(namesOfActiveArtifactMods, () => {
 		localStorage.setItem(characterId + '_artifact', namesOfActiveArtifactMods.value.join('»'));

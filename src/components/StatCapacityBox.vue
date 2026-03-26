@@ -6,12 +6,13 @@ import type {
 	CapacityBoxStatField,
 } from '@/composables/useCharacterData';
 import CapacityBar from './CapacityBar.vue';
+import SpinBox from './SpinBox.vue';
 
 const props = defineProps<CapacityBoxInfo & { characterId: string }>();
 const { actionResources, actionResourceUpdate } = useCharacterData(props.characterId);
 
 const refillStat = (stat: CapacityBoxStatField) => {
-	const diff = stat.max - stat.current;
+	const diff = stat.inverted ? -stat.current : stat.max - stat.current;
 	actionResourceUpdate(stat.stat as ActionResourceKey, diff);
 };
 const refillAll = () => {
@@ -56,7 +57,7 @@ const refillAll = () => {
 					<CapacityBar
 						v-bind="{
 							max: stat.max,
-							current: stat.current || 0,
+							current: stat.inverted ? stat.max - stat.current : stat.current || 0,
 							color: stat.color || '#eee',
 							colorFull: stat.colorMax,
 						}"
@@ -66,11 +67,19 @@ const refillAll = () => {
 					v-if="!noInteract"
 					class="increment-container"
 				>
-					<input
+					<SpinBox
+						v-bind="{
+							value: stat.current,
+							max: stat.max,
+							inverted: stat.inverted,
+						}"
+						v-model="actionResources[stat.stat]"
+					/>
+					<!-- <input
 						type="number"
 						id="current"
 						v-model="actionResources[stat.stat]"
-					/>
+					/> -->
 				</td>
 				<td
 					v-else

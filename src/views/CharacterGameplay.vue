@@ -17,6 +17,7 @@ import CapacityBar from '@/components/CapacityBar.vue';
 import DGlyph from '@/components/DGlyph.vue';
 import { actionLog, updateLog } from '@/sharedState';
 import BGImage from '@/components/BGImage.vue';
+import SpinBox from '@/components/SpinBox.vue';
 type CharacterProps = {
 	characterId: string;
 };
@@ -196,17 +197,19 @@ const healthCapacity = computed<CapacityBoxStatField[]>(() => {
 	return [
 		{
 			label: 'Hit Points',
-			stat: 'health',
+			stat: 'damage',
 			max: statsBuffed.value.hpMax.total,
-			current: actionResources.value.health,
+			current: actionResources.value.damage,
 			color: '#fff',
+			inverted: true,
 		},
 		{
 			label: activeShieldType.value + ' Shields',
-			stat: 'shields',
+			stat: 'damageShields',
 			max: statsBuffed.value.hpShieldMax.total,
-			current: actionResources.value.shields,
+			current: actionResources.value.damageShields,
 			color: shieldColor.value,
+			inverted: true,
 		},
 	];
 });
@@ -304,50 +307,57 @@ const actionsCapacity = computed<CapacityBoxStatField[]>(() => {
 	return [
 		{
 			label: 'Major',
-			stat: 'actionsMajor' as ActionResourceKey,
+			stat: 'actionsMajorUsed',
 			max: statsBuffed.value.actionsMajor.total,
-			current: actionResources.value.actionsMajor,
+			current: actionResources.value.actionsMajorUsed,
+			inverted: true,
 		},
 		{
 			label: 'Attacks',
-			stat: 'actionsAttack' as ActionResourceKey,
+			stat: 'actionsAttackUsed',
 			max: statsBuffed.value.actionsAttack.total,
-			current: actionResources.value.actionsAttack,
+			current: actionResources.value.actionsAttackUsed,
+			inverted: true,
 			color: '#ddd',
 			underlined: true,
 		},
 		{
 			label: 'Tactical',
-			stat: 'actionsTactical' as ActionResourceKey,
+			stat: 'actionsTacticalUsed',
 			max: statsBuffed.value.actionsTactical.total,
-			current: actionResources.value.actionsTactical,
+			current: actionResources.value.actionsTacticalUsed,
+			inverted: true,
 		},
 		{
 			label: 'Movement',
-			stat: 'actionsMove' as ActionResourceKey,
+			stat: 'actionsMoveUsed',
 			max: statsBuffed.value.actionsMove.total,
-			current: actionResources.value.actionsMove,
+			current: actionResources.value.actionsMoveUsed,
+			inverted: true,
 			color: '#ddd',
 		},
 		{
 			label: 'Interactions',
-			stat: 'actionsInteraction' as ActionResourceKey,
+			stat: 'actionsInteractionUsed',
 			max: statsBuffed.value.actionsInteraction.total,
-			current: actionResources.value.actionsInteraction,
+			current: actionResources.value.actionsInteractionUsed,
+			inverted: true,
 			color: '#ddd',
 			underlined: true,
 		},
 		{
 			label: 'Reactions',
-			stat: 'actionsReaction' as ActionResourceKey,
+			stat: 'actionsReactionUsed',
 			max: statsBuffed.value.actionsReaction.total,
-			current: actionResources.value.actionsReaction,
+			current: actionResources.value.actionsReactionUsed,
+			inverted: true,
 		},
 		// {
 		// 	label: 'Bonus Actions',
-		// 	stat: 'actionsOther' as ActionResourceKey,
+		// 	stat: 'actionsOtherUsed',
 		// 	max: statsBuffed.value.actionsBonus.total,
-		// 	current: actionResources.value.actionsBonus,
+		// 	current: actionResources.value.actionsOtherUsed,
+		//  inverted: true,
 		// },
 	];
 });
@@ -405,6 +415,8 @@ const encumberanceColor = computed<string>(() => {
 		<div v-else>
 			<div class="primary-block">
 				<div class="action-block">
+					<!-- <SpinBox v-bind="{ value: 0, max: 10 }" />
+					<SpinBox v-bind="{ value: 0, max: 10, inverted: true }" /> -->
 					<div>
 						<button
 							@click="

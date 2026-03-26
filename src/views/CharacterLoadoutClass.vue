@@ -46,6 +46,7 @@ const abilityTypes = computed<AbilityClass[]>(() => [
 	'Class' as AbilityClass,
 	'Universal' as AbilityClass,
 ]);
+if (getFinalStat('energyRitual') > 0) abilityTypes.value.push('Ritual' as AbilityClass);
 const listKey = ref<string>('');
 const list = computed<Ability[]>(() =>
 	abilities.value.filter(
@@ -71,44 +72,60 @@ const listExcludes = computed<Ability[]>(() =>
 	),
 );
 const energyCapacity = computed<CapacityBoxStatField[]>(() => {
-	return [
+	const result = [
 		{
 			label: 'Super',
-			stat: 'energySuper',
+			stat: 'energySuperUsed',
 			color: elements[subclassGet.value],
 			colorMax: '#ff6',
 			max: getFinalStat('energySuper'),
-			current: actionResources.value.energySuper,
+			current: actionResources.value.energySuperUsed,
+			inverted: true,
 		},
 		{
 			label: 'Class',
-			stat: 'energyClass',
+			stat: 'energyClassUsed',
 			color: elements[subclassGet.value],
 			max: getFinalStat('energyClass'),
-			current: actionResources.value.energyClass,
+			current: actionResources.value.energyClassUsed,
+			inverted: true,
 		},
 		{
 			label: 'Melee',
-			stat: 'energyMelee',
+			stat: 'energyMeleeUsed',
 			color: elements[subclassGet.value],
 			max: getFinalStat('energyMelee'),
-			current: actionResources.value.energyMelee,
+			current: actionResources.value.energyMeleeUsed,
+			inverted: true,
 		},
 		{
 			label: 'Grenade',
-			stat: 'energyGrenade',
+			stat: 'energyGrenadeUsed',
 			color: elements[subclassGet.value],
 			max: getFinalStat('energyGrenade'),
-			current: actionResources.value.energyGrenade,
+			current: actionResources.value.energyGrenadeUsed,
+			inverted: true,
 		},
 		{
 			label: 'Universal',
-			stat: 'energyUniversal',
+			stat: 'energyUniversalUsed',
 			color: '#eee',
 			max: getFinalStat('energyUniversal'),
-			current: actionResources.value.energyUniversal,
+			current: actionResources.value.energyUniversalUsed,
+			inverted: true,
 		},
 	];
+	if (getFinalStat('energyRitual') > 0) {
+		result.push({
+			label: 'Ritual',
+			stat: 'energyRitualUsed',
+			color: elements[subclassGet.value],
+			max: getFinalStat('energyRitual'),
+			current: actionResources.value.energyRitualUsed,
+			inverted: true,
+		});
+	}
+	return result;
 });
 </script>
 <template>

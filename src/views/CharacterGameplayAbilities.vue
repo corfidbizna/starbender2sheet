@@ -4,6 +4,7 @@ import useCharacterData, { elements } from '@/composables/useCharacterData';
 import CapacityBar from '@/components/CapacityBar.vue';
 import { computed, ref } from 'vue';
 import AbilityItemRow from '@/components/AbilityItemRow.vue';
+import SpinBox from '@/components/SpinBox.vue';
 
 type CharacterProps = {
 	characterId: CharacterNames;
@@ -40,6 +41,7 @@ const energyImage: Record<string, string> = {
 	Melee: './svgs/stat_melee.svg',
 	Class: classIcon.value,
 	Universal: './svgs/Tricorn.svg',
+	Ritual: './svgs/Tricorn.svg',
 };
 const subclassColor = computed<string>(() => {
 	const subclass = Object.keys(elements)[actionResources.value.subclassIndex] as Element;
@@ -91,11 +93,20 @@ const abilityFilter = ref<string>('All');
 								/>
 							</td>
 							<td>
-								<input
+								<SpinBox
+									style="width: 4em"
+									v-bind="{
+										value: actionResources.energySuperUsed,
+										max: getFinalStat('energySuper'),
+										inverted: true,
+									}"
+									v-model="actionResources.energySuperUsed"
+								/>
+								<!-- <input
 									style="width: 4em"
 									type="number"
 									v-model="actionResources.energySuper"
-								/>
+								/> -->
 							</td>
 							<td>⁄</td>
 							<td>{{ getFinalStat('energySuper') }}</td>
@@ -120,24 +131,78 @@ const abilityFilter = ref<string>('All');
 									class="ability-bar"
 									v-bind="{
 										label: energyType,
-										stat: 'energy' + energyType,
+										stat: 'energy' + energyType + 'Used',
 										color: energyType === 'Universal' ? '#eee' : subclassColor,
 										max: getFinalStat(('energy' + energyType) as StatName),
-										current: actionResources['energy' + energyType],
+										current:
+											getFinalStat(('energy' + energyType) as StatName) -
+											actionResources['energy' + energyType + 'Used'],
 									}"
 									:characterId="characterId"
 								/>
 							</td>
 							<td>
-								<input
+								<SpinBox
+									style="width: 4em"
+									v-bind="{
+										value: actionResources['energy' + energyType + 'Used'],
+										max: getFinalStat(('energy' + energyType) as StatName),
+										inverted: true,
+									}"
+									v-model="actionResources['energy' + energyType + 'Used']"
+								/>
+								<!-- <input
 									style="width: 4em"
 									type="number"
 									v-model="actionResources['energy' + energyType]"
-								/>
+								/> -->
 							</td>
 							<td>⁄</td>
 							<td>
 								{{ getFinalStat(('energy' + energyType) as StatName) }}
+							</td>
+						</tr>
+						<tr v-if="getFinalStat('energyRitual') > 0">
+							<td>
+								<button
+									class="ability-button category"
+									:style="'background-color: ' + subclassColor"
+									value="energyType"
+									@click="abilityFilter = 'Ritual'"
+								>
+									<img :src="energyImage.Ritual" />
+								</button>
+							</td>
+							<td style="font-weight: normal">Ritual</td>
+							<td style="width: 100%">
+								<CapacityBar
+									class="ability-bar"
+									v-bind="{
+										label: 'Ritual',
+										stat: 'energyRitualUsed',
+										color: subclassColor,
+										max: getFinalStat('energyRitual'),
+										current:
+											getFinalStat('energyRitual') -
+											actionResources['energyRitualUsed'],
+									}"
+									:characterId="characterId"
+								/>
+							</td>
+							<td>
+								<SpinBox
+									style="width: 4em"
+									v-bind="{
+										value: actionResources['energyRitualUsed'],
+										max: getFinalStat('energyRitual'),
+										inverted: true,
+									}"
+									v-model="actionResources['energyRitualUsed']"
+								/>
+							</td>
+							<td>⁄</td>
+							<td>
+								{{ getFinalStat('energyRitual') }}
 							</td>
 						</tr>
 					</tbody>
@@ -191,7 +256,7 @@ const abilityFilter = ref<string>('All');
 	padding-left: 2em;
 	padding-top: 1em;
 }
-.ability-header button * {
+.ability-header > button * {
 	filter: invert(100%);
 }
 .ability-header .super-bar {
