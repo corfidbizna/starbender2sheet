@@ -41,7 +41,7 @@ watch(realMax, () => {
 			v-on:focus="textboxValue = displayValue"
 			v-on:focusout="textboxValue = displayValue"
 		/>
-		<span style="position: absolute; pointer-events: none">{{ realValue }}</span>
+		<!-- <span style="position: absolute; pointer-events: none">{{ realValue }}</span> -->
 		<span class="spinbox-increment-container">
 			<button
 				class="spinbox-increment up"

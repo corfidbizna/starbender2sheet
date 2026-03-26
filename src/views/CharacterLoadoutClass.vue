@@ -369,6 +369,4 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 .subclass-ability-category {
 	margin: 0 4px;
 }
-.subclass-ability-list {
-}
 </style>
