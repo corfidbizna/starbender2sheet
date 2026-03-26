@@ -83,11 +83,13 @@ const abilityFilter = ref<string>('All');
 									class="ability-bar"
 									v-bind="{
 										label: 'Super',
-										stat: 'energySuper',
+										stat: 'energySuperUsed',
 										color: subclassColor,
 										colorFull: '#ff6',
 										max: getFinalStat('energySuper'),
-										current: actionResources.energySuper,
+										current:
+											actionResources.energySuper -
+											actionResources['energySuperUsed'],
 									}"
 									:characterId="characterId"
 								/>
