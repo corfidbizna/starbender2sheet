@@ -986,7 +986,7 @@ export const labelMap = {
 	//
 	equipAspects: 'Aspect Slots',
 	equipFragments: 'Fragment Slots',
-	capacityArmorCharge: 'Max Armor Charge',
+	capacityArmorCharge: 'Armor Charge',
 	//
 	toHitRanged: 'Ranged to hit',
 	toHitMelee: 'Melee to hit',

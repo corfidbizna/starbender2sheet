@@ -97,8 +97,8 @@ const activeBuffNames = computed<string[]>(() => {
 						class="all-stats-info"
 					>
 						<div>
-							{{ labelMap[stat as StatName] }} ⇒
-							{{ statsBuffed[stat as StatName].total }}
+							{{ statsBuffed[stat as StatName].total }} ⇒
+							{{ labelMap[stat as StatName] }}
 						</div>
 						<div class="all-stats-info details">
 							{{ statsBuffed[stat as StatName].summary.join('\n') }}
