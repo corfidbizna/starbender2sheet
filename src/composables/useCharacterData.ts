@@ -2121,7 +2121,7 @@ function useCharacterDataUncached(characterId: string) {
 		});
 	});
 	const namesOfEquippedArmor = ref<string[]>(
-		localStorage.getItem(characterId + '_artifact')?.split('»') || [],
+		localStorage.getItem(characterId + '_armorEquipped')?.split('»') || [],
 	);
 	const namesOfActiveArmor = ref<string[]>([]);
 	const armorsAsBuffs = computed<BuffInfo[]>(() => {
