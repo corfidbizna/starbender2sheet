@@ -10,8 +10,15 @@ type CharacterProps = {
 	characterId: CharacterNames;
 };
 const props = defineProps<CharacterProps>();
-const { character, statsBase, abilities, abilitiesLoading, getFinalStat, actionResources } =
-	useCharacterData(props.characterId);
+const {
+	character,
+	statsBase,
+	statsBuffed,
+	abilities,
+	abilitiesLoading,
+	getFinalStat,
+	actionResources,
+} = useCharacterData(props.characterId);
 const mainAbilities = computed<Ability[]>(() => {
 	return abilities.value.filter((ability) => ability.type !== 'Subcomponent');
 });
@@ -116,6 +123,13 @@ const abilityFilter = ref<string>('All');
 						<tr
 							v-for="energyType in ['Grenade', 'Melee', 'Class', 'Universal']"
 							:key="energyType"
+							:title="
+								energyType +
+								' Energy: ' +
+								statsBuffed[('energy' + energyType) as StatName].total +
+								'\n' +
+								statsBuffed[('energy' + energyType) as StatName].summary.join('\n')
+							"
 						>
 							<td>
 								<button

@@ -106,7 +106,7 @@ const neutralStatTotals: Record<string, number> = {
 	capacityCarrying: 25,
 	capacitySpecial: 0, // 18
 	capacityHeavy: 0, // 8
-	energyUniversal: 2,
+	energyUniversal: 0,
 	energyMeleeRecharge: 0, // 1
 	energyGrenadeRecharge: 0, // 1
 	energySuperRecharge: 0, // 1
@@ -423,9 +423,13 @@ const buffDistributionMap: Partial<Record<StatName, Distribution>> = {
 			'toHitSpell',
 			'damageSpell',
 			'chaSave',
-			{ stat: 'energyUniversal', ratio: (buffs) => buffs.cpl.total }, // TODO
+			// { stat: 'energyUniversal', ratio: (buffs) => buffs.cpl.total }, // TODO
 			// { stat: 'energyUniversal', ratio: 7 },
 		],
+		special: (buffs) => {
+			buffs.energyUniversal.total += (buffs.cha.total + 2) * buffs.cpl.total;
+			buffs.energyUniversal.summary.splice(0, 0, ...buffs.cha.summary);
+		},
 	},
 	strScore: {
 		affectedStats: [{ stat: 'str', ratio: 0.5 }],
@@ -435,7 +439,7 @@ const buffDistributionMap: Partial<Record<StatName, Distribution>> = {
 				Math.floor(Math.pow(4, Math.max(buffs.strScore.total / 10, 0))) *
 				sizeMap[buffs.size.total].carryingCapacity;
 
-			buffs.capacityCarrying.total = newCapacity;
+			buffs.capacityCarrying.total += newCapacity;
 			buffs.capacityCarrying.summary.splice(0, 0, ...buffs.strScore.summary);
 		},
 	},
