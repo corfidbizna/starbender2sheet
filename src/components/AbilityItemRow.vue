@@ -26,7 +26,6 @@ const {
 	buffsTallied,
 	getFinalStat,
 	actionResources,
-	actionResourceUpdate,
 } = useCharacterData(props.characterId);
 
 // =======================
@@ -249,8 +248,8 @@ const rollHit = () => {
 };
 // Decrease the usage energy
 const updateEnergy = () => {
-	const key = ('energy' + props.type) as ActionResourceKey;
-	actionResourceUpdate(key, -energyUseAmount.value);
+	const key = ('energy' + props.type + 'Used') as ActionResourceKey;
+	actionResources.value[key] += energyUseAmount.value;
 };
 </script>
 <template>

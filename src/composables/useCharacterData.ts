@@ -395,8 +395,10 @@ export const makeComputedOfStats = (
 // The type and destination of character stats that describe "capacities" rather than straight-up values.
 export type ActionResource = {
 	turns: number;
-	health: number;
-	shields: number;
+	// health: number;
+	// shields: number;
+	damage: number;
+	damageShields: number;
 	//
 	actionsMove: number;
 	actionsAttack: number;
@@ -2466,9 +2468,9 @@ function useCharacterDataUncached(characterId: string) {
 			: <Record<ActionResourceKey, number>>{
 					subclassIndex: 0,
 					turns: 0,
-					health: getFinalStat('hpMax'),
+					// health: getFinalStat('hpMax'),
 					damage: 0,
-					shields: getFinalStat('hpShieldMax'),
+					// shields: getFinalStat('hpShieldMax'),
 					damageShields: 0,
 					actionsMove: getFinalStat('actionsMove'),
 					actionsMoveUsed: 0,

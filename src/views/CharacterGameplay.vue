@@ -8,7 +8,6 @@ import useCharacterData, {
 	type StatName,
 	elements,
 	type Element,
-	type ActionResourceKey,
 } from '@/composables/useCharacterData';
 import StatBarsBox from '@/components/StatBarsBox.vue';
 import LoadingModal from '@/components/LoadingModal.vue';
@@ -17,7 +16,6 @@ import CapacityBar from '@/components/CapacityBar.vue';
 import DGlyph from '@/components/DGlyph.vue';
 import { actionLog, updateLog } from '@/sharedState';
 import BGImage from '@/components/BGImage.vue';
-import SpinBox from '@/components/SpinBox.vue';
 type CharacterProps = {
 	characterId: string;
 };
@@ -144,11 +142,8 @@ const incrementTurn = () => {
 	['Super', 'Class', 'Melee', 'Grenade', 'Universal'].forEach((energy) => {
 		const energyKey = ('energy' + energy) as StatName;
 		const energyRechargeKey = ('energy' + energy + 'Recharge') as StatName;
-		if (
-			resource[energyKey] < statsBuffed.value[energyKey].total ||
-			statsBuffed.value[energyRechargeKey].total < 0
-		) {
-			resource[energyKey] += statsBuffed.value[energyRechargeKey].total;
+		if (resource[energyKey + 'Used'] > 0 || statsBuffed.value[energyRechargeKey].total < 0) {
+			resource[energyKey + 'Used'] -= statsBuffed.value[energyRechargeKey].total;
 		}
 	});
 	// Action Refresh
@@ -156,13 +151,11 @@ const incrementTurn = () => {
 	resource.actionsAttack += source.actionsAttack.total - resource.actionsAttack;
 	resource.actionsReaction += source.actionsReaction.total - resource.actionsReaction;
 	// Healths Regen
-	if (resource.health < source.hpMax.total) {
-		resource.health += statsBuffed.value.hpRecharge.total;
-		resource.healthDamage -= statsBuffed.value.hpRecharge.total;
+	if (resource.damage > 0) {
+		resource.damage -= statsBuffed.value.hpRecharge.total;
 	}
-	if (resource.shields < source.hpShieldMax.total) {
-		resource.shields += statsBuffed.value.hpShieldRecharge.total;
-		resource.shieldsDamage -= statsBuffed.value.hpShieldRecharge.total;
+	if (resource.damageShields > 0) {
+		resource.damageShields -= statsBuffed.value.hpShieldRecharge.total;
 	}
 };
 const rallyBanner = () => {
@@ -175,9 +168,9 @@ const rallyBanner = () => {
 		resource[energyKey] += statsBuffed.value[energyKey].total - resource[energyKey];
 	});
 	// Action Refresh
-	resource.actionsMove += statsBuffed.value.actionsMove.total - resource.actionsMove;
-	resource.actionsAttack += statsBuffed.value.actionsAttack.total - resource.actionsAttack;
-	resource.actionsReaction += statsBuffed.value.actionsReaction.total - resource.actionsReaction;
+	resource.actionsMoveUsed = 0;
+	resource.actionsAttackUsed = 0;
+	resource.actionsReactionUsed = 0;
 	// Ammo Refresh
 	// resource.ammoKinetic += source.capacityKinetic - resource.ammoKinetic;
 	// resource.ammoSpecial += source.capacitySpecial - resource.ammoSpecial;
@@ -188,10 +181,8 @@ const rallyBanner = () => {
 			weaponAmmoUpdate(weapon.name, weapon.ammoCapacity - weapon.ammoCurrent);
 		});
 	// Healths Refresh
-	resource.health = statsBuffed.value.hpMax.total;
-	resource.shields = statsBuffed.value.hpShieldMax.total;
-	resource.healthDamage = 0;
-	resource.shieldsDamage = 0;
+	resource.damage = 0;
+	resource.damageShields = 0;
 };
 const healthCapacity = computed<CapacityBoxStatField[]>(() => {
 	return [
@@ -246,8 +237,8 @@ const currentDamage = computed<number>(() => {
 });
 const previewDamage = computed<Record<string, number>>(() => {
 	const result = {
-		health: actionResources.value.health,
-		shields: actionResources.value.shields,
+		health: statsBuffed.value.hpMax.total - actionResources.value.damage,
+		shields: statsBuffed.value.hpShieldMax.total - actionResources.value.damageShields,
 	};
 	if (result.shields <= 0) {
 		// If there are no shields, just subtract the damage from the health and be done.
@@ -278,8 +269,9 @@ const glyphMap: Record<string, string> = {
 	Darkness: '',
 };
 const applyDamage = () => {
-	const startingHealth = actionResources.value.health;
-	const startingShields = actionResources.value.shields;
+	const startingHealth = statsBuffed.value.hpMax.total - actionResources.value.damage;
+	const startingShields =
+		statsBuffed.value.hpShieldMax.total - actionResources.value.damageShields;
 	//
 	const diffHealth = -1 * (startingHealth - previewDamage.value.health);
 	const diffShields = -1 * (startingShields - previewDamage.value.shields);
@@ -295,12 +287,12 @@ const applyDamage = () => {
 	const stringHealth =
 		'Health:  ' + startingHealth + ' → ' + previewDamage.value.health + ' (' + diffHealth + ')';
 	updateLog(stringStart + (startingShields > 0 ? stringShield : '') + stringHealth);
-	if (actionResources.value.health <= 0) {
+	if (previewDamage.value.health <= 0) {
 		updateLog('== Guardian down! ==');
 	}
 	//
-	actionResourceUpdate('health', previewDamage.value.health - actionResources.value.health);
-	actionResourceUpdate('shields', previewDamage.value.shields - actionResources.value.shields);
+	actionResources.value.damage -= diffHealth;
+	actionResources.value.damageShields -= diffShields;
 };
 
 const actionsCapacity = computed<CapacityBoxStatField[]>(() => {
