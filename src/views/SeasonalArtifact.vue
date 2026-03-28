@@ -19,7 +19,7 @@ const {
 } = useCharacterData(props.characterId);
 
 const columns = 5;
-const stageQuantitiesForUnlock = [0, 3, 5, 7, 10];
+const stageQuantitiesForUnlock = [0, 2, 4, 6, 8];
 
 const grid = computed<ArtifactMod[][]>(() => {
 	const result = [];
