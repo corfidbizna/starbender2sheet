@@ -95,7 +95,7 @@ const abilityFilter = ref<string>('All');
 										colorFull: '#ff6',
 										max: getFinalStat('energySuper'),
 										current:
-											actionResources.energySuper -
+											getFinalStat('energySuper') -
 											actionResources['energySuperUsed'],
 									}"
 									:characterId="characterId"
