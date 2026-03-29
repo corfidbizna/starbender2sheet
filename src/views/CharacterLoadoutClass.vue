@@ -6,6 +6,7 @@ import LoadingModal from '@/components/LoadingModal.vue';
 import type {
 	Ability,
 	AbilityClass,
+	ActionResourceKey,
 	CapacityBoxStatField,
 	CharacterNames,
 } from '@/composables/useCharacterData';
@@ -75,7 +76,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 	const result = [
 		{
 			label: 'Super',
-			stat: 'energySuperUsed',
+			stat: 'energySuperUsed' as ActionResourceKey,
 			color: elements[subclassGet.value],
 			colorMax: '#ff6',
 			max: getFinalStat('energySuper'),
@@ -84,7 +85,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 		},
 		{
 			label: 'Class',
-			stat: 'energyClassUsed',
+			stat: 'energyClassUsed' as ActionResourceKey,
 			color: elements[subclassGet.value],
 			max: getFinalStat('energyClass'),
 			current: actionResources.value.energyClassUsed,
@@ -92,7 +93,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 		},
 		{
 			label: 'Melee',
-			stat: 'energyMeleeUsed',
+			stat: 'energyMeleeUsed' as ActionResourceKey,
 			color: elements[subclassGet.value],
 			max: getFinalStat('energyMelee'),
 			current: actionResources.value.energyMeleeUsed,
@@ -100,7 +101,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 		},
 		{
 			label: 'Grenade',
-			stat: 'energyGrenadeUsed',
+			stat: 'energyGrenadeUsed' as ActionResourceKey,
 			color: elements[subclassGet.value],
 			max: getFinalStat('energyGrenade'),
 			current: actionResources.value.energyGrenadeUsed,
@@ -108,7 +109,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 		},
 		{
 			label: 'Universal',
-			stat: 'energyUniversalUsed',
+			stat: 'energyUniversalUsed' as ActionResourceKey,
 			color: '#eee',
 			max: getFinalStat('energyUniversal'),
 			current: actionResources.value.energyUniversalUsed,
@@ -118,7 +119,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 	if (getFinalStat('energyRitual') > 0) {
 		result.push({
 			label: 'Ritual',
-			stat: 'energyRitualUsed',
+			stat: 'energyRitualUsed' as ActionResourceKey,
 			color: elements[subclassGet.value],
 			max: getFinalStat('energyRitual'),
 			current: actionResources.value.energyRitualUsed,

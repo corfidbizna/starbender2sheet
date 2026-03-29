@@ -189,9 +189,9 @@ const rollHit = () => {
 		' (dice) ' +
 		('+ ' + toHitCalc.value).replace('+-', '-') +
 		' (bonus)';
-	if (weapon.value.rangeType !== 'Melee' && actionResources.value.rangeIncrement > 0) {
+	if (weapon.value.rangeType !== 'Melee' && actionResources.value.targetRange > 0) {
 		string +=
-			' - ' + actionResources.value.rangeIncrement * weapon.value.rangePenalty + ' (range)';
+			' - ' + actionResources.value.targetRange * weapon.value.rangePenalty + ' (range)';
 	}
 	string += '\n  Hit result ⇒ ' + (result + toHitCalc.value);
 	if (result <= 1) {

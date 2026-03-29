@@ -90,10 +90,11 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 					data: [
 						{
 							label: 'Charges',
-							stat: 'armorCharges',
+							stat: 'armorChargesUsed',
 							color: '#8df',
 							max: getFinalStat('capacityArmorCharge'),
-							current: actionResources.armorCharges,
+							current: actionResources.armorChargesUsed,
+							inverted: true,
 						},
 					],
 					hideRefillAll: true,

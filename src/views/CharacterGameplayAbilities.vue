@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import type { Ability, CharacterNames, Element, StatName } from '@/composables/useCharacterData';
+import type {
+	Ability,
+	ActionResourceDisplayKey,
+	ActionResourceKey,
+	CharacterNames,
+	Element,
+	StatName,
+} from '@/composables/useCharacterData';
 import useCharacterData, { elements } from '@/composables/useCharacterData';
 import CapacityBar from '@/components/CapacityBar.vue';
 import { computed, ref } from 'vue';
@@ -18,6 +25,7 @@ const {
 	abilitiesLoading,
 	getFinalStat,
 	actionResources,
+	actionResourcesDisplay,
 } = useCharacterData(props.characterId);
 const mainAbilities = computed<Ability[]>(() => {
 	return abilities.value.filter((ability) => ability.type !== 'Subcomponent');
@@ -94,9 +102,7 @@ const abilityFilter = ref<string>('All');
 										color: subclassColor,
 										colorFull: '#ff6',
 										max: getFinalStat('energySuper'),
-										current:
-											getFinalStat('energySuper') -
-											actionResources['energySuperUsed'],
+										current: actionResourcesDisplay.energySuper,
 									}"
 									:characterId="characterId"
 								/>
@@ -151,8 +157,9 @@ const abilityFilter = ref<string>('All');
 										color: energyType === 'Universal' ? '#eee' : subclassColor,
 										max: getFinalStat(('energy' + energyType) as StatName),
 										current:
-											getFinalStat(('energy' + energyType) as StatName) -
-											actionResources['energy' + energyType + 'Used'],
+											actionResourcesDisplay[
+												('energy' + energyType) as ActionResourceDisplayKey
+											],
 									}"
 									:characterId="characterId"
 								/>
@@ -161,11 +168,17 @@ const abilityFilter = ref<string>('All');
 								<SpinBox
 									style="width: 4em"
 									v-bind="{
-										value: actionResources['energy' + energyType + 'Used'],
+										value: actionResources[
+											('energy' + energyType + 'Used') as ActionResourceKey
+										],
 										max: getFinalStat(('energy' + energyType) as StatName),
 										inverted: true,
 									}"
-									v-model="actionResources['energy' + energyType + 'Used']"
+									v-model="
+										actionResources[
+											('energy' + energyType + 'Used') as ActionResourceKey
+										]
+									"
 								/>
 								<!-- <input
 									style="width: 4em"
@@ -198,9 +211,7 @@ const abilityFilter = ref<string>('All');
 										stat: 'energyRitualUsed',
 										color: subclassColor,
 										max: getFinalStat('energyRitual'),
-										current:
-											getFinalStat('energyRitual') -
-											actionResources['energyRitualUsed'],
+										current: actionResourcesDisplay.energyRitual,
 									}"
 									:characterId="characterId"
 								/>

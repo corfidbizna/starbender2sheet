@@ -357,7 +357,7 @@ export type CapacityBoxInfo = {
 };
 export type CapacityBoxStatField = {
 	label: string;
-	stat: string;
+	stat: ActionResourceKey;
 	color?: string;
 	colorMax?: string;
 	underlined?: boolean;
@@ -394,14 +394,45 @@ export const makeComputedOfStats = (
 
 // The type and destination of character stats that describe "capacities" rather than straight-up values.
 export type ActionResource = {
+	subclassIndex: number;
 	turns: number;
-	// health: number;
-	// shields: number;
 	damage: number;
 	damageShields: number;
 	//
-	actionsMove: number;
+	actionsMajorUsed: number;
+	actionsAttackUsed: number;
+	actionsTacticalUsed: number;
+	actionsMoveUsed: number;
+	actionsInteractionUsed: number;
+	actionsReactionUsed: number;
+	actionsOtherUsed: number;
+	//
+	ammoKineticUsed: number;
+	ammoSpecialUsed: number;
+	ammoHeavyUsed: number;
+	//
+	energySuperUsed: number;
+	energyMeleeUsed: number;
+	energyGrenadeUsed: number;
+	energyClassUsed: number;
+	energyRitualUsed: number;
+	energyUniversalUsed: number;
+	//
+	armorChargesUsed: number;
+	rerollsUsed: number;
+	targetRange: number;
+};
+export type ActionResourceDisplay = {
+	subclassIndex: number;
+	turns: number;
+	health: number;
+	shields: number;
+	//
+	actionsMajor: number;
 	actionsAttack: number;
+	actionsTactical: number;
+	actionsMove: number;
+	actionsInteraction: number;
 	actionsReaction: number;
 	actionsOther: number;
 	//
@@ -413,12 +444,15 @@ export type ActionResource = {
 	energyMelee: number;
 	energyGrenade: number;
 	energyClass: number;
+	energyRitual: number;
 	energyUniversal: number;
 	//
 	armorCharges: number;
 	rerolls: number;
+	targetRange: number;
 };
 export type ActionResourceKey = keyof ActionResource;
+export type ActionResourceDisplayKey = keyof ActionResourceDisplay;
 
 //
 export const makeComputedOfCapacities = (
@@ -2114,10 +2148,10 @@ function useCharacterDataUncached(characterId: string) {
 			}
 			//
 			if (item.buffs) {
-				item.buffs.replace(/charges/g, actionResources.value.armorCharges + '');
+				item.buffs.replace(/charges/g, actionResources.value.armorChargesUsed + '');
 			}
 			if (item.buffsCharged) {
-				item.buffsCharged.replace(/charges/g, actionResources.value.armorCharges + '');
+				item.buffsCharged.replace(/charges/g, actionResources.value.armorChargesUsed + '');
 			}
 			return item;
 		});
@@ -2462,88 +2496,80 @@ function useCharacterDataUncached(characterId: string) {
 	const actionResourcesLocal = JSON.parse(
 		localStorage.getItem(characterId + '_actionResources') || 'null',
 	);
-	const actionResources = ref<Record<string, number>>(
+	const actionResources = ref<Record<ActionResourceKey, number>>(
 		!!actionResourcesLocal
 			? { ...actionResourcesLocal }
 			: <Record<ActionResourceKey, number>>{
 					subclassIndex: 0,
 					turns: 0,
-					// health: getFinalStat('hpMax'),
 					damage: 0,
-					// shields: getFinalStat('hpShieldMax'),
 					damageShields: 0,
-					actionsMove: getFinalStat('actionsMove'),
-					actionsMoveUsed: 0,
-					actionsAttack: getFinalStat('actionsAttack'),
+					actionsMajorUsed: 0,
 					actionsAttackUsed: 0,
-					actionsReaction: getFinalStat('actionsReaction'),
+					actionsTacticalUsed: 0,
+					actionsMoveUsed: 0,
+					actionsInteractionUsed: 0,
 					actionsReactionUsed: 0,
-					actionsOther: getFinalStat('actionsBonus'),
 					actionsOtherUsed: 0,
-					ammoKinetic: getFinalStat('capacityKinetic'),
 					ammoKineticUsed: 0,
-					ammoSpecial: getFinalStat('capacitySpecial'),
 					ammoSpecialUsed: 0,
-					ammoHeavy: getFinalStat('capacityHeavy'),
 					ammoHeavyUsed: 0,
-					energySuper: getFinalStat('energySuper'),
 					energySuperUsed: 0,
-					energyMelee: getFinalStat('energyMelee'),
 					energyMeleeUsed: 0,
-					energyGrenade: getFinalStat('energyGrenade'),
 					energyGrenadeUsed: 0,
-					energyClass: getFinalStat('energyClass'),
 					energyClassUsed: 0,
-					energyUniversal: getFinalStat('energyUniversal'),
-					energyUniversalUsed: 0,
-					energyRitual: getFinalStat('energyRitual'),
 					energyRitualUsed: 0,
-					armorCharges: getFinalStat('capacityArmorCharge'),
+					energyUniversalUsed: 0,
 					armorChargesUsed: 0,
-					targetRange: 0,
-					rerolls: getFinalStat('rerolls'),
 					rerollsUsed: 0,
+					targetRange: 0,
 				},
 	);
-	// const maxesPairs = [
-	// 	['health', 'hpMax'],
-	// 	['shields', 'hpShieldMax'],
-	// 	['actionsMove', 'actionsMove'],
-	// 	['actionsAttack', 'actionsAttack'],
-	// 	['actionsReaction', 'actionsReaction'],
-	// 	['actionsOther', 'actionsBonus'],
-	// 	['ammoKinetic', 'capacityKinetic'],
-	// 	['ammoSpecial', 'capacitySpecial'],
-	// 	['ammoHeavy', 'capacityHeavy'],
-	// 	['energySuper', 'energySuper'],
-	// 	['energyMelee', 'energyMelee'],
-	// 	['energyGrenade', 'energyGrenade'],
-	// 	['energyClass', 'energyClass'],
-	// 	['energyUniversal', 'energyUniversal'],
-	// 	['armorCharges', 'capacityArmorCharge'],
-	// 	['rerolls', 'rerolls'],
-	// ];
-	// const actionResourcesCaps = ref<Record<string, number>>({
-	// 	firstRun: 0,
-	// 	// This is a numerical "flag" for whether or not I've run before,
-	// 	// to bypass a bug that happens when you first refresh.
-	// 	health: getFinalStat('hpMax'),
-	// 	shields: getFinalStat('hpShieldMax'),
-	// 	actionsMove: getFinalStat('actionsMove'),
-	// 	actionsAttack: getFinalStat('actionsAttack'),
-	// 	actionsReaction: getFinalStat('actionsReaction'),
-	// 	actionsOther: getFinalStat('actionsBonus'),
-	// 	ammoKinetic: getFinalStat('capacityKinetic'),
-	// 	ammoSpecial: getFinalStat('capacitySpecial'),
-	// 	ammoHeavy: getFinalStat('capacityHeavy'),
-	// 	energySuper: getFinalStat('energySuper'),
-	// 	energyMelee: getFinalStat('energyMelee'),
-	// 	energyGrenade: getFinalStat('energyGrenade'),
-	// 	energyClass: getFinalStat('energyClass'),
-	// 	energyUniversal: getFinalStat('energyUniversal'),
-	// 	armorCharges: getFinalStat('capacityArmorCharge'),
-	// 	rerolls: getFinalStat('rerolls'),
-	// });
+	const actionResourcesDisplay = computed<Record<ActionResourceDisplayKey, number>>(() => {
+		return {
+			subclassIndex: actionResources.value.subclassIndex,
+			turns: actionResources.value.turns,
+			health: statsBuffed.value.hpMax.total - actionResources.value.damage,
+			shields: statsBuffed.value.hpShieldMax.total - actionResources.value.damageShields,
+			actionsMajor:
+				statsBuffed.value.actionsMajor.total - actionResources.value.actionsMajorUsed,
+			actionsAttack:
+				statsBuffed.value.actionsAttack.total - actionResources.value.actionsAttackUsed,
+			actionsTactical:
+				statsBuffed.value.actionsTactical.total - actionResources.value.actionsTacticalUsed,
+			actionsMove:
+				statsBuffed.value.actionsMove.total - actionResources.value.actionsMoveUsed,
+			actionsInteraction:
+				statsBuffed.value.actionsInteraction.total -
+				actionResources.value.actionsInteractionUsed,
+			actionsReaction:
+				statsBuffed.value.actionsReaction.total - actionResources.value.actionsReactionUsed,
+			actionsOther:
+				statsBuffed.value.actionsBonus.total - actionResources.value.actionsOtherUsed,
+			ammoKinetic:
+				statsBuffed.value.capacityKinetic.total - actionResources.value.ammoKineticUsed,
+			ammoSpecial:
+				statsBuffed.value.capacitySpecial.total - actionResources.value.ammoSpecialUsed,
+			ammoHeavy: statsBuffed.value.capacityHeavy.total - actionResources.value.ammoHeavyUsed,
+			energySuper:
+				statsBuffed.value.energySuper.total - actionResources.value.energySuperUsed,
+			energyMelee:
+				statsBuffed.value.energyMelee.total - actionResources.value.energyMeleeUsed,
+			energyGrenade:
+				statsBuffed.value.energyGrenade.total - actionResources.value.energyGrenadeUsed,
+			energyClass:
+				statsBuffed.value.energyClass.total - actionResources.value.energyClassUsed,
+			energyRitual:
+				statsBuffed.value.energyRitual.total - actionResources.value.energyRitualUsed,
+			energyUniversal:
+				statsBuffed.value.energyUniversal.total - actionResources.value.energyUniversalUsed,
+			armorCharges:
+				statsBuffed.value.capacityArmorCharge.total -
+				actionResources.value.armorChargesUsed,
+			rerolls: statsBuffed.value.rerolls.total - actionResources.value.rerollsUsed,
+			targetRange: actionResources.value.targetRange,
+		};
+	});
 	const actionResourceUpdate = (destination: keyof ActionResource, amount: number) => {
 		actionResources.value[destination] += amount;
 	};
@@ -2750,6 +2776,7 @@ function useCharacterDataUncached(characterId: string) {
 		// Stats
 		statsBase: statsImported,
 		actionResources,
+		actionResourcesDisplay,
 		actionResourceUpdate,
 		subclassGet,
 		subclassSet,

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type {
 	Ability,
+	ActionResourceDisplayKey,
 	ActionResourceKey,
 	CharacterNames,
 	DamageComponent,
@@ -26,6 +27,7 @@ const {
 	buffsTallied,
 	getFinalStat,
 	actionResources,
+	actionResourcesDisplay,
 } = useCharacterData(props.characterId);
 
 // =======================
@@ -33,10 +35,12 @@ const {
 // =======================
 // Whether or not it's possible to use the Ability.
 const isDisabled = computed<boolean>(() => {
-	return energyUseAmount.value > actionResources.value['energy' + props.type];
+	return energyUseAmount.value > currentEnergy.value;
 });
 // The current amount of the Ability's energy type available.
-const currentEnergy = computed<number>(() => actionResources.value['energy' + props.type]);
+const currentEnergy = computed<number>(
+	() => actionResourcesDisplay.value[('energy' + props.type) as ActionResourceDisplayKey],
+);
 // The maximum amount of the Ability's energy type that can be available.
 const maxEnergy = computed<number>(() => getFinalStat(('energy' + props.type) as StatName));
 // The amount of energy it will take to use the Ability.

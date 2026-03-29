@@ -8,6 +8,7 @@ import useCharacterData, {
 	type StatName,
 	elements,
 	type Element,
+	type ActionResourceKey,
 } from '@/composables/useCharacterData';
 import StatBarsBox from '@/components/StatBarsBox.vue';
 import LoadingModal from '@/components/LoadingModal.vue';
@@ -35,19 +36,18 @@ const {
 	skillsRefresh,
 	weapons,
 	weaponAmmoUpdate,
-	actionResourceUpdate,
 	subclassGet,
 } = useCharacterData(props.characterId);
 
 const activeShieldType = computed<Element>(() => {
 	const shieldTotals = [
-		{ e: 'Kinetic', n: statsBuffed.value['hpShieldKinetic'].total },
-		{ e: 'Solar', n: statsBuffed.value['hpShieldSolar'].total },
-		{ e: 'Arc', n: statsBuffed.value['hpShieldArc'].total },
-		{ e: 'Void', n: statsBuffed.value['hpShieldVoid'].total },
-		{ e: 'Stasis', n: statsBuffed.value['hpShieldStasis'].total },
-		{ e: 'Strand', n: statsBuffed.value['hpShieldStrand'].total },
-		{ e: 'Prismatic', n: statsBuffed.value['hpShieldPrismatic'].total },
+		{ e: 'Kinetic', n: statsBuffed.value.hpShieldKinetic.total },
+		{ e: 'Solar', n: statsBuffed.value.hpShieldSolar.total },
+		{ e: 'Arc', n: statsBuffed.value.hpShieldArc.total },
+		{ e: 'Void', n: statsBuffed.value.hpShieldVoid.total },
+		{ e: 'Stasis', n: statsBuffed.value.hpShieldStasis.total },
+		{ e: 'Strand', n: statsBuffed.value.hpShieldStrand.total },
+		{ e: 'Prismatic', n: statsBuffed.value.hpShieldPrismatic.total },
 	].sort((a, b) => b.n - a.n);
 	return (shieldTotals[0].e as Element) || 'Kinetic';
 });
@@ -114,17 +114,19 @@ const expendables = computed<CapacityBoxStatField[]>(() => {
 	return [
 		{
 			label: 'Rerolls',
-			stat: 'rerolls',
+			stat: 'rerollsUsed',
 			max: statsBuffed.value.rerolls.total,
-			current: actionResources.value.rerolls,
+			current: actionResources.value.rerollsUsed,
 			color: '#fff',
+			inverted: true,
 		},
 		{
 			label: 'Charges',
-			stat: 'armorCharges',
+			stat: 'armorChargesUsed',
 			color: '#8df',
 			max: statsBuffed.value.capacityArmorCharge.total,
-			current: actionResources.value.armorCharges,
+			current: actionResources.value.armorChargesUsed,
+			inverted: true,
 		},
 	];
 });
@@ -135,21 +137,29 @@ const incrementTurn = () => {
 	const source = stats.value;
 	const resource = actionResources.value;
 	// Update Log
-	updateLog('—— Turn ' + actionResources.value.turns + ' Ended ——');
+	updateLog('—— Turn ' + resource.turns + ' Ended ——');
 	// Turn Counter
-	actionResourceUpdate('turns', 1);
+	resource.turns++;
 	// Energy Regen
 	['Super', 'Class', 'Melee', 'Grenade', 'Universal'].forEach((energy) => {
 		const energyKey = ('energy' + energy) as StatName;
 		const energyRechargeKey = ('energy' + energy + 'Recharge') as StatName;
-		if (resource[energyKey + 'Used'] > 0 || statsBuffed.value[energyRechargeKey].total < 0) {
-			resource[energyKey + 'Used'] -= statsBuffed.value[energyRechargeKey].total;
+		if (
+			resource[(energyKey + 'Used') as ActionResourceKey] > 0 ||
+			source[energyRechargeKey].total < 0
+		) {
+			resource[(energyKey + 'Used') as ActionResourceKey] -=
+				statsBuffed.value[energyRechargeKey].total;
 		}
 	});
 	// Action Refresh
-	resource.actionsMove += source.actionsMove.total - resource.actionsMove;
-	resource.actionsAttack += source.actionsAttack.total - resource.actionsAttack;
-	resource.actionsReaction += source.actionsReaction.total - resource.actionsReaction;
+	resource.actionsMajorUsed = 0;
+	resource.actionsAttackUsed = 0;
+	resource.actionsTacticalUsed = 0;
+	resource.actionsMoveUsed = 0;
+	resource.actionsInteractionUsed = 0;
+	resource.actionsReactionUsed = 0;
+	resource.actionsOtherUsed = 0;
 	// Healths Regen
 	if (resource.damage > 0) {
 		resource.damage -= statsBuffed.value.hpRecharge.total;
@@ -163,14 +173,18 @@ const rallyBanner = () => {
 	// Update Log
 	updateLog('    Rallying to a banner!\nAll energies and health refilled');
 	// Energy Regen
-	['Super', 'Class', 'Melee', 'Grenade', 'Universal'].forEach((energy) => {
+	['Super', 'Class', 'Melee', 'Grenade', 'Ritual', 'Universal'].forEach((energy) => {
 		const energyKey = ('energy' + energy) as StatName;
-		resource[energyKey] += statsBuffed.value[energyKey].total - resource[energyKey];
+		resource[(energyKey + 'Used') as ActionResourceKey] = 0;
 	});
 	// Action Refresh
-	resource.actionsMoveUsed = 0;
+	resource.actionsMajorUsed = 0;
 	resource.actionsAttackUsed = 0;
+	resource.actionsTacticalUsed = 0;
+	resource.actionsMoveUsed = 0;
+	resource.actionsInteractionUsed = 0;
 	resource.actionsReactionUsed = 0;
+	resource.actionsOtherUsed = 0;
 	// Ammo Refresh
 	// resource.ammoKinetic += source.capacityKinetic - resource.ammoKinetic;
 	// resource.ammoSpecial += source.capacitySpecial - resource.ammoSpecial;

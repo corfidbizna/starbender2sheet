@@ -22,24 +22,27 @@ const ammoCapacity = computed<CapacityBoxStatField[]>(() => {
 	return [
 		{
 			label: 'Kinetic',
-			stat: 'ammoKinetic',
+			stat: 'ammoKineticUsed',
 			color: '#eee',
 			max: getFinalStat('capacityKinetic'),
-			current: actionResources.value.ammoKinetic,
+			current: actionResources.value.ammoKineticUsed,
+			inverted: true,
 		},
 		{
 			label: 'Special',
-			stat: 'ammoSpecial',
+			stat: 'ammoSpecialUsed',
 			color: '#7AF48B',
 			max: getFinalStat('capacitySpecial'),
-			current: actionResources.value.ammoSpecial,
+			current: actionResources.value.ammoSpecialUsed,
+			inverted: true,
 		},
 		{
 			label: 'Heavy',
-			stat: 'ammoHeavy',
+			stat: 'ammoHeavyUsed',
 			color: '#B286FF',
 			max: getFinalStat('capacityHeavy'),
-			current: actionResources.value.ammoHeavy,
+			current: actionResources.value.ammoHeavyUsed,
+			inverted: true,
 		},
 	];
 });
@@ -69,14 +72,14 @@ const equippedWeapons = computed<Weapon[]>(() => {
 							data: [
 								{
 									label: 'Equipped',
-									stat: '',
+									stat: 'turns', // Just to make it not mad??
 									color: '#eee',
 									max: statsBuffed.slotsWeapon.total,
 									current: statsBuffed.slotsWeaponUsed.total,
 								},
 								{
 									label: 'Hands Used',
-									stat: '',
+									stat: 'turns', // Just to make it not mad??
 									color: '#eee',
 									max: statsBuffed.hands.total,
 									current: statsBuffed.handsUsed.total,
