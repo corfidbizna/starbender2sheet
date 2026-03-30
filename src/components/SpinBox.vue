@@ -15,9 +15,9 @@ const displayValue = computed<number>(() => {
 		return realMax.value - realValue.value || 0;
 	} else return realValue.value || 0;
 });
-const increment = function (amount: number) {
-	realValue.value += amount * (props.inverted ? -1 : 1);
-};
+// const increment = function (amount: number) {
+// 	realValue.value += amount * (props.inverted ? -1 : 1);
+// };
 watch(textboxValue, () => {
 	realValue.value = props.inverted
 		? realMax.value - (textboxValue.value || 0)
@@ -42,7 +42,7 @@ watch(realMax, () => {
 			v-on:focusout="textboxValue = displayValue"
 		/>
 		<!-- <span style="position: absolute; pointer-events: none">{{ realValue }}</span> -->
-		<span class="spinbox-increment-container">
+		<!-- <span class="spinbox-increment-container">
 			<button
 				class="spinbox-increment up"
 				@click="increment(1)"
@@ -55,7 +55,7 @@ watch(realMax, () => {
 			>
 				<span>-</span>
 			</button>
-		</span>
+		</span> -->
 	</span>
 </template>
 <style>
@@ -64,7 +64,6 @@ watch(realMax, () => {
 	height: 1em;
 }
 .spinbox-input {
-	appearance: textfield;
 	width: 0;
 	flex-grow: 1;
 }

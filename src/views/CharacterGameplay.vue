@@ -460,7 +460,7 @@ const encumberanceColor = computed<string>(() => {
 					>
 						<img
 							:src="'./icons/headshot_' + characterId + '.png'"
-							style="height: 48px; position: absolute; top: -8px; left: -20px"
+							style="height: 48px; position: absolute; bottom: -2px; left: -20px"
 						/>
 						<span style="flex-grow: 1">{{ character.label }}</span>
 						<span class="label">CPL</span>
