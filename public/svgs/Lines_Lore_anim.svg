@@ -104,7 +104,7 @@
     <rect width="906.24" height="906.24"/>
   </g>
   <g id="Outer">
-    <animateTransform attributeName="transform" type="rotate" dur="350s" values="0 432 432;360 432 432;" repeatCount="indefinite"/>
+    <animateTransform attributeName="transform" type="rotate" dur="350s" values="0 453.12 453.12;360 453.12 453.12;" repeatCount="indefinite"/>
     <path class="st15" d="M453.02,885.05c-.09-58.02-1.18-140.35,0-197.54h.12c1.06,56.8.32,140.18-.12,197.54h0Z"/>
     <path class="st15" d="M453.15,22.59c.09,58.02,1.18,140.35,0,197.54h-.12c-1.06-56.8-.32-140.18.12-197.54h0Z"/>
     <g>
