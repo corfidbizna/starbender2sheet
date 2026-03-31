@@ -297,18 +297,18 @@ const abilityFilter = ref<string>('All');
 	height: 1em;
 	background-image: linear-gradient(
 		90deg,
-		#0000 calc(25% - 0.5px),
-		#0004 calc(25% - 0.5px),
-		calc(25% + 0.5px),
-		#0000 calc(25% + 0.5px),
-		#0000 calc(50% - 0.5px),
-		#0004 calc(50% - 0.5px),
-		calc(50% + 0.5px),
-		#0000 calc(50% + 0.5px),
-		#0000 calc(75% - 0.5px),
-		#0004 calc(75% - 0.5px),
-		calc(75% + 0.5px),
-		#0000 calc(75% + 0.5px)
+		#0000 calc(25% - 1px),
+		#0004 calc(25% - 1px),
+		calc(25% + 1px),
+		#0000 calc(25% + 1px),
+		#0000 calc(50% - 1px),
+		#0004 calc(50% - 1px),
+		calc(50% + 1px),
+		#0000 calc(50% + 1px),
+		#0000 calc(75% - 1px),
+		#0004 calc(75% - 1px),
+		calc(75% + 1px),
+		#0000 calc(75% + 1px)
 	);
 }
 .ability-button:hover,
