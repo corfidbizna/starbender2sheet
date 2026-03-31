@@ -106,7 +106,7 @@ const abilityFilter = ref<string>('All');
 									v-bind="{
 										label: 'Super',
 										stat: 'energySuperUsed',
-										color: subclassColor,
+										color: subclassColor + '88',
 										colorFull: '#ff6',
 										max: getFinalStat('energySuper'),
 										current: actionResourcesDisplay.energySuper,
@@ -131,11 +131,6 @@ const abilityFilter = ref<string>('All');
 									}"
 									v-model="actionResources.energySuperUsed"
 								/>
-								<!-- <input
-									style="width: 4em"
-									type="number"
-									v-model="actionResources.energySuper"
-								/> -->
 							</td>
 							<td>⁄</td>
 							<td>{{ getFinalStat('energySuper') }}</td>
@@ -169,7 +164,12 @@ const abilityFilter = ref<string>('All');
 									v-bind="{
 										label: energyType,
 										stat: 'energy' + energyType + 'Used',
-										color: energyType === 'Universal' ? '#eee' : subclassColor,
+										color:
+											energyType === 'Universal'
+												? '#eee8'
+												: subclassColor + '88',
+										colorFull:
+											energyType === 'Universal' ? '#eee' : subclassColor,
 										max: getFinalStat(('energy' + energyType) as StatName),
 										current:
 											actionResourcesDisplay[
