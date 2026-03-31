@@ -10,7 +10,6 @@ import { computed, ref } from 'vue';
 const props = defineProps<Weapon & { characterId: string; activatable?: boolean }>();
 const {
 	weapons,
-	weaponAmmoUpdate,
 	damageStringToDownstream,
 	getFinalStat,
 	statsBuffed: buffsAsStats,
@@ -204,14 +203,12 @@ const rollHit = () => {
 	fire();
 };
 
-const currentAmmo = ref<number>(props.ammoCurrent);
 const fire = () => {
-	currentAmmo.value = weaponAmmoUpdate(props.name, -weapon.value.ammo);
+	weapons.value[weaponIndex.value].ammoCurrent -= weapon.value.ammo;
 };
 const reload = () => {
 	updateLog('Reloaded ' + glyphMap[props.weaponClass] + props.name);
-	const difference = weapon.value.ammoCapacity - props.ammoCurrent;
-	currentAmmo.value = weaponAmmoUpdate(props.name, difference);
+	weapons.value[weaponIndex.value].ammoCurrent = weapon.value.ammoReloadAmount;
 };
 
 // Perks stuff lives here
@@ -230,7 +227,7 @@ const weapon = computed<Weapon>(() => {
 		if (weapons.value[weaponIndex.value]?.perks[perk.name]?.isActive) {
 			if (perk.replaceStats) {
 				// The perk needs to replace the weapon stat rather than supplement it.
-				// Note, this will also be replaced by perks further down the line.
+				// Note: this will also be replaced by perks further down the line.
 				modified.hitBonus = perk.hitBonus * stk('hitBonus') || modified.hitBonus;
 				modified.critRange = perk.critRange * stk('critRange') || modified.critRange;
 				modified.critMult = perk.critMult * stk('critMult') || modified.critMult;
@@ -369,12 +366,19 @@ const weapon = computed<Weapon>(() => {
 						<CapacityBar
 							v-bind="{
 								max: weapon.ammoCapacity,
-								current: currentAmmo,
+								current: weapons[weaponIndex].ammoCurrent,
 								color: colorsAmmo(weapon.ammoType),
 							}"
 							class="ammo-bar"
 						/>
-						<span>{{ currentAmmo }} ⁄ {{ weapon.ammoCapacity }}</span>
+						<span
+							><input
+								type="number"
+								v-model="weapons[weaponIndex].ammoCurrent"
+								style="width: 3em"
+							/>
+							⁄ {{ weapon.ammoCapacity }}</span
+						>
 						<button
 							class="button-reload"
 							@click="reload()"

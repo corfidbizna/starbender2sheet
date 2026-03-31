@@ -28,6 +28,7 @@ const {
 	stats,
 	statsBuffed,
 	actionResources,
+	actionResourcesDisplay,
 	statsLoading,
 	statsRefresh,
 	lightLevel,
@@ -199,13 +200,17 @@ const rallyBanner = () => {
 	resource.damageShields = 0;
 };
 const healthCapacity = computed<CapacityBoxStatField[]>(() => {
+	const healthColor =
+		actionResourcesDisplay.value.health > statsBuffed.value.hpMax.total / 4
+			? '#fff'
+			: 'var(--color-debuff)';
 	return [
 		{
 			label: 'Hit Points',
 			stat: 'damage',
 			max: statsBuffed.value.hpMax.total,
 			current: actionResources.value.damage,
-			color: '#fff',
+			color: healthColor,
 			inverted: true,
 		},
 		{

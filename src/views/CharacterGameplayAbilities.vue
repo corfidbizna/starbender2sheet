@@ -50,6 +50,13 @@ const classIcon = computed<string>(() => {
 	};
 	return classMap[gClass] || '/public/svgs/Tricorn.svg';
 });
+const energyTypes = computed<string[]>(() => {
+	const list = ['Grenade', 'Melee', 'Class', 'Universal'];
+	if (statsBuffed.value.energyRitual.total > 0) {
+		list.splice(3, 0, 'Ritual');
+	}
+	return list;
+});
 const energyImage: Record<string, string> = {
 	Super: './svgs/stat_intellect.svg',
 	Grenade: './svgs/stat_discipline.svg',
@@ -92,7 +99,7 @@ const abilityFilter = ref<string>('All');
 						<tr>
 							<td
 								colspan="3"
-								style="width: 100%"
+								style="width: 100%; position: relative"
 							>
 								<CapacityBar
 									class="ability-bar"
@@ -106,6 +113,13 @@ const abilityFilter = ref<string>('All');
 									}"
 									:characterId="characterId"
 								/>
+								<span
+									v-if="
+										actionResourcesDisplay.energySuper <
+										statsBuffed.energySuper.total
+									"
+									class="super-bar-ticks"
+								></span>
 							</td>
 							<td>
 								<SpinBox
@@ -125,9 +139,10 @@ const abilityFilter = ref<string>('All');
 							</td>
 							<td>⁄</td>
 							<td>{{ getFinalStat('energySuper') }}</td>
+							<td><button @click="actionResources.energySuperUsed = 0">⤒</button></td>
 						</tr>
 						<tr
-							v-for="energyType in ['Grenade', 'Melee', 'Class', 'Universal']"
+							v-for="energyType in energyTypes"
 							:key="energyType"
 							:title="
 								energyType +
@@ -180,56 +195,21 @@ const abilityFilter = ref<string>('All');
 										]
 									"
 								/>
-								<!-- <input
-									style="width: 4em"
-									type="number"
-									v-model="actionResources['energy' + energyType]"
-								/> -->
 							</td>
 							<td>⁄</td>
 							<td>
 								{{ getFinalStat(('energy' + energyType) as StatName) }}
 							</td>
-						</tr>
-						<tr v-if="getFinalStat('energyRitual') > 0">
 							<td>
 								<button
-									class="ability-button category"
-									:style="'background-color: ' + subclassColor"
-									value="energyType"
-									@click="abilityFilter = 'Ritual'"
+									@click="
+										actionResources[
+											('energy' + energyType + 'Used') as ActionResourceKey
+										] = 0
+									"
 								>
-									<img :src="energyImage.Ritual" />
+									⤒
 								</button>
-							</td>
-							<td style="font-weight: normal">Ritual</td>
-							<td style="width: 100%">
-								<CapacityBar
-									class="ability-bar"
-									v-bind="{
-										label: 'Ritual',
-										stat: 'energyRitualUsed',
-										color: subclassColor,
-										max: getFinalStat('energyRitual'),
-										current: actionResourcesDisplay.energyRitual,
-									}"
-									:characterId="characterId"
-								/>
-							</td>
-							<td>
-								<SpinBox
-									style="width: 4em"
-									v-bind="{
-										value: actionResources['energyRitualUsed'],
-										max: getFinalStat('energyRitual'),
-										inverted: true,
-									}"
-									v-model="actionResources['energyRitualUsed']"
-								/>
-							</td>
-							<td>⁄</td>
-							<td>
-								{{ getFinalStat('energyRitual') }}
 							</td>
 						</tr>
 					</tbody>
@@ -305,10 +285,31 @@ const abilityFilter = ref<string>('All');
 .ability-button.super img {
 	width: 2.5em;
 	transform: rotate(-45deg);
-	top: -3px;
-	position: relative;
-	left: -6px;
+	top: -2px;
+	position: absolute;
+	left: -2px;
 	filter: invert(100%);
+}
+.super-bar-ticks {
+	position: absolute;
+	left: 0;
+	width: 100%;
+	height: 1em;
+	background-image: linear-gradient(
+		90deg,
+		#0000 calc(25% - 0.5px),
+		#0004 calc(25% - 0.5px),
+		calc(25% + 0.5px),
+		#0000 calc(25% + 0.5px),
+		#0000 calc(50% - 0.5px),
+		#0004 calc(50% - 0.5px),
+		calc(50% + 0.5px),
+		#0000 calc(50% + 0.5px),
+		#0000 calc(75% - 0.5px),
+		#0004 calc(75% - 0.5px),
+		calc(75% + 0.5px),
+		#0000 calc(75% + 0.5px)
+	);
 }
 .ability-button:hover,
 .ability-button:hover {

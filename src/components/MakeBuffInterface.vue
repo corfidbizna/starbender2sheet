@@ -86,7 +86,7 @@ const buffTypeList = ['Buff', 'Debuff', 'Neutral', 'Warning'];
 
 const statLabelList = Object.values(labelMap);
 const statLabelGroupHeaderMap: Record<string, string> = {
-	'Move Base Land': 'Movement Actions',
+	'Move Base Land': 'Movement',
 	AC: 'Defenses',
 	'Arc DR': 'Elemental Defenses',
 	'Carrying Capacity': 'Capacities',
