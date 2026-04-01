@@ -252,6 +252,7 @@ const rollHit = () => {
 };
 // Decrease the usage energy
 const updateEnergy = () => {
+	updateLog(props.name + ' cast');
 	const key = ('energy' + props.type + 'Used') as ActionResourceKey;
 	actionResources.value[key] += energyUseAmount.value;
 };

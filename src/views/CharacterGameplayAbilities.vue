@@ -113,13 +113,7 @@ const abilityFilter = ref<string>('All');
 									}"
 									:characterId="characterId"
 								/>
-								<span
-									v-if="
-										actionResourcesDisplay.energySuper <
-										statsBuffed.energySuper.total
-									"
-									class="super-bar-ticks"
-								></span>
+								<span class="super-bar-ticks"></span>
 							</td>
 							<td>
 								<SpinBox
@@ -293,8 +287,9 @@ const abilityFilter = ref<string>('All');
 .super-bar-ticks {
 	position: absolute;
 	left: 0;
+	top: 1px;
 	width: 100%;
-	height: 1em;
+	height: calc(1em - 2px);
 	background-image: linear-gradient(
 		90deg,
 		#0000 calc(25% - 1px),
@@ -346,7 +341,7 @@ const abilityFilter = ref<string>('All');
 	content: ' // ';
 }
 .gameplay-ability-list {
-	height: calc(100vh - 310px);
+	height: calc(100vh - 330px);
 	overflow-y: scroll;
 	scrollbar-width: thin;
 	font-size: 0.9rem;
