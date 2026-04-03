@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
+import { subtabNameGameplay } from '@/sharedState';
 
 const router = createRouter({
 	history: createWebHashHistory('./'),
@@ -26,7 +27,7 @@ const router = createRouter({
 					name: 'characterGameplay',
 					props: true,
 					component: () => import('../views/CharacterGameplay.vue'),
-					redirect: { name: 'characterGameplayWeapons' },
+					redirect: { name: subtabNameGameplay.value },
 					children: [
 						{
 							path: 'weapons',

@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
-import { bgColor, banner, getBanner, getBGColor } from '@/sharedState';
+import {
+	bgColor,
+	banner,
+	getBanner,
+	getBGColor,
+	subtabNameGameplay,
+	subtabNameLoadout,
+} from '@/sharedState';
 import router from '@/router/index.ts';
 import LoadingModal from '@/components/LoadingModal.vue';
-import { computed, onBeforeUnmount } from 'vue';
+import { computed, onBeforeUnmount, watch } from 'vue';
 type CharacterProps = {
 	characterId: CharacterNames;
 };
@@ -38,33 +45,35 @@ const isLoading = computed(() => {
 	}
 	return !initialLoadComplete;
 });
-const names = [
-	'characterGameplayWeapons',
+
+const names = computed<string[]>(() => [
+	subtabNameGameplay.value,
 	'characterSkills',
 	'characterBuffs',
-	'characterWeapons',
-	// 'characterArmor',
-	// 'characterClass',
+	subtabNameLoadout.value,
 	'characterFeatures',
 	'seasonalArtifact',
 	'questList',
 	'characterLore',
 	'settings',
-];
-const routeList = names.map((name) => ({ name, params }));
-
+]);
+const routeList = computed(() => names.value.map((name) => ({ name, params })));
+watch(subtabNameGameplay, () => {
+	console.log('Gameplay destination changed to', subtabNameGameplay.value);
+});
 const keyHandler = (e: KeyboardEvent) => {
 	if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
 		const currentRouteName = router.currentRoute.value.name as string;
-		const currentRouteIndex = names.indexOf(currentRouteName);
+		const currentRouteIndex = names.value.indexOf(currentRouteName);
 		const direction = e.key === 'ArrowLeft' ? -1 : 1;
-		const targetIndex = (currentRouteIndex + direction + names.length) % names.length;
+		const targetIndex =
+			(currentRouteIndex + direction + names.value.length) % names.value.length;
 		// console.log(
 		// 	`key: ${e.key}`,
 		// 	{ currentRouteName, currentRouteIndex },
 		// 	JSON.parse(JSON.stringify(router.currentRoute.value)),
 		// );
-		router.push(routeList[targetIndex]);
+		router.push(routeList.value[targetIndex]);
 	}
 };
 window.addEventListener('keydown', keyHandler);
@@ -99,7 +108,7 @@ onBeforeUnmount(() => {
 				v-if="character"
 				class="tab-container"
 			>
-				<RouterLink :to="{ name: 'characterGameplay', params: { characterId } }"
+				<RouterLink :to="{ name: subtabNameGameplay, params: { characterId } }"
 					>Gameplay</RouterLink
 				>
 				<RouterLink :to="{ name: 'characterSkills', params: { characterId } }"
@@ -108,7 +117,7 @@ onBeforeUnmount(() => {
 				<RouterLink :to="{ name: 'characterBuffs', params: { characterId } }"
 					>Buffs</RouterLink
 				>
-				<RouterLink :to="{ name: 'characterLoadout', params: { characterId } }"
+				<RouterLink :to="{ name: subtabNameLoadout, params: { characterId } }"
 					>Loadout</RouterLink
 				>
 				<RouterLink :to="{ name: 'characterFeatures', params: { characterId } }"

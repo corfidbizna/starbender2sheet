@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
 import BGImage from '@/components/BGImage.vue';
+import { subtabNameLoadout } from '@/sharedState';
 // import WeaponItemRow from './WeaponItemRow.vue';
 type CharacterProps = {
 	characterId: CharacterNames;
 };
 const props = defineProps<CharacterProps>();
 const { character } = useCharacterData(props.characterId);
+const changeSubtab = (name: string) => {
+	subtabNameLoadout.value = name;
+};
 </script>
 
 <template>
@@ -16,13 +20,19 @@ const { character } = useCharacterData(props.characterId);
 	>
 		<BGImage :bgName="'Loadout'" />
 		<div class="stacked-nav">
-			<RouterLink :to="{ name: 'characterWeapons', params: { characterId } }"
+			<RouterLink
+				:to="{ name: 'characterWeapons', params: { characterId } }"
+				@click="changeSubtab('characterWeapons')"
 				><img src="/src/assets/icons/slot_weapon.png"
 			/></RouterLink>
-			<RouterLink :to="{ name: 'characterArmor', params: { characterId } }"
+			<RouterLink
+				:to="{ name: 'characterArmor', params: { characterId } }"
+				@click="changeSubtab('characterArmor')"
 				><img src="/src/assets/icons/slot_overview.png"
 			/></RouterLink>
-			<RouterLink :to="{ name: 'characterClass', params: { characterId } }"
+			<RouterLink
+				:to="{ name: 'characterClass', params: { characterId } }"
+				@click="changeSubtab('characterClass')"
 				><img src="/src/assets/icons/slot_tricorn.png"
 			/></RouterLink>
 		</div>

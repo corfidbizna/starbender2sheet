@@ -15,7 +15,7 @@ import LoadingModal from '@/components/LoadingModal.vue';
 import StatCapacityBox from '@/components/StatCapacityBox.vue';
 import CapacityBar from '@/components/CapacityBar.vue';
 import DGlyph from '@/components/DGlyph.vue';
-import { actionLog, updateLog } from '@/sharedState';
+import { actionLog, subtabNameGameplay, updateLog } from '@/sharedState';
 import BGImage from '@/components/BGImage.vue';
 type CharacterProps = {
 	characterId: string;
@@ -65,16 +65,6 @@ const subclassColor = computed<string>(() => {
 const lightLevelColor = computed<string>(() => {
 	return lightLevel.value + statsBuffed.value.lightLevel.total >= 20 ? '#fe8' : '#fff';
 });
-// const infoAbilityScores = computed<StatBoxInfo>(
-// 	makeComputedOfStats(stats, buffsTallied, 'Ability Scores', [
-// 		'str',
-// 		'dex',
-// 		'con',
-// 		'int',
-// 		'wis',
-// 		'cha',
-// 	]),
-// );
 const infoAbilityScores = computed<StatBoxInfo>(() => {
 	const keys = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 	const descriptions = [
@@ -134,6 +124,9 @@ const expendables = computed<CapacityBoxStatField[]>(() => {
 const infoSaves = computed<StatBoxInfo>(
 	makeComputedOfStats(stats, statsBuffed, 'Saving Throws', ['fort', 'ref', 'will']),
 );
+const changeSubtab = (name: string) => {
+	subtabNameGameplay.value = name;
+};
 const incrementTurn = () => {
 	const source = stats.value;
 	const resource = actionResources.value;
@@ -704,27 +697,34 @@ const encumberanceColor = computed<string>(() => {
 				</div>
 				<div class="right-block">
 					<div class="tab-header">
-						<RouterLink :to="{ name: 'characterGameplay', params: { characterId } }"
+						<RouterLink
+							:to="{ name: 'characterGameplayWeapons', params: { characterId } }"
+							@click="changeSubtab('characterGameplayWeapons')"
 							>Weapons</RouterLink
 						>
 						<RouterLink
 							:to="{ name: 'characterGameplayArmor', params: { characterId } }"
+							@click="changeSubtab('characterGameplayArmor')"
 							>Armor</RouterLink
 						>
 						<RouterLink
 							:to="{ name: 'characterGameplayAbilities', params: { characterId } }"
+							@click="changeSubtab('characterGameplayAbilities')"
 							>Abilities</RouterLink
 						>
 						<RouterLink
 							:to="{ name: 'characterGameplaySkills', params: { characterId } }"
+							@click="changeSubtab('characterGameplaySkills')"
 							>Skills</RouterLink
 						>
 						<RouterLink
 							:to="{ name: 'characterGameplayBuffs', params: { characterId } }"
+							@click="changeSubtab('characterGameplayBuffs')"
 							>Buffs</RouterLink
 						>
 						<RouterLink
 							:to="{ name: 'characterGameplayArtifact', params: { characterId } }"
+							@click="changeSubtab('characterGameplayArtifact')"
 							>Artifact</RouterLink
 						>
 					</div>

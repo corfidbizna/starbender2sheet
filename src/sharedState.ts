@@ -98,6 +98,18 @@ export const getLocalStorageInfo = (
 	return characterData[destination];
 };
 
+// UI State
+export const subtabNameGameplay = ref<string>(
+	localStorage.getItem('rememberedSubtab_gameplay') || 'characterGameplayArmor',
+);
+export const subtabNameLoadout = ref<string>(
+	localStorage.getItem('rememberedSubtab_loadout') || 'characterClass',
+);
+watch([subtabNameGameplay, subtabNameLoadout], () => {
+	localStorage.setItem('rememberedSubtab_gameplay', subtabNameGameplay.value);
+	localStorage.setItem('rememberedSubtab_loadout', subtabNameLoadout.value);
+});
+
 // Game State
 export const actionLog = ref<string>('');
 export const updateLog = (text: string) => {
