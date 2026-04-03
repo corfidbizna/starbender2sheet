@@ -16,7 +16,6 @@ const {
 	stats,
 	statsBuffed,
 	statsLoading,
-	buffs,
 	activatedPartyBuffs,
 	buffsLoading,
 	buffsRefresh,
@@ -50,9 +49,9 @@ const buffTotals = computed<string>(() => {
 	});
 	filtered.forEach((keyy) => {
 		const key = keyy as StatName;
-		const diff = (statsBuffed.value[key as StatName]?.total || 0) - stats.value[key].total;
+		const diff = (statsBuffed.value[key]?.total || 0) - stats.value[key].total;
 		if (diff !== 0) {
-			result += labelMap[key as StatName] + (diff > 0 ? ' +' : ' ') + diff + ', ';
+			result += labelMap[key] + (diff > 0 ? ' +' : ' ') + diff + ', ';
 		}
 	});
 	return result;
@@ -62,7 +61,11 @@ const activeBuffNames = computed<string[]>(() => {
 	if (fullListBuff.value) {
 		result.push(...activatedPartyBuffs.value.map((item) => item.name));
 	} else {
-		result.push(...buffs.value.filter((buff) => buff.isPassive).map((buff) => buff.name));
+		result.push(
+			...activatedPartyBuffs.value
+				.filter((buff) => buff.type !== 'Hidden')
+				.map((buff) => buff.name),
+		);
 	}
 	return result.sort();
 });

@@ -32,7 +32,10 @@ const mainAbilities = computed<Ability[]>(() => {
 });
 const filteredAbilities = computed<Ability[]>(() => {
 	return mainAbilities.value.filter((ability) => {
-		if (ability.element === Object.keys(elements)[actionResources.value.subclassIndex]) {
+		if (
+			ability.element === Object.keys(elements)[actionResources.value.subclassIndex] ||
+			ability.element === 'Kinetic'
+		) {
 			if (abilityFilter.value === 'All') {
 				return true;
 			}
@@ -52,7 +55,7 @@ const classIcon = computed<string>(() => {
 });
 const energyTypes = computed<string[]>(() => {
 	const list = ['Grenade', 'Melee', 'Class', 'Universal'];
-	if (statsBuffed.value.energyRitual.total > 0) {
+	if (statsBuffed.value.energyRitual.summary.length > 0) {
 		list.splice(3, 0, 'Ritual');
 	}
 	return list;

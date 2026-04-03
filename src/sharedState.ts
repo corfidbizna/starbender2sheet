@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import type { CharacterNames } from './composables/useCharacterData';
 
 type SavedCharacterData = {
@@ -116,11 +116,11 @@ export const getGameState = () => {
 };
 
 // Settings
-export const rotateBGs = ref<boolean>(false);
 
 const defaultBGColor = '#ffffff';
 const defaultBanner = 'https://wallpaperaccess.com/full/2099863.jpg';
 // const defaultBanner = 'https://wallpapershigh.com/wp-content/uploads/destiny-2-logo-5.webp';
+export const rotateBGs = ref<boolean>(localStorage.getItem('rotateBGs') === 'true' || false);
 export const bgColor = ref<string>(localStorage.getItem('bgColor') || defaultBGColor);
 export const banner = ref<string>(localStorage.getItem('banner') || defaultBanner);
 export const getBGColor = (): string => {
@@ -131,9 +131,13 @@ export const getBanner = (): string => {
 };
 
 export const resetVisuals = () => {
+	rotateBGs.value = false;
 	bgColor.value = defaultBGColor;
 	banner.value = defaultBanner;
 };
+watch(rotateBGs, () => {
+	localStorage.setItem('rotateBGs', rotateBGs.value + '');
+});
 export const storeVisuals = () => {
 	localStorage.setItem('bgColor', bgColor.value);
 	localStorage.setItem('banner', banner.value);

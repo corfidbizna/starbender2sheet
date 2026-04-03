@@ -98,6 +98,7 @@ const glyphMap = {
 	Stasis: '',
 	Strand: '',
 	Prismatic: '',
+	Nightmare: '',
 };
 const hitRangeMod = computed<number>(() => {
 	const distance = actionResources.value.targetRange;

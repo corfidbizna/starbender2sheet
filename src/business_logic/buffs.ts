@@ -49,7 +49,8 @@ export type Stats = {
 };
 
 const statShouldMultiply = (stat: StatName) => {
-	return stat.startsWith('actionsMoveMult');
+	const list = ['actionsMoveMult'];
+	return list.includes(stat);
 };
 
 const distributeStat = (
@@ -60,12 +61,31 @@ const distributeStat = (
 	explanation?: string[],
 ) => {
 	// some stats are always multiplicative, some stats are always additive, are some stats sometimes multiplicative and sometimes additive?
-	if (statShouldMultiply(statName)) outputStats[statName].total *= amount;
-	else outputStats[statName].total += amount;
+	// if (statShouldMultiply(statName)) outputStats[statName].total *= amount;
+	// else outputStats[statName].total += amount;
+	outputStats[statName].total += amount;
 	if (explanation) outputStats[statName].summary.push(...explanation);
 	if (buffDistributionMap[statName]?.affectedStats) {
+		// If the buffed stat has downstream effects…
 		for (const affectedStat of buffDistributionMap[statName].affectedStats) {
-			if (affectedStat.hasOwnProperty('ratio')) {
+			// For every downstream stat…
+			if (statShouldMultiply(statName)) {
+				// The stat is a multiply for the things downstream of it.
+				const affectedLestat = affectedStat as StatName;
+				const newExplanation =
+					explanation?.map((text) =>
+						text
+							.replace(
+								/(➟  \+?)(\d+)/,
+								(_matched, captureGroup1, captureGroup2) =>
+									captureGroup1 + (parseFloat(captureGroup2) + 1),
+							)
+							.replace(/➟  \+?/, '➟  x'),
+					) || [];
+				const newAmount = outputStats[affectedLestat].total * amount;
+				distributeStat(inputStats, affectedLestat, newAmount, outputStats, newExplanation);
+			} else if (affectedStat.hasOwnProperty('ratio')) {
+				// The stat affects others via a ratio of some sort.
 				const affectedLestat = affectedStat as StatNameWithRatio;
 				let ratio;
 				if (typeof affectedLestat.ratio === 'function') {
@@ -81,6 +101,7 @@ const distributeStat = (
 					explanation,
 				);
 			} else {
+				// The stat affects the downstream stats linearly.
 				const affectedLestat = affectedStat as StatName;
 				distributeStat(inputStats, affectedLestat, amount, outputStats, explanation);
 			}
@@ -102,7 +123,7 @@ const neutralStatTotals: Record<string, number> = {
 	size: 0,
 	reach: 5,
 	actionsMoveMult: 1,
-	actionsMoveBaseLand: 30,
+	actionsMoveBaseLand: 0, // 30
 	capacityCarrying: 25,
 	capacitySpecial: 0, // 18
 	capacityHeavy: 0, // 8
@@ -140,6 +161,7 @@ export const makeNeutralStats = () => {
 
 export const distributeStats = (buffSummary: Stats): Stats => {
 	const ret: Stats = makeNeutralStats();
+	const multList: StatName[] = [];
 	for (const stat in buffSummary) {
 		// the reason `stat` could be a string is if `buffSummary` has
 		// additional keys beyond those required by CharacterBuffSummary.
@@ -149,16 +171,31 @@ export const distributeStats = (buffSummary: Stats): Stats => {
 		//
 		// two lines of mollification, are you keeping score? -SB
 		const lestat = stat as StatName;
-		if (buffSummary[lestat]) {
-			distributeStat(
-				buffSummary,
-				lestat,
-				buffSummary[lestat].total,
-				ret,
-				buffSummary[lestat].summary,
-			);
+		if (statShouldMultiply(lestat)) {
+			multList.push(lestat);
+		} else {
+			if (buffSummary[lestat]) {
+				distributeStat(
+					buffSummary,
+					lestat,
+					buffSummary[lestat].total,
+					ret,
+					buffSummary[lestat].summary,
+				);
+			}
 		}
 	}
+	multList.forEach((stat) => {
+		if (buffSummary[stat]) {
+			distributeStat(
+				buffSummary,
+				stat,
+				buffSummary[stat].total,
+				ret,
+				buffSummary[stat].summary,
+			);
+		}
+	});
 	for (const key in ret) {
 		const specialDooo = buffDistributionMap[key as StatName];
 		if (specialDooo?.special !== undefined) {

@@ -103,6 +103,7 @@ const glyphMap = {
 	Stasis: '',
 	Strand: '',
 	Prismatic: '',
+	Nightmare: '',
 };
 // Image URL for the Ability header.
 const energyImage: Record<string, string> = {
@@ -120,6 +121,7 @@ const energyImage: Record<string, string> = {
 	}).value,
 	Universal: './svgs/Tricorn.svg',
 };
+const dBoxHeaderType = computed(() => (props.element === 'Kinetic' ? '' : props.element));
 // Assembles the Critical Hit info string for the attack stats.
 const getCritDisplay = (): string => {
 	if (!props.damageStatsBase.critRange) {
@@ -261,7 +263,7 @@ const updateEnergy = () => {
 	<div class="ability-item">
 		<DBox
 			v-bind="{
-				rarity: props.element,
+				rarity: dBoxHeaderType,
 				title: props.name,
 				subtitle: props.type + ' Ability',
 				flavortext: props.flavortext,

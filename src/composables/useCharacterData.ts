@@ -91,7 +91,7 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 			skills: '1502753776',
 			variables: '769576778',
 			buffs: '919733175',
-			features: '',
+			features: '978974344',
 		},
 		images: [
 			'./character_images/guardian_Ardj.png',
@@ -197,6 +197,7 @@ export const elements = {
 	Stasis: '#4D87FF',
 	Strand: '#35E366',
 	Prismatic: '#FFFFFF',
+	Nightmare: '#984442',
 };
 export type Element = keyof typeof elements;
 type SizeEffect = {
@@ -1007,21 +1008,21 @@ export const labelMap = {
 	slotsArmorExotic: 'Exotic Slot',
 	slotsAspects: 'Aspect Slot',
 	slotsFragments: 'Fragment Slot',
-	equipArmorHead: 'Head Equipment',
-	equipArmorArm: 'Arm Equipment',
-	equipArmorChest: 'Chest Equipment',
-	equipArmorLegs: 'Leg Equipment',
-	equipArmorClass: 'Class Equipment',
-	equipArmorFull: 'Full Armor Equipment',
-	equipArmorExotic: 'Exotic Equipment',
+	equipArmorHead: 'Head Equipped',
+	equipArmorArm: 'Arm Equipped',
+	equipArmorChest: 'Chest Equipped',
+	equipArmorLegs: 'Leg Equipped',
+	equipArmorClass: 'Class Equipped',
+	equipArmorFull: 'Full Armor Equipped',
+	equipArmorExotic: 'Exotic Equipped',
 	//
 	slotsWeapon: 'Weapon Slots',
 	slotsWeaponUsed: 'Weapons Equipped',
 	hands: 'Hands',
 	handsUsed: 'Hands Used',
 	//
-	equipAspects: 'Aspect Slots',
-	equipFragments: 'Fragment Slots',
+	equipAspects: 'Aspects Equipped',
+	equipFragments: 'Fragments Equipped',
 	capacityArmorCharge: 'Armor Charge',
 	//
 	toHitRanged: 'Ranged to hit',
