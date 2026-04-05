@@ -25,7 +25,7 @@ const bounties = computed<Quest[]>(() => {
 		<LoadingModal />
 	</div>
 	<div v-else>
-		<BGImage :bgName="'Quests'" />
+		<BGImage :bgNames="['Quests']" />
 		<div class="quest-list">
 			<button
 				@click="questsRefresh()"

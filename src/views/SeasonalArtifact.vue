@@ -42,7 +42,7 @@ const grid = computed<ArtifactMod[][]>(() => {
 		v-else
 		class="seasonal-artifact"
 	>
-		<BGImage :bgName="'SeasonalArtifact'" />
+		<BGImage :bgNames="['SeasonalArtifact']" />
 		<h1 class="artifact-name">Iron Decree</h1>
 		<h2 class="artifact-subtitle">Artifact</h2>
 		<div class="artifact-container">
