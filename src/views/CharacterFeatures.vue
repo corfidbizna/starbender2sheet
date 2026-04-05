@@ -39,7 +39,7 @@ const scrollTo = (id: string) => {
 		v-else
 		style="background-image: linear-gradient(90deg, #0004 0, transparent 15em)"
 	>
-		<BGImage :bgName="statsBase.guardianClass" />
+		<BGImage :bgNames="[statsBase.guardianClass]" />
 		<div class="features-config">
 			<button @click="featuresRefresh()">Reload Features</button>
 			<h2>Scroll to</h2>

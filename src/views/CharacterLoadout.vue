@@ -18,7 +18,7 @@ const changeSubtab = (name: string) => {
 		class="CharacterEquipment"
 		v-if="character"
 	>
-		<BGImage :bgName="'Loadout'" />
+		<BGImage :bgNames="['Loadout']" />
 		<div class="stacked-nav">
 			<RouterLink
 				:to="{ name: 'characterWeapons', params: { characterId } }"

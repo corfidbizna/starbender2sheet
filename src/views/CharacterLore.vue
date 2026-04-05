@@ -34,7 +34,7 @@ const currentImageURL = ref<string>(
 		v-else
 		class="centered"
 	>
-		<BGImage :bgName="'Lore'" />
+		<BGImage :bgNames="['Lore', 'Lore_a']" />
 		<!-- <h1>{{ character.label }}, the Void Hunter</h1> -->
 		<table class="summary">
 			<tbody>

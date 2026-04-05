@@ -82,6 +82,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 			max: getFinalStat('energySuper'),
 			current: actionResources.value.energySuperUsed,
 			inverted: true,
+			minZero: true,
 		},
 		{
 			label: 'Class',
@@ -90,6 +91,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 			max: getFinalStat('energyClass'),
 			current: actionResources.value.energyClassUsed,
 			inverted: true,
+			minZero: true,
 		},
 		{
 			label: 'Melee',
@@ -98,6 +100,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 			max: getFinalStat('energyMelee'),
 			current: actionResources.value.energyMeleeUsed,
 			inverted: true,
+			minZero: true,
 		},
 		{
 			label: 'Grenade',
@@ -106,6 +109,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 			max: getFinalStat('energyGrenade'),
 			current: actionResources.value.energyGrenadeUsed,
 			inverted: true,
+			minZero: true,
 		},
 		{
 			label: 'Universal',
@@ -114,6 +118,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 			max: getFinalStat('energyUniversal'),
 			current: actionResources.value.energyUniversalUsed,
 			inverted: true,
+			minZero: true,
 		},
 	];
 	if (getFinalStat('energyRitual') > 0) {
@@ -124,6 +129,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 			max: getFinalStat('energyRitual'),
 			current: actionResources.value.energyRitualUsed,
 			inverted: true,
+			minZero: true,
 		});
 	}
 	return result;

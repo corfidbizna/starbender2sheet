@@ -82,7 +82,7 @@ const activeBuffNames = computed<string[]>(() => {
 			v-else
 			class="buff-test"
 		>
-			<BGImage :bgName="'Buffs'" />
+			<BGImage :bgNames="['Buffs']" />
 			<div class="buff-list">
 				<button @click="buffsRefresh">Refresh Buffs</button>
 				<h2>Activated Buffs</h2>

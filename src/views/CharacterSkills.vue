@@ -13,7 +13,7 @@ const { character } = useCharacterData(props.characterId);
 		class="CharacterSkills"
 		v-if="character"
 	>
-		<BGImage :bgName="'Skills'" />
+		<BGImage :bgNames="['Skills']" />
 		<SkillsTable :character-id="characterId"></SkillsTable>
 	</div>
 </template>

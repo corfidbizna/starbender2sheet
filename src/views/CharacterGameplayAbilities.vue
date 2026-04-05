@@ -19,7 +19,7 @@ type CharacterProps = {
 const props = defineProps<CharacterProps>();
 const {
 	character,
-	statsBase,
+	// statsBase,
 	statsBuffed,
 	abilities,
 	abilitiesLoading,
@@ -44,15 +44,15 @@ const filteredAbilities = computed<Ability[]>(() => {
 		return false;
 	});
 });
-const classIcon = computed<string>(() => {
-	const gClass = statsBase.value.guardianClass;
-	const classMap: Record<string, string> = {
-		Titan: './svgs/class_titan_proportional.svg',
-		Warlock: './svgs/class_warlock_proportional.svg',
-		Hunter: './svgs/class_hunter_proportional.svg',
-	};
-	return classMap[gClass] || '/public/svgs/Tricorn.svg';
-});
+// const classIcon = computed<string>(() => {
+// 	const gClass = statsBase.value.guardianClass;
+// 	const classMap: Record<string, string> = {
+// 		Titan: './svgs/class_titan_proportional.svg',
+// 		Warlock: './svgs/class_warlock_proportional.svg',
+// 		Hunter: './svgs/class_hunter_proportional.svg',
+// 	};
+// 	return classMap[gClass] || '/public/svgs/Tricorn.svg';
+// });
 const energyTypes = computed<string[]>(() => {
 	const list = ['Grenade', 'Melee', 'Class', 'Universal'];
 	if (statsBuffed.value.energyRitual.summary.length > 0) {
@@ -64,9 +64,10 @@ const energyImage: Record<string, string> = {
 	Super: './svgs/stat_intellect.svg',
 	Grenade: './svgs/stat_discipline.svg',
 	Melee: './svgs/stat_melee.svg',
-	Class: classIcon.value,
+	// Class: classIcon.value,
+	Class: './svgs/Symbol_Class.svg',
 	Universal: './svgs/Tricorn.svg',
-	Ritual: './svgs/Tricorn.svg',
+	Ritual: './svgs/Symbol_Ritual.svg',
 };
 const subclassColor = computed<string>(() => {
 	const subclass = Object.keys(elements)[actionResources.value.subclassIndex] as Element;
@@ -125,6 +126,7 @@ const abilityFilter = ref<string>('All');
 										value: actionResources.energySuperUsed,
 										max: getFinalStat('energySuper'),
 										inverted: true,
+										minZero: true,
 									}"
 									v-model="actionResources.energySuperUsed"
 								/>
@@ -151,7 +153,13 @@ const abilityFilter = ref<string>('All');
 									value="energyType"
 									@click="abilityFilter = energyType"
 								>
-									<img :src="energyImage[energyType]" />
+									<img
+										:src="energyImage[energyType]"
+										:class="{
+											inverted:
+												energyType !== 'Class' && energyType !== 'Ritual',
+										}"
+									/>
 								</button>
 							</td>
 							<td style="font-weight: normal">{{ energyType }}</td>
@@ -185,6 +193,7 @@ const abilityFilter = ref<string>('All');
 										],
 										max: getFinalStat(('energy' + energyType) as StatName),
 										inverted: true,
+										minZero: true,
 									}"
 									v-model="
 										actionResources[
@@ -327,10 +336,12 @@ const abilityFilter = ref<string>('All');
 }
 .ability-button.category > img {
 	width: 1.5em;
-	filter: invert(100%);
 	position: absolute;
 	top: 0;
 	left: 0;
+}
+.ability-button.category > img.inverted {
+	filter: invert(100%);
 }
 .ability-category {
 	display: flex;
