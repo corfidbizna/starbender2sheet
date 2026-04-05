@@ -412,7 +412,9 @@ const encumberanceColor = computed<string>(() => {
 		class="CharacterGameplay"
 		v-if="character"
 	>
-		<BGImage :bgNames="['Gameplay']" />
+		<BGImage
+			:bgNames="['Gameplay', 'Gameplay_Q1', 'Gameplay_Q2', 'Gameplay_Q3', 'Gameplay_Q4']"
+		/>
 		<div v-if="statsLoading || skillsLoading">
 			<LoadingModal />
 		</div>
