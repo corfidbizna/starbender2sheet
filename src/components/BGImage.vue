@@ -24,7 +24,7 @@ The following code is to be added to the inside of a component to animate it.
 This example will cause the `cy` property of the component to slide linearly
 	from 367 to 430 and then back to 367 over the course of 78 seconds.
 
-	<animate attributeName="cy" values="367;430;367" dur="78s" repeatCount="indefinite"/>
+	<animate attributeName="cy" values="367;430;367" dur="78s" calcMode="spline" keyTimes="0; 0.5; 1" keySplines="0.5 0 0.5 1; 0.5 0 0.5 1" repeatCount="indefinite"/>
 
 Note: the tag of the component you're adding this to might be self-closing.
 	<circle ……properties…… />

@@ -43,55 +43,72 @@
     <polyline class="st4" points="215.74 432 215.74 310.98 279.34 310.98 279.34 237.29 432 237.29"/>
     <polyline class="st4" points="237.29 432 237.29 278.99 311.58 278.99 311.58 215.74 432 215.74"/>
     <circle id="Move_x5F_Y:5.1003-5.9753" class="st1" cx="215.74" cy="399.7" r="1.69">
-      <animate attributeName="cy" values="367.2216;430.22126;367.2216" dur="78s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="367.2216;430.22126;367.2216" dur="78s" calcMode="spline" keyTimes="0; 0.5; 1"
+      keySplines="0.5 0 0.5 1; 0.5 0 0.5 1" repeatCount="indefinite"/>
     </circle>
     <circle id="Move_x5F_Y:4.3403-5.0347" class="st1" cx="215.74" cy="310.98" r="1.69">
-      <animate attributeName="cy" values="362.4984;312.5016;362.4984" dur="48s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="362.4984;312.5016;362.4984" dur="48s" calcMode="spline" keyTimes="0; 0.5; 1"
+      keySplines="0.5 0 0.5 1; 0.5 0 0.5 1" repeatCount="indefinite"/>
     </circle>
     <circle id="Move_x5F_Y:4.3961-5.9517" class="st1" cx="237.29" cy="337" r="1.69">
-      <animate attributeName="cy" values="316.5192;482.5224;316.5192" dur="131s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="316.5192;482.5224;316.5192" dur="131s" calcMode="spline" keyTimes="0; 0.5; 1"
+      keySplines="0.5 0 0.5 1; 0.5 0 0.5 1" repeatCount="indefinite"/>
     </circle>
     <circle id="Move_x5F_Y:3.896-4.2849" class="st1" cx="237.29" cy="278.99" r="1.69">
-      <animate attributeName="cy" values="280.512;308.5128;280.512" dur="57s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="280.512;308.5128;280.512" dur="57s" calcMode="spline" keyTimes="0; 0.5; 1"
+      keySplines="0.5 0 0.5 1; 0.5 0 0.5 1" repeatCount="indefinite"/>
     </circle>
     <circle id="Move_x5F_Y:3.5476-5.9226" class="st1" cx="251.31" cy="310.91" r="1.69">
-      <animate attributeName="cy" values="255.4272;426.4272;255.4272" dur="117s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="255.4272;426.4272;255.4272" dur="117s" calcMode="spline" keyTimes="0; 0.5; 1"
+      keySplines="0.5 0 0.5 1; 0.5 0 0.5 1" repeatCount="indefinite"/>
     </circle>
     <circle id="Move_x5F_Y:3.896-4.28491" class="st1" cx="279.65" cy="278.99" r="1.69">
-      <animate attributeName="cy" values="280.512;308.5128;280.512" dur="40s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="280.512;308.5128;280.512" dur="40s" calcMode="spline" keyTimes="0; 0.5; 1"
+      keySplines="0.5 0 0.5 1; 0.5 0 0.5 1" repeatCount="indefinite"/>
     </circle>
     <circle id="Move_x5F_Y:3.3168-3.8562" class="st1" cx="279.34" cy="237.29" r="1.69">
-      <animate attributeName="cy" values="280.512;308.5128;280.512" dur="77s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="280.512;308.5128;280.512" dur="77s" calcMode="spline" keyTimes="0; 0.5; 1"
+      keySplines="0.5 0 0.5 1; 0.5 0 0.5 1" repeatCount="indefinite"/>
     </circle>
     <circle id="Move_x5F_Y:3.8413-3.369" class="st1" cx="311.58" cy="263.05" r="1.69">
-      <animate attributeName="cy" values="276.5736;242.568;276.5736" dur="32s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="276.5736;242.568;276.5736" dur="32s" calcMode="spline" keyTimes="0; 0.5; 1"
+      keySplines="0.5 0 0.5 1; 0.5 0 0.5 1" repeatCount="indefinite"/>
     </circle>
     <circle id="Move_x5F_Y:3.0175-3.2536" class="st1" cx="311.58" cy="215.74" r="1.69">
-      <animate attributeName="cy" values="217.26;234.2592;217.26" dur="12s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="217.26;234.2592;217.26" dur="12s" calcMode="spline" keyTimes="0; 0.5; 1"
+      keySplines="0.5 0 0.5 1; 0.5 0 0.5 1" repeatCount="indefinite"/>
     </circle>
     <circle id="Move_x5F_X:3.3833-3.0361" class="st1" cx="237.29" cy="310.98" r="1.69">
-      <animate attributeName="cx" values="243.5976;218.5992;243.5976" dur="56s" repeatCount="indefinite"/>
+      <animate attributeName="cx" values="243.5976;218.5992;243.5976" dur="56s" calcMode="spline" keyTimes="0; 0.5; 1"
+      keySplines="0.5 0 0.5 1; 0.5 0 0.5 1" repeatCount="indefinite"/>
     </circle>
     <circle id="Move_x5F_X:4.3403-3.4396" class="st1" cx="279.34" cy="310.98" r="1.69">
-      <animate attributeName="cx" values="279.34;247.6512;279.34" dur="35s" repeatCount="indefinite"/>
+      <animate attributeName="cx" values="279.34;247.6512;279.34" dur="35s" calcMode="spline" keyTimes="0; 0.5; 1"
+      keySplines="0.5 0 0.5 1; 0.5 0 0.5 1" repeatCount="indefinite"/>
     </circle>
     <circle id="Move_x5F_X:4.304-3.9151" class="st1" cx="311.58" cy="278.99" r="1.69">
-      <animate attributeName="cx" values="309.888;281.8872;309.888" dur="33s" repeatCount="indefinite"/>
+      <animate attributeName="cx" values="309.888;281.8872;309.888" dur="33s" calcMode="spline" keyTimes="0; 0.5; 1"
+      keySplines="0.5 0 0.5 1; 0.5 0 0.5 1" repeatCount="indefinite"/>
     </circle>
     <circle id="Move_x5F_X:3.4837-5.8449" class="st1" cx="322.52" cy="251.31" r="1.69">
-      <animate attributeName="cx" values="250.8264;420.8328;250.8264" dur="88s" repeatCount="indefinite"/>
+      <animate attributeName="cx" values="250.8264;420.8328;250.8264" dur="88s" calcMode="spline" keyTimes="0; 0.5; 1"
+      keySplines="0.5 0 0.5 1; 0.5 0 0.5 1" repeatCount="indefinite"/>
     </circle>
     <circle id="Move_x5F_X:4.304-4.5124" class="st1" cx="311.58" cy="237.29" r="1.69">
-      <animate attributeName="cx" values="309.888;324.8928;309.888" dur="26s" repeatCount="indefinite"/>
+      <animate attributeName="cx" values="309.888;324.8928;309.888" dur="26s" calcMode="spline" keyTimes="0; 0.5; 1"
+      keySplines="0.5 0 0.5 1; 0.5 0 0.5 1" repeatCount="indefinite"/>
     </circle>
     <circle id="Move_x5F_X:4.5903-5.9097" class="st1" cx="332.19" cy="237.29" r="1.69">
-      <animate attributeName="cx" values="330.5016;425.4984;330.5016" dur="18s" repeatCount="indefinite"/>
+      <animate attributeName="cx" values="330.5016;425.4984;330.5016" dur="18s" calcMode="spline" keyTimes="0; 0.5; 1"
+      keySplines="0.5 0 0.5 1; 0.5 0 0.5 1" repeatCount="indefinite"/>
     </circle>
     <circle id="Move_x5F_X:4.4096-5.1179" class="st1" cx="351.18" cy="215.74" r="1.69">
-      <animate attributeName="cx" values="317.4912;368.4888;317.4912" dur="56s" repeatCount="indefinite"/>
+      <animate attributeName="cx" values="317.4912;368.4888;317.4912" dur="56s" calcMode="spline" keyTimes="0; 0.5; 1"
+      keySplines="0.5 0 0.5 1; 0.5 0 0.5 1" repeatCount="indefinite"/>
     </circle>
     <circle id="Move_x5F_X:5.1881-5.9013" class="st1" cx="385.23" cy="215.74" r="1.69">
-      <animate attributeName="cx" values="373.5432;424.8936;373.5432" dur="82s" repeatCount="indefinite"/>
+      <animate attributeName="cx" values="373.5432;424.8936;373.5432" dur="82s" calcMode="spline" keyTimes="0; 0.5; 1"
+      keySplines="0.5 0 0.5 1; 0.5 0 0.5 1" repeatCount="indefinite"/>
     </circle>
     <path d="M432,243.23c104.26,0,188.77,84.52,188.77,188.77s-84.52,188.77-188.77,188.77-188.77-84.52-188.77-188.77h-64.47c0,139.86,113.38,253.24,253.24,253.24s253.24-113.38,253.24-253.24-113.38-253.24-253.24-253.24v64.47h0Z"/>
   </g>
