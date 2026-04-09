@@ -367,6 +367,7 @@ export type CapacityBoxStatField = {
 	current: number;
 	current2?: number;
 	inverted?: boolean;
+	minZero?: boolean;
 };
 
 //
@@ -1226,6 +1227,7 @@ type ImportedFeature = {
 	buffList?: string;
 	isMagic: boolean;
 	effects?: string;
+	effectsCategory?: string;
 	subclass?: string;
 	dependencies?: string;
 	rank: string;
@@ -1238,6 +1240,7 @@ export type FeatureMod = {
 	isDrawback: boolean;
 	buffList: string[];
 	effects: string;
+	effectsCategory: string;
 	subclass: string;
 	dependencies: string[];
 	rank: number;
@@ -1250,6 +1253,7 @@ export type Feature = {
 	buffList: string[];
 	isMagic: boolean;
 	effects: string;
+	effectsCategory: string;
 	subclass: string;
 	dependencies: string[];
 	rank: number;
@@ -1663,7 +1667,7 @@ function useCharacterDataUncached(characterId: string) {
 				newBuff.isStory = buff.isStory || false;
 				newBuff.isBasic = buff.isBasic || false;
 				newBuff.isMagic = buff.isMagic || false;
-				newBuff.perks = buff.perks || '';
+				// newBuff.perks = buff.perks || '';
 				return newBuff;
 			});
 		return resultWithDefaults;
@@ -1740,25 +1744,6 @@ function useCharacterDataUncached(characterId: string) {
 			...activatedPartyBuffs.value.map((buff) => getBuffEffects(buff)).flat(),
 		];
 		const result = tallyBuffs(allEffects);
-		// Distance from / difference / delta from max caps
-		// if (!actionResourcesCaps.value.firstRun) {
-		// if (
-		// 	!actionResourcesCaps.value.firstRun &&
-		// 	Object.values(actionResourcesCaps.value).filter((cap) => cap !== 0).length > 0
-		// ) {
-		// 	actionResourcesCaps.value.firstRun = 1;
-		// 	maxesPairs.forEach(([resource, stat]) => {
-		// 		actionResourcesCaps.value[resource] = result[stat as StatName].total;
-		// 	});
-		// } else {
-		// 	maxesPairs.forEach(([resource, stat]) => {
-		// 		const diff = actionResourcesCaps.value[resource] - actionResources.value[resource];
-		// 		const newCap = result[stat as StatName].total;
-		// 		const newValue = newCap - diff;
-		// 		actionResources.value[resource] = newValue;
-		// 		actionResourcesCaps.value[resource] = newCap;
-		// 	});
-		// }
 		return result;
 	});
 	const lightLevel = computed<number>(() => {
@@ -1820,6 +1805,7 @@ function useCharacterDataUncached(characterId: string) {
 				// 	.filter((row) => row.effects && row.effects.length > 0)
 				// 	.map((row) => row.effects?.replace(/, *$/g, ''))
 				// 	.join(', '),
+				effectsCategory: !featureRows[0].group ? featureRows[0].effectsCategory || '' : '',
 				subclass: featureRows[0].subclass || '',
 				dependencies: featureRows[0].dependencies?.split(', ') || [],
 				rank: parseInt(featureRows[0].rank) || 0,
@@ -1845,6 +1831,7 @@ function useCharacterDataUncached(characterId: string) {
 							isDrawback: row.isCharacterDrawback,
 							buffList: row.buffList?.split(', ') || [],
 							effects: row.effects?.replace(/, $/, '') || '',
+							effectsCategory: row.effectsCategory || '',
 							subclass: row.subclass || '',
 							dependencies: row.dependencies?.split(', ') || [],
 							rank: parseInt(row.rank) || 0,
@@ -1891,7 +1878,7 @@ function useCharacterDataUncached(characterId: string) {
 							featureModsResult.push(<BuffInfo>{
 								name: feature.name + ' - ' + mod.name + ' (Feature Mod)',
 								type: 'Hidden',
-								category: 'Misc',
+								category: feature.effectsCategory || 'Misc',
 								isStory: false,
 								isBasic: false,
 								stacks: 0,
@@ -2597,21 +2584,49 @@ function useCharacterDataUncached(characterId: string) {
 			);
 		}
 	});
-	watch(actionResources.value, () => {
-		// Store the current state of `actionResources` to Local Storage whenever it changes.
-		localStorage.setItem(
-			characterId + '_actionResources',
-			JSON.stringify(actionResources.value),
-		);
-	});
+	watch(
+		actionResources,
+		() => {
+			// When abilities are overdrawn, convert overdraw to Universal Energy.
+			const energyTypes = ['energyGrenade', 'energyMelee', 'energyClass', 'energySuper'];
+			for (const i in energyTypes) {
+				const key = energyTypes[i];
+				const reduceBy = Math.abs(
+					Math.min(0, actionResourcesDisplay.value[key as ActionResourceDisplayKey]),
+				);
+				if (reduceBy > 0) {
+					console.log(key, 'has been changed,', reduceBy);
+					console.log(
+						'Current energy ',
+						key,
+						actionResources.value[(key + 'Used') as ActionResourceKey],
+						'Total',
+						statsBuffed.value[key as StatName].total,
+					);
+					const newResources = {
+						...actionResources.value,
+						[(key + 'Used') as ActionResourceKey]:
+							statsBuffed.value[key as StatName].total,
+						energyUniversalUsed: actionResources.value.energyUniversalUsed + reduceBy,
+					};
+					console.log(newResources);
+					actionResources.value = { ...newResources };
+					console.log(
+						'New universal energy used:',
+						actionResources.value.energyUniversalUsed,
+					);
+				}
+			}
+			// Store the current state of `actionResources` to Local Storage whenever it changes.
+			localStorage.setItem(
+				characterId + '_actionResources',
+				JSON.stringify(actionResources.value),
+			);
+		},
+		{ deep: true },
+	);
 	watch(partyBuffs, () => {
 		buffs.value = JSON.parse(JSON.stringify(partyBuffs.value));
-	});
-	watch(weaponVariables, () => {
-		localStorage.setItem(
-			characterId + '_weaponVariables',
-			JSON.stringify(weaponVariables.value),
-		);
 	});
 	watch([weaponsForFiltering, weaponPerks], () => {
 		const storedWeapons = JSON.parse(
@@ -2703,6 +2718,16 @@ function useCharacterDataUncached(characterId: string) {
 				return weapon;
 			});
 	});
+	watch(
+		weaponVariables,
+		() => {
+			localStorage.setItem(
+				characterId + '_weaponVariables',
+				JSON.stringify(weaponVariables.value),
+			);
+		},
+		{ deep: true },
+	);
 	watch(namesOfEquippedArmor, () => {
 		localStorage.setItem(characterId + '_armorEquipped', namesOfEquippedArmor.value.join('»'));
 	});
