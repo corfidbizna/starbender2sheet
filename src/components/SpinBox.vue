@@ -6,6 +6,7 @@ const props = defineProps<{
 	max: number;
 	showFill?: boolean;
 	inverted?: boolean;
+	minZero?: boolean;
 }>();
 const realMax = computed<number>(() => props.max);
 const realValue = defineModel<number>({ default: 0 });
@@ -40,22 +41,9 @@ watch(realMax, () => {
 			v-model="textboxValue"
 			v-on:focus="textboxValue = displayValue"
 			v-on:focusout="textboxValue = displayValue"
+			:min="minZero ? 0 : ''"
 		/>
 		<!-- <span style="position: absolute; pointer-events: none">{{ realValue }}</span> -->
-		<!-- <span class="spinbox-increment-container">
-			<button
-				class="spinbox-increment up"
-				@click="increment(1)"
-			>
-				<span>+</span>
-			</button>
-			<button
-				class="spinbox-increment down"
-				@click="increment(-1)"
-			>
-				<span>-</span>
-			</button>
-		</span> -->
 	</span>
 </template>
 <style>

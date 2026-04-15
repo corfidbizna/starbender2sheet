@@ -27,30 +27,30 @@ const removeBuff = () => {
 watch(stackCount, () => {
 	changeStacksUpdate(stackCount.value);
 });
-type BuffPerk = {
-	label: string;
-	description?: string;
-	effects?: string;
-	passive: boolean;
-};
-const perkList = computed<BuffPerk[]>(() => {
-	return (props.perks || '').split('\n').map((line) => {
-		const passive = line.slice(0, 2) === '##';
-		const effects = /{[^}]*}/.exec(line)?.join();
-		const splitLine = line
-			.slice(passive ? 2 : 0)
-			.split('{')[0]
-			.split('`');
-		const label = splitLine[0].trim();
-		const description = (splitLine[1] || '').trim();
-		return {
-			label,
-			description,
-			effects,
-			passive,
-		};
-	});
-});
+// type BuffPerk = {
+// 	label: string;
+// 	description?: string;
+// 	effects?: string;
+// 	passive: boolean;
+// };
+// const perkList = computed<BuffPerk[]>(() => {
+// 	return (props.perks || '').split('\n').map((line) => {
+// 		const passive = line.slice(0, 2) === '##';
+// 		const effects = /{[^}]*}/.exec(line)?.join();
+// 		const splitLine = line
+// 			.slice(passive ? 2 : 0)
+// 			.split('{')[0]
+// 			.split('`');
+// 		const label = splitLine[0].trim();
+// 		const description = (splitLine[1] || '').trim();
+// 		return {
+// 			label,
+// 			description,
+// 			effects,
+// 			passive,
+// 		};
+// 	});
+// });
 </script>
 <template>
 	<label
@@ -58,7 +58,7 @@ const perkList = computed<BuffPerk[]>(() => {
 		class="buff-label"
 		:class="condensed ? 'condensed' : ''"
 	>
-		<div class="contents">
+		<div class="buff-contents">
 			<div class="buff-header">
 				<input
 					:disabled="props.isPassive"
@@ -123,7 +123,7 @@ const perkList = computed<BuffPerk[]>(() => {
 				<summary>Description</summary>
 				{{ props.description }}
 			</details>
-			<div v-if="props.perks">
+			<!-- <div v-if="props.perks">
 				<details
 					v-for="perk in perkList"
 					:key="perk.label"
@@ -136,7 +136,7 @@ const perkList = computed<BuffPerk[]>(() => {
 					</summary>
 					{{ perk.description }} :::: {{ perk.effects }}
 				</details>
-			</div>
+			</div> -->
 		</div>
 	</label>
 </template>
@@ -165,6 +165,8 @@ const perkList = computed<BuffPerk[]>(() => {
 .buff-label.condensed {
 	border: none;
 	background-color: #0000;
+	padding: 2px;
+	margin: 2px;
 }
 .buff-header > input {
 	width: 1.4em;
@@ -174,7 +176,7 @@ const perkList = computed<BuffPerk[]>(() => {
 .buff-header > input:disabled {
 	visibility: hidden;
 }
-.buff-label .contents {
+.buff-label .buff-contents {
 	display: inline;
 	width: 100%;
 }

@@ -21,7 +21,7 @@ export type BuffInfo = {
 	duration?: number;
 	roundsRemaining?: number;
 	description?: string;
-	perks?: string;
+	// perks?: string;
 	effects?: string;
 	isPassive?: boolean;
 	active: boolean;

@@ -12,7 +12,7 @@ const props = defineProps<CapacityBoxInfo & { characterId: string }>();
 const { actionResources, actionResourceUpdate } = useCharacterData(props.characterId);
 
 const refillStat = (stat: CapacityBoxStatField) => {
-	const diff = stat.inverted ? -stat.current : stat.max - stat.current;
+	const diff = stat.inverted ? -stat.current || 0 : stat.max - (stat.current || 0);
 	actionResourceUpdate(stat.stat as ActionResourceKey, diff);
 };
 const refillAll = () => {
@@ -72,6 +72,7 @@ const refillAll = () => {
 							value: actionResources[stat.stat],
 							max: stat.max,
 							inverted: stat.inverted,
+							minZero: stat.minZero,
 						}"
 						v-model="actionResources[stat.stat]"
 					/>

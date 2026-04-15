@@ -34,7 +34,8 @@ const {
 //          Stats
 // =======================
 // Whether or not it's possible to use the Ability.
-const isDisabled = computed<boolean>(() => {
+const willOverdraw = computed<boolean>(() => {
+	// return false;
 	return energyUseAmount.value > currentEnergy.value;
 });
 // The current amount of the Ability's energy type available.
@@ -255,8 +256,11 @@ const rollHit = () => {
 // Decrease the usage energy
 const updateEnergy = () => {
 	updateLog(props.name + ' cast');
-	const key = ('energy' + props.type + 'Used') as ActionResourceKey;
-	actionResources.value[key] += energyUseAmount.value;
+	const resourceKey = ('energy' + props.type + 'Used') as ActionResourceKey;
+	// const statKey = ('energy' + props.type) as StatName;
+	// const distanceToMax = statsBuffed.value[statKey] - actionResources.value[resourceKey];
+	// const overflowToUniversal = Math.max();
+	actionResources.value[resourceKey] += energyUseAmount.value;
 };
 </script>
 <template>
@@ -281,8 +285,12 @@ const updateEnergy = () => {
 						<button
 							class="cast-ability-button"
 							@click="updateEnergy()"
-							:title="isDisabled ? 'Not enough ' + props.type + ' energy' : ''"
-							:disabled="isDisabled"
+							:title="
+								willOverdraw
+									? 'Using this will overdraw ' + props.type + ' energy'
+									: ''
+							"
+							:class="{ warning: willOverdraw }"
 						>
 							Use
 						</button>
@@ -291,8 +299,12 @@ const updateEnergy = () => {
 						<button
 							class="cast-ability-button"
 							@click="(updateEnergy(), rollHit())"
-							:title="isDisabled ? 'Not enough ' + props.type + ' energy' : ''"
-							:disabled="isDisabled"
+							:title="
+								willOverdraw
+									? 'Using this will overdraw ' + props.type + ' energy'
+									: ''
+							"
+							:class="{ warning: willOverdraw }"
 						>
 							Hit
 						</button>
@@ -304,8 +316,10 @@ const updateEnergy = () => {
 				>
 					<button
 						@click="(updateEnergy(), rollHit())"
-						:title="isDisabled ? 'Not enough ' + props.type + ' energy' : ''"
-						:disabled="isDisabled"
+						:title="
+							willOverdraw ? 'Using this will overdraw ' + props.type + ' energy' : ''
+						"
+						:class="{ warning: willOverdraw }"
 					>
 						Hit
 					</button>
@@ -545,6 +559,9 @@ const updateEnergy = () => {
 	height: 3em;
 	width: 4em;
 	font-family: 'Destiny Symbols Common', sans-serif;
+}
+button.warning {
+	color: var(--color-masterwork);
 }
 .damage-main {
 	font-size: 2em;
