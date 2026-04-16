@@ -446,6 +446,9 @@ const encumberanceColor = computed<string>(() => {
 						<button @click="incrementTurn">Increment Turn</button>
 						<button @click="rallyBanner">Rally Banner</button>
 					</div>
+					<!-- <div>
+						<h2>Roll Dice</h2>
+					</div> -->
 					<h2>Action Log</h2>
 					<textarea
 						v-model="actionLog"
@@ -705,11 +708,6 @@ const encumberanceColor = computed<string>(() => {
 							>Weapons</RouterLink
 						>
 						<RouterLink
-							:to="{ name: 'characterGameplayArmor', params: { characterId } }"
-							@click="changeSubtab('characterGameplayArmor')"
-							>Armor</RouterLink
-						>
-						<RouterLink
 							:to="{ name: 'characterGameplayAbilities', params: { characterId } }"
 							@click="changeSubtab('characterGameplayAbilities')"
 							>Abilities</RouterLink
@@ -723,6 +721,11 @@ const encumberanceColor = computed<string>(() => {
 							:to="{ name: 'characterGameplayBuffs', params: { characterId } }"
 							@click="changeSubtab('characterGameplayBuffs')"
 							>Buffs</RouterLink
+						>
+						<RouterLink
+							:to="{ name: 'characterGameplayArmor', params: { characterId } }"
+							@click="changeSubtab('characterGameplayArmor')"
+							>Armor</RouterLink
 						>
 						<RouterLink
 							:to="{ name: 'characterGameplayArtifact', params: { characterId } }"

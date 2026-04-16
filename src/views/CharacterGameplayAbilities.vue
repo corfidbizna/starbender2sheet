@@ -12,6 +12,7 @@ import CapacityBar from '@/components/CapacityBar.vue';
 import { computed, ref } from 'vue';
 import AbilityItemRow from '@/components/AbilityItemRow.vue';
 import SpinBox from '@/components/SpinBox.vue';
+import DGlyph from '@/components/DGlyph.vue';
 
 type CharacterProps = {
 	characterId: CharacterNames;
@@ -26,7 +27,24 @@ const {
 	getFinalStat,
 	actionResources,
 	actionResourcesDisplay,
+	subclassSet,
 } = useCharacterData(props.characterId);
+
+const allowedSubclasses = computed<Element[]>(() => {
+	const result = Object.keys(elements)
+		.filter((element) => subclassAllowed(element) && element !== 'Kinetic')
+		.map((element) => element as Element);
+	if (result.length <= 1) return [];
+	return result;
+});
+const subclassAllowed = (subclass: string) => {
+	return (
+		abilities.value.findIndex(
+			(ability) => ability.element === subclass && ability.type !== 'Subcomponent',
+		) >= 0
+	);
+};
+
 const mainAbilities = computed<Ability[]>(() => {
 	return abilities.value.filter((ability) => ability.type !== 'Subcomponent');
 });
@@ -87,6 +105,16 @@ const abilityFilter = ref<string>('All');
 			<h1>Somehow, you have no abilities : /</h1>
 		</div>
 		<div v-else>
+			<div class="subclass-list">
+				<button
+					class="subclass-change-button"
+					v-for="subclass in allowedSubclasses"
+					:key="subclass"
+					@click="subclassSet(subclass)"
+				>
+					<DGlyph v-bind="{ name: subclass }" />
+				</button>
+			</div>
 			<div class="ability-header">
 				<button
 					class="ability-button super"
@@ -253,6 +281,32 @@ const abilityFilter = ref<string>('All');
 	<div v-else><h1>Loading abilities…</h1></div>
 </template>
 <style>
+.ability-gameplay-block {
+	position: relative;
+}
+.subclass-list {
+	position: absolute;
+	top: 2px;
+	left: 34px;
+	z-index: 1;
+}
+.subclass-change-button {
+	transform: rotate(45deg);
+	width: 18px;
+	height: 18px;
+	margin: 4px;
+}
+.subclass-change-button:hover {
+	filter: brightness(110%);
+}
+.subclass-change-button > * {
+	transform: rotate(-45deg);
+	position: absolute;
+	font-size: 0.8em;
+	top: 2px;
+	left: 2px;
+	text-align: center;
+}
 .ability-gameplay-table {
 	border-collapse: collapse;
 	text-align: right;
@@ -267,7 +321,7 @@ const abilityFilter = ref<string>('All');
 .ability-header {
 	position: relative;
 	padding-left: 2em;
-	padding-top: 1em;
+	padding-top: 30px;
 }
 .ability-header > button * {
 	filter: invert(100%);
@@ -284,15 +338,15 @@ const abilityFilter = ref<string>('All');
 	height: 2.3em;
 	transform: rotate(45deg);
 	position: absolute;
-	top: 8px;
+	top: 22px;
 	left: 8px;
 	z-index: 1;
 }
 .ability-button.super img {
 	width: 2.5em;
 	transform: rotate(-45deg);
-	top: -2px;
 	position: absolute;
+	top: -2px;
 	left: -2px;
 	filter: invert(100%);
 }
