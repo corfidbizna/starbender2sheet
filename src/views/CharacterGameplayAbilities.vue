@@ -111,6 +111,7 @@ const abilityFilter = ref<string>('All');
 					v-for="subclass in allowedSubclasses"
 					:key="subclass"
 					@click="subclassSet(subclass)"
+					:title="'Switch to ' + subclass + ' subclass.'"
 				>
 					<DGlyph v-bind="{ name: subclass }" />
 				</button>

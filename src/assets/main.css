@@ -124,14 +124,15 @@ button {
 	background: #0001;
 	transition: background 0.1s;
 }
-button:hover:enabled {
+button:enabled:hover {
 	background: #fff1;
 	transition: background 0.1s;
 }
-button:active {
+button:enabled:active {
 	background: #fff8;
 }
 button:disabled {
-	color: #ddd;
+	color: #aaa;
+	border-color: #888;
 	opacity: 0.8;
 }

@@ -1643,7 +1643,9 @@ function useCharacterDataUncached(characterId: string) {
 		refresh: refreshPlayerBuffs,
 	} = getSheetForCharacter<BuffInfo>(characterId, 'buffs');
 	const buffs = ref<BuffInfo[]>([]);
-	const customBuffs = ref<Record<string, BuffInfo>>({});
+	const customBuffs = ref<Record<string, BuffInfo>>(
+		JSON.parse(localStorage.getItem(characterId + '_customBuffs') || 'null') || {},
+	);
 	const partyBuffs = computed<BuffInfo[]>(() => {
 		const filteredPartyBuffs: BuffInfo[] = allPartyBuffs.value.filter(
 			(item) => item[characterId as CharacterNames],
@@ -1681,7 +1683,9 @@ function useCharacterDataUncached(characterId: string) {
 		refreshPartyBuffs();
 		refreshPlayerBuffs();
 	};
-	const namesOfActivatedBuffs = ref<string[]>([]);
+	const namesOfActivatedBuffs = ref<string[]>(
+		localStorage.getItem(characterId + '_activeBuffs')?.split('»') || [],
+	);
 	// const namesOfActivatedBuffsAndSubclass = computed<string[]>(() => [
 	// 	subclassGet.value + ' Attunement',
 	// 	...namesOfActivatedBuffs.value,
@@ -2625,8 +2629,18 @@ function useCharacterDataUncached(characterId: string) {
 		},
 		{ deep: true },
 	);
+	watch(
+		customBuffs,
+		() => {
+			localStorage.setItem(characterId + '_customBuffs', JSON.stringify(customBuffs.value));
+		},
+		{ deep: true },
+	);
 	watch(partyBuffs, () => {
 		buffs.value = JSON.parse(JSON.stringify(partyBuffs.value));
+	});
+	watch(namesOfActivatedBuffs, () => {
+		localStorage.setItem(characterId + '_activeBuffs', namesOfActivatedBuffs.value.join('»'));
 	});
 	watch([weaponsForFiltering, weaponPerks], () => {
 		const storedWeapons = JSON.parse(

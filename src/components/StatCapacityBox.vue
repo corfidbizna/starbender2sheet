@@ -69,7 +69,7 @@ const refillAll = () => {
 				>
 					<SpinBox
 						v-bind="{
-							value: actionResources[stat.stat],
+							value: actionResources[stat.stat] || stat.inverted ? 0 : stat.max,
 							max: stat.max,
 							inverted: stat.inverted,
 							minZero: stat.minZero,

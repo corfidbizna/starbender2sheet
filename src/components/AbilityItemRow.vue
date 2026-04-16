@@ -56,7 +56,8 @@ const energyUseAmount = computed<number>(
 const energyUsageGradientString = computed<string>(() => {
 	const colRemaining = '#fff';
 	const colReduced = 'var(--color-buff)';
-	const colSubtracted = '#aaa';
+	const colSubtractedStart = 'var(--color-debuff)';
+	const colSubtractedEnd = '#aaa';
 	const colEmpty = '#0004';
 	const energyProgress = (100 * currentEnergy.value) / maxEnergy.value;
 	const useProgress = Math.max(
@@ -81,11 +82,11 @@ const energyUsageGradientString = computed<string>(() => {
 		' ' +
 		useProgress +
 		'%, ' +
-		colSubtracted +
+		colSubtractedStart +
 		' ' +
 		useProgress +
 		'%, ' +
-		colSubtracted +
+		colSubtractedEnd +
 		' ' +
 		energyProgress +
 		'%, ' +
@@ -280,50 +281,37 @@ const updateEnergy = () => {
 				/>
 			</template>
 			<template #header-right>
-				<div v-if="!props.dmgDieFormula">
-					<div v-if="!props.damageStatsBase.hitType">
-						<button
-							class="cast-ability-button"
-							@click="updateEnergy()"
-							:title="
-								willOverdraw
-									? 'Using this will overdraw ' + props.type + ' energy'
-									: ''
-							"
-							:class="{ warning: willOverdraw }"
-						>
-							Use
-						</button>
-					</div>
-					<div v-else>
-						<button
-							class="cast-ability-button"
-							@click="(updateEnergy(), rollHit())"
-							:title="
-								willOverdraw
-									? 'Using this will overdraw ' + props.type + ' energy'
-									: ''
-							"
-							:class="{ warning: willOverdraw }"
-						>
-							Hit
-						</button>
-					</div>
-				</div>
-				<div
-					v-else
-					style="display: flex; flex-direction: column; width: 4em"
-				>
+				<div style="display: flex; flex-direction: row">
 					<button
-						@click="(updateEnergy(), rollHit())"
+						class="cast-ability-button"
+						@click="updateEnergy()"
 						:title="
 							willOverdraw ? 'Using this will overdraw ' + props.type + ' energy' : ''
 						"
 						:class="{ warning: willOverdraw }"
 					>
-						Hit
+						Use
 					</button>
-					<button @click="rollDamage()">Dmg</button>
+					<div style="display: flex; flex-direction: column; width: 4em">
+						<button
+							style="flex-grow: 1"
+							@click="rollHit()"
+							:disabled="!props.damageStatsBase.hitType"
+							:title="
+								!props.damageStatsBase.hitType ? 'This ability cannot miss.' : ''
+							"
+						>
+							Hit
+						</button>
+						<button
+							style="flex-grow: 1"
+							:disabled="!props.dmgDieFormula"
+							@click="rollDamage()"
+							:title="!props.dmgDieFormula ? 'This ability cannot do damage.' : ''"
+						>
+							Dmg
+						</button>
+					</div>
 				</div>
 			</template>
 			<template #contents>
