@@ -100,6 +100,11 @@ const glyphMap = {
 	Prismatic: '',
 	Nightmare: '',
 };
+type RollInfo = {
+	value: number;
+	glyph?: string;
+	description: string;
+};
 const hitRangeMod = computed<number>(() => {
 	const distance = actionResources.value.targetRange;
 	const increment = Math.min(10, Math.max(0, distance / weapon.value.range));
@@ -119,88 +124,130 @@ const toHitCalc = computed<number>(() => {
 	return result;
 });
 const hitFormula = new DiceFormula('1d20');
+const advantageState = ref<string>('');
 const isPrecise = ref<boolean>(false);
 const isCrit = ref<boolean>(false);
 const isSneak = ref<boolean>(false);
 const rollDamage = () => {
 	// Precision icon: 
-	const statFunction = getStatByCharacter(buffsAsStats.value);
-	const result = weapon.value.damageFormula.roll(statFunction);
-	const glyph = glyphMap[weapon.value.damageType];
-	const stringList = [glyphMap[props.weaponClass] + props.name];
-	let total = 0;
-	let isMultipleComponents = false;
-	// Both a precise hit and a critical hit
-	// This combined the base damage & crit damage for single-display, but that's been removed upon request.
-	// If you want it back, un-comment this bit of code and turn the `if` beneath it to an `else if`
-	// if (isPrecise.value && isCrit.value) {
-	// 	stringList.push(' Damage:      ' + glyph + result * weapon.value.critMult);
-	// 	total += result * weapon.value.critMult;
-	if (isPrecise.value || isCrit.value) {
-		// Whether or not there was a precise main hit
-		isMultipleComponents = true;
-		if (isPrecise.value) {
-			stringList.push(' Damage:      ' + glyph + result);
-			total += result;
-		} else stringList.push('    Damage:      ' + glyph + result);
-		// Whether or not there is critical damage added to it
-		if (isCrit.value && weapon.value.critMult > 1) {
-			stringList.push(' Crit damage:  ' + glyph + result * (weapon.value.critMult - 1));
-			total += result * weapon.value.critMult;
-		}
-	} else {
-		stringList.push('    Damage:      ' + glyph + result);
-		total += result;
-	}
-	// This attack was a sneak attack
-	if (isSneak.value) {
-		isMultipleComponents = true;
-		const sneakResult = new DiceFormula('1d6').roll(statFunction);
-		if (isCrit.value) {
-			stringList.push(' Sneak Attack: ' + glyph + sneakResult * weapon.value.critMult);
-			total += sneakResult * weapon.value.critMult;
+	const results: RollInfo[] = [];
+	const loops = !advantageState.value ? 1 : 2;
+	for (let i = 0; i < loops; i++) {
+		const current: RollInfo = { value: 0, description: '' };
+		const statFunction = getStatByCharacter(buffsAsStats.value);
+		const result = weapon.value.damageFormula.roll(statFunction);
+		const glyph = glyphMap[weapon.value.damageType];
+		const stringList = [];
+		let total = 0;
+		let isMultipleComponents = false;
+		// Both a precise hit and a critical hit
+		// This combined the base damage & crit damage for single-display, but that's been removed upon request.
+		// If you want it back, un-comment this bit of code and turn the `if` beneath it to an `else if`
+		// if (isPrecise.value && isCrit.value) {
+		// 	stringList.push(' Damage:      ' + glyph + result * weapon.value.critMult);
+		// 	total += result * weapon.value.critMult;
+		if (isPrecise.value || isCrit.value) {
+			// Whether or not there was a precise main hit
+			isMultipleComponents = true;
+			if (isPrecise.value) {
+				stringList.push(' Damage:      ' + glyph + result);
+				total += result;
+			} else stringList.push('    Damage:      ' + glyph + result);
+			// Whether or not there is critical damage added to it
+			if (isCrit.value && weapon.value.critMult > 1) {
+				stringList.push(' Crit damage:  ' + glyph + result * (weapon.value.critMult - 1));
+				total += result * weapon.value.critMult;
+			}
 		} else {
-			stringList.push(' Sneak Attack: ' + glyph + sneakResult);
-			total += sneakResult;
+			stringList.push('    Damage:      ' + glyph + result);
+			total += result;
 		}
+		// This attack was a sneak attack
+		if (isSneak.value) {
+			isMultipleComponents = true;
+			const sneakResult = new DiceFormula('1d6').roll(statFunction);
+			if (isCrit.value) {
+				stringList.push(' Sneak Attack: ' + glyph + sneakResult * weapon.value.critMult);
+				total += sneakResult * weapon.value.critMult;
+			} else {
+				stringList.push(' Sneak Attack: ' + glyph + sneakResult);
+				total += sneakResult;
+			}
+		}
+		if (isMultipleComponents) stringList.push('    TOTAL:       ' + glyph + total);
+		// let string =
+		// 	glyphMap[props.weaponClass] +
+		// 	props.name +
+		// 	'\n    Damage:     ' +
+		// 	glyphMap[weapon.value.damageType] +
+		// 	result;
+		// if (weapon.value.critMult && weapon.value.critMult > 1) {
+		// 	string +=
+		// 		'\n Crit damage: ' +
+		// 		glyphMap[weapon.value.damageType] +
+		// 		result * weapon.value.critMult;
+		// }
+		current.value = total;
+		current.glyph = glyph;
+		current.description = stringList.join('\n');
+		results.push(current);
 	}
-	if (isMultipleComponents) stringList.push('    TOTAL:       ' + glyph + total);
-	// let string =
-	// 	glyphMap[props.weaponClass] +
-	// 	props.name +
-	// 	'\n    Damage:     ' +
-	// 	glyphMap[weapon.value.damageType] +
-	// 	result;
-	// if (weapon.value.critMult && weapon.value.critMult > 1) {
-	// 	string +=
-	// 		'\n Crit damage: ' +
-	// 		glyphMap[weapon.value.damageType] +
-	// 		result * weapon.value.critMult;
-	// }
-	updateLog(stringList.join('\n'));
+	const stringTotal = () => {
+		if (!advantageState.value) return '';
+		const adv = advantageState.value === 'Advantage';
+		const total = results
+			.map((item) => item.value)
+			.reduce((prev, curr) => (adv ? Math.max(curr, prev) : Math.min(curr, prev)));
+		return (
+			('\nWith ' + (adv ? '' : 'dis') + 'advantage: ').padEnd(20, ' ') +
+			(results[0].glyph || '') +
+			total
+		);
+	};
+	updateLog(
+		[
+			glyphMap[props.weaponClass] + props.name,
+			...results.map((result) => result.description),
+		].join('\n') + stringTotal(),
+	);
 };
 const rollHit = () => {
-	const result = hitFormula.roll(() => 0);
-	let string =
-		glyphMap[props.weaponClass] +
-		props.name +
-		'\n  ' +
-		result +
-		' (dice) ' +
-		('+ ' + toHitCalc.value).replace('+-', '-') +
-		' (bonus)';
-	if (weapon.value.rangeType !== 'Melee' && actionResources.value.targetRange > 0) {
-		string +=
-			' - ' + actionResources.value.targetRange * weapon.value.rangePenalty + ' (range)';
+	const results: RollInfo[] = [];
+	const loops = !advantageState.value ? 1 : 2;
+	for (let i = 0; i < loops; i++) {
+		const result = hitFormula.roll(() => 0);
+		let string = result + ' (dice) ' + ('+ ' + toHitCalc.value).replace('+-', '-') + ' (bonus)';
+		if (weapon.value.rangeType !== 'Melee' && actionResources.value.targetRange > 0) {
+			string +=
+				' - ' + actionResources.value.targetRange * weapon.value.rangePenalty + ' (range)';
+		}
+		string += ' ⇒ ' + (result + toHitCalc.value) + ' hit result';
+		if (result <= 1) {
+			string += '\n == Natural 1! ==';
+		}
+		if (result > 20 - (weapon.value.critRange || 0)) {
+			string += '\n == Critical hit! ==';
+		}
+		results.push({ value: result + toHitCalc.value, description: string });
 	}
-	string += '\n  Hit result ⇒ ' + (result + toHitCalc.value);
-	if (result <= 1) {
-		string += '\n == Natural 1! ==';
-	}
-	if (result > 20 - (weapon.value.critRange || 0)) {
-		string += '\n == Critical hit! ==';
-	}
-	updateLog(string);
+	const stringTotal = () => {
+		if (!advantageState.value) return '';
+		const adv = advantageState.value === 'Advantage';
+		const total = results
+			.map((item) => item.value)
+			.reduce((prev, curr) => (adv ? Math.max(curr, prev) : Math.min(curr, prev)));
+		return (
+			('\nWith ' + (adv ? '' : 'dis') + 'advantage: ').padEnd(20, ' ') +
+			(results[0].glyph || '') +
+			total
+		);
+	};
+	updateLog(
+		[
+			glyphMap[props.weaponClass] + props.name,
+			...results.map((result) => result.description),
+		].join('\n') + stringTotal(),
+	);
 	fire();
 };
 
@@ -378,8 +425,9 @@ const weapon = computed<Weapon>(() => {
 								v-model="weapons[weaponIndex].ammoCurrent"
 								style="width: 3em"
 							/>
-							⁄ {{ weapon.ammoCapacity }}</span
+							⁄ {{ weapon.ammoCapacity }} </span
 						>
+						<!-- <button @click="fire()">Fire</button> -->
 						<button
 							class="button-reload"
 							@click="reload()"
@@ -461,10 +509,14 @@ const weapon = computed<Weapon>(() => {
 					</tbody>
 				</table>
 				<div
-					v-if="weapon.critRange"
 					class="weapon-damage-mods"
 					:class="{ disabled: !weapon.critRange }"
 				>
+					<select v-model="advantageState">
+						<option value="">--Advantage Selector--</option>
+						<option value="Advantage">Advantage</option>
+						<option value="Disadvantage">Disadvantage</option>
+					</select>
 					<label
 						><input
 							type="checkbox"
