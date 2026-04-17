@@ -64,7 +64,7 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 		}"
 		style="width: 60em; max-width: none"
 		class="feature"
-		:class="{ disabled }"
+		:class="{ disabled, drawback: isCharacterDrawback }"
 	>
 		<template #header-icon
 			><DGlyph
@@ -178,6 +178,7 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 	text-transform: uppercase;
 	padding: 0.5em 0;
 }
+.drawback .header-titles,
 .feature-mod.drawback {
 	color: #fea;
 }

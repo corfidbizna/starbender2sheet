@@ -165,13 +165,13 @@ watch(stackCount, () => {
 .buff-label.condensed {
 	border: none;
 	background-color: #0000;
-	padding: 2px;
+	padding: 0px;
+	padding-right: 2px;
 	margin: 2px;
 }
 .buff-header > input {
-	width: 1.4em;
-	height: 1.3em;
-	align-self: baseline;
+	height: 1em;
+	align-self: center;
 }
 .buff-header > input:disabled {
 	visibility: hidden;
@@ -188,8 +188,8 @@ watch(stackCount, () => {
 }
 .buff-icon {
 	width: 2em;
-	position: relative;
-	top: -2px;
+	/* position: relative;
+	top: -2px; */
 }
 .buff-name {
 	font-size: 1.2em;

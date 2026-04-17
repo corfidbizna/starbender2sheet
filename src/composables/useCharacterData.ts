@@ -1813,8 +1813,7 @@ function useCharacterDataUncached(characterId: string) {
 				subclass: featureRows[0].subclass || '',
 				dependencies: featureRows[0].dependencies?.split(', ') || [],
 				rank: parseInt(featureRows[0].rank) || 0,
-				isCharacterDrawback:
-					featureRows.filter((row) => !row.isCharacterDrawback).length === 0,
+				isCharacterDrawback: featureRows[0].isCharacterDrawback,
 				description: !featureRows[0].group ? featureRows[0].description || '' : '',
 			};
 			// For every unique Feature name, go through all the groups.

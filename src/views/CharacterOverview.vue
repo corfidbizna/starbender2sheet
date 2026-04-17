@@ -10,7 +10,7 @@ import {
 } from '@/sharedState';
 import router from '@/router/index.ts';
 import LoadingModal from '@/components/LoadingModal.vue';
-import { computed, onBeforeUnmount, watch } from 'vue';
+import { computed, onBeforeUnmount } from 'vue';
 type CharacterProps = {
 	characterId: CharacterNames;
 };
@@ -58,9 +58,6 @@ const names = computed<string[]>(() => [
 	'settings',
 ]);
 const routeList = computed(() => names.value.map((name) => ({ name, params })));
-watch(subtabNameGameplay, () => {
-	console.log('Gameplay destination changed to', subtabNameGameplay.value);
-});
 const keyHandler = (e: KeyboardEvent) => {
 	if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
 		const currentRouteName = router.currentRoute.value.name as string;

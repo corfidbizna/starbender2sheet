@@ -27,10 +27,7 @@ const activeBuffs = computed<BuffInfo[]>(() => [
 		class="buff-activator"
 		v-if="buffs.length > 0"
 	>
-		<div
-			class="buff-table"
-			v-if="storyBuffs.length > 0"
-		>
+		<div class="buff-table">
 			<h2>Story Buffs</h2>
 			<BuffItemRow
 				v-for="buff in storyBuffs"
