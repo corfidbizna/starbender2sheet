@@ -302,9 +302,9 @@ const weapon = computed<Weapon>(() => {
 					perk.ammoReloadAmount * stk('ammoReloadAmount') || modified.ammoReloadAmount;
 			} else {
 				// Supplement things instead.
-				modified.hitBonus = modified.hitBonus || 0 + perk.hitBonus * stk('hitBonus');
-				modified.critRange = modified.critRange || 0 + perk.critRange * stk('critRange');
-				modified.critMult = modified.critMult || 0 + perk.critMult * stk('critMult');
+				modified.hitBonus = (modified.hitBonus || 0) + perk.hitBonus * stk('hitBonus');
+				modified.critRange = (modified.critRange || 0) + perk.critRange * stk('critRange');
+				modified.critMult = (modified.critMult || 0) + perk.critMult * stk('critMult');
 				const damageStats = damageStringToDownstream(
 					perk.damageFormula
 						? modified.dmgShort + '+' + perk.dmgShort
@@ -319,8 +319,8 @@ const weapon = computed<Weapon>(() => {
 				modified.rangePenalty += perk.rangePenalty * stk('rangePenalty');
 				modified.rangeIncrementsModifier +=
 					perk.rangeIncrementsModifier * stk('rangeIncrementsModifier');
-				modified.size = modified.size || 0 + perk.size * stk('size');
-				modified.duration = modified.duration || 0 + perk.duration * stk('duration');
+				modified.size = (modified.size || 0) + perk.size * stk('size');
+				modified.duration = (modified.duration || 0) + perk.duration * stk('duration');
 				modified.ammo = perk.ammo * stk('ammo') || modified.ammo;
 				modified.ammoCapacity =
 					perk.ammoCapacity * stk('ammoCapacity') || modified.ammoCapacity;
