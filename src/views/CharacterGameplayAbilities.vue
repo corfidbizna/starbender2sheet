@@ -410,7 +410,7 @@ const abilityFilter = ref<string>('All');
 	content: ' // ';
 }
 .gameplay-ability-list {
-	height: calc(100vh - 330px);
+	height: calc(100vh - 340px);
 	overflow-y: scroll;
 	scrollbar-width: thin;
 	font-size: 0.9rem;
