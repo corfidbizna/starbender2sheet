@@ -56,8 +56,10 @@ const energyUseAmount = computed<number>(
 const energyUsageGradientString = computed<string>(() => {
 	const colRemaining = '#fff';
 	const colReduced = 'var(--color-buff)';
-	const colSubtractedStart = 'var(--color-debuff)';
-	const colSubtractedEnd = '#aaa';
+	const colSubtractedStart =
+		currentEnergy.value < energyUseAmount.value ? 'var(--color-debuff)' : '#aaa';
+	const colSubtractedEnd =
+		currentEnergy.value < energyUseAmount.value ? 'var(--color-debuff)' : '#aaa';
 	const colEmpty = '#0004';
 	const energyProgress = (100 * currentEnergy.value) / maxEnergy.value;
 	const useProgress = Math.max(
@@ -393,9 +395,14 @@ const updateEnergy = () => {
 							class="energy-bar"
 							:style="'background-image: ' + energyUsageGradientString"
 						></span>
-						 {{ maxEnergy }} → {{ currentEnergy - energyUseAmount }} (-{{
-							energyUseAmount
-						}})
+						 <span style="translate: -2px -4px">{{ currentEnergy }}</span
+						><span style="font-size: 1.3em">⁄</span
+						><span style="translate: 3px 2px">{{ maxEnergy }}</span>
+						<span style="translate: -2px -4px"
+							>  →  {{ currentEnergy - energyUseAmount }}</span
+						>
+						<span style="font-size: 1.3em">⁄</span
+						><span style="translate: 3px 2px">{{ maxEnergy }}</span>
 					</div>
 				</div>
 				<table
