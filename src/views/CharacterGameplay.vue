@@ -9,6 +9,7 @@ import useCharacterData, {
 	elements,
 	type Element,
 	type ActionResourceKey,
+	type SkillKey,
 } from '@/composables/useCharacterData';
 import StatBarsBox from '@/components/StatBarsBox.vue';
 import LoadingModal from '@/components/LoadingModal.vue';
@@ -244,8 +245,20 @@ const currentDR = computed<number>(() => {
 		(statsBuffed.value[(drString + elementString[dmgType.value]) as StatName]?.total || 0)
 	);
 });
+const currentResistance = computed<number>(() => {
+	if (dmgType.value === 'Kinetic') return 1;
+	const key = ('resist' + dmgType.value) as StatName;
+	return 0.01 * (100 - statsBuffed.value[key].total);
+});
 const currentDamage = computed<number>(() => {
-	return Math.max(0, (dmg.value * dmgMult.value - currentDR.value) * dmgCount.value);
+	return Math.max(
+		0,
+		Math.trunc(
+			(dmg.value * dmgMult.value - currentDR.value) *
+				currentResistance.value *
+				dmgCount.value,
+		),
+	);
 });
 const previewDamage = computed<Record<string, number>>(() => {
 	const result = {
@@ -366,24 +379,83 @@ const actionsCapacity = computed<CapacityBoxStatField[]>(() => {
 	];
 });
 
-const moveInfo = computed(() => ({
-	jump: Math.trunc(
-		((skills.value.acrobatics || 0) +
-			(statsBuffed.value['acrobatics' as StatName].total + 10)) /
-			2,
-	),
-	climb: Math.trunc(
-		((skills.value.climb || 0) + (statsBuffed.value['climb' as StatName].total + 10)) / 2,
-	),
-	swim: Math.trunc(
-		((skills.value.swim || 0) + (statsBuffed.value['swim' as StatName].total + 10)) / 2,
-	),
-}));
+const moveShowTiles = ref<boolean>(false);
+const moveInfo = computed(() => {
+	const listSkill = ['acrobatics', 'climb', 'swim', 'fly'];
+	const listStat = ['', 'climb', 'swim', 'fly'];
+	const listRatios = [2, 4, 4, 2];
+	const result: Record<string, number> = {};
+	for (const i in listSkill) {
+		const skillTotal =
+			(skills.value[listSkill[i] as SkillKey] || 0) +
+			(statsBuffed.value[listSkill[i] as StatName].total || 0);
+		const baseTotal =
+			statsBuffed.value[('actionsMoveBase' + listStat[i]) as StatName]?.total || 0;
+		const replaceTotal =
+			statsBuffed.value[('actionsMoveReplace' + listStat[i]) as StatName]?.total || 0;
+		const bothTotal = statsBuffed.value[('actionsMove' + listStat[i]) as StatName]?.total || 0;
+		const ratio = listRatios[i];
+		const baseSpeed =
+			(skillTotal + baseTotal + statsBuffed.value.actionsMoveBaseLand.total) / ratio;
+		const replaceSpeed = replaceTotal;
+		result[listSkill[i]] = Math.trunc(
+			((!!statsBuffed.value[('actionsMoveReplace' + listStat[i]) as StatName]?.summary
+				? replaceSpeed
+				: baseSpeed) +
+				bothTotal) *
+				statsBuffed.value.actionsMoveMult.total,
+		);
+	}
+	return result;
+	// return {
+	// 	jump:
+	// 		Math.trunc(
+	// 			((skills.value.acrobatics || 0) +
+	// 				(statsBuffed.value['acrobatics' as StatName].total + 10)) /
+	// 				2,
+	// 		) * statsBuffed.value.actionsMoveMult.total,
+	// 	climb:
+	// 		(Math.trunc(
+	// 			((skills.value.climb || 0) + (statsBuffed.value['climb' as StatName].total + 10)) /
+	// 				2,
+	// 		) +
+	// 			statsBuffed.value.actionsMoveClimb.total) *
+	// 		statsBuffed.value.actionsMoveMult.total,
+	// 	swim:
+	// 		(Math.trunc(
+	// 			((skills.value.swim || 0) + (statsBuffed.value['swim' as StatName].total + 10)) / 2,
+	// 		) +
+	// 			statsBuffed.value.actionsMoveSwim.total) *
+	// 		statsBuffed.value.actionsMoveMult.total,
+	// 	fly:
+	// 		(Math.trunc(
+	// 			((skills.value.fly || 0) + (statsBuffed.value['fly' as StatName].total + 10)) / 2,
+	// 		) +
+	// 			statsBuffed.value.actionsMoveFly.total) *
+	// 		statsBuffed.value.actionsMoveMult.total,
+	// };
+});
 const toTiles = (feet: number) => {
 	// Rounds to the nearest vv
 	const fractionalRound = 5; // 4
 	return Math.trunc((feet * fractionalRound) / 5) / fractionalRound;
 };
+const moveResults = computed<Record<string, string>>(() => {
+	if (moveShowTiles.value) {
+		return {
+			acrobatics: toTiles(moveInfo.value.acrobatics) + ' tiles',
+			climb: toTiles(moveInfo.value.climb) + ' tiles',
+			swim: toTiles(moveInfo.value.swim) + ' tiles',
+			fly: toTiles(moveInfo.value.fly) + ' tiles',
+		};
+	}
+	return {
+		acrobatics: moveInfo.value.acrobatics + ' ft.',
+		climb: moveInfo.value.climb + ' ft.',
+		swim: moveInfo.value.swim + ' ft.',
+		fly: moveInfo.value.fly + ' ft.',
+	};
+});
 const encumberanceTEMP = computed<number>(() => {
 	return Math.trunc(
 		Math.max(
@@ -627,23 +699,60 @@ const encumberanceColor = computed<string>(() => {
 						/>
 						<table class="hover-highlight">
 							<caption>
-								<h2>Derived Information</h2>
+								<h2>
+									Derived Information<span style="float: right"
+										><button @click="moveShowTiles = !moveShowTiles">
+											Show {{ moveShowTiles ? 'Feet' : 'Tiles' }}
+										</button></span
+									>
+								</h2>
 							</caption>
 							<tr :title="buffsTallied.actionsMoveBaseLand.summary.join('\n') || ''">
-								<td class="stat-label">Movement Per Move</td>
+								<td class="stat-label">Movement Per Action</td>
 								<td class="stat-value">
-									{{ statsBuffed['actionsMoveBaseLand'].total }} ft. /
-									{{ toTiles(statsBuffed['actionsMoveBaseLand'].total) }} tiles
+									{{
+										moveShowTiles
+											? toTiles(statsBuffed['actionsMoveBaseLand'].total) +
+												' tiles'
+											: statsBuffed['actionsMoveBaseLand'].total + ' ft.'
+									}}
 								</td>
 							</tr>
 							<tr>
+								<td colspan="2">
+									<table class="movement-table">
+										<tbody>
+											<tr>
+												<td>Jump</td>
+												<td class="movement-table-value">
+													{{ moveResults.acrobatics }}
+												</td>
+												<td>Climb</td>
+												<td class="movement-table-value">
+													{{ moveResults.climb }}
+												</td>
+												<td>Swim</td>
+												<td class="movement-table-value">
+													{{ moveResults.swim }}
+												</td>
+												<td>Fly</td>
+												<td class="movement-table-value">
+													{{ moveResults.fly }}
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+							<!-- <tr>
 								<td class="stat-label">Jump Height</td>
 								<td class="stat-value">
-									{{ moveInfo.jump }} ft. / {{ toTiles(moveInfo.jump) }} tiles
+									{{ moveInfo.acrobatics }} ft. /
+									{{ toTiles(moveInfo.acrobatics) }} tiles
 								</td>
 							</tr>
 							<tr>
-								<td class="stat-label">Climb Rate</td>
+								<td class="stat-label">Climb Speed</td>
 								<td class="stat-value">
 									{{ moveInfo.climb }} ft. / {{ toTiles(moveInfo.climb) }} tiles
 								</td>
@@ -655,10 +764,19 @@ const encumberanceColor = computed<string>(() => {
 								</td>
 							</tr>
 							<tr>
+								<td class="stat-label">Fly Speed</td>
+								<td class="stat-value">
+									{{ moveInfo.fly }} ft. / {{ toTiles(moveInfo.fly) }} tiles
+								</td>
+							</tr> -->
+							<tr>
 								<td class="stat-label">Reach</td>
 								<td class="stat-value">
-									{{ statsBuffed['reach'].total }} ft. /
-									{{ toTiles(statsBuffed['reach'].total) }} tiles
+									{{
+										moveShowTiles
+											? toTiles(statsBuffed['reach'].total) + ' tiles'
+											: statsBuffed['reach'].total + ' ft.'
+									}}
 								</td>
 							</tr>
 							<tr>
@@ -782,6 +900,20 @@ const encumberanceColor = computed<string>(() => {
 	white-space: nowrap;
 	font-weight: bold;
 	width: 100%;
+}
+.movement-table {
+	border-collapse: collapse;
+	width: 100%;
+	text-align: right;
+	/* border-top: var(--line);
+	border-bottom: var(--line); */
+}
+.movement-table-value {
+	font-size: 0.8em;
+	border-left: var(--line);
+	font-weight: bold;
+	text-align: left;
+	padding-left: 2px;
 }
 /* */
 .primary-block {

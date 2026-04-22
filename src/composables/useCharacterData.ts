@@ -937,15 +937,19 @@ export type StatSheet = {
 export type StatSheetKey = keyof StatSheet;
 
 export const labelMap = {
-	actionsMoveBaseLand: 'Move Base Land',
-	actionsMoveBaseSwim: 'Move Base Swim',
-	actionsMoveBaseFly: 'Move Base Fly',
-	actionsMoveBaseClimb: 'Move Base Climb',
+	actionsMoveBaseLand: 'Base Land Speed',
+	actionsMoveBaseSwim: 'Base Swim Speed',
+	actionsMoveBaseFly: 'Base Fly Speed',
+	actionsMoveBaseClimb: 'Base Climb Speed',
+	actionsMoveReplaceLand: 'Replacement Base Land Speed',
+	actionsMoveReplaceSwim: 'Replacement Base Swim Speed',
+	actionsMoveReplaceFly: 'Replacement Base Fly Speed',
+	actionsMoveReplaceClimb: 'Replacement Base Climb Speed',
+	actionsMoveLand: 'Land Speed',
+	actionsMoveSwim: 'Swim Speed',
+	actionsMoveFly: 'Fly Speed',
+	actionsMoveClimb: 'Climb Speed',
 	actionsMoveMult: 'Move Mult',
-	actionsMoveLand: 'Move (Land)',
-	actionsMoveSwim: 'Move (Swim)',
-	actionsMoveFly: 'Move (Fly)',
-	actionsMoveClimb: 'Move (Climb)',
 	//
 	ac: 'AC',
 	acFF: 'FF AC',

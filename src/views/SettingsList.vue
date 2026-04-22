@@ -28,7 +28,7 @@ const labelsSkills = Object.keys(skillsInfoMap).map((key) => skillsInfoMap[key a
 			<tr class="header">
 				<td colspan="2"><h2>General</h2></td>
 			</tr>
-			<tr title="Whether or not to show distances in feet or tiles.">
+			<!-- <tr title="Whether or not to show distances in feet or tiles.">
 				<td class="setting-label">
 					<label for="setting-distance-display">Use Tiles for Distance</label>
 				</td>
@@ -38,7 +38,7 @@ const labelsSkills = Object.keys(skillsInfoMap).map((key) => skillsInfoMap[key a
 						type="checkbox"
 					/>
 				</td>
-			</tr>
+			</tr> -->
 			<tr
 				title="Whether or not to show the group in the buffs section that collects all currently active buffs together."
 			>
