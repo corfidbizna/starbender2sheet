@@ -22,6 +22,8 @@ const changeStacksUpdate = (amount: number) => {
 	return buffsStackUpdate(props.name, amount);
 };
 const removeBuff = () => {
+	const nameIndex = namesOfActivatedBuffs.value.indexOf(props.name);
+	namesOfActivatedBuffs.value.splice(nameIndex, 1);
 	delete customBuffs.value[props.name];
 };
 watch(stackCount, () => {

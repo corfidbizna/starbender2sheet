@@ -22,11 +22,11 @@ const getCritDisplay = (): string => {
 	if (!weapon.value.critRange) {
 		return '--';
 	}
-	const delimiter = ', x';
+	const delimiter = ', ×';
 	if (weapon.value.critRange === 1) {
 		return 20 + delimiter + weapon.value.critMult;
 	}
-	return 21 - weapon.value.critRange + '-20' + delimiter + weapon.value.critMult;
+	return 21 - weapon.value.critRange + '–20' + delimiter + weapon.value.critMult;
 };
 const getAmmoTypeDisplay = (): string => {
 	return weapon.value.ammoType.split(' ')[0];
@@ -458,8 +458,10 @@ const weapon = computed<Weapon>(() => {
 							</td>
 						</tr>
 						<tr>
-							<td class="weapon-stat-label">Min Dmg</td>
-							<td class="weapon-stat-data">{{ weapon.dmgMin }}</td>
+							<td class="weapon-stat-label">Dmg Range</td>
+							<td class="weapon-stat-data">
+								{{ weapon.dmgMin }}–{{ weapon.dmgMax }}
+							</td>
 							<td class="weapon-stat-label">Crit</td>
 							<td class="weapon-stat-data">{{ getCritDisplay() }}</td>
 							<td class="weapon-stat-label">Shape</td>
@@ -477,8 +479,8 @@ const weapon = computed<Weapon>(() => {
 							</td>
 						</tr>
 						<tr>
-							<td class="weapon-stat-label">Max Dmg</td>
-							<td class="weapon-stat-data">{{ weapon.dmgMax }}</td>
+							<td class="weapon-stat-label">Attack Type</td>
+							<td class="weapon-stat-data">{{ weapon.attackType }}</td>
 							<td class="weapon-stat-label">Ammo</td>
 							<td class="weapon-stat-data">{{ weapon.ammo }}</td>
 							<td class="weapon-stat-label">Duration</td>
@@ -497,8 +499,10 @@ const weapon = computed<Weapon>(() => {
 							</td>
 						</tr>
 						<tr>
-							<td class="weapon-stat-label">Attack Type</td>
-							<td class="weapon-stat-data">{{ weapon.attackType }}</td>
+							<td class="weapon-stat-label">Autofire</td>
+							<td class="weapon-stat-data">
+								{{ weapon.autoFireRange ? weapon.autoFireRange : '--' }}
+							</td>
 							<td class="weapon-stat-label">Magazine</td>
 							<td class="weapon-stat-data">
 								{{ weapon.ammoCapacity }} {{ weapon.ammoType }}

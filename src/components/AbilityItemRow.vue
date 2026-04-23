@@ -24,7 +24,6 @@ const {
 	statsBase,
 	buffs,
 	statsBuffed: buffsAsStats,
-	buffsTallied,
 	getFinalStat,
 	actionResources,
 	actionResourcesDisplay,
@@ -136,7 +135,7 @@ const getCritDisplay = (): string => {
 		return 20 + delimiter + props.damageStatsBase.critMult;
 	}
 	return (
-		21 - props.damageStatsBase.critRange + '-20' + delimiter + props.damageStatsBase.critMult
+		21 - props.damageStatsBase.critRange + '–20' + delimiter + props.damageStatsBase.critMult
 	);
 };
 // Figures the amount to subtract the hit by
@@ -186,7 +185,12 @@ const partialPowerStats = computed<
 			result[key] -= Math.trunc(subtractAmount);
 		}
 	});
-	const newDamage = (result.dmgDieQuantity || '0') + (props.dmgDieFormula || 'd0');
+	const newDamage =
+		(result.dmgDieQuantity || '0') +
+		(props.dmgDieFormula || 'd0') +
+		'+(Spell Damage+' +
+		props.type +
+		' Damage)';
 	result.dmg = new DiceFormula(newDamage);
 	return result;
 });
@@ -238,6 +242,9 @@ const rollDamage = () => {
 	}
 	updateLog(string);
 };
+const hitTotal = computed<number>(() => {
+	return (partialPowerStats.value.hitBonus as number) + getFinalStat('toHitSpell');
+});
 const rollHit = () => {
 	const result = hitFormula.roll(() => 0);
 	let string =
@@ -245,9 +252,9 @@ const rollHit = () => {
 		'\n  ' +
 		result +
 		' (dice) ' +
-		('+ ' + buffsTallied.value.toHitSpell.total).replace('+-', '-') +
+		('+ ' + hitTotal.value).replace('+-', '-') +
 		' (bonus)';
-	string += '\n  Hit result ⇒ ' + (result + buffsTallied.value.toHitSpell.total);
+	string += '\n  Hit result ⇒ ' + (result + hitTotal.value);
 	if (result <= 1) {
 		string += '\n == Natural 1! ==';
 	}
@@ -444,12 +451,12 @@ const updateEnergy = () => {
 							</td>
 						</tr>
 						<tr>
-							<td class="damage-stat-label">Min Dmg</td>
+							<td class="damage-stat-label">Dmg Range</td>
 							<td
 								class="damage-stat-data"
 								:class="{ debuffed: debuffed.dmg }"
 							>
-								{{ dmgDisplays.min }}
+								{{ dmgDisplays.min }}–{{ dmgDisplays.max }}
 							</td>
 							<td class="damage-stat-label">Crit</td>
 							<td
@@ -474,13 +481,8 @@ const updateEnergy = () => {
 							</td>
 						</tr>
 						<tr>
-							<td class="damage-stat-label">Max Dmg</td>
-							<td
-								class="damage-stat-data"
-								:class="{ debuffed: debuffed.dmg }"
-							>
-								{{ dmgDisplays.max }}
-							</td>
+							<td class="damage-stat-label">Attack Type</td>
+							<td class="damage-stat-data">{{ damageStatsBase.attackType }}</td>
 							<td class="damage-stat-label">Energy</td>
 							<td class="damage-stat-data">{{ energyMax }}</td>
 							<td class="damage-stat-label">Duration</td>
@@ -500,8 +502,8 @@ const updateEnergy = () => {
 							</td>
 						</tr>
 						<tr>
-							<td class="damage-stat-label">Attack Type</td>
-							<td class="damage-stat-data">{{ damageStatsBase.attackType }}</td>
+							<td class="damage-stat-label"></td>
+							<td class="damage-stat-data"></td>
 							<td class="damage-stat-label"></td>
 							<td class="damage-stat-data">{{ type }} energy</td>
 							<td class="damage-stat-label">Handed</td>
@@ -611,7 +613,6 @@ button.warning {
 .damage-stat-data {
 	padding-left: 0.25em;
 	white-space: nowrap;
-	overflow-x: clip;
 }
 .damage-stat-data.alt {
 	width: 7%;

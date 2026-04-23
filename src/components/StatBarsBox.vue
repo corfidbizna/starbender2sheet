@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { StatBoxInfo } from '@/composables/useCharacterData';
-import { DiceFormula } from '@/business_logic/diceFormula';
-import { updateLog } from '@/sharedState';
 import { computed } from 'vue';
+import DiceRollButton from './DiceRollButton.vue';
 
 const props = defineProps<StatBoxInfo>();
 // const rangeMin = computed<number>((): number => {
@@ -61,17 +60,6 @@ const stats = computed<
 		hasNeutral: hovertext?.includes(' (+0 ') || false,
 	}));
 });
-const rollStat = (label: string, value: number) => {
-	const formula = new DiceFormula('1d20+' + value);
-	const result = formula.roll(() => 0);
-	let string = 'Roll: ' + label + ' ⇒ ' + result;
-	if (result <= 1 + value) {
-		string += '\n == Natural 1! ==';
-	} else if (result >= 20 + value) {
-		string += '\n == Natural 20! ==';
-	}
-	updateLog(string);
-};
 </script>
 <template>
 	<div>
@@ -94,7 +82,8 @@ const rollStat = (label: string, value: number) => {
 				</td>
 				<td class="value">{{ stat.value }}</td>
 				<td v-if="!props.noRoll">
-					<button @click="rollStat(stat.label, stat.value)"></button>
+					<DiceRollButton v-bind="{ labelLog: stat.label, formula: stat.value }" />
+					<!-- <button @click="rollStat(stat.label, stat.value)"></button> -->
 				</td>
 				<td
 					v-if="stat.description"

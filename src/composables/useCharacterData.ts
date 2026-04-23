@@ -215,6 +215,7 @@ export type DamageComponent = {
 	hitBonus: number; // 2 (to be combined with range stuff)
 	critRange: number; // 1 (20 only)
 	critMult: number; // 2 (x2)
+	techMult: number; // 4 (x4 to damage)
 	damageFormula: DiceFormula; // 2d8+(Str Mod*2) <— separate from the imported string!!!
 	dmgShort: string; // 2d8+10 (calculate pls)
 	dmgMin: number; // 4 (calculate pls)
@@ -1039,6 +1040,39 @@ export const labelMap = {
 	damageWeapon: 'Weapon Damage',
 	damagePrecision: 'Precision Damage',
 	//
+	damageWeaponBow: 'Bow Damage',
+	damageWeaponAutoRifle: 'Auto Rifle Damage',
+	damageWeaponPulseRifle: 'Pulse Rifle Damage',
+	damageWeaponScoutRifle: 'Scout Rifle Damage',
+	damageWeaponHandCannon: 'Hand Cannon Damage',
+	damageWeaponSMG: 'Submachine Gun Damage',
+	damageWeaponSidearm: 'Sidearm Damage',
+	damageWeaponShotgun: 'Shotgun Damage',
+	damageWeaponSniperRifle: 'Sniper Rifle Damage',
+	damageWeaponFusionRifle: 'Fusion Rifle Damage',
+	damageWeaponGrenadeLauncherEnergy: 'Breech-Loading Grenade Launcher Damage',
+	damageWeaponTraceRifle: 'Trace Rifle Damage',
+	damageWeaponGlaive: 'Glaive Damage',
+	damageWeaponRocketLauncher: 'Rocket Launcher Damage',
+	damageWeaponGrenadeLauncherHeavy: 'Drum-Loading Grenade Launcher Damage',
+	damageWeaponLinearFusionRifle: 'Linear Fusion Rifle Damage',
+	damageWeaponSword: 'Sword Damage',
+	damageWeaponMachineGun: 'Machine Gun Damage',
+	damageSpellGrenade: 'Grenade Damage',
+	damageSpellMelee: 'Melee Damage',
+	damageSpellClass: 'Class Damage',
+	damageSpellSuper: 'Super Damage',
+	damageSpellUniversal: 'Universal Damage',
+	damageSpellRitual: 'Ritual Damage',
+	damageElementalKinetic: 'Kinetic Damage',
+	damageElementalSolar: 'Solar Damage',
+	damageElementalArc: 'Arc Damage',
+	damageElementalVoid: 'Void Damage',
+	damageElementalStasis: 'Stasis Damage',
+	damageElementalStrand: 'Strand Damage',
+	damageElementalPrismatic: 'Prismatic Damage',
+	damageElementalNightmare: 'Nightmare Damage',
+	//
 	strSave: 'Str Save DC',
 	dexSave: 'Dex Save DC',
 	conSave: 'Con Save DC',
@@ -1307,11 +1341,12 @@ export type ImportedWeapon = Characters & {
 	attackType: string;
 	hitType: string;
 	hitBonus?: number;
+	autoFireRange?: number;
 	critRange?: number;
 	critMult?: number;
 	damage: string;
 	damagePrecision?: string;
-	techMult: number;
+	techMult?: number;
 	damageType: Element;
 	rangeType: string;
 	range: number;
@@ -1347,6 +1382,7 @@ export type Weapon = DamageComponent & {
 	ammoCapacity: number;
 	ammoReloadAmount: number;
 	ammoType: string;
+	autoFireRange: number;
 	isMagic: boolean;
 	ranks: number;
 	buffsEquipped: string;
@@ -1371,6 +1407,7 @@ type ImportedWeaponPerk = {
 	critMult: number;
 	damage: string;
 	damagePrecision: string;
+	techMult: number;
 	damageType: Element;
 	rangeType: string;
 	range: number;
@@ -1994,6 +2031,7 @@ function useCharacterDataUncached(characterId: string) {
 				hitBonus: p.hitBonus,
 				critRange: p.critRange,
 				critMult: p.critMult,
+				techMult: p.techMult,
 				damageFormula: damageStats.damageFormula,
 				dmgShort: damageStats.dmgShort,
 				dmgMin: damageStats.dmgMin,
@@ -2281,7 +2319,13 @@ function useCharacterDataUncached(characterId: string) {
 				const newDamage =
 					assembledDamage === '0d0'
 						? '0'
-						: assembledDamage + '+' + getFinalStat('damageSpell');
+						: assembledDamage +
+							'+Spell Damage+' +
+							parsedAbility.element +
+							' Damage' +
+							(parsedAbility.type !== 'Subcomponent'
+								? '+' + parsedAbility.type + ' Damage'
+								: '');
 				parsedAbility.damageStatsBase = {
 					...damageStringToDownstream(newDamage, stats.value),
 					attackType: 'Ability',
@@ -2289,6 +2333,7 @@ function useCharacterDataUncached(characterId: string) {
 					hitBonus: ability.hitBonus,
 					critRange: ability.critRange,
 					critMult: ability.critMult,
+					techMult: 1, // TODO
 					damageType: ability.element,
 					rangeType: 'Spell',
 					range: ability.range,
@@ -2657,15 +2702,15 @@ function useCharacterDataUncached(characterId: string) {
 					if (statsBuffed.value === undefined) {
 						return bonus;
 					}
-					if (ogWeapon.rangeType === 'Melee') {
-						bonus += getFinalStat('damageMelee');
-					} else if (ogWeapon.rangeType === 'Ranged') {
-						bonus += getFinalStat('damageRanged');
-					} else if (ogWeapon.rangeType === 'Spell') {
-						bonus += getFinalStat('damageSpell');
-					}
+					bonus +=
+						{
+							Melee: getFinalStat('damageMelee'),
+							Ranged: getFinalStat('damageRanged'),
+							Spell: getFinalStat('damageSpell'),
+						}[ogWeapon.rangeType] || 0;
 					bonus += getFinalStat('damageWeapon');
-					return bonus + (getFinalStat('damagePrecision') || 0);
+					return bonus;
+					// return bonus + (getFinalStat('damagePrecision') || 0);
 				});
 				const dmgStatStuff = damageStringToDownstream(
 					(ogWeapon.damage || '0') + '+' + damageBonus.value,
@@ -2699,6 +2744,7 @@ function useCharacterDataUncached(characterId: string) {
 					hitBonus: ogWeapon.hitBonus || 0,
 					critRange: ogWeapon.critRange || 0,
 					critMult: ogWeapon.critMult || 0,
+					techMult: ogWeapon.techMult || 1,
 					damageFormula: dmgStatStuff.damageFormula,
 					dmgShort: dmgStatStuff.dmgShort,
 					dmgMin: dmgStatStuff.dmgMin,
@@ -2714,6 +2760,7 @@ function useCharacterDataUncached(characterId: string) {
 					shape: ogWeapon.shape || '',
 					duration: ogWeapon.duration || 0,
 					//
+					autoFireRange: ogWeapon.autoFireRange || 0,
 					handed: ogWeapon.handed,
 					ammo: ogWeapon.ammo,
 					// ammoCurrent: ogWeapon.ammoCapacity,
