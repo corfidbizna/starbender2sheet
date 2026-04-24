@@ -122,6 +122,7 @@ const energyImage: Record<string, string> = {
 		};
 		return classMap[gClass] || '/public/svgs/Tricorn.svg';
 	}).value,
+	Ritual: './svgs/Symbol_Ritual.svg',
 	Universal: './svgs/Tricorn.svg',
 };
 const dBoxHeaderType = computed(() => (props.element === 'Kinetic' ? '' : props.element));
@@ -293,6 +294,7 @@ const updateEnergy = () => {
 			<template #header-icon>
 				<img
 					class="ability-box-icon"
+					:class="type"
 					:src="energyImage[props.type]"
 				/>
 			</template>
@@ -552,6 +554,9 @@ const updateEnergy = () => {
 .ability-box-icon {
 	filter: invert(100%);
 	height: 3em;
+}
+.ability-box-icon.Ritual {
+	filter: none;
 }
 .debuffed {
 	color: var(--color-debuff);

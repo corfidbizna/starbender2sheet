@@ -1002,6 +1002,7 @@ export const labelMap = {
 	energyDiscountSuper: 'Super Energy Discount',
 	energyDiscountClass: 'Class Energy Discount',
 	energyDiscountRitual: 'Ritual Energy Discount',
+	energyDiscountUniversal: 'Universal Energy Discount',
 	energyUniversal: 'Universal Energy',
 	energyUniversalRecharge: 'Universal Energy Recharge',
 	rerolls: 'Rerolls',
