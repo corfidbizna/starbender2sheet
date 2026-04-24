@@ -212,7 +212,8 @@ type SizeEffect = {
 export type DamageComponent = {
 	attackType: string; // Bullet
 	hitType: string; // AC
-	hitBonus: number; // 2 (to be combined with range stuff)
+	hitBonus: number; // 2 (to be combined with `hitBonusSource`)
+	hitBonusSource: string; // Str Save DC (the thing to add to `hitBonus`)
 	critRange: number; // 1 (20 only)
 	critMult: number; // 2 (x2)
 	techMult: number; // 4 (x4 to damage)
@@ -1341,6 +1342,7 @@ export type ImportedWeapon = Characters & {
 	attackType: string;
 	hitType: string;
 	hitBonus?: number;
+	hitBonusSource?: string;
 	autoFireRange?: number;
 	critRange?: number;
 	critMult?: number;
@@ -1396,6 +1398,7 @@ type ImportedWeaponPerk = {
 	name: string;
 	description: string;
 	passive: boolean;
+	takeAimDependant: boolean;
 	stacking: boolean;
 	stacksMax: number;
 	stackAffectedStats: string;
@@ -1403,6 +1406,7 @@ type ImportedWeaponPerk = {
 	attackType: string;
 	hitType: string;
 	hitBonus: number;
+	hitBonusSource: string;
 	critRange: number;
 	critMult: number;
 	damage: string;
@@ -1428,6 +1432,7 @@ export type WeaponPerk = DamageComponent & {
 	name: string;
 	description: string;
 	passive: boolean;
+	takeAimDependant: boolean;
 	isActive: boolean;
 	stacking: boolean;
 	stacksMax: number;
@@ -1483,6 +1488,7 @@ type ImportedAbility = Characters &
 		// For the damage stuff
 		hitType: string;
 		hitBonus: number;
+		hitBonusSource: string;
 		critRange: number;
 		critMult: number;
 		element: Element;
@@ -2019,6 +2025,7 @@ function useCharacterDataUncached(characterId: string) {
 				name: p.name,
 				description: p.description,
 				passive: p.passive,
+				takeAimDependant: p.takeAimDependant,
 				isActive: p.passive,
 				stacking: p.stacking,
 				stacksMax: p.stacksMax,
@@ -2029,6 +2036,7 @@ function useCharacterDataUncached(characterId: string) {
 				attackType: p.attackType,
 				hitType: p.hitType,
 				hitBonus: p.hitBonus,
+				hitBonusSource: p.hitBonusSource,
 				critRange: p.critRange,
 				critMult: p.critMult,
 				techMult: p.techMult,
@@ -2331,6 +2339,7 @@ function useCharacterDataUncached(characterId: string) {
 					attackType: 'Ability',
 					hitType: ability.hitType,
 					hitBonus: ability.hitBonus,
+					hitBonusSource: ability.hitBonusSource,
 					critRange: ability.critRange,
 					critMult: ability.critMult,
 					techMult: 1, // TODO
@@ -2742,6 +2751,7 @@ function useCharacterDataUncached(characterId: string) {
 					attackType: ogWeapon.attackType,
 					hitType: ogWeapon.hitType,
 					hitBonus: ogWeapon.hitBonus || 0,
+					hitBonusSource: ogWeapon.hitBonusSource || '',
 					critRange: ogWeapon.critRange || 0,
 					critMult: ogWeapon.critMult || 0,
 					techMult: ogWeapon.techMult || 1,

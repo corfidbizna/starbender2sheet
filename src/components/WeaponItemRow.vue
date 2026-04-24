@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { updateLog } from '@/sharedState.ts';
-import useCharacterData, { type Weapon } from '@/composables/useCharacterData';
+import useCharacterData, {
+	labelToStatName,
+	type StatName,
+	type Weapon,
+} from '@/composables/useCharacterData';
 import DBox from '@/components/DBox.vue';
 import DGlyph from './DGlyph.vue';
 import CapacityBar from './CapacityBar.vue';
@@ -8,13 +12,9 @@ import { DiceFormula, getStatByCharacter } from '@/business_logic/diceFormula';
 import { computed, ref } from 'vue';
 
 const props = defineProps<Weapon & { characterId: string; activatable?: boolean }>();
-const {
-	weapons,
-	damageStringToDownstream,
-	getFinalStat,
-	statsBuffed: buffsAsStats,
-	actionResources,
-} = useCharacterData(props.characterId);
+const { weapons, damageStringToDownstream, statsBuffed, actionResources } = useCharacterData(
+	props.characterId,
+);
 const weaponIndex = computed<number>(() =>
 	weapons.value.findIndex((weapon) => weapon.name === props.name),
 );
@@ -112,19 +112,28 @@ const hitRangeMod = computed<number>(() => {
 });
 const toHitCalc = computed<number>(() => {
 	let result = weapon.value.hitBonus || 0;
-	if (weapon.value.rangeType === 'Melee') {
-		result += getFinalStat('toHitMelee');
-	} else if (weapon.value.rangeType === 'Ranged') {
-		result += getFinalStat('toHitRanged');
-		result -= hitRangeMod.value;
-	} else if (weapon.value.rangeType === 'Spell') {
-		result += getFinalStat('toHitSpell');
+	result += isAiming.value ? 2 : 0;
+	if (weapon.value.rangeType !== 'Melee') {
 		result -= hitRangeMod.value;
 	}
+	result +=
+		statsBuffed.value[
+			labelToStatName[weapon.value.hitBonusSource.toLocaleLowerCase()] as StatName
+		]?.total || 0;
+	// if (weapon.value.rangeType === 'Melee') {
+	// 	result += getFinalStat('toHitMelee');
+	// } else if (weapon.value.rangeType === 'Ranged') {
+	// 	result += getFinalStat('toHitRanged');
+	// 	result -= hitRangeMod.value;
+	// } else if (weapon.value.rangeType === 'Spell') {
+	// 	result += getFinalStat('toHitSpell');
+	// 	result -= hitRangeMod.value;
+	// }
 	return result;
 });
 const hitFormula = new DiceFormula('1d20');
 const advantageState = ref<string>('');
+const isAiming = ref<boolean>(false);
 const isPrecise = ref<boolean>(false);
 const isCrit = ref<boolean>(false);
 const isSneak = ref<boolean>(false);
@@ -134,7 +143,7 @@ const rollDamage = () => {
 	const loops = !advantageState.value ? 1 : 2;
 	for (let i = 0; i < loops; i++) {
 		const current: RollInfo = { value: 0, description: '' };
-		const statFunction = getStatByCharacter(buffsAsStats.value);
+		const statFunction = getStatByCharacter(statsBuffed.value);
 		const result = weapon.value.damageFormula.roll(statFunction);
 		const glyph = glyphMap[weapon.value.damageType];
 		const stringList = [];
@@ -266,6 +275,10 @@ const weapon = computed<Weapon>(() => {
 	const perkKeys = Object.keys(props.perks);
 	for (let i = 0; i < perkKeys.length; i++) {
 		const perk = props.perks[perkKeys[i]];
+		if (perk.takeAimDependant && !isAiming.value) {
+			// Skip this perk if it wants to be taking aim and we aren't doing it.
+			continue;
+		}
 		const stk = (statName: string) => {
 			if (perk.stacking && perk.stackAffectedStats.includes(statName)) {
 				return perk.stacks;
@@ -281,7 +294,7 @@ const weapon = computed<Weapon>(() => {
 				modified.critMult = perk.critMult * stk('critMult') || modified.critMult;
 				const damageStats = damageStringToDownstream(
 					!!perk.dmgMax ? perk.dmgShort : modified.dmgShort,
-					buffsAsStats.value,
+					statsBuffed.value,
 				);
 				modified.damageFormula = damageStats.damageFormula;
 				modified.dmgShort = damageStats.dmgShort;
@@ -309,7 +322,7 @@ const weapon = computed<Weapon>(() => {
 					perk.damageFormula
 						? modified.dmgShort + '+' + perk.dmgShort
 						: modified.dmgShort,
-					buffsAsStats.value,
+					statsBuffed.value,
 				);
 				modified.damageFormula = damageStats.damageFormula;
 				modified.dmgShort = damageStats.dmgShort;
@@ -331,6 +344,7 @@ const weapon = computed<Weapon>(() => {
 			modified.attackType = perk.attackType || modified.attackType;
 			modified.hitType = perk.hitType || modified.hitType;
 			modified.hitType = perk.hitType || modified.hitType;
+			modified.hitBonusSource = perk.hitBonusSource || modified.hitBonusSource;
 			modified.damageType = perk.damageType || modified.damageType;
 			modified.rangeType = perk.rangeType || modified.rangeType;
 			modified.shape = perk.shape || modified.shape;
@@ -512,30 +526,33 @@ const weapon = computed<Weapon>(() => {
 						</tr>
 					</tbody>
 				</table>
-				<div
-					class="weapon-damage-mods"
-					:class="{ disabled: !weapon.critRange }"
-				>
+				<div class="weapon-damage-mods">
 					<select v-model="advantageState">
-						<option value="">--Advantage Selector--</option>
+						<option value="">--</option>
 						<option value="Advantage">Advantage</option>
 						<option value="Disadvantage">Disadvantage</option>
 					</select>
 					<label
 						><input
 							type="checkbox"
+							v-model="isAiming"
+						/>Take Aim</label
+					>
+					<label :class="{ disabled: !weapon.critRange }"
+						><input
+							type="checkbox"
 							:disabled="!weapon.critRange"
 							v-model="isPrecise"
 						/>Precise Hit</label
 					>
-					<label
+					<label :class="{ disabled: !weapon.critRange }"
 						><input
 							type="checkbox"
 							:disabled="!weapon.critRange"
 							v-model="isCrit"
 						/>Critical Hit</label
 					>
-					<label
+					<label :class="{ disabled: !weapon.critRange }"
 						><input
 							type="checkbox"
 							:disabled="!weapon.critRange"
@@ -551,14 +568,21 @@ const weapon = computed<Weapon>(() => {
 						v-for="perk in perks"
 						:key="perk.name"
 						class="weapon-perk"
-						:class="{ active: weapons[weaponIndex].perks[perk.name].isActive }"
+						:class="{
+							active:
+								weapons[weaponIndex].perks[perk.name].isActive &&
+								(perk.takeAimDependant ? isAiming : true),
+							disabled: perk.takeAimDependant ? !isAiming : false,
+						}"
 						:for="'perk ' + perk.name"
 					>
 						<summary>
 							<input
 								type="checkbox"
 								:class="{ hidden: perk.passive }"
-								:disabled="perk.passive"
+								:disabled="
+									perk.passive || (perk.takeAimDependant ? !isAiming : false)
+								"
 								v-model="weapons[weaponIndex].perks[perk.name].isActive"
 							/><span>{{ perk.name }}  </span>
 							<span v-if="perk.stacking"
@@ -569,6 +593,11 @@ const weapon = computed<Weapon>(() => {
 									:max="perk.stacksMax || Infinity"
 									v-model="weapons[weaponIndex].perks[perk.name].stacks"
 							/></span>
+							<span
+								v-if="perk.takeAimDependant"
+								style="font-style: italic"
+								>(Must be aiming)</span
+							>
 						</summary>
 						<div>{{ perk.description }}</div>
 					</details>
@@ -727,7 +756,7 @@ input[type='checkbox'].hidden {
 	display: flex;
 	text-align: center;
 }
-.weapon-damage-mods.disabled {
+.weapon-damage-mods .disabled {
 	color: #888;
 }
 .weapon-damage-mods * {
@@ -740,7 +769,7 @@ input[type='checkbox'].hidden {
 	overflow-y: scroll; */
 }
 .weapon-perk {
-	margin: 0.5em;
+	margin: 0.25em;
 	padding: 0.25em;
 	display: block;
 	border: 2px solid #fff0;
@@ -748,6 +777,9 @@ input[type='checkbox'].hidden {
 .weapon-perk.active {
 	border: 2px solid #fff4;
 	background-color: #fff4;
+}
+.weapon-perk.disabled {
+	color: #aaa;
 }
 .weapon-perk .hidden {
 	visibility: hidden;

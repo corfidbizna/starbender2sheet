@@ -145,6 +145,12 @@ const neutralStatTotals: Record<string, number> = {
 	slotsArmorExotic: 0, // 1
 	slotsWeapon: 0, // 3
 	hands: 0, // 2
+	strSave: 10,
+	dexSave: 10,
+	conSave: 10,
+	intSave: 10,
+	wisSave: 10,
+	chaSave: 10,
 };
 // Creates a neutral starting state for all stats.
 export const makeNeutralStats = () => {
@@ -553,6 +559,16 @@ const buffDistributionMap: Partial<Record<StatName, Distribution>> = {
 	},
 	willPerLevel: {
 		affectedStats: ['will'],
+	},
+	cpl: {
+		affectedStats: [
+			{ stat: 'strSave', ratio: 0.5 },
+			{ stat: 'dexSave', ratio: 0.5 },
+			{ stat: 'conSave', ratio: 0.5 },
+			{ stat: 'intSave', ratio: 0.5 },
+			{ stat: 'wisSave', ratio: 0.5 },
+			{ stat: 'chaSave', ratio: 0.5 },
+		],
 	},
 	size: {
 		affectedStats: [],

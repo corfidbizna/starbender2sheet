@@ -7,7 +7,7 @@ import type {
 	DamageComponent,
 	StatName,
 } from '@/composables/useCharacterData';
-import useCharacterData from '@/composables/useCharacterData';
+import useCharacterData, { labelToStatName } from '@/composables/useCharacterData';
 import DBox from '@/components/DBox.vue';
 import { computed, ref } from 'vue';
 import DGlyph from '@/components/DGlyph.vue';
@@ -243,7 +243,14 @@ const rollDamage = () => {
 	updateLog(string);
 };
 const hitTotal = computed<number>(() => {
-	return (partialPowerStats.value.hitBonus as number) + getFinalStat('toHitSpell');
+	return (
+		(partialPowerStats.value.hitBonus as number) +
+		getFinalStat(
+			labelToStatName[
+				props.damageStatsBase.hitBonusSource || ''.toLocaleLowerCase()
+			] as StatName,
+		)
+	);
 });
 const rollHit = () => {
 	const result = hitFormula.roll(() => 0);
