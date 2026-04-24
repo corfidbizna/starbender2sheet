@@ -1477,7 +1477,8 @@ export type AbilityClass =
 	| 'Melee'
 	| 'Class Ability'
 	| 'Subcomponent'
-	| 'Ritual';
+	| 'Ritual'
+	| 'Universal';
 type ImportedAbility = Characters &
 	Ability & {
 		groupNameList: string;
