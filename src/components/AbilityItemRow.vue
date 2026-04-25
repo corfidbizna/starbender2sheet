@@ -7,7 +7,7 @@ import type {
 	DamageComponent,
 	StatName,
 } from '@/composables/useCharacterData';
-import useCharacterData, { labelToStatName } from '@/composables/useCharacterData';
+import useCharacterData, { labelToStatName, rangeMap } from '@/composables/useCharacterData';
 import DBox from '@/components/DBox.vue';
 import { computed, ref } from 'vue';
 import DGlyph from '@/components/DGlyph.vue';
@@ -455,8 +455,11 @@ const updateEnergy = () => {
 								class="damage-stat-data"
 								:class="{ debuffed: debuffed.range }"
 							>
-								{{ props.damageStatsBase.rangeType }}
-								{{ partialPowerStats.range }}ft.
+								{{ rangeMap[props.damageStatsBase.rangeType].name }}
+								{{
+									rangeMap[props.damageStatsBase.rangeType].range +
+									(partialPowerStats.range as number)
+								}}ft.
 							</td>
 						</tr>
 						<tr>
