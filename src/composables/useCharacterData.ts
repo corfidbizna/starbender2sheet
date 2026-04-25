@@ -223,7 +223,7 @@ export type DamageComponent = {
 	dmgAvg: number; // [whatever the average is] (calculate pls)
 	dmgMax: number; // 18 (calculate pls)
 	damageType: Element; // Solar
-	rangeType: string; // Ranged
+	rangeType: number; // 2 (Medium-Close), see "WeaponRange"
 	range: number; // 20
 	rangePenalty: number; // 2 (amount to decrease hit by)
 	rangeIncrementsModifier: number; // 20 (goes down every 20ft. distance)
@@ -961,6 +961,9 @@ export const labelMap = {
 	dr: 'DR',
 	drFF: 'FF DR',
 	//
+	drKinetic: 'Kinetic DR',
+	drFFKinetic: 'Kinetic FF DR',
+	resistKinetic: 'Kinetic Resistance',
 	drArc: 'Arc DR',
 	drFFArc: 'Arc FF DR',
 	resistArc: 'Arc Resistance',
@@ -1100,8 +1103,9 @@ export const labelMap = {
 	//
 	hpMax: 'Max HP',
 	hpRecharge: 'Fast Healing',
-	hpTempMax: 'Max Temp HP',
+	hpTempMax: 'Temp HP',
 	hpShieldMax: 'Max Shield HP',
+	hpShieldTemp: 'Temp Overshield',
 	hpShieldRecharge: 'Shield Recharge',
 	hpShieldKinetic: 'Kinetic Overshield',
 	hpShieldSolar: 'Solar Overshield',
@@ -1408,13 +1412,14 @@ type ImportedWeaponPerk = {
 	hitType: string;
 	hitBonus: number;
 	hitBonusSource: string;
+	autoFireRange: number;
 	critRange: number;
 	critMult: number;
 	damage: string;
 	damagePrecision: string;
 	techMult: number;
 	damageType: Element;
-	rangeType: string;
+	rangeType: number;
 	range: number;
 	rangePenalty: number;
 	rangeIncrementsModifier: number;
@@ -1440,12 +1445,32 @@ export type WeaponPerk = DamageComponent & {
 	stackAffectedStats: string[];
 	stacks: number;
 	replaceStats: boolean;
+	autoFireRange: number;
 	ammo: number;
 	ammoCapacity: number;
 	ammoReloadAmount: number;
 	ammoType: string;
 	isMagic: boolean;
 	buffs?: string;
+};
+type RangeInfo = {
+	name: string;
+	range: number; // in feet
+};
+export const rangeMap: Record<number, RangeInfo> = {
+	0: { name: 'Melee', range: 5 },
+	1: { name: 'Close', range: 25 },
+	2: { name: 'Medium-Close', range: 50 },
+	3: { name: 'Medium', range: 100 },
+	4: { name: 'Medium-Long', range: 200 },
+	5: { name: 'Long', range: 400 },
+	6: { name: 'Very Long', range: 800 },
+	7: { name: 'Artillery', range: 1600 },
+};
+export const rangeNameToIndex = (name: string) => {
+	return Object.keys(rangeMap)
+		.map((i) => rangeMap[parseInt(i)].name)
+		.findIndex((item) => item === name);
 };
 
 // Armor Types
@@ -1494,6 +1519,7 @@ type ImportedAbility = Characters &
 		critRange: number;
 		critMult: number;
 		element: Element;
+		rangeType: string;
 		range: number;
 		size: number;
 		shape: string;
@@ -1509,7 +1535,7 @@ export type Ability = {
 	element: Element;
 	prerequisites: string[];
 	buffs: string[];
-	damageStatsBase: DamageComponent;
+	damageStatsBase: DamageComponent; // TODO: expand this out so it's not a nested property.
 	dmgDieQuantity: number;
 	dmgDieFormula: string;
 	dmg: DiceFormula;
@@ -1518,7 +1544,6 @@ export type Ability = {
 	partialPowerStats: string[];
 	partialPowerStepMults: number[];
 	partialPowerAllowed: boolean;
-	rangeType: string;
 	handed: number;
 };
 
@@ -2039,6 +2064,7 @@ function useCharacterDataUncached(characterId: string) {
 				hitType: p.hitType,
 				hitBonus: p.hitBonus,
 				hitBonusSource: p.hitBonusSource,
+				autoFireRange: p.autoFireRange,
 				critRange: p.critRange,
 				critMult: p.critMult,
 				techMult: p.techMult,
@@ -2050,7 +2076,7 @@ function useCharacterDataUncached(characterId: string) {
 				damageType: p.damageType,
 				rangeType: p.rangeType,
 				range: p.range,
-				rangePenalty: p.rangePenalty || 2,
+				rangePenalty: p.rangePenalty,
 				rangeIncrementsModifier: p.rangeIncrementsModifier || p.range,
 				size: p.size,
 				shape: p.shape,
@@ -2308,7 +2334,7 @@ function useCharacterDataUncached(characterId: string) {
 				parsedAbility.partialPowerStats = parsedAbility.partialPowerStats || [];
 				parsedAbility.partialPowerStepMults = parsedAbility.partialPowerStepMults || [];
 				parsedAbility.partialPowerAllowed = parsedAbility.partialPowerAllowed || false;
-				parsedAbility.rangeType = parsedAbility.rangeType || 'Melee';
+				// parsedAbility.rangeType = parsedAbility.rangeType || 0;
 				parsedAbility.handed = parsedAbility.handed || 0;
 				//
 				parsedAbility.groupNames = (ability.groupNameList || ability.name)
@@ -2346,7 +2372,7 @@ function useCharacterDataUncached(characterId: string) {
 					critMult: ability.critMult,
 					techMult: 1, // TODO
 					damageType: ability.element,
-					rangeType: 'Spell',
+					rangeType: rangeNameToIndex(ability.rangeType),
 					range: ability.range,
 					rangePenalty: 2,
 					rangeIncrementsModifier: ability.range,
@@ -2714,11 +2740,9 @@ function useCharacterDataUncached(characterId: string) {
 						return bonus;
 					}
 					bonus +=
-						{
-							Melee: getFinalStat('damageMelee'),
-							Ranged: getFinalStat('damageRanged'),
-							Spell: getFinalStat('damageSpell'),
-						}[ogWeapon.rangeType] || 0;
+						(ogWeapon.rangeType === 'Melee'
+							? getFinalStat('damageMelee')
+							: getFinalStat('damageRanged')) || 0;
 					bonus += getFinalStat('damageWeapon');
 					return bonus;
 					// return bonus + (getFinalStat('damagePrecision') || 0);
@@ -2739,6 +2763,9 @@ function useCharacterDataUncached(characterId: string) {
 						perkList[perkNameList[i]] = { ...targetPerk };
 					}
 				}
+				const rangeIndex = Object.keys(rangeMap)
+					.map((key) => rangeMap[parseInt(key)].name)
+					.indexOf(ogWeapon.rangeType);
 				const weapon: Weapon = {
 					name: ogWeapon.name,
 					flavortext: ogWeapon.flavortext || '',
@@ -2763,8 +2790,8 @@ function useCharacterDataUncached(characterId: string) {
 					dmgAvg: dmgStatStuff.dmgAvg,
 					dmgMax: dmgStatStuff.dmgMax,
 					damageType: ogWeapon.damageType,
-					rangeType: ogWeapon.rangeType,
-					range: ogWeapon.range,
+					rangeType: rangeIndex,
+					range: rangeMap[rangeIndex].range + ogWeapon.range,
 					rangePenalty: ogWeapon.rangePenalty || 2,
 					rangeIncrementsModifier:
 						ogWeapon.rangeIncrementsModifier || ogWeapon.range || 1,

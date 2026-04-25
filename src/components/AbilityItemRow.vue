@@ -455,7 +455,7 @@ const updateEnergy = () => {
 								class="damage-stat-data"
 								:class="{ debuffed: debuffed.range }"
 							>
-								{{ props.rangeType }}
+								{{ props.damageStatsBase.rangeType }}
 								{{ partialPowerStats.range }}ft.
 							</td>
 						</tr>

@@ -246,7 +246,7 @@ const currentDR = computed<number>(() => {
 	);
 });
 const currentResistance = computed<number>(() => {
-	if (dmgType.value === 'Kinetic') return 1;
+	// if (dmgType.value === 'Kinetic') return 1;
 	const key = ('resist' + dmgType.value) as StatName;
 	return 0.01 * (100 - statsBuffed.value[key].total);
 });
@@ -724,18 +724,20 @@ const encumberanceColor = computed<string>(() => {
 										<tbody>
 											<tr>
 												<td>Jump</td>
+												<td>Climb</td>
+												<td>Swim</td>
+												<td>Fly</td>
+											</tr>
+											<tr>
 												<td class="movement-table-value">
 													{{ moveResults.acrobatics }}
 												</td>
-												<td>Climb</td>
 												<td class="movement-table-value">
 													{{ moveResults.climb }}
 												</td>
-												<td>Swim</td>
 												<td class="movement-table-value">
 													{{ moveResults.swim }}
 												</td>
-												<td>Fly</td>
 												<td class="movement-table-value">
 													{{ moveResults.fly }}
 												</td>
@@ -904,15 +906,13 @@ const encumberanceColor = computed<string>(() => {
 .movement-table {
 	border-collapse: collapse;
 	width: 100%;
-	text-align: right;
+	text-align: center;
 	/* border-top: var(--line);
 	border-bottom: var(--line); */
 }
 .movement-table-value {
 	font-size: 0.8em;
-	border-left: var(--line);
 	font-weight: bold;
-	text-align: left;
 	padding-left: 2px;
 }
 /* */
