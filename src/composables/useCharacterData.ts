@@ -106,7 +106,7 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 			skills: '1546065139',
 			variables: '625235028',
 			buffs: '858793392',
-			features: '',
+			features: '703590883',
 		},
 		images: [
 			'./character_images/guardian_Coleman.png',
