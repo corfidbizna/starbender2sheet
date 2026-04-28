@@ -1458,7 +1458,7 @@ type RangeInfo = {
 	range: number; // in feet
 };
 export const rangeMap: Record<number, RangeInfo> = {
-	0: { name: 'Melee', range: 5 },
+	0: { name: 'Melee', range: 12.5 },
 	1: { name: 'Close', range: 25 },
 	2: { name: 'Medium-Close', range: 50 },
 	3: { name: 'Medium', range: 100 },
@@ -1471,6 +1471,10 @@ export const rangeNameToIndex = (name: string) => {
 	return Object.keys(rangeMap)
 		.map((i) => rangeMap[parseInt(i)].name)
 		.findIndex((item) => item === name);
+};
+export const rangeIndexToDistance = (index: number) => {
+	// Should be able to accept fractional input
+	return 12.5 + Math.pow(index, 2);
 };
 
 // Armor Types
@@ -1518,6 +1522,7 @@ type ImportedAbility = Characters &
 		hitBonusSource: string;
 		critRange: number;
 		critMult: number;
+		techMult: number;
 		element: Element;
 		rangeType: string;
 		range: number;
@@ -1877,7 +1882,7 @@ function useCharacterDataUncached(characterId: string) {
 				buffList: !featureRows[0].group ? featureRows[0].buffList?.split(', ') || [] : [],
 				isMagic: featureRows.filter((row) => row.isMagic).length > 0,
 				effects: !featureRows[0].group
-					? featureRows[0].effects?.replace(/, $/, '') || ''
+					? featureRows[0].effects?.replace(/,\s*$/, '') || ''
 					: '',
 				// effects: featureRows
 				// 	.filter((row) => row.effects && row.effects.length > 0)
@@ -1907,7 +1912,7 @@ function useCharacterDataUncached(characterId: string) {
 							description: row.description || '',
 							isDrawback: row.isCharacterDrawback,
 							buffList: row.buffList?.split(', ') || [],
-							effects: row.effects?.replace(/, $/, '') || '',
+							effects: row.effects?.replace(/,\s*$/, '') || '',
 							effectsCategory: row.effectsCategory || '',
 							subclass: row.subclass || '',
 							dependencies: row.dependencies?.split(', ') || [],
@@ -1959,7 +1964,7 @@ function useCharacterDataUncached(characterId: string) {
 								isStory: false,
 								isBasic: false,
 								stacks: 0,
-								effects: mod.effects,
+								effects: mod.effects.replace(/,\s*$/, ''),
 								isMagic: false, // If feature mods ever become magic-able, be sure to change this!
 								active: featureShouldBeActive(mod).active,
 							});
@@ -1973,7 +1978,7 @@ function useCharacterDataUncached(characterId: string) {
 				isStory: false,
 				isBasic: false,
 				stacks: 0,
-				effects: feature.effects,
+				effects: feature.effects.replace(/,\s*$/, ''),
 				isMagic: feature.isMagic,
 				active: featureActive,
 			};
@@ -2130,7 +2135,7 @@ function useCharacterDataUncached(characterId: string) {
 					isStory: false,
 					isBasic: false,
 					stacks: 0,
-					effects: buffString || '',
+					effects: buffString.replace(/,\s*$/, '') || '',
 					active: true,
 				};
 				return newBuff;
@@ -2149,7 +2154,7 @@ function useCharacterDataUncached(characterId: string) {
 					isStory: false,
 					isBasic: false,
 					stacks: 0,
-					effects: buffString || '',
+					effects: buffString.replace(/,\s*$/, '') || '',
 					active: true,
 				};
 				return newBuff;
@@ -2169,7 +2174,7 @@ function useCharacterDataUncached(characterId: string) {
 						isStory: false,
 						isBasic: false,
 						stacks: perk.stacks || 0,
-						effects: perk.buffs,
+						effects: perk.buffs?.replace(/,\s*$/, ''),
 						active: true,
 					};
 				});
@@ -2230,21 +2235,33 @@ function useCharacterDataUncached(characterId: string) {
 	);
 	const namesOfActiveArmor = ref<string[]>([]);
 	const armorsAsBuffs = computed<BuffInfo[]>(() => {
-		const passive = armor.value
+		const equipped = armor.value
 			.filter((buff) => namesOfEquippedArmor.value.includes(buff.name + ' (Equipped)'))
 			.map((armor) => {
-				const buffString = armor.buffs
-					? armor.buffs + (armor.slots ? ', ' + armor.slots : '')
-					: armor.slots;
 				const newBuff: BuffInfo = {
 					name: armor.name + ' (Equipped)',
+					type: 'Hidden',
+					isStory: false,
+					isBasic: false,
+					stacks: 0,
+					effects: armor.slots?.replace(/,\s*$/, '') || '',
+					active: true,
+				};
+				return newBuff;
+			});
+		const passive = armor.value
+			.filter((buff) => namesOfEquippedArmor.value.includes(buff.name + ' (Passive)'))
+			.map((armor) => {
+				const buffString = armor.buffs || '';
+				const newBuff: BuffInfo = {
+					name: armor.name + ' (Passive)',
 					type: 'Hidden',
 					category: armor.buffCategory,
 					isStory: false,
 					isBasic: false,
 					isStacking: !!armor.stacksMax || armor.isStacking,
 					stacks: armor.stacks,
-					effects: buffString || '',
+					effects: buffString.replace(/,\s*$/, '') || '',
 					active: true,
 				};
 				return newBuff;
@@ -2260,12 +2277,12 @@ function useCharacterDataUncached(characterId: string) {
 					isBasic: false,
 					isStacking: !!armor.stacksMax || armor.isStacking,
 					stacks: armor.stacks,
-					effects: armor.buffsCharged || '',
+					effects: armor.buffsCharged?.replace(/,\s*$/, '') || '',
 					active: true,
 				};
 				return newBuff;
 			});
-		return [...passive, ...active];
+		return [...equipped, ...passive, ...active];
 	});
 	const armorStackUpdate = (name: string, amount: number) => {
 		const targetArmor = armor.value.find((armor) => armor.name === name);
@@ -2277,7 +2294,10 @@ function useCharacterDataUncached(characterId: string) {
 			);
 		}
 		const downstreamBuffs = partyBuffs.value.filter(
-			(buff) => buff.name === name + ' (Equipped)' || buff.name === name + ' (Active)',
+			(buff) =>
+				buff.name === name + ' (Passive)' ||
+				buff.name === name + ' (Equipped)' ||
+				buff.name === name + ' (Active)',
 		);
 		downstreamBuffs.forEach((targetBuff) => {
 			if (targetBuff !== undefined) {
@@ -2352,30 +2372,40 @@ function useCharacterDataUncached(characterId: string) {
 					.filter((item) => !!item)
 					.map((num) => parseFloat(num));
 				const assembledDamage = parsedAbility.dmgDieQuantity + parsedAbility.dmgDieFormula;
+				const abilityDamageBuffs =
+					statsBuffed.value.damageSpell.total +
+					statsBuffed.value[
+						labelToStatName[
+							(parsedAbility.element + ' Damage').toLocaleLowerCase()
+						] as StatName
+					].total +
+					(statsBuffed.value[
+						labelToStatName[
+							(parsedAbility.type + ' Damage').toLocaleLowerCase()
+						] as StatName
+					]?.total || 0);
 				const newDamage =
 					assembledDamage === '0d0'
 						? '0'
-						: assembledDamage +
-							'+Spell Damage+' +
-							parsedAbility.element +
-							' Damage' +
-							(parsedAbility.type !== 'Subcomponent'
-								? '+' + parsedAbility.type + ' Damage'
-								: '');
+						: assembledDamage + ('+' + abilityDamageBuffs).replace('+-', '-');
 				parsedAbility.damageStatsBase = {
 					...damageStringToDownstream(newDamage, stats.value),
 					attackType: 'Ability',
-					hitType: ability.hitType,
-					hitBonus: ability.hitBonus,
-					hitBonusSource: ability.hitBonusSource,
-					critRange: ability.critRange,
-					critMult: ability.critMult,
-					techMult: 1, // TODO
+					hitType: ability.hitBonus > 0 && !ability.hitType ? 'AC' : ability.hitType,
+					hitBonus:
+						ability.hitBonus +
+						(getFinalStatFromLabel(ability.hitBonusSource) ||
+							statsBuffed.value.toHitSpell.total) +
+						getFinalStatFromLabel(ability.type + ' to hit'),
+					hitBonusSource: labelToStatName[ability.hitBonusSource] || 'spellToHit',
+					critRange: ability.critRange || 0,
+					critMult: ability.critMult || 1,
+					techMult: parsedAbility.techMult || 1, // TODO
 					damageType: ability.element,
 					rangeType: rangeNameToIndex(ability.rangeType),
-					range: ability.range,
+					range: ability.range || 0,
 					rangePenalty: 2,
-					rangeIncrementsModifier: ability.range,
+					rangeIncrementsModifier: ability.range || 0,
 					size: ability.size,
 					shape: ability.shape,
 					duration: ability.duration,
@@ -2464,7 +2494,7 @@ function useCharacterDataUncached(characterId: string) {
 					isStory: false,
 					isBasic: false,
 					stacks: 0,
-					effects: artifactMod.buffs || '',
+					effects: artifactMod.buffs?.replace(/,\s*$/, '') || '',
 					active: true,
 				};
 				return newBuff;
@@ -2567,15 +2597,49 @@ function useCharacterDataUncached(characterId: string) {
 		return tallyBuffs(allEffects);
 		// return tallyBuffs(statsFirstBuffPass.value);
 	});
-	const getFinalStat = (name: StatName) => {
-		return statsBuffed.value[name].total;
+	const getFinalStat = (name: string) => {
+		if (statsBuffed.value[name as StatName] === undefined) {
+			console.warn('"' + name + '" is not the key of a stat.');
+		}
+		return statsBuffed.value[name as StatName]?.total || 0;
+	};
+	const getFinalStatFromLabel = (name: string) => {
+		const key = labelToStatName[(name || '').toLocaleLowerCase()];
+		if (statsBuffed.value[key as StatName] === undefined) {
+			console.warn('"' + name + '" did not validly map to a stat.');
+		}
+		return statsBuffed.value[name as StatName]?.total || 0;
 	};
 	const actionResourcesLocal = JSON.parse(
 		localStorage.getItem(characterId + '_actionResources') || 'null',
 	);
 	const actionResources = ref<Record<ActionResourceKey, number>>(
 		!!actionResourcesLocal
-			? { ...actionResourcesLocal }
+			? <Record<ActionResourceKey, number>>{
+					subclassIndex: actionResourcesLocal.subclassIndex || 0,
+					turns: actionResourcesLocal.turns || 0,
+					damage: actionResourcesLocal.damage || 0,
+					damageShields: actionResourcesLocal.damageShields || 0,
+					actionsMajorUsed: actionResourcesLocal.actionsMajorUsed || 0,
+					actionsAttackUsed: actionResourcesLocal.actionsAttackUsed || 0,
+					actionsTacticalUsed: actionResourcesLocal.actionsTacticalUsed || 0,
+					actionsMoveUsed: actionResourcesLocal.actionsMoveUsed || 0,
+					actionsInteractionUsed: actionResourcesLocal.actionsInteractionUsed || 0,
+					actionsReactionUsed: actionResourcesLocal.actionsReactionUsed || 0,
+					actionsOtherUsed: actionResourcesLocal.actionsOtherUsed || 0,
+					ammoKineticUsed: actionResourcesLocal.ammoKineticUsed || 0,
+					ammoSpecialUsed: actionResourcesLocal.ammoSpecialUsed || 0,
+					ammoHeavyUsed: actionResourcesLocal.ammoHeavyUsed || 0,
+					energySuperUsed: actionResourcesLocal.energySuperUsed || 0,
+					energyMeleeUsed: actionResourcesLocal.energyMeleeUsed || 0,
+					energyGrenadeUsed: actionResourcesLocal.energyGrenadeUsed || 0,
+					energyClassUsed: actionResourcesLocal.energyClassUsed || 0,
+					energyRitualUsed: actionResourcesLocal.energyRitualUsed || 0,
+					energyUniversalUsed: actionResourcesLocal.energyUniversalUsed || 0,
+					armorChargesUsed: actionResourcesLocal.armorChargesUsed || 0,
+					rerollsUsed: actionResourcesLocal.rerollsUsed || 0,
+					targetRange: actionResourcesLocal.targetRange || 0,
+				}
 			: <Record<ActionResourceKey, number>>{
 					subclassIndex: 0,
 					turns: 0,
@@ -2604,8 +2668,8 @@ function useCharacterDataUncached(characterId: string) {
 	);
 	const actionResourcesDisplay = computed<Record<ActionResourceDisplayKey, number>>(() => {
 		return {
-			subclassIndex: actionResources.value.subclassIndex,
-			turns: actionResources.value.turns,
+			subclassIndex: actionResources.value.subclassIndex || 0,
+			turns: actionResources.value.turns || 0,
 			health: statsBuffed.value.hpMax.total - actionResources.value.damage,
 			shields: statsBuffed.value.hpShieldMax.total - actionResources.value.damageShields,
 			actionsMajor:
@@ -2734,21 +2798,22 @@ function useCharacterDataUncached(characterId: string) {
 		weapons.value = weaponsForFiltering.value
 			.filter((item) => item[characterId as CharacterNames])
 			.map((ogWeapon) => {
-				const damageBonus = computed<number>(() => {
-					let bonus = 0;
-					if (statsBuffed.value === undefined) {
-						return bonus;
-					}
-					bonus +=
-						(ogWeapon.rangeType === 'Melee'
-							? getFinalStat('damageMelee')
-							: getFinalStat('damageRanged')) || 0;
-					bonus += getFinalStat('damageWeapon');
-					return bonus;
-					// return bonus + (getFinalStat('damagePrecision') || 0);
-				});
+				const damageBonus =
+					(ogWeapon.rangeType === 'Melee'
+						? statsBuffed.value.damageMelee.total
+						: statsBuffed.value.damageRanged.total) +
+					(statsBuffed.value[
+						labelToStatName[
+							(ogWeapon.element + ' Damage').toLocaleLowerCase()
+						] as StatName
+					]?.total || 0) +
+					(statsBuffed.value[
+						labelToStatName[
+							(ogWeapon.weaponClass + ' Damage').toLocaleLowerCase()
+						] as StatName
+					]?.total || 0);
 				const dmgStatStuff = damageStringToDownstream(
-					(ogWeapon.damage || '0') + '+' + damageBonus.value,
+					(ogWeapon.damage || '0') + ('+' + damageBonus).replace('+-', '-'),
 					statsBuffed.value,
 				);
 				const perkNameList = ogWeapon.perks?.split(', ') || [];
@@ -2786,12 +2851,12 @@ function useCharacterDataUncached(characterId: string) {
 					techMult: ogWeapon.techMult || 1,
 					damageFormula: dmgStatStuff.damageFormula,
 					dmgShort: dmgStatStuff.dmgShort,
-					dmgMin: dmgStatStuff.dmgMin,
-					dmgAvg: dmgStatStuff.dmgAvg,
-					dmgMax: dmgStatStuff.dmgMax,
+					dmgMin: dmgStatStuff.dmgMin * (ogWeapon.techMult || 1),
+					dmgAvg: dmgStatStuff.dmgAvg * (ogWeapon.techMult || 1),
+					dmgMax: dmgStatStuff.dmgMax * (ogWeapon.techMult || 1),
 					damageType: ogWeapon.damageType,
 					rangeType: rangeIndex,
-					range: rangeMap[rangeIndex].range + ogWeapon.range,
+					range: rangeMap[rangeIndex].range + (ogWeapon.range || 0),
 					rangePenalty: ogWeapon.rangePenalty || 2,
 					rangeIncrementsModifier:
 						ogWeapon.rangeIncrementsModifier || ogWeapon.range || 1,
@@ -2910,6 +2975,7 @@ function useCharacterDataUncached(characterId: string) {
 		subclassGet,
 		subclassSet,
 		getFinalStat,
+		getFinalStatFromLabel,
 		stats,
 		statsLoading,
 		statsRefresh,

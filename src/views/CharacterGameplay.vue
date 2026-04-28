@@ -18,6 +18,7 @@ import CapacityBar from '@/components/CapacityBar.vue';
 import DGlyph from '@/components/DGlyph.vue';
 import { actionLog, subtabNameGameplay, updateLog } from '@/sharedState';
 import BGImage from '@/components/BGImage.vue';
+// import { DiceFormula, getStatByCharacter } from '@/business_logic/diceFormula';
 type CharacterProps = {
 	characterId: string;
 };
@@ -32,6 +33,7 @@ const {
 	actionResourcesDisplay,
 	statsLoading,
 	statsRefresh,
+	getFinalStat,
 	lightLevel,
 	skills,
 	skillsLoading,
@@ -193,6 +195,13 @@ const rallyBanner = () => {
 	resource.damage = 0;
 	resource.damageShields = 0;
 };
+// const customDiceConfirm = () => {
+// 	if (!!customDice.value) {
+// 		customDiceFormula.value = new DiceFormula(customDice.value);
+// 	}
+// };
+// const customDice = ref<string>('');
+// const customDiceFormula = ref<DiceFormula>();
 const healthCapacity = computed<CapacityBoxStatField[]>(() => {
 	const healthColor =
 		actionResourcesDisplay.value.health > statsBuffed.value.hpMax.total / 4
@@ -239,16 +248,13 @@ const currentDR = computed<number>(() => {
 		Dark: 'Dark',
 		Darkness: 'Dark',
 	};
-	const totalDR: number = statsBuffed.value[drString as StatName].total || 0;
-	return (
-		totalDR +
-		(statsBuffed.value[(drString + elementString[dmgType.value]) as StatName]?.total || 0)
-	);
+	const totalDR: number = getFinalStat(drString);
+	return totalDR + getFinalStat(drString + elementString[dmgType.value]);
 });
 const currentResistance = computed<number>(() => {
 	// if (dmgType.value === 'Kinetic') return 1;
 	const key = ('resist' + dmgType.value) as StatName;
-	return 0.01 * (100 - statsBuffed.value[key].total);
+	return 0.01 * (100 - getFinalStat(key));
 });
 const currentDamage = computed<number>(() => {
 	return Math.max(
@@ -382,18 +388,16 @@ const actionsCapacity = computed<CapacityBoxStatField[]>(() => {
 const moveShowTiles = ref<boolean>(false);
 const moveInfo = computed(() => {
 	const listSkill = ['acrobatics', 'climb', 'swim', 'fly'];
-	const listStat = ['', 'climb', 'swim', 'fly'];
+	const listStat = ['', 'Climb', 'Swim', 'Fly'];
 	const listRatios = [2, 4, 4, 2];
 	const result: Record<string, number> = {};
 	for (const i in listSkill) {
 		const skillTotal =
 			(skills.value[listSkill[i] as SkillKey] || 0) +
 			(statsBuffed.value[listSkill[i] as StatName].total || 0);
-		const baseTotal =
-			statsBuffed.value[('actionsMoveBase' + listStat[i]) as StatName]?.total || 0;
-		const replaceTotal =
-			statsBuffed.value[('actionsMoveReplace' + listStat[i]) as StatName]?.total || 0;
-		const bothTotal = statsBuffed.value[('actionsMove' + listStat[i]) as StatName]?.total || 0;
+		const baseTotal = getFinalStat('actionsMoveBase' + listStat[i]);
+		const replaceTotal = getFinalStat('actionsMoveReplace' + listStat[i]);
+		const bothTotal = getFinalStat('actionsMove' + listStat[i]);
 		const ratio = listRatios[i];
 		const baseSpeed =
 			(skillTotal + baseTotal + statsBuffed.value.actionsMoveBaseLand.total) / ratio;
@@ -520,6 +524,16 @@ const encumberanceColor = computed<string>(() => {
 					</div>
 					<!-- <div>
 						<h2>Roll Dice</h2>
+						<input
+							type="text"
+							v-model="customDice"
+							@focusout="customDiceConfirm()"
+						/>
+						<span>{{
+							customDiceFormula
+								?.evaluateExceptDice(getStatByCharacter(statsBuffed))
+								.stringify()
+						}}</span>
 					</div> -->
 					<h2>Action Log</h2>
 					<textarea

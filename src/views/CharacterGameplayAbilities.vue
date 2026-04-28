@@ -412,6 +412,7 @@ const abilityFilter = ref<string>('All');
 .gameplay-ability-list {
 	height: calc(100vh - 340px);
 	overflow-y: scroll;
+	overflow-x: clip;
 	scrollbar-width: thin;
 	font-size: 0.9rem;
 }

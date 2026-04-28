@@ -7,7 +7,7 @@ import type {
 	DamageComponent,
 	StatName,
 } from '@/composables/useCharacterData';
-import useCharacterData, { labelToStatName, rangeMap } from '@/composables/useCharacterData';
+import useCharacterData, { rangeMap } from '@/composables/useCharacterData';
 import DBox from '@/components/DBox.vue';
 import { computed, ref } from 'vue';
 import DGlyph from '@/components/DGlyph.vue';
@@ -20,14 +20,8 @@ type CharacterProps = {
 	characterId: CharacterNames;
 };
 const props = defineProps<Ability & CharacterProps>();
-const {
-	statsBase,
-	buffs,
-	statsBuffed: buffsAsStats,
-	getFinalStat,
-	actionResources,
-	actionResourcesDisplay,
-} = useCharacterData(props.characterId);
+const { statsBase, buffs, statsBuffed, getFinalStat, actionResources, actionResourcesDisplay } =
+	useCharacterData(props.characterId);
 
 // =======================
 //          Stats
@@ -45,49 +39,50 @@ const currentEnergy = computed<number>(
 const maxEnergy = computed<number>(() => getFinalStat(('energy' + props.type) as StatName));
 // The amount of energy it will take to use the Ability.
 // Takes "partial power" into account.
-const energyUseAmount = computed<number>(
-	() =>
-		props.energyMax -
-		partialPowerIncrement.value -
-		getFinalStat(('energyDiscount' + props.type) as StatName),
+const energyUseAmount = computed<number>(() =>
+	props.energyMax === 0
+		? 0
+		: props.energyMax -
+			partialPowerIncrement.value -
+			getFinalStat(('energyDiscount' + props.type) as StatName),
 );
 // Assembles the gradient string used for the energy usage bar.
 const energyUsageGradientString = computed<string>(() => {
 	const colRemaining = '#fff';
-	const colReduced = 'var(--color-buff)';
-	const colSubtractedStart =
-		currentEnergy.value < energyUseAmount.value ? 'var(--color-debuff)' : '#aaa';
-	const colSubtractedEnd =
-		currentEnergy.value < energyUseAmount.value ? 'var(--color-debuff)' : '#aaa';
+	const colUsed = currentEnergy.value < energyUseAmount.value ? '#fa98' : '#fff8';
 	const colEmpty = '#0004';
 	const energyProgress = (100 * currentEnergy.value) / maxEnergy.value;
-	const useProgress = Math.max(
+	const energyUsedAdjusted = Math.max(
 		0,
 		(100 * (currentEnergy.value - energyUseAmount.value)) / maxEnergy.value,
 	);
-	const useProgressMax = Math.max(
+	const energyUsedBase = Math.max(
 		0,
 		(100 * (currentEnergy.value - props.energyMax)) / maxEnergy.value,
 	);
+	const diffColor =
+		energyUsedAdjusted > energyUsedBase ? 'var(--color-buff)' : 'var(--color-debuff)';
+	const progresses = [energyUsedBase, energyUsedAdjusted].sort();
+
 	return (
 		'linear-gradient(to right, ' +
 		colRemaining +
 		' ' +
-		useProgressMax +
+		progresses[0] +
 		'%, ' +
-		colReduced +
+		diffColor +
 		' ' +
-		useProgressMax +
+		progresses[0] +
 		'%, ' +
-		colReduced +
+		diffColor +
 		' ' +
-		useProgress +
+		progresses[1] +
 		'%, ' +
-		colSubtractedStart +
+		colUsed +
 		' ' +
-		useProgress +
+		progresses[1] +
 		'%, ' +
-		colSubtractedEnd +
+		colUsed +
 		' ' +
 		energyProgress +
 		'%, ' +
@@ -131,7 +126,7 @@ const getCritDisplay = (): string => {
 	if (!props.damageStatsBase.critRange) {
 		return '--';
 	}
-	const delimiter = ', x';
+	const delimiter = ', ×';
 	if (props.damageStatsBase.critRange === 1) {
 		return 20 + delimiter + props.damageStatsBase.critMult;
 	}
@@ -143,8 +138,15 @@ const getCritDisplay = (): string => {
 // given a certain distance to target specified by `actionResources`.
 const hitRangeMod = computed<number>(() => {
 	const distance = actionResources.value.targetRange;
-	const increment = Math.min(10, Math.max(0, distance / props.damageStatsBase.range));
-	return Math.trunc(increment) * props.damageStatsBase.rangePenalty;
+	const increment = Math.min(
+		10,
+		Math.max(
+			0,
+			distance /
+				(rangeMap[props.damageStatsBase.rangeType].range + props.damageStatsBase.range),
+		),
+	);
+	return -Math.trunc(increment) * props.damageStatsBase.rangePenalty;
 });
 // The current reduction of partial power.
 // Note: this number being _higher_ means _more reduction_.
@@ -167,11 +169,10 @@ const partialPowerStats = computed<
 	Record<keyof typeof partialPowerStatLabels, number | DiceFormula>
 >(() => {
 	const result = {
-		hitBonus:
-			props.damageStatsBase.hitBonus + (props.type === 'Melee' ? 0 : -hitRangeMod.value),
+		hitBonus: (props.damageStatsBase.hitBonus || 0) + hitRangeMod.value,
 		critRange: props.damageStatsBase.critRange,
 		critMult: props.damageStatsBase.critMult,
-		dmgDieQuantity: props.dmgDieQuantity,
+		dmgDieQuantity: parseInt(props.damageStatsBase.dmgShort.replace(/[dD][\w\+\-\*]*$/, '')),
 		range: props.damageStatsBase.range,
 		size: props.damageStatsBase.size,
 		duration: props.damageStatsBase.duration,
@@ -186,31 +187,34 @@ const partialPowerStats = computed<
 			result[key] -= Math.trunc(subtractAmount);
 		}
 	});
-	const newDamage =
-		(result.dmgDieQuantity || '0') +
-		(props.dmgDieFormula || 'd0') +
-		'+(Spell Damage+' +
-		props.type +
-		' Damage)';
-	result.dmg = new DiceFormula(newDamage);
+	const newDamage = props.damageStatsBase.dmgShort.replace(
+		/[0-9]+[dD]/,
+		result.dmgDieQuantity + 'd',
+	);
+	result.dmg = new DiceFormula(newDamage.replace('+-', '-'));
 	return result;
 });
 // The attack info stats related to damage. Dynamic because of partial power.
 const dmgDisplays = computed<Record<string, string>>(() => {
-	const statFunction = getStatByCharacter(buffsAsStats.value);
+	const statFunction = getStatByCharacter(statsBuffed.value);
 	const damage = partialPowerStats.value.dmg as DiceFormula;
 	return {
-		short: damage.evaluateExceptDice(statFunction).stringify(),
-		min: damage.min(statFunction) + '',
-		max: damage.max(statFunction) + '',
-		avg: damage.mean(statFunction) + '',
+		short:
+			damage.evaluateExceptDice(statFunction).stringify() +
+			' × ' +
+			props.damageStatsBase.techMult,
+		min: damage.min(statFunction) * props.damageStatsBase.techMult + '',
+		max: damage.max(statFunction) * props.damageStatsBase.techMult + '',
+		avg: damage.mean(statFunction) * props.damageStatsBase.techMult + '',
 	};
 });
 // Flags for the CSS to see if certain elements have been debuffed.
 const debuffed = computed<Record<string, boolean>>(() => {
 	const pps = partialPowerStats.value; // "P"artial "P"ower "S"tats
 	return {
-		hitBonus: pps.hitBonus !== props.damageStatsBase.hitBonus,
+		hitBonus:
+			pps.hitBonus !== props.damageStatsBase.hitBonus &&
+			!isNaN(props.damageStatsBase.hitBonus),
 		critRange: pps.critRange !== props.damageStatsBase.critRange,
 		critMult: pps.critMult !== props.damageStatsBase.critMult,
 		dmgDieQuantity: pps.dmgDieQuantity !== props.dmgDieQuantity,
@@ -232,8 +236,10 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 // The d20 roll to add hit calculations to.
 const hitFormula = new DiceFormula('1d20');
 const rollDamage = () => {
-	const statFunction = getStatByCharacter(buffsAsStats.value);
-	const result = (partialPowerStats.value.dmg as DiceFormula).roll(statFunction);
+	const statFunction = getStatByCharacter(statsBuffed.value);
+	const result =
+		(partialPowerStats.value.dmg as DiceFormula).roll(statFunction) *
+		props.damageStatsBase.techMult;
 	let string = props.name + '\n  Damage:     ' + glyphMap[props.element] + result;
 	if ((partialPowerStats.value.critMult as number) > 1) {
 		string +=
@@ -243,26 +249,17 @@ const rollDamage = () => {
 	}
 	updateLog(string);
 };
-const hitTotal = computed<number>(() => {
-	return (
-		(partialPowerStats.value.hitBonus as number) +
-		getFinalStat(
-			labelToStatName[
-				props.damageStatsBase.hitBonusSource || ''.toLocaleLowerCase()
-			] as StatName,
-		)
-	);
-});
 const rollHit = () => {
 	const result = hitFormula.roll(() => 0);
+	const hitTotal = partialPowerStats.value.hitBonus as number;
 	let string =
 		props.name +
 		'\n  ' +
 		result +
 		' (dice) ' +
-		('+ ' + hitTotal.value).replace('+-', '-') +
+		('+ ' + hitTotal).replace('+-', '-') +
 		' (bonus)';
-	string += '\n  Hit result ⇒ ' + (result + hitTotal.value);
+	string += '\n  Hit result ⇒ ' + (result + hitTotal);
 	if (result <= 1) {
 		string += '\n == Natural 1! ==';
 	}
@@ -427,7 +424,7 @@ const updateEnergy = () => {
 				>
 					<tbody>
 						<tr>
-							<td class="damage-stat-label">Average Dmg</td>
+							<td class="damage-stat-label">Avg Dmg</td>
 							<td
 								class="damage-stat-data alt"
 								:class="{ debuffed: debuffed.dmg }"
@@ -445,21 +442,23 @@ const updateEnergy = () => {
 								"
 							>
 								{{
-									(partialPowerStats.hitBonus as number) +
-									getFinalStat('toHitSpell')
+									!props.damageStatsBase.hitType
+										? '--'
+										: (partialPowerStats.hitBonus as number) +
+											getFinalStat('toHitSpell') +
+											' v. ' +
+											damageStatsBase.hitType
 								}}
-								v. {{ damageStatsBase.hitType }}
 							</td>
 							<td class="damage-stat-label">Range</td>
 							<td
 								class="damage-stat-data"
 								:class="{ debuffed: debuffed.range }"
 							>
-								{{ rangeMap[props.damageStatsBase.rangeType].name }}
 								{{
 									rangeMap[props.damageStatsBase.rangeType].range +
 									(partialPowerStats.range as number)
-								}}ft.
+								}}ft. {{ rangeMap[props.damageStatsBase.rangeType].name }}
 							</td>
 						</tr>
 						<tr>
@@ -594,6 +593,10 @@ button.warning {
 }
 .element-glyph {
 	font-size: 0.9em;
+}
+.kinetic-icon {
+	width: 0.9em;
+	filter: invert();
 }
 .energy-bar {
 	display: inline-block;

@@ -110,9 +110,6 @@ const hitRangeMod = computed<number>(() => {
 	const distance = actionResources.value.targetRange;
 	const weaponRange = rangeMap[weapon.value.rangeType].range + weapon.value.range;
 	const increment = Math.min(10, Math.max(0, distance / weaponRange));
-	console.log(
-		props.name + ' Range Penalty: ' + weapon.value.rangePenalty + ', ' + props.rangePenalty,
-	);
 	return Math.trunc(increment) * weapon.value.rangePenalty;
 });
 const toHitCalc = computed<number>(() => {
@@ -125,15 +122,6 @@ const toHitCalc = computed<number>(() => {
 		statsBuffed.value[
 			labelToStatName[weapon.value.hitBonusSource.toLocaleLowerCase()] as StatName
 		]?.total || 0;
-	// if (weapon.value.rangeType === 'Melee') {
-	// 	result += getFinalStat('toHitMelee');
-	// } else if (weapon.value.rangeType === 'Ranged') {
-	// 	result += getFinalStat('toHitRanged');
-	// 	result -= hitRangeMod.value;
-	// } else if (weapon.value.rangeType === 'Spell') {
-	// 	result += getFinalStat('toHitSpell');
-	// 	result -= hitRangeMod.value;
-	// }
 	return result;
 });
 const hitFormula = new DiceFormula('1d20');
@@ -422,7 +410,7 @@ const weapon = computed<Weapon>(() => {
 						<span
 							:style="'color: ' + colorsElement(weapon.element)"
 							:title="weapon.dmgShort"
-							>{{ weapon.dmgShort }}</span
+							>{{ weapon.dmgShort }} × {{ weapon.techMult }}</span
 						>
 					</div>
 					<div class="damage-sub">
@@ -459,7 +447,7 @@ const weapon = computed<Weapon>(() => {
 				<table class="weapon-details">
 					<tbody class="weapon-cells">
 						<tr>
-							<td class="weapon-stat-label">Average Dmg</td>
+							<td class="weapon-stat-label">Avg Dmg</td>
 							<td class="weapon-stat-data alt">{{ weapon.dmgAvg }}</td>
 							<td class="weapon-stat-label">To Hit</td>
 							<td
@@ -473,8 +461,7 @@ const weapon = computed<Weapon>(() => {
 							</td>
 							<td class="weapon-stat-label">Range</td>
 							<td class="weapon-stat-data">
-								{{ rangeMap[weapon.rangeType].name }}
-								{{ weapon.range }}ft.
+								{{ weapon.range }}ft. {{ rangeMap[weapon.rangeType].name }}
 							</td>
 						</tr>
 						<tr>

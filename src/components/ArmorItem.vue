@@ -17,7 +17,7 @@ const slotName = computed<string>(() => {
 	const slotName = slot.split(' ')[0].toLocaleLowerCase();
 	const map = {
 		full: 'Overview',
-		helmet: 'Helmet',
+		head: 'Helmet',
 		arm: 'Arms',
 		chest: 'Chest',
 		leg: 'Leg',

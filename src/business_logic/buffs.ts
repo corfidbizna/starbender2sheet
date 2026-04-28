@@ -227,6 +227,7 @@ export const getBuffEffects = (buff: BuffInfo): BuffEffect[] => {
 		return [];
 	} else {
 		return buff.effects
+			.replace(',\s*$', '')
 			.split(/,\s/g)
 			.filter((item) => !!item)
 			.map((effect): BuffEffect => {
@@ -262,6 +263,7 @@ export const getBuffEffects = (buff: BuffInfo): BuffEffect[] => {
 						console.log(
 							"Hey! I reached a state I shouldn't while trying to parse a buff!\n Was working on",
 							splitAmount,
+							'(' + effect + ')',
 						);
 						// const statResult = Number(
 						// 	stats[labelToStatName[item.toLocaleLowerCase()] as StatName],

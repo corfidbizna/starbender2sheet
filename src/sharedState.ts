@@ -156,5 +156,5 @@ export const storeVisuals = () => {
 };
 
 // Debug
-export const fullListBuff = ref<boolean>(true);
-export const fullListFeature = ref<boolean>(true);
+export const fullListBuff = ref<boolean>(false);
+export const fullListFeature = ref<boolean>(false);
