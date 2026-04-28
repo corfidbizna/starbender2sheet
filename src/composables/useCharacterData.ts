@@ -1366,6 +1366,7 @@ export type ImportedWeapon = Characters & {
 	ammo: number;
 	ammoCapacity: number;
 	ammoReloadAmount: number;
+	ammoCanOverflow: boolean;
 	ammoType: string;
 	isMagic: boolean;
 	ranks?: number;
@@ -1387,6 +1388,7 @@ export type Weapon = DamageComponent & {
 	ammo: number;
 	ammoCurrent: number;
 	ammoCapacity: number;
+	ammoCanOverflow: boolean;
 	ammoReloadAmount: number;
 	ammoType: string;
 	autoFireRange: number;
@@ -1429,6 +1431,7 @@ type ImportedWeaponPerk = {
 	handed: number;
 	ammo: number;
 	ammoCapacity: number;
+	ammoCanOverflow: boolean;
 	ammoReloadAmount: number;
 	ammoType: string;
 	isMagic: boolean;
@@ -1448,6 +1451,7 @@ export type WeaponPerk = DamageComponent & {
 	autoFireRange: number;
 	ammo: number;
 	ammoCapacity: number;
+	ammoCanOverflow: boolean;
 	ammoReloadAmount: number;
 	ammoType: string;
 	isMagic: boolean;
@@ -2089,6 +2093,7 @@ function useCharacterDataUncached(characterId: string) {
 				//
 				ammo: p.ammo,
 				ammoCapacity: p.ammoCapacity,
+				ammoCanOverflow: p.ammoCanOverflow,
 				ammoReloadAmount: p.ammoReloadAmount || p.ammoCapacity,
 				ammoType: p.ammoType,
 				isMagic: p.isMagic,
@@ -2870,6 +2875,7 @@ function useCharacterDataUncached(characterId: string) {
 					// ammoCurrent: ogWeapon.ammoCapacity,
 					ammoCurrent: storedWeapons[ogWeapon.name]?.ammo || ogWeapon.ammoCapacity,
 					ammoCapacity: ogWeapon.ammoCapacity,
+					ammoCanOverflow: ogWeapon.ammoCanOverflow,
 					ammoReloadAmount: ogWeapon.ammoReloadAmount || ogWeapon.ammoCapacity,
 					ammoType: ogWeapon.ammoType,
 					isMagic: ogWeapon.isMagic,

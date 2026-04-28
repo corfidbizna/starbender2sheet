@@ -259,7 +259,15 @@ const fire = () => {
 };
 const reload = () => {
 	updateLog('Reloaded ' + glyphMap[props.weaponClass] + props.name);
-	weapons.value[weaponIndex.value].ammoCurrent = weapon.value.ammoReloadAmount;
+	const wep = weapons.value[weaponIndex.value];
+	wep.ammoCurrent += weapon.value.ammoReloadAmount;
+	if (!weapon.value.ammoCanOverflow) {
+		// Cap to the ammo capacity of the weapon.
+		wep.ammoCurrent = Math.min(wep.ammoCurrent, props.ammoCapacity);
+	} else {
+		// Otherwise, cap to the ammo capacity + 100%
+		wep.ammoCurrent = Math.min(wep.ammoCurrent, props.ammoCapacity * 2);
+	}
 };
 
 // Perks stuff lives here
@@ -343,6 +351,7 @@ const weapon = computed<Weapon>(() => {
 			modified.rangeType = perk.rangeType || modified.rangeType;
 			modified.shape = perk.shape || modified.shape;
 			modified.ammoType = perk.ammoType || modified.ammoType;
+			modified.ammoCanOverflow = perk.ammoCanOverflow || modified.ammoCanOverflow;
 			modified.isMagic = perk.isMagic || modified.isMagic;
 		}
 	}
