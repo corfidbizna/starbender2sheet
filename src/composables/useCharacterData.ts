@@ -2240,28 +2240,32 @@ function useCharacterDataUncached(characterId: string) {
 	);
 	const namesOfActiveArmor = ref<string[]>([]);
 	const armorsAsBuffs = computed<BuffInfo[]>(() => {
+		// const equipped = armor.value
+		// 	.filter((buff) => namesOfEquippedArmor.value.includes(buff.name + ' (Equipped)'))
+		// 	.map((armor) => {
+		// 		const newBuff: BuffInfo = {
+		// 			name: armor.name + ' (Equipped)',
+		// 			type: 'Hidden',
+		// 			isStory: false,
+		// 			isBasic: false,
+		// 			stacks: 0,
+		// 			effects: armor.slots?.replace(/,\s*$/, '') || '',
+		// 			active: true,
+		// 		};
+		// 		return newBuff;
+		// 	});
 		const equipped = armor.value
 			.filter((buff) => namesOfEquippedArmor.value.includes(buff.name + ' (Equipped)'))
 			.map((armor) => {
+				const slotsString = (armor.slots || '')
+					.split(', ')
+					.map((item) => 'Misc ' + item)
+					.join(', ');
+				const buffString = (slotsString ? slotsString + ', ' : '') + (armor.buffs || '');
 				const newBuff: BuffInfo = {
 					name: armor.name + ' (Equipped)',
 					type: 'Hidden',
-					isStory: false,
-					isBasic: false,
-					stacks: 0,
-					effects: armor.slots?.replace(/,\s*$/, '') || '',
-					active: true,
-				};
-				return newBuff;
-			});
-		const passive = armor.value
-			.filter((buff) => namesOfEquippedArmor.value.includes(buff.name + ' (Passive)'))
-			.map((armor) => {
-				const buffString = armor.buffs || '';
-				const newBuff: BuffInfo = {
-					name: armor.name + ' (Passive)',
-					type: 'Hidden',
-					category: armor.buffCategory,
+					category: armor.buffCategory || 'Misc',
 					isStory: false,
 					isBasic: false,
 					isStacking: !!armor.stacksMax || armor.isStacking,
@@ -2287,7 +2291,7 @@ function useCharacterDataUncached(characterId: string) {
 				};
 				return newBuff;
 			});
-		return [...equipped, ...passive, ...active];
+		return [...equipped, ...active];
 	});
 	const armorStackUpdate = (name: string, amount: number) => {
 		const targetArmor = armor.value.find((armor) => armor.name === name);
@@ -2299,10 +2303,7 @@ function useCharacterDataUncached(characterId: string) {
 			);
 		}
 		const downstreamBuffs = partyBuffs.value.filter(
-			(buff) =>
-				buff.name === name + ' (Passive)' ||
-				buff.name === name + ' (Equipped)' ||
-				buff.name === name + ' (Active)',
+			(buff) => buff.name === name + ' (Equipped)' || buff.name === name + ' (Active)',
 		);
 		downstreamBuffs.forEach((targetBuff) => {
 			if (targetBuff !== undefined) {
@@ -2878,7 +2879,7 @@ function useCharacterDataUncached(characterId: string) {
 					ammoCanOverflow: ogWeapon.ammoCanOverflow,
 					ammoReloadAmount: ogWeapon.ammoReloadAmount || ogWeapon.ammoCapacity,
 					ammoType: ogWeapon.ammoType,
-					isMagic: ogWeapon.isMagic,
+					isMagic: ogWeapon.isMagic || false,
 					ranks: ogWeapon.ranks || 0,
 					buffsEquipped: ogWeapon.buffsEquipped || '',
 					buffsActive: ogWeapon.buffsActive || '',
