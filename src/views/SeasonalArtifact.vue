@@ -13,7 +13,7 @@ const {
 	namesOfActiveArtifactMods,
 	artifactLoading,
 	artifactRefresh,
-	getFinalStat,
+	getStat,
 	statsLoading,
 	buffsLoading,
 } = useCharacterData(props.characterId);
@@ -50,7 +50,7 @@ const grid = computed<ArtifactMod[][]>(() => {
 				<caption class="artifact-availability">
 					<span>Available </span
 					><span class="artifact-availability-number">{{
-						getFinalStat('artifact') - namesOfActiveArtifactMods.length
+						getStat('artifact') - namesOfActiveArtifactMods.length
 					}}</span>
 					<button
 						@click="artifactRefresh"
@@ -98,7 +98,7 @@ const grid = computed<ArtifactMod[][]>(() => {
 										:disabled="
 											namesOfActiveArtifactMods.length <
 												stageQuantitiesForUnlock[col] ||
-											(getFinalStat('artifact') -
+											(getStat('artifact') -
 												namesOfActiveArtifactMods.length <=
 												0 &&
 												!cell.active)

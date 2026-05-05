@@ -18,7 +18,7 @@ const {
 	namesOfEquippedArmor,
 	armorLoading,
 	armorRefresh,
-	getFinalStat,
+	getStat,
 } = useCharacterData(props.characterId);
 const armorSlotSortOrder: Record<string, number> = {
 	full: 0,
@@ -30,6 +30,7 @@ const armorSlotSortOrder: Record<string, number> = {
 	exotic: 6,
 	other: 7,
 };
+const armorSlots = ['Full', 'Helmet', 'Arm', 'Torso', 'Legs', 'Class', 'Other'];
 const sortedArmorList = computed<Armor[]>(() => {
 	return [...armorList.value].sort(
 		(a, b) =>
@@ -92,7 +93,7 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 							label: 'Charges',
 							stat: 'armorChargesUsed',
 							color: '#8df',
-							max: getFinalStat('capacityArmorCharge'),
+							max: getStat('capacityArmorCharge'),
 							current: actionResources.armorChargesUsed,
 							inverted: true,
 						},
@@ -105,99 +106,77 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 			<div class="armor-slots-active">
 				<div
 					class="armor-slot full"
-					:class="
-						getFinalStat('equipArmorFull') > getFinalStat('slotsArmorFull')
-							? 'overfull'
-							: ''
-					"
+					:class="getStat('equipArmorFull') > getStat('slotsArmorFull') ? 'overfull' : ''"
 				>
 					<h2>
 						Full: {{ statsBuffed.equipArmorFull.total }} ⁄
-						{{ getFinalStat('slotsArmorFull') }}
+						{{ getStat('slotsArmorFull') }}
 					</h2>
 					<span>{{ findArmorSlots.full || '--' }}</span>
 				</div>
 				<div
 					class="armor-slot helmet"
-					:class="
-						getFinalStat('equipArmorHead') > getFinalStat('slotsArmorHead')
-							? 'overfull'
-							: ''
-					"
+					:class="getStat('equipArmorHead') > getStat('slotsArmorHead') ? 'overfull' : ''"
 				>
 					<h2>
 						Helmet: {{ statsBuffed.equipArmorHead.total }} ⁄
-						{{ getFinalStat('slotsArmorHead') }}
+						{{ getStat('slotsArmorHead') }}
 					</h2>
 					<span>{{ findArmorSlots.head || '--' }}</span>
 				</div>
 				<div
 					class="armor-slot arm"
-					:class="
-						getFinalStat('equipArmorArm') > getFinalStat('slotsArmorArm')
-							? 'overfull'
-							: ''
-					"
+					:class="getStat('equipArmorArm') > getStat('slotsArmorArm') ? 'overfull' : ''"
 				>
 					<h2>
 						Arm: {{ statsBuffed.equipArmorArm.total }} ⁄
-						{{ getFinalStat('slotsArmorArm') }}
+						{{ getStat('slotsArmorArm') }}
 					</h2>
 					<span>{{ findArmorSlots.arm || '--' }}</span>
 				</div>
 				<div
 					class="armor-slot torso"
 					:class="
-						getFinalStat('equipArmorChest') > getFinalStat('slotsArmorChest')
-							? 'overfull'
-							: ''
+						getStat('equipArmorChest') > getStat('slotsArmorChest') ? 'overfull' : ''
 					"
 				>
 					<h2>
 						Torso: {{ statsBuffed.equipArmorChest.total }} ⁄
-						{{ getFinalStat('slotsArmorChest') }}
+						{{ getStat('slotsArmorChest') }}
 					</h2>
 					<span>{{ findArmorSlots.chest || '--' }}</span>
 				</div>
 				<div
 					class="armor-slot legs"
-					:class="
-						getFinalStat('equipArmorLegs') > getFinalStat('slotsArmorLegs')
-							? 'overfull'
-							: ''
-					"
+					:class="getStat('equipArmorLegs') > getStat('slotsArmorLegs') ? 'overfull' : ''"
 				>
 					<h2>
 						Legs: {{ statsBuffed.equipArmorLegs.total }} ⁄
-						{{ getFinalStat('slotsArmorLegs') }}
+						{{ getStat('slotsArmorLegs') }}
 					</h2>
 					<span>{{ findArmorSlots.leg || '--' }}</span>
 				</div>
 				<div
 					class="armor-slot class"
 					:class="
-						getFinalStat('equipArmorClass') > getFinalStat('slotsArmorClass')
-							? 'overfull'
-							: ''
+						getStat('equipArmorClass') > getStat('slotsArmorClass') ? 'overfull' : ''
 					"
 				>
 					<h2>
 						Class: {{ statsBuffed.equipArmorClass.total }} ⁄
-						{{ getFinalStat('slotsArmorClass') }}
+						{{ getStat('slotsArmorClass') }}
 					</h2>
 					<span>{{ findArmorSlots.class || '--' }}</span>
 				</div>
 				<div
 					class="armor-slot exotic"
 					:class="
-						getFinalStat('equipArmorExotic') > getFinalStat('slotsArmorExotic')
-							? 'overfull'
-							: ''
+						getStat('equipArmorExotic') > getStat('slotsArmorExotic') ? 'overfull' : ''
 					"
 				>
 					<h2>
 						Exotic: {{ statsBuffed.equipArmorExotic.total }} ⁄
-						{{ getFinalStat('slotsArmorExotic') }}
+						{{ getStat('slotsArmorExotic') }}
 					</h2>
 					<span>{{ findArmorSlots.exotic || '--' }}</span>
 				</div>

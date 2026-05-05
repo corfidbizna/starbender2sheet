@@ -226,7 +226,7 @@ export type DamageComponent = {
 	rangeType: number; // 2 (Medium-Close), see "WeaponRange"
 	range: number; // 20
 	rangePenalty: number; // 2 (amount to decrease hit by)
-	rangeIncrementsModifier: number; // 20 (goes down every 20ft. distance)
+	rangeIncrementsModifier: number; // 0 (modify how many range increments this weapon has from ten)
 	size: number; // 10
 	shape: string; // sphere
 	duration: number; // 1
@@ -2086,7 +2086,7 @@ function useCharacterDataUncached(characterId: string) {
 				rangeType: p.rangeType,
 				range: p.range,
 				rangePenalty: p.rangePenalty,
-				rangeIncrementsModifier: p.rangeIncrementsModifier || p.range,
+				rangeIncrementsModifier: p.rangeIncrementsModifier || 0,
 				size: p.size,
 				shape: p.shape,
 				duration: p.duration,
@@ -2603,7 +2603,7 @@ function useCharacterDataUncached(characterId: string) {
 		return tallyBuffs(allEffects);
 		// return tallyBuffs(statsFirstBuffPass.value);
 	});
-	const getFinalStat = (name: string) => {
+	const getStat = (name: string) => {
 		if (statsBuffed.value[name as StatName] === undefined) {
 			console.warn('"' + name + '" is not the key of a stat.');
 		}
@@ -2864,8 +2864,7 @@ function useCharacterDataUncached(characterId: string) {
 					rangeType: rangeIndex,
 					range: rangeMap[rangeIndex].range + (ogWeapon.range || 0),
 					rangePenalty: ogWeapon.rangePenalty || 2,
-					rangeIncrementsModifier:
-						ogWeapon.rangeIncrementsModifier || ogWeapon.range || 1,
+					rangeIncrementsModifier: ogWeapon.rangeIncrementsModifier || 0,
 					size: ogWeapon.size || 0,
 					shape: ogWeapon.shape || '',
 					duration: ogWeapon.duration || 0,
@@ -2981,7 +2980,7 @@ function useCharacterDataUncached(characterId: string) {
 		actionResourceUpdate,
 		subclassGet,
 		subclassSet,
-		getFinalStat,
+		getStat,
 		getFinalStatFromLabel,
 		stats,
 		statsLoading,

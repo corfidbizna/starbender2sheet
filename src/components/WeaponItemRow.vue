@@ -263,10 +263,10 @@ const reload = () => {
 	wep.ammoCurrent += weapon.value.ammoReloadAmount;
 	if (!weapon.value.ammoCanOverflow) {
 		// Cap to the ammo capacity of the weapon.
-		wep.ammoCurrent = Math.min(wep.ammoCurrent, props.ammoCapacity);
+		wep.ammoCurrent = Math.min(wep.ammoCurrent, weapon.value.ammoCapacity);
 	} else {
 		// Otherwise, cap to the ammo capacity + 100%
-		wep.ammoCurrent = Math.min(wep.ammoCurrent, props.ammoCapacity * 2);
+		wep.ammoCurrent = Math.min(wep.ammoCurrent, weapon.value.ammoCapacity * 2);
 	}
 };
 
@@ -316,7 +316,7 @@ const weapon = computed<Weapon>(() => {
 				modified.ammoCapacity =
 					perk.ammoCapacity * stk('ammoCapacity') || modified.ammoCapacity;
 				modified.ammoReloadAmount =
-					perk.ammoReloadAmount * stk('ammoReloadAmount') || modified.ammoReloadAmount;
+					perk.ammoReloadAmount * stk('ammoReloadAmount') || modified.ammoCapacity;
 			} else {
 				// Supplement things instead.
 				modified.hitBonus += perk.hitBonus * stk('hitBonus') || 0;

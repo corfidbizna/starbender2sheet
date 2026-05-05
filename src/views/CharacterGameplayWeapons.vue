@@ -16,7 +16,7 @@ const {
 	weaponsLoading,
 	weaponPerksLoading,
 	actionResources,
-	getFinalStat,
+	getStat,
 } = useCharacterData(props.characterId);
 const ammoCapacity = computed<CapacityBoxStatField[]>(() => {
 	return [
@@ -24,7 +24,7 @@ const ammoCapacity = computed<CapacityBoxStatField[]>(() => {
 			label: 'Kinetic',
 			stat: 'ammoKineticUsed',
 			color: '#eee',
-			max: getFinalStat('capacityKinetic'),
+			max: getStat('capacityKinetic'),
 			current: actionResources.value.ammoKineticUsed,
 			inverted: true,
 		},
@@ -32,7 +32,7 @@ const ammoCapacity = computed<CapacityBoxStatField[]>(() => {
 			label: 'Special',
 			stat: 'ammoSpecialUsed',
 			color: '#7AF48B',
-			max: getFinalStat('capacitySpecial'),
+			max: getStat('capacitySpecial'),
 			current: actionResources.value.ammoSpecialUsed,
 			inverted: true,
 		},
@@ -40,7 +40,7 @@ const ammoCapacity = computed<CapacityBoxStatField[]>(() => {
 			label: 'Heavy',
 			stat: 'ammoHeavyUsed',
 			color: '#B286FF',
-			max: getFinalStat('capacityHeavy'),
+			max: getStat('capacityHeavy'),
 			current: actionResources.value.ammoHeavyUsed,
 			inverted: true,
 		},

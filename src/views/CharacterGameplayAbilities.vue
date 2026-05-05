@@ -24,7 +24,7 @@ const {
 	statsBuffed,
 	abilities,
 	abilitiesLoading,
-	getFinalStat,
+	getStat,
 	actionResources,
 	actionResourcesDisplay,
 	subclassSet,
@@ -141,7 +141,7 @@ const abilityFilter = ref<string>('All');
 										stat: 'energySuperUsed',
 										color: subclassColor + '88',
 										colorFull: '#ff6',
-										max: getFinalStat('energySuper'),
+										max: getStat('energySuper'),
 										current: actionResourcesDisplay.energySuper,
 									}"
 									:characterId="characterId"
@@ -153,7 +153,7 @@ const abilityFilter = ref<string>('All');
 									style="width: 4em"
 									v-bind="{
 										value: actionResources.energySuperUsed,
-										max: getFinalStat('energySuper'),
+										max: getStat('energySuper'),
 										inverted: true,
 										minZero: true,
 									}"
@@ -161,7 +161,7 @@ const abilityFilter = ref<string>('All');
 								/>
 							</td>
 							<td>⁄</td>
-							<td>{{ getFinalStat('energySuper') }}</td>
+							<td>{{ getStat('energySuper') }}</td>
 							<td><button @click="actionResources.energySuperUsed = 0">⤒</button></td>
 						</tr>
 						<tr
@@ -204,7 +204,7 @@ const abilityFilter = ref<string>('All');
 												: subclassColor + '88',
 										colorFull:
 											energyType === 'Universal' ? '#eee' : subclassColor,
-										max: getFinalStat(('energy' + energyType) as StatName),
+										max: getStat(('energy' + energyType) as StatName),
 										current:
 											actionResourcesDisplay[
 												('energy' + energyType) as ActionResourceDisplayKey
@@ -220,7 +220,7 @@ const abilityFilter = ref<string>('All');
 										value: actionResources[
 											('energy' + energyType + 'Used') as ActionResourceKey
 										],
-										max: getFinalStat(('energy' + energyType) as StatName),
+										max: getStat(('energy' + energyType) as StatName),
 										inverted: true,
 										minZero: true,
 									}"
@@ -233,7 +233,7 @@ const abilityFilter = ref<string>('All');
 							</td>
 							<td>⁄</td>
 							<td>
-								{{ getFinalStat(('energy' + energyType) as StatName) }}
+								{{ getStat(('energy' + energyType) as StatName) }}
 							</td>
 							<td>
 								<button

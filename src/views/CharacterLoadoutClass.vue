@@ -21,7 +21,7 @@ const props = defineProps<CharacterProps>();
 const {
 	character,
 	statsLoading,
-	getFinalStat,
+	getStat,
 	actionResources,
 	abilities,
 	abilitiesLoading,
@@ -47,7 +47,7 @@ const abilityTypes = computed<AbilityClass[]>(() => [
 	'Class' as AbilityClass,
 	'Universal' as AbilityClass,
 ]);
-if (getFinalStat('energyRitual') > 0) abilityTypes.value.push('Ritual' as AbilityClass);
+if (getStat('energyRitual') > 0) abilityTypes.value.push('Ritual' as AbilityClass);
 const listKey = ref<string>('');
 const list = computed<Ability[]>(() =>
 	abilities.value.filter(
@@ -79,7 +79,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 			stat: 'energySuperUsed' as ActionResourceKey,
 			color: elements[subclassGet.value],
 			colorMax: '#ff6',
-			max: getFinalStat('energySuper'),
+			max: getStat('energySuper'),
 			current: actionResources.value.energySuperUsed,
 			inverted: true,
 			minZero: true,
@@ -88,7 +88,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 			label: 'Class',
 			stat: 'energyClassUsed' as ActionResourceKey,
 			color: elements[subclassGet.value],
-			max: getFinalStat('energyClass'),
+			max: getStat('energyClass'),
 			current: actionResources.value.energyClassUsed,
 			inverted: true,
 			minZero: true,
@@ -97,7 +97,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 			label: 'Melee',
 			stat: 'energyMeleeUsed' as ActionResourceKey,
 			color: elements[subclassGet.value],
-			max: getFinalStat('energyMelee'),
+			max: getStat('energyMelee'),
 			current: actionResources.value.energyMeleeUsed,
 			inverted: true,
 			minZero: true,
@@ -106,7 +106,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 			label: 'Grenade',
 			stat: 'energyGrenadeUsed' as ActionResourceKey,
 			color: elements[subclassGet.value],
-			max: getFinalStat('energyGrenade'),
+			max: getStat('energyGrenade'),
 			current: actionResources.value.energyGrenadeUsed,
 			inverted: true,
 			minZero: true,
@@ -115,18 +115,18 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 			label: 'Universal',
 			stat: 'energyUniversalUsed' as ActionResourceKey,
 			color: '#eee',
-			max: getFinalStat('energyUniversal'),
+			max: getStat('energyUniversal'),
 			current: actionResources.value.energyUniversalUsed,
 			inverted: true,
 			minZero: true,
 		},
 	];
-	if (getFinalStat('energyRitual') > 0) {
+	if (getStat('energyRitual') > 0) {
 		result.push({
 			label: 'Ritual',
 			stat: 'energyRitualUsed' as ActionResourceKey,
 			color: elements[subclassGet.value],
-			max: getFinalStat('energyRitual'),
+			max: getStat('energyRitual'),
 			current: actionResources.value.energyRitualUsed,
 			inverted: true,
 			minZero: true,

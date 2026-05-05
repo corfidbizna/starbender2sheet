@@ -20,7 +20,7 @@ type CharacterProps = {
 	characterId: CharacterNames;
 };
 const props = defineProps<Ability & CharacterProps>();
-const { statsBase, buffs, statsBuffed, getFinalStat, actionResources, actionResourcesDisplay } =
+const { statsBase, buffs, statsBuffed, getStat, actionResources, actionResourcesDisplay } =
 	useCharacterData(props.characterId);
 
 // =======================
@@ -36,7 +36,7 @@ const currentEnergy = computed<number>(
 	() => actionResourcesDisplay.value[('energy' + props.type) as ActionResourceDisplayKey],
 );
 // The maximum amount of the Ability's energy type that can be available.
-const maxEnergy = computed<number>(() => getFinalStat(('energy' + props.type) as StatName));
+const maxEnergy = computed<number>(() => getStat(('energy' + props.type) as StatName));
 // The amount of energy it will take to use the Ability.
 // Takes "partial power" into account.
 const energyUseAmount = computed<number>(() =>
@@ -44,7 +44,7 @@ const energyUseAmount = computed<number>(() =>
 		? 0
 		: props.energyMax -
 			partialPowerIncrement.value -
-			getFinalStat(('energyDiscount' + props.type) as StatName),
+			getStat(('energyDiscount' + props.type) as StatName),
 );
 // Assembles the gradient string used for the energy usage bar.
 const energyUsageGradientString = computed<string>(() => {
@@ -403,7 +403,7 @@ const updateEnergy = () => {
 						>
 					</div>
 					<div class="damage-sub">
-						{{ props.type }} 
+						{{ props.type }}
 						<span
 							class="energy-bar"
 							:style="'background-image: ' + energyUsageGradientString"
@@ -445,7 +445,7 @@ const updateEnergy = () => {
 									!props.damageStatsBase.hitType
 										? '--'
 										: (partialPowerStats.hitBonus as number) +
-											getFinalStat('toHitSpell') +
+											getStat('toHitSpell') +
 											' v. ' +
 											damageStatsBase.hitType
 								}}

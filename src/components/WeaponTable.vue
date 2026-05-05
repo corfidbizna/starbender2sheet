@@ -30,14 +30,8 @@ const toggleSortAscending = () => {
 const props = defineProps<{
 	characterId: CharacterNames;
 }>();
-const {
-	weapons,
-	weaponsLoading,
-	weaponsRefresh,
-	weaponPerksLoading,
-	weaponPerksRefresh,
-	getFinalStat,
-} = useCharacterData(props.characterId);
+const { weapons, weaponsLoading, weaponsRefresh, weaponPerksLoading, weaponPerksRefresh, getStat } =
+	useCharacterData(props.characterId);
 const sortedWeapons = computed<Weapon[]>(() => {
 	const weaponsForSort = weapons.value.slice();
 	// if (!(sortBy as weaponKeys)) {
@@ -89,30 +83,22 @@ const multipleExotics = computed<boolean>(() => {
 			<h2>Weapon Slots</h2>
 			<span
 				style="display: flex; align-items: center"
-				:style="
-					getFinalStat('slotsWeaponUsed') > getFinalStat('slotsWeapon')
-						? 'color: #f66'
-						: ''
-				"
+				:style="getStat('slotsWeaponUsed') > getStat('slotsWeapon') ? 'color: #f66' : ''"
 			>
 				<span>Used </span>
 				<span style="flex-grow: 1; display: inline-block">
 					<CapacityBar
 						v-bind="{
-							max: getFinalStat('slotsWeapon'),
-							current: getFinalStat('slotsWeaponUsed'),
+							max: getStat('slotsWeapon'),
+							current: getStat('slotsWeaponUsed'),
 							color:
-								getFinalStat('slotsWeaponUsed') > getFinalStat('slotsWeapon')
+								getStat('slotsWeaponUsed') > getStat('slotsWeapon')
 									? 'var(--color-debuff)'
 									: '#eee',
 						}"
 					/>
 				</span>
-				<span
-					> {{ getFinalStat('slotsWeaponUsed') }} ⁄ {{
-						getFinalStat('slotsWeapon')
-					}}</span
-				>
+				<span> {{ getStat('slotsWeaponUsed') }} ⁄ {{ getStat('slotsWeapon') }}</span>
 			</span>
 			<span
 				v-if="multipleExotics"
