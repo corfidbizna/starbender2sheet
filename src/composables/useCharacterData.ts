@@ -31,6 +31,7 @@ export type PartyDataSource = {
 	sheets: {
 		weapons: string;
 		weaponPerks: string;
+		weaponPerkProcConditions: string;
 		armor: string;
 		abilities: string;
 		buffs: string;
@@ -119,8 +120,9 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 export const partyDataSources: PartyDataSource = {
 	documentId: '1agznHO98JumWB896PpQZ3eJQGIJwEIivChTurlwu5H8',
 	sheets: {
-		weapons: '0',
-		weaponPerks: '298368355',
+		weapons: '1170324730',
+		weaponPerks: '613106391',
+		weaponPerkProcConditions: '1954595740',
 		armor: '31916088',
 		abilities: '1109846394',
 		buffs: '1462505437',
@@ -1055,11 +1057,12 @@ export const labelMap = {
 	damageWeaponShotgun: 'Shotgun Damage',
 	damageWeaponSniperRifle: 'Sniper Rifle Damage',
 	damageWeaponFusionRifle: 'Fusion Rifle Damage',
-	damageWeaponGrenadeLauncherEnergy: 'Breech-Loading Grenade Launcher Damage',
+	damageWeaponGrenadeLauncherEnergy: 'Breech Loading Grenade Launcher Damage',
 	damageWeaponTraceRifle: 'Trace Rifle Damage',
 	damageWeaponGlaive: 'Glaive Damage',
+	damageWeaponShield: 'Shield Damage',
 	damageWeaponRocketLauncher: 'Rocket Launcher Damage',
-	damageWeaponGrenadeLauncherHeavy: 'Drum-Loading Grenade Launcher Damage',
+	damageWeaponGrenadeLauncherHeavy: 'Drum Loading Grenade Launcher Damage',
 	damageWeaponLinearFusionRifle: 'Linear Fusion Rifle Damage',
 	damageWeaponSword: 'Sword Damage',
 	damageWeaponMachineGun: 'Machine Gun Damage',
@@ -1325,11 +1328,12 @@ type WeaponClasses =
 	| 'Shotgun'
 	| 'Sniper Rifle'
 	| 'Fusion Rifle'
-	| 'Breech-Loading Grenade Launcher'
+	| 'Breech Loading Grenade Launcher'
 	| 'Trace Rifle'
 	| 'Glaive'
+	| 'Shield'
 	| 'Rocket Launcher'
-	| 'Drum-Loading Grenade Launcher'
+	| 'Drum Loading Grenade Launcher'
 	| 'Linear Fusion Rifle'
 	| 'Sword'
 	| 'Machine Gun';
@@ -1457,6 +1461,117 @@ export type WeaponPerk = DamageComponent & {
 	isMagic: boolean;
 	buffs?: string;
 };
+type WeaponPerkKey = keyof WeaponPerk;
+type WeaponPerkProc = {
+	prefix: string;
+	brand: string;
+	passive: boolean;
+	takeAimDependant: boolean;
+	stacking: boolean;
+	description: string;
+	stacksMax: number;
+	stackName: string;
+};
+export const perkPrefixTimeMap: Record<string, string> = {
+	_: '',
+	Instant: 'Effect ends or Stacks are expended after one attack.',
+	Surge: 'Effect ends or Stacks are expended at the end of this round.',
+	Exchange: 'Effect ends or Stacks are expended at the end of 10 rounds.',
+	Breath: 'Stacks reduce after each attack.',
+	Beat: 'Stacks reduce after each round.',
+	Battle: 'Stacks reduce after each encounter.',
+};
+export const parameterExtractor = (text: string): string[] => {
+	const regex = /\${(\w+)}/g;
+	let capture: string[] | null;
+	const result: Record<string, boolean> = {};
+	while ((capture = regex.exec(text))) {
+		// console.log('Capture result:', capture);
+		result[capture[1]] = true;
+	}
+	return Object.keys(result);
+};
+const processPerkParameters = (input: WeaponPerk, procList: WeaponPerkProc[]): WeaponPerk => {
+	// Takes a perk name in the format of '_ Instant Accurate (5)' and distributes the parameters.
+	const result: WeaponPerk = JSON.parse(JSON.stringify(input));
+	// const splitName = input.name.replace(/ \([\w\s,]\)$/, '').split(' ');
+	const splitName = input.name.split(' ');
+	if (splitName.length < 4) {
+		console.warn(
+			'The name ' + input.name + ' was too short to be valid. Skipping…. \nPerk source:',
+			input,
+		);
+		return result;
+	}
+	const prefixProcName = splitName[0];
+	const prefixTimeName = splitName[1];
+	const parametersBlock = splitName.slice(-1)[0];
+	const parameters =
+		parametersBlock
+			.slice(1, -1)
+			.split(', ')
+			.filter((str) => str !== '') || [];
+	const proc: WeaponPerkProc =
+		procList.find((pfx) => pfx.prefix === prefixProcName) || <WeaponPerkProc>{};
+	const parameterNames = parameterExtractor(input.description);
+	if (parameterNames.length !== parameters.length) {
+		console.warn(
+			'The parameters of ' +
+				input.name +
+				" didn't match the number of values in the label. Unexpected behavior may result.\nDescription text:",
+			result.description,
+		);
+	}
+	let description = result.description + '\n' + perkPrefixTimeMap[prefixTimeName];
+	for (let i = 0; i < parameterNames.length; i++) {
+		const word = parameterNames[i];
+		const key = word as WeaponPerkKey;
+		const param: string = parameters[i];
+		const paramAsNumber: number = parseFloat(parameters[i]);
+		const resultSupplement: Record<string, number | boolean | string> = {};
+		if (Object.keys(result).includes(word)) {
+			if (!isNaN(paramAsNumber) && typeof result[key] === 'number') {
+				resultSupplement[key] = paramAsNumber;
+			} else if (typeof result[key] === 'boolean') {
+				resultSupplement[key] = param.toLocaleLowerCase() === 'true';
+			} else {
+				resultSupplement[key] = param;
+			}
+		}
+		Object.assign(result, resultSupplement);
+		const rx = new RegExp('\\${' + word + '}', 'g');
+		description = description.replace(rx, param);
+	}
+	result.description = description;
+	Object.keys(proc)
+		.filter((key) => proc[key as keyof WeaponPerkProc] !== undefined)
+		.forEach((key) => {
+			// if (key === 'brand') result.brand = proc.brand;
+			if (key === 'passive') result.passive = proc.passive;
+			if (key === 'takeAimDependant') result.takeAimDependant = proc.takeAimDependant;
+			if (key === 'stacking') result.stacking = proc.stacking;
+			if (key === 'description')
+				result.description = proc.description + '\n' + result.description;
+			if (key === 'stacksMax') result.stacksMax = proc.stacksMax;
+			// if (key === 'stackName') result.stackName = proc.stackName;
+			// TODO
+			// const funcMap = {
+			// brand: () => result.brand = proc.brand,
+			// passive: () => (result.passive = proc.passive),
+			// takeAimDependant: () => (result.takeAimDependant = proc.takeAimDependant),
+			// stacking: () => (result.stacking = proc.stacking),
+			// description: () => (result.description = proc.description),
+			// stacksMax: () => (result.stacksMax = proc.stacksMax),
+			// stackName: () => result.stackName = proc.stackName,
+			// };
+			// funcMap[key as keyof typeof funcMap];
+		});
+	result.name = splitName
+		.filter((item) => item !== '_')
+		.slice(0, -1)
+		.join(' ');
+	return result;
+};
 type RangeInfo = {
 	name: string;
 	range: number; // in feet
@@ -1479,6 +1594,721 @@ export const rangeNameToIndex = (name: string) => {
 export const rangeIndexToDistance = (index: number) => {
 	// Should be able to accept fractional input
 	return 12.5 + Math.pow(index, 2);
+};
+type WeaponPreset = {
+	name: string;
+	symbolKey: WeaponClasses;
+	description: string;
+	attackType: string;
+	hitBonus: number;
+	hitBonusSource: string;
+	hitType: string;
+	dmgDieCount: number;
+	dmgDieFaceCount: number;
+	dmgDieBonus: number;
+	critRange: number;
+	critMult: number;
+	ammo: number;
+	ammoCapacity: number;
+	ammoReloadAmount: number;
+	ammoType: string;
+	reloadAction: string;
+	autofire: number;
+	size: number;
+	shape: string;
+	rangeType: string;
+	rangeBonus: number;
+	hands: number;
+	slots: number;
+	features: string[];
+};
+export const weaponPresetsMap: Record<string, WeaponPreset> = {
+	'Hand Cannon': {
+		name: 'Hand Cannon',
+		symbolKey: 'Hand Cannon',
+		description: 'Revolver handgun with the range varying from short-long and high impact.',
+		attackType: 'Bullet',
+		hitBonus: 0,
+		hitBonusSource: 'Ranged To Hit',
+		hitType: 'AC',
+		dmgDieCount: 1,
+		dmgDieFaceCount: 8,
+		dmgDieBonus: 3,
+		critRange: 1,
+		critMult: 3,
+		ammo: 1,
+		ammoCapacity: 3,
+		ammoReloadAmount: 3,
+		ammoType: 'Kinetic',
+		reloadAction: 'Attack Action',
+		autofire: 0,
+		size: 0,
+		shape: '',
+		rangeType: 'Medium-Close',
+		rangeBonus: 0,
+		hands: 1,
+		slots: 1,
+		features: [],
+	},
+	Sidearm: {
+		name: 'Sidearm',
+		symbolKey: 'Sidearm',
+		description: 'Pistol with a high fire rate, but low range and impact.',
+		attackType: 'Bullet',
+		hitBonus: 0,
+		hitBonusSource: 'Ranged To Hit',
+		hitType: 'AC',
+		dmgDieCount: 1,
+		dmgDieFaceCount: 6,
+		dmgDieBonus: 2,
+		critRange: 3,
+		critMult: 2,
+		ammo: 1,
+		ammoCapacity: 6,
+		ammoReloadAmount: 6,
+		ammoType: 'Kenetic',
+		reloadAction: 'Interaction',
+		autofire: 0,
+		size: 0,
+		shape: '',
+		rangeType: 'Medium-Close',
+		rangeBonus: 0,
+		hands: 1,
+		slots: 0.5,
+		features: [],
+	},
+	'Auto Rifle': {
+		name: 'Auto Rifle',
+		symbolKey: 'Auto Rifle',
+		description: 'Fully-automatic rifle with high recoil.',
+		attackType: 'Bullet',
+		hitBonus: 1,
+		hitBonusSource: 'Dex Save DC',
+		hitType: 'Ref',
+		dmgDieCount: 1,
+		dmgDieFaceCount: 8,
+		dmgDieBonus: 3,
+		critRange: 0,
+		critMult: 1,
+		ammo: 1,
+		ammoCapacity: 6,
+		ammoReloadAmount: 6,
+		ammoType: 'Kenetic',
+		reloadAction: 'Interaction',
+		autofire: 0,
+		size: 10,
+		shape: 'Radius',
+		rangeType: 'Medium',
+		rangeBonus: 0,
+		hands: 2,
+		slots: 2,
+		features: [],
+	},
+	'Submachine Gun': {
+		name: 'Submachine Gun',
+		symbolKey: 'Submachine Gun',
+		description: 'Small mag, high DPS machine gun.',
+		attackType: 'Bullet',
+		hitBonus: 2,
+		hitBonusSource: 'Dex Save DC',
+		hitType: 'Ref',
+		dmgDieCount: 1,
+		dmgDieFaceCount: 8,
+		dmgDieBonus: 3,
+		critRange: 0,
+		critMult: 1,
+		ammo: 2,
+		ammoCapacity: 6,
+		ammoReloadAmount: 6,
+		ammoType: 'Kenetic',
+		reloadAction: 'Interaction',
+		autofire: 4,
+		size: 10,
+		shape: 'Radius',
+		rangeType: 'Close',
+		rangeBonus: 0,
+		hands: 2,
+		slots: 1.5,
+		features: [],
+	},
+	'Pulse Rifle': {
+		name: 'Pulse Rifle',
+		symbolKey: 'Pulse Rifle',
+		description: 'Burst-fire rifle designed for medium-range.',
+		attackType: 'Bullet',
+		hitBonus: 8,
+		hitBonusSource: 'Ranged To Hit',
+		hitType: 'AC',
+		dmgDieCount: 1,
+		dmgDieFaceCount: 8,
+		dmgDieBonus: 3,
+		critRange: 2,
+		critMult: 2,
+		ammo: 1,
+		ammoCapacity: 6,
+		ammoReloadAmount: 6,
+		ammoType: 'Kenetic',
+		reloadAction: 'Interaction',
+		autofire: 0,
+		size: 0,
+		shape: '',
+		rangeType: 'Medium-Long',
+		rangeBonus: 0,
+		hands: 2,
+		slots: 2,
+		features: [],
+	},
+	'Scout Rifle': {
+		name: 'Scout Rifle',
+		symbolKey: 'Scout Rifle',
+		description: 'Semi-automatic rifle with high accuracy.',
+		attackType: 'Bullet',
+		hitBonus: 6,
+		hitBonusSource: 'Ranged To Hit',
+		hitType: 'AC',
+		dmgDieCount: 1,
+		dmgDieFaceCount: 8,
+		dmgDieBonus: 3,
+		critRange: 1,
+		critMult: 3,
+		ammo: 1,
+		ammoCapacity: 6,
+		ammoReloadAmount: 6,
+		ammoType: 'Kenetic',
+		reloadAction: 'Interaction',
+		autofire: 0,
+		size: 0,
+		shape: '',
+		rangeType: 'Long',
+		rangeBonus: 0,
+		hands: 2,
+		slots: 2,
+		features: [],
+	},
+	Bow: {
+		name: 'Bow',
+		symbolKey: 'Bow',
+		description: 'Medium to long-range bow with minimal falloff and high impact.',
+		attackType: 'Arrow',
+		hitBonus: 0,
+		hitBonusSource: 'Ranged To Hit',
+		hitType: 'AC',
+		dmgDieCount: 1,
+		dmgDieFaceCount: 8,
+		dmgDieBonus: 0,
+		critRange: 1,
+		critMult: 3,
+		ammo: 1,
+		ammoCapacity: 1,
+		ammoReloadAmount: 1,
+		ammoType: 'Kenetic',
+		reloadAction: 'Free',
+		autofire: 0,
+		size: 0,
+		shape: '',
+		rangeType: 'Medium-Long',
+		rangeBonus: 0,
+		hands: 2,
+		slots: 1.5,
+		features: [],
+	},
+	'Sword, Common': {
+		name: 'Sword, Common',
+		symbolKey: 'Sword',
+		description:
+			'Deals massive damage to a single target and can also be used to block damage.',
+		attackType: 'Slash',
+		hitBonus: 4,
+		hitBonusSource: 'Melee To Hit',
+		hitType: 'AC',
+		dmgDieCount: 1,
+		dmgDieFaceCount: 8,
+		dmgDieBonus: 0,
+		critRange: 3,
+		critMult: 3,
+		ammo: 1,
+		ammoCapacity: 10,
+		ammoReloadAmount: 10,
+		ammoType: 'Kinetic',
+		reloadAction: 'Free',
+		autofire: 0,
+		size: 0,
+		shape: '',
+		rangeType: 'Melee',
+		rangeBonus: 0,
+		hands: 2,
+		slots: 3,
+		features: [],
+	},
+	'Shield, Solid': {
+		name: 'Shield, Solid',
+		symbolKey: 'Shield',
+		description: '',
+		attackType: 'Smash',
+		hitBonus: 0,
+		hitBonusSource: 'Melee To Hit',
+		hitType: 'AC',
+		dmgDieCount: 1,
+		dmgDieFaceCount: 4,
+		dmgDieBonus: 0,
+		critRange: 1,
+		critMult: 2,
+		ammo: 1,
+		ammoCapacity: 3,
+		ammoReloadAmount: 3,
+		ammoType: 'Kenetic',
+		reloadAction: 'Interaction',
+		autofire: 0,
+		size: 0,
+		shape: '',
+		rangeType: 'Melee',
+		rangeBonus: 0,
+		hands: 1,
+		slots: 2,
+		features: [],
+	},
+	'Shotgun, Spread': {
+		name: 'Shotgun, Spread',
+		symbolKey: 'Shotgun',
+		description: 'Close-quarters, but high damage.',
+		attackType: 'Pelette Spread',
+		hitBonus: 2,
+		hitBonusSource: 'Dex Save DC',
+		hitType: 'Ref',
+		dmgDieCount: 5,
+		dmgDieFaceCount: 4,
+		dmgDieBonus: 3,
+		critRange: 0,
+		critMult: 1,
+		ammo: 1,
+		ammoCapacity: 6,
+		ammoReloadAmount: 3,
+		ammoType: 'Special',
+		reloadAction: 'Interaction',
+		autofire: 0,
+		size: 0,
+		shape: '',
+		rangeType: 'Close',
+		rangeBonus: 0,
+		hands: 2,
+		slots: 2,
+		features: [],
+	},
+	'Shotgun, Slug': {
+		name: 'Shotgun, Slug',
+		symbolKey: 'Shotgun',
+		description: 'Close-quarters, but high damage.',
+		attackType: 'Slug',
+		hitBonus: 4,
+		hitBonusSource: 'Ranged To Hit',
+		hitType: 'AC',
+		dmgDieCount: 2,
+		dmgDieFaceCount: 10,
+		dmgDieBonus: 5,
+		critRange: 1,
+		critMult: 3,
+		ammo: 1,
+		ammoCapacity: 6,
+		ammoReloadAmount: 3,
+		ammoType: 'Special',
+		reloadAction: 'Interaction',
+		autofire: 0,
+		size: 0,
+		shape: '',
+		rangeType: 'Close',
+		rangeBonus: 0,
+		hands: 2,
+		slots: 2,
+		features: [],
+	},
+	'Grenade Launcher, Breech-loading': {
+		name: 'Grenade Launcher, Breech-loading',
+		symbolKey: 'Breech Loading Grenade Launcher',
+		description: 'Deals massive damage to a medium-to-large radius.',
+		attackType: 'Grenade',
+		hitBonus: 0,
+		hitBonusSource: 'Dex Save DC',
+		hitType: 'Ref',
+		dmgDieCount: 2,
+		dmgDieFaceCount: 12,
+		dmgDieBonus: 5,
+		critRange: 0,
+		critMult: 1,
+		ammo: 1,
+		ammoCapacity: 1,
+		ammoReloadAmount: 1,
+		ammoType: 'Special',
+		reloadAction: 'Interaction',
+		autofire: 0,
+		size: 20,
+		shape: 'Radius',
+		rangeType: 'Close',
+		rangeBonus: 0,
+		hands: 2,
+		slots: 2,
+		features: [],
+	},
+	'Sniper Rifle': {
+		name: 'Sniper Rifle',
+		symbolKey: 'Sniper Rifle',
+		description: 'Long-range scope and high damage.',
+		attackType: 'Bullet',
+		hitBonus: 6,
+		hitBonusSource: 'Ranged To Hit',
+		hitType: 'AC',
+		dmgDieCount: 1,
+		dmgDieFaceCount: 20,
+		dmgDieBonus: 5,
+		critRange: 1,
+		critMult: 4,
+		ammo: 1,
+		ammoCapacity: 3,
+		ammoReloadAmount: 3,
+		ammoType: 'Special',
+		reloadAction: 'Attack Action',
+		autofire: 0,
+		size: 0,
+		shape: '',
+		rangeType: 'Very Long',
+		rangeBonus: 0,
+		hands: 2,
+		slots: 3,
+		features: [],
+	},
+	'Fusion Rifle': {
+		name: 'Fusion Rifle',
+		symbolKey: 'Fusion Rifle',
+		description:
+			'Short to mid-range directed-energy rifle that has charge cycles and a multi-bolt spread.',
+		attackType: 'Energy',
+		hitBonus: 4,
+		hitBonusSource: 'Ranged To Hit',
+		hitType: 'AC',
+		dmgDieCount: 5,
+		dmgDieFaceCount: 6,
+		dmgDieBonus: 0,
+		critRange: 1,
+		critMult: 2,
+		ammo: 1,
+		ammoCapacity: 3,
+		ammoReloadAmount: 3,
+		ammoType: 'Special',
+		reloadAction: 'Interaction',
+		autofire: 5,
+		size: 0,
+		shape: '',
+		rangeType: 'Medium-Close',
+		rangeBonus: 0,
+		hands: 2,
+		slots: 2,
+		features: [],
+	},
+	'Trace Rifle': {
+		name: 'Trace Rifle',
+		symbolKey: 'Trace Rifle',
+		description: 'Directed-energy rifle that fires a laser beam.',
+		attackType: 'Beam',
+		hitBonus: 4,
+		hitBonusSource: 'Ranged To Hit',
+		hitType: 'Touch AC',
+		dmgDieCount: 2,
+		dmgDieFaceCount: 4,
+		dmgDieBonus: 5,
+		critRange: 2,
+		critMult: 2,
+		ammo: 1,
+		ammoCapacity: 3,
+		ammoReloadAmount: 3,
+		ammoType: 'Special',
+		reloadAction: 'Interaction',
+		autofire: 3,
+		size: 120,
+		shape: 'Line',
+		rangeType: 'Melee',
+		rangeBonus: 0,
+		hands: 2,
+		slots: 2,
+		features: [],
+	},
+	'Shield, Energy Projector': {
+		name: 'Shield, Energy Projector',
+		symbolKey: 'Shield',
+		description: '',
+		attackType: 'Smash',
+		hitBonus: 0,
+		hitBonusSource: 'Melee To Hit',
+		hitType: 'AC',
+		dmgDieCount: 1,
+		dmgDieFaceCount: 4,
+		dmgDieBonus: 5,
+		critRange: 1,
+		critMult: 2,
+		ammo: 1,
+		ammoCapacity: 3,
+		ammoReloadAmount: 3,
+		ammoType: 'Special',
+		reloadAction: 'Interaction',
+		autofire: 0,
+		size: 0,
+		shape: '',
+		rangeType: 'Melee',
+		rangeBonus: 0,
+		hands: 1,
+		slots: 2,
+		features: [],
+	},
+	'Grenade Launcher, Drum-loading': {
+		name: 'Grenade Launcher, Drum-loading',
+		symbolKey: 'Drum Loading Grenade Launcher',
+		description: 'Deals massive damage to a medium-to-large radius.',
+		attackType: 'Grenade',
+		hitBonus: 2,
+		hitBonusSource: 'Dex Save DC',
+		hitType: 'Ref',
+		dmgDieCount: 5,
+		dmgDieFaceCount: 10,
+		dmgDieBonus: 7,
+		critRange: 0,
+		critMult: 1,
+		ammo: 1,
+		ammoCapacity: 3,
+		ammoReloadAmount: 3,
+		ammoType: 'Heavy',
+		reloadAction: 'Attack Action',
+		autofire: 5,
+		size: 20,
+		shape: 'Radius',
+		rangeType: 'Medium',
+		rangeBonus: 0,
+		hands: 2,
+		slots: 4,
+		features: [],
+	},
+	'Linear Fusion Rifle': {
+		name: 'Linear Fusion Rifle',
+		symbolKey: 'Linear Fusion Rifle',
+		description:
+			'Long-range directed-energy rifle that has charge cycles and fires a single bolt.',
+		attackType: 'Energy',
+		hitBonus: 6,
+		hitBonusSource: 'Ranged To Hit',
+		hitType: 'AC',
+		dmgDieCount: 2,
+		dmgDieFaceCount: 20,
+		dmgDieBonus: 7,
+		critRange: 1,
+		critMult: 4,
+		ammo: 1,
+		ammoCapacity: 6,
+		ammoReloadAmount: 6,
+		ammoType: 'Heavy',
+		reloadAction: 'Interaction',
+		autofire: 0,
+		size: 0,
+		shape: '',
+		rangeType: 'Long',
+		rangeBonus: 0,
+		hands: 2,
+		slots: 4,
+		features: [],
+	},
+	'Heavy Machine Gun': {
+		name: 'Heavy Machine Gun',
+		symbolKey: 'Machine Gun',
+		description:
+			'High rate of fire and extreme magazine capacity, deals a high amount of damage.',
+		attackType: 'Bullet',
+		hitBonus: 4,
+		hitBonusSource: 'Dex Save DC',
+		hitType: 'Ref',
+		dmgDieCount: 4,
+		dmgDieFaceCount: 12,
+		dmgDieBonus: 7,
+		critRange: 0,
+		critMult: 1,
+		ammo: 1,
+		ammoCapacity: 6,
+		ammoReloadAmount: 6,
+		ammoType: 'Heavy',
+		reloadAction: 'Attack Action',
+		autofire: 4,
+		size: 15,
+		shape: 'Radius',
+		rangeType: 'Medium-Long',
+		rangeBonus: 0,
+		hands: 2,
+		slots: 4,
+		features: [],
+	},
+	'Rocket Launcher': {
+		name: 'Rocket Launcher',
+		symbolKey: 'Rocket Launcher',
+		description: 'Deals massive damage to a large radius.',
+		attackType: 'Rocket',
+		hitBonus: 2,
+		hitBonusSource: 'Dex Save DC',
+		hitType: 'Ref',
+		dmgDieCount: 4,
+		dmgDieFaceCount: 12,
+		dmgDieBonus: 7,
+		critRange: 0,
+		critMult: 1,
+		ammo: 1,
+		ammoCapacity: 6,
+		ammoReloadAmount: 6,
+		ammoType: 'Heavy',
+		reloadAction: 'Attack Action',
+		autofire: 4,
+		size: 40,
+		shape: 'Radius',
+		rangeType: 'Medium-Long',
+		rangeBonus: 0,
+		hands: 2,
+		slots: 4,
+		features: [],
+	},
+	'Sword, Heavy': {
+		name: 'Sword, Heavy',
+		symbolKey: 'Sword',
+		description:
+			'Deals massive damage to a single target and can also be used to block damage.',
+		attackType: 'Slash',
+		hitBonus: 4,
+		hitBonusSource: 'Melee To Hit',
+		hitType: 'AC',
+		dmgDieCount: 8,
+		dmgDieFaceCount: 6,
+		dmgDieBonus: 0,
+		critRange: 3,
+		critMult: 3,
+		ammo: 1,
+		ammoCapacity: 10,
+		ammoReloadAmount: 10,
+		ammoType: 'Heavy',
+		reloadAction: 'Free',
+		autofire: 0,
+		size: 0,
+		shape: '',
+		rangeType: 'Melee',
+		rangeBonus: 0,
+		hands: 2,
+		slots: 3,
+		features: [],
+	},
+};
+type WeaponData = Characters & {
+	name: string;
+	flavortext: string;
+	description: string;
+	brand: string;
+	lore: string;
+	rarity: Rarity;
+	element: Element;
+	weaponClass: string;
+	perks: string;
+	techMult: number;
+};
+const weaponDataToWeapon = (
+	data: WeaponData,
+	sourceStats: Stats,
+	sourcePerks: WeaponPerk[],
+	sourcePerkProcPrefixes: WeaponPerkProc[],
+): Weapon => {
+	const preset = weaponPresetsMap[data.weaponClass];
+	if (preset === undefined) {
+		console.error('Weapon', data, 'had an undefined weapon class!');
+	}
+	const damageSupplements =
+		[
+			'Weapon',
+			preset.rangeType === 'Melee' ? 'Melee' : 'Ranged',
+			preset.symbolKey,
+			data.element,
+		]
+			.filter((item) => !!item)
+			.join(' Damage+') + ' Damage';
+	const damageFormula =
+		preset.dmgDieCount +
+		'd' +
+		preset.dmgDieFaceCount +
+		('+' + preset.dmgDieBonus).replace('+-', '-') +
+		'+' +
+		damageSupplements;
+	const formula = damageStringToDownstream(damageFormula, sourceStats);
+	const perkNameList = data.perks === undefined ? [] : data.perks.split(', ');
+	const perkList: Record<string, WeaponPerk> = {};
+	for (let i = 0; i < perkNameList.length; i++) {
+		const perkBaseName = perkNameList[i].split(' ').slice(2, -1).join(' ');
+		const targetPerk = JSON.parse(
+			JSON.stringify(
+				sourcePerks.find(
+					(perk) => perkBaseName.toLocaleLowerCase() === perk.name.toLocaleLowerCase(),
+				) || {},
+			),
+		);
+		if (targetPerk.name !== undefined) {
+			// It needs to be a copy of the perk or else it references
+			// the original perk.
+			targetPerk.name = perkNameList[i];
+			const perkNewName = perkNameList[i]
+				.split(' ')
+				.filter((str) => str !== '_')
+				.slice(0, -1)
+				.join(' ');
+			perkList[perkNewName] = {
+				...processPerkParameters(targetPerk, sourcePerkProcPrefixes),
+			};
+		}
+	}
+	const result: Weapon = {
+		name: data.name,
+		flavortext: data.flavortext || '',
+		description: data.flavortext || preset.description || 'No description.',
+		brand: data.brand || '',
+		lore: data.lore || '',
+		rarity: data.rarity || 'Common',
+		element: data.element || 'Kinetic',
+		weaponClass: preset.symbolKey,
+		slots: preset.slots,
+		handed: preset.hands,
+		// damageComponent
+		attackType: preset.attackType,
+		hitType: preset.hitType,
+		hitBonus: preset.hitBonus,
+		hitBonusSource: preset.hitBonusSource,
+		critRange: preset.critRange,
+		critMult: preset.critMult,
+		techMult: data.techMult,
+		damageFormula: formula.damageFormula,
+		dmgShort: formula.dmgShort,
+		dmgMin: formula.dmgMin,
+		dmgAvg: formula.dmgAvg,
+		dmgMax: formula.dmgMax,
+		damageType: data.element,
+		rangeType: rangeNameToIndex(preset.rangeType),
+		range: preset.rangeBonus,
+		rangePenalty: 2,
+		rangeIncrementsModifier: 0,
+		size: preset.size,
+		shape: preset.shape,
+		duration: 0, // TODO
+		//
+		ammo: preset.ammo,
+		ammoCurrent: preset.ammoCapacity,
+		ammoCapacity: preset.ammoCapacity,
+		ammoCanOverflow: false,
+		ammoReloadAmount: preset.ammoReloadAmount,
+		ammoType: preset.ammoType,
+		autoFireRange: preset.autofire,
+		isMagic: false,
+		ranks: 0,
+		buffsEquipped: '',
+		buffsActive: '',
+		isEquipped: false,
+		isActive: false,
+		perks: perkList,
+	};
+	return result;
 };
 
 // Armor Types
@@ -1999,7 +2829,7 @@ function useCharacterDataUncached(characterId: string) {
 		data: weaponsForFiltering,
 		isLoading: weaponsLoading,
 		refresh: weaponsRefresh,
-	} = getNetworkDataStateForSheet<ImportedWeapon>(
+	} = getNetworkDataStateForSheet<WeaponData>(
 		partyDataSources.documentId,
 		partyDataSources.sheets.weapons,
 	);
@@ -2056,7 +2886,12 @@ function useCharacterDataUncached(characterId: string) {
 	);
 	const weaponPerks = computed<WeaponPerk[]>(() => {
 		return weaponPerksForProcessing.value.map((p: ImportedWeaponPerk) => {
-			const damageStats = damageStringToDownstream(p.damage || '0', stats.value);
+			// console.log(JSON.stringify(p, null, 3));
+			const damageAsString =
+				p.damage === undefined
+					? '0'
+					: ('0+' + p.damage).replace('+-', '-').replace('+*', '*');
+			const damageStats = damageStringToDownstream(damageAsString, stats.value);
 			const resultPerk: WeaponPerk = {
 				name: p.name,
 				description: p.description,
@@ -2101,6 +2936,18 @@ function useCharacterDataUncached(characterId: string) {
 			};
 			return resultPerk;
 		});
+	});
+	const {
+		data: weaponPerkProcsForProcessing,
+		isLoading: weaponPerkProcsLoading,
+		// refresh: weaponPerkProcsRefresh,
+		// TODO?
+	} = getNetworkDataStateForSheet<WeaponPerkProc>(
+		partyDataSources.documentId,
+		partyDataSources.sheets.weaponPerkProcConditions,
+	);
+	const weaponPerkProcs = computed<WeaponPerkProc[]>(() => {
+		return weaponPerkProcsForProcessing.value;
 	});
 	type WeaponVariables = {
 		ammo: number;
@@ -2803,40 +3650,14 @@ function useCharacterDataUncached(characterId: string) {
 		) as Record<string, WeaponVariables>;
 		weapons.value = weaponsForFiltering.value
 			.filter((item) => item[characterId as CharacterNames])
-			.map((ogWeapon) => {
-				const damageBonus =
-					(ogWeapon.rangeType === 'Melee'
-						? statsBuffed.value.damageMelee.total
-						: statsBuffed.value.damageRanged.total) +
-					(statsBuffed.value[
-						labelToStatName[
-							(ogWeapon.element + ' Damage').toLocaleLowerCase()
-						] as StatName
-					]?.total || 0) +
-					(statsBuffed.value[
-						labelToStatName[
-							(ogWeapon.weaponClass + ' Damage').toLocaleLowerCase()
-						] as StatName
-					]?.total || 0);
-				const dmgStatStuff = damageStringToDownstream(
-					(ogWeapon.damage || '0') + ('+' + damageBonus).replace('+-', '-'),
-					statsBuffed.value,
+			.map((weaponData) => {
+				const ogWeapon = weaponDataToWeapon(
+					weaponData,
+					stats.value,
+					weaponPerks.value,
+					weaponPerkProcs.value,
 				);
-				const perkNameList = ogWeapon.perks?.split(', ') || [];
-				const perkList: Record<string, WeaponPerk> = {};
-				for (let i = 0; i < perkNameList.length; i++) {
-					const targetPerk = weaponPerks.value.find(
-						(perk) => perk.name === perkNameList[i],
-					);
-					if (targetPerk) {
-						// It needs to be a copy of the perk or else it references
-						// the original perk.
-						perkList[perkNameList[i]] = { ...targetPerk };
-					}
-				}
-				const rangeIndex = Object.keys(rangeMap)
-					.map((key) => rangeMap[parseInt(key)].name)
-					.indexOf(ogWeapon.rangeType);
+				const rangeIndex = ogWeapon.rangeType;
 				const weapon: Weapon = {
 					name: ogWeapon.name,
 					flavortext: ogWeapon.flavortext || '',
@@ -2855,11 +3676,11 @@ function useCharacterDataUncached(characterId: string) {
 					critRange: ogWeapon.critRange || 0,
 					critMult: ogWeapon.critMult || 0,
 					techMult: ogWeapon.techMult || 1,
-					damageFormula: dmgStatStuff.damageFormula,
-					dmgShort: dmgStatStuff.dmgShort,
-					dmgMin: dmgStatStuff.dmgMin * (ogWeapon.techMult || 1),
-					dmgAvg: dmgStatStuff.dmgAvg * (ogWeapon.techMult || 1),
-					dmgMax: dmgStatStuff.dmgMax * (ogWeapon.techMult || 1),
+					damageFormula: ogWeapon.damageFormula,
+					dmgShort: ogWeapon.dmgShort,
+					dmgMin: ogWeapon.dmgMin,
+					dmgAvg: ogWeapon.dmgAvg,
+					dmgMax: ogWeapon.dmgMax,
 					damageType: ogWeapon.damageType,
 					rangeType: rangeIndex,
 					range: rangeMap[rangeIndex].range + (ogWeapon.range || 0),
@@ -2886,7 +3707,7 @@ function useCharacterDataUncached(characterId: string) {
 					isEquipped: storedWeapons[ogWeapon.name]?.equipped || false,
 					// isActive: false,
 					isActive: storedWeapons[ogWeapon.name]?.active || false,
-					perks: perkList,
+					perks: { ...ogWeapon.perks },
 				};
 				// Put whether or not the weapon is active / equipped from Local Storage here!!
 				return weapon;
@@ -2946,7 +3767,7 @@ function useCharacterDataUncached(characterId: string) {
 		weaponActivate,
 		weaponPerkActivate,
 		weaponPerkStackUpdate,
-		weaponsLoading: weaponsLoading && weaponPerksLoading,
+		weaponsLoading: weaponsLoading && weaponPerksLoading && weaponPerkProcsLoading,
 		weaponsRefresh,
 		weaponPerks,
 		weaponPerksLoading,

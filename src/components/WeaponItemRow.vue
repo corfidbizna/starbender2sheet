@@ -78,16 +78,18 @@ const glyphMap = {
 	'Hand Cannon': '',
 	'Submachine Gun': '',
 	Sidearm: '',
+	'Shield, Solid': '',
 	// Energy
 	Shotgun: '',
 	'Sniper Rifle': '',
 	'Fusion Rifle': '',
-	'Breech-Loading Grenade Launcher': '',
+	'Breech Loading Grenade Launcher': '',
 	'Trace Rifle': '',
 	Glaive: '',
+	'Shield, Energy Projector': '',
 	// Heavy
 	'Rocket Launcher': '',
-	'Drum-Loading Grenade Launcher': '',
+	'Drum Loading Grenade Launcher': '',
 	'Linear Fusion Rifle': '',
 	Sword: '',
 	'Machine Gun': '',
@@ -137,7 +139,7 @@ const rollDamage = () => {
 	for (let i = 0; i < loops; i++) {
 		const current: RollInfo = { value: 0, description: '' };
 		const statFunction = getStatByCharacter(statsBuffed.value);
-		const result = weapon.value.damageFormula.roll(statFunction);
+		const result = weapon.value.damageFormula.roll(statFunction) * weapon.value.techMult;
 		const glyph = glyphMap[weapon.value.damageType];
 		const stringList = [];
 		let total = 0;
@@ -355,6 +357,9 @@ const weapon = computed<Weapon>(() => {
 			modified.isMagic = perk.isMagic || modified.isMagic;
 		}
 	}
+	modified.dmgMin *= modified.techMult;
+	modified.dmgAvg *= modified.techMult;
+	modified.dmgMax *= modified.techMult;
 	return modified;
 });
 </script>
@@ -460,7 +465,7 @@ const weapon = computed<Weapon>(() => {
 							<td class="weapon-stat-data alt">{{ weapon.dmgAvg }}</td>
 							<td class="weapon-stat-label">To Hit</td>
 							<td
-								class="weapon-stat-data"
+								class="weapon-stat-data alt"
 								:style="
 									hitRangeMod > 0 &&
 									(weapon.rangeType > 0 ? 'color: var(--color-debuff)' : '')
@@ -469,7 +474,7 @@ const weapon = computed<Weapon>(() => {
 								{{ toHitCalc }} v. {{ weapon.hitType }}
 							</td>
 							<td class="weapon-stat-label">Range</td>
-							<td class="weapon-stat-data">
+							<td class="weapon-stat-data wide">
 								{{ weapon.range }}ft. {{ rangeMap[weapon.rangeType].name }}
 							</td>
 						</tr>
@@ -601,7 +606,7 @@ const weapon = computed<Weapon>(() => {
 								>(Must be aiming)</span
 							>
 						</summary>
-						<div>{{ perk.description }}</div>
+						<div class="weapon-perk-description">{{ perk.description }}</div>
 					</details>
 				</div>
 				<div
@@ -732,6 +737,7 @@ input[type='checkbox'].hidden {
 	width: 100%;
 	font-size: 0.9em;
 	padding: 8px;
+	padding-right: 30px;
 }
 .weapon-stat-label {
 	font-weight: 800;
@@ -836,6 +842,9 @@ button:hover {
 }
 button:active {
 	background: #fff8;
+}
+.weapon-perk-description {
+	white-space: pre-line;
 }
 .weapon-description {
 	white-space: pre-line;
