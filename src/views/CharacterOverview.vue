@@ -48,7 +48,7 @@ const isLoading = computed(() => {
 
 const names = computed<string[]>(() => [
 	subtabNameGameplay.value,
-	'characterSkills',
+	// 'characterSkills',
 	'characterBuffs',
 	subtabNameLoadout.value,
 	'characterFeatures',
@@ -108,9 +108,9 @@ onBeforeUnmount(() => {
 				<RouterLink :to="{ name: subtabNameGameplay, params: { characterId } }"
 					>Gameplay</RouterLink
 				>
-				<RouterLink :to="{ name: 'characterSkills', params: { characterId } }"
+				<!-- <RouterLink :to="{ name: 'characterSkills', params: { characterId } }"
 					>Skills</RouterLink
-				>
+				> -->
 				<RouterLink :to="{ name: 'characterBuffs', params: { characterId } }"
 					>Buffs</RouterLink
 				>

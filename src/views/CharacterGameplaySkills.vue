@@ -25,6 +25,7 @@ const skillsInfo = computed<StatBoxInfo>(() => {
 			label: skillsInfoMap[key].label,
 			stat: 'str',
 			hovertext: [
+				'"' + skillsInfoMap[key].description + '"',
 				...statsBuffed.value[key as StatName].summary,
 				...statsBuffed.value[(skillsInfoMap[key].baseStat + 'Skills') as StatName].summary,
 				...statsBuffed.value[skillsInfoMap[key].baseStat as StatName].summary,

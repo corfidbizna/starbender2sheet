@@ -2499,7 +2499,8 @@ function useCharacterDataUncached(characterId: string) {
 				console.warn("Couldn't find the skill " + skill);
 				continue;
 			}
-			const focus = skillsThatNeedToBeFiltered.value[0][skill as SkillKey];
+			// const focus = skillsThatNeedToBeFiltered.value[0][skill as SkillKey];
+			const focus = 0;
 			const skillInfo = skillsInfoMap[skillKey];
 			const abilityMod =
 				statsToUse[(skillInfo.baseStat + 'Skills') as StatName].total +
