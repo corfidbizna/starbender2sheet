@@ -2263,7 +2263,7 @@ const weaponDataToWeapon = (
 	const result: Weapon = {
 		name: data.name,
 		flavortext: data.flavortext || '',
-		description: data.flavortext || preset.description || 'No description.',
+		description: preset.description || 'No description.',
 		brand: data.brand || '',
 		lore: data.lore || '',
 		rarity: data.rarity || 'Common',
