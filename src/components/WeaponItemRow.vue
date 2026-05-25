@@ -78,7 +78,7 @@ const glyphMap = {
 	'Hand Cannon': '',
 	'Submachine Gun': '',
 	Sidearm: '',
-	'Shield, Solid': '',
+	// 'Shield, Solid': '',
 	// Energy
 	Shotgun: '',
 	'Sniper Rifle': '',
@@ -86,7 +86,7 @@ const glyphMap = {
 	'Breech Loading Grenade Launcher': '',
 	'Trace Rifle': '',
 	Glaive: '',
-	'Shield, Energy Projector': '',
+	Shield: '',
 	// Heavy
 	'Rocket Launcher': '',
 	'Drum Loading Grenade Launcher': '',
