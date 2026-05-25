@@ -1529,17 +1529,21 @@ const processPerkParameters = (input: WeaponPerk, procList: WeaponPerkProc[]): W
 		const param: string = parameters[i];
 		const paramAsNumber: number = parseFloat(parameters[i]);
 		const resultSupplement: Record<string, number | boolean | string> = {};
+		const rx = new RegExp('\\${' + word + '}', 'g'); // The regex that isolates parameters in text.
 		if (Object.keys(result).includes(word)) {
-			if (!isNaN(paramAsNumber) && typeof result[key] === 'number') {
-				resultSupplement[key] = paramAsNumber;
-			} else if (typeof result[key] === 'boolean') {
-				resultSupplement[key] = param.toLocaleLowerCase() === 'true';
+			if (word === 'buffs' && result.buffs) {
+				result.buffs.replace(rx, param);
 			} else {
-				resultSupplement[key] = param;
+				if (!isNaN(paramAsNumber) && typeof result[key] === 'number') {
+					resultSupplement[key] = paramAsNumber;
+				} else if (typeof result[key] === 'boolean') {
+					resultSupplement[key] = param.toLocaleLowerCase() === 'true';
+				} else {
+					resultSupplement[key] = param;
+				}
 			}
 		}
 		Object.assign(result, resultSupplement);
-		const rx = new RegExp('\\${' + word + '}', 'g');
 		description = description.replace(rx, param);
 	}
 	result.description = description;
@@ -1951,7 +1955,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		autofire: 0,
 		size: 20,
 		shape: 'Radius',
-		rangeType: 'Close',
+		rangeType: 'Medium-Close',
 		rangeBonus: 0,
 		hands: 2,
 		slots: 2,
