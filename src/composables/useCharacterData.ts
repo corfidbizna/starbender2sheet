@@ -1648,7 +1648,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 1,
 		slots: 1,
-		features: [],
+		features: ['Open-Hand ()', 'Akimbo ()', 'Hand Cannon Aim ()'],
 	},
 	Sidearm: {
 		name: 'Sidearm',
@@ -1675,7 +1675,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 1,
 		slots: 0.5,
-		features: [],
+		features: ['Open-Hand ()', 'Akimbo ()', 'Side Arm of Opportunity ()', 'Light ()'],
 	},
 	'Auto Rifle': {
 		name: 'Auto Rifle',
@@ -1702,7 +1702,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 2,
-		features: [],
+		features: ['Auto-Rifle Direct Fire ()'],
 	},
 	'Submachine Gun': {
 		name: 'Submachine Gun',
@@ -1729,7 +1729,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 1.5,
-		features: [],
+		features: ['Submachine Gun Direct Fire ()', 'SMG Accurate ()', 'SMG Range Penalty ()'],
 	},
 	'Pulse Rifle': {
 		name: 'Pulse Rifle',
@@ -1756,7 +1756,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 2,
-		features: [],
+		features: ['Aimed Advantage ()'],
 	},
 	'Scout Rifle': {
 		name: 'Scout Rifle',
@@ -1783,7 +1783,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 2,
-		features: [],
+		features: ['Scouts Precision ()', 'Scouts Aim ()'],
 	},
 	Bow: {
 		name: 'Bow',
@@ -1810,7 +1810,43 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 1.5,
-		features: [],
+		features: ['Draw Strength ()', "Bow's Aim ()"],
+	},
+	'Shield, Solid': {
+		name: 'Shield, Solid',
+		symbolKey: 'Shield',
+		description: '',
+		attackType: 'Smash',
+		hitBonus: 0,
+		hitBonusSource: 'Melee To Hit',
+		hitType: 'AC',
+		dmgDieCount: 1,
+		dmgDieFaceCount: 4,
+		dmgDieBonus: 0,
+		critRange: 1,
+		critMult: 2,
+		ammo: 1,
+		ammoCapacity: 3,
+		ammoReloadAmount: 3,
+		ammoType: 'Kenetic',
+		reloadAction: 'Interaction',
+		autofire: 0,
+		size: 0,
+		shape: '',
+		rangeType: 'Melee',
+		rangeBonus: 0,
+		hands: 1,
+		slots: 2,
+		features: [
+			'Open-Hand ()',
+			'Akimbo ()',
+			'Str Powered (1)',
+			'Shield Active ()',
+			'Shield Defense ()',
+			'Shield Manuver ()',
+			'Rective Defense ()',
+			'Oversized (1)',
+		],
 	},
 	'Sword, Common': {
 		name: 'Sword, Common',
@@ -1838,34 +1874,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 2,
-		features: [],
-	},
-	'Shield, Solid': {
-		name: 'Shield, Solid',
-		symbolKey: 'Shield',
-		description: '',
-		attackType: 'Smash',
-		hitBonus: 0,
-		hitBonusSource: 'Melee To Hit',
-		hitType: 'AC',
-		dmgDieCount: 1,
-		dmgDieFaceCount: 4,
-		dmgDieBonus: 0,
-		critRange: 1,
-		critMult: 2,
-		ammo: 1,
-		ammoCapacity: 3,
-		ammoReloadAmount: 3,
-		ammoType: 'Kenetic',
-		reloadAction: 'Interaction',
-		autofire: 0,
-		size: 0,
-		shape: '',
-		rangeType: 'Melee',
-		rangeBonus: 0,
-		hands: 1,
-		slots: 2,
-		features: [],
+		features: ['Sword Defense ()', 'Str Powered (2)', 'Aimed Advantage ()'],
 	},
 	'Shotgun, Spread': {
 		name: 'Shotgun, Spread',
@@ -1892,7 +1901,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 2,
-		features: [],
+		features: ['Shotgun Accurate ()', 'Spreadshot Advantage ()', 'Spreadshot Falloff ()'],
 	},
 	'Shotgun, Slug': {
 		name: 'Shotgun, Slug',
@@ -1919,7 +1928,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 2,
-		features: [],
+		features: ['Shotgun Accurate ()'],
 	},
 	'Grenade Launcher, Breech-loading': {
 		name: 'Grenade Launcher, Breech-loading',
@@ -1946,7 +1955,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 2,
-		features: [],
+		features: ['Grenade Inaccurate ()'],
 	},
 	'Sniper Rifle': {
 		name: 'Sniper Rifle',
@@ -1973,7 +1982,13 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 3,
-		features: [],
+		features: [
+			"Sniper's Aim ()",
+			'Slow Switch Attack ()',
+			"Sniper's Exposure ()",
+			'Unwieldy Weapon ()',
+			'Oversized (4)',
+		],
 	},
 	'Fusion Rifle': {
 		name: 'Fusion Rifle',
@@ -2001,7 +2016,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 2,
-		features: [],
+		features: ['Charge Fire Attack ()', 'Fusion Melt ()'],
 	},
 	'Trace Rifle': {
 		name: 'Trace Rifle',
@@ -2028,7 +2043,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 2,
-		features: [],
+		features: ['Slow Switch Attack ()', 'Trace Rifle Direct Fire ()'],
 	},
 	'Shield, Energy Projector': {
 		name: 'Shield, Energy Projector',
@@ -2055,7 +2070,16 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 1,
 		slots: 2,
-		features: [],
+		features: [
+			'Open-Hand ()',
+			'Akimbo ()',
+			'Str Powered (1)',
+			'Energy Shield Active ()',
+			'Energy Shield Defense ()',
+			'Shield Manuver ()',
+			'Reactive Defense ()',
+			'Oversized (2)',
+		],
 	},
 	'Grenade Launcher, Drum-loading': {
 		name: 'Grenade Launcher, Drum-loading',
@@ -2082,7 +2106,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 4,
-		features: [],
+		features: ['Indirect ()', 'Oversized (4)'],
 	},
 	'Linear Fusion Rifle': {
 		name: 'Linear Fusion Rifle',
@@ -2110,7 +2134,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 4,
-		features: [],
+		features: ['Linear Fusion Aim ()', 'Oversized (4)'],
 	},
 	'Heavy Machine Gun': {
 		name: 'Heavy Machine Gun',
@@ -2138,7 +2162,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 4,
-		features: [],
+		features: ['Machine Gun Direct Fire ()', 'Oversized (4)'],
 	},
 	'Rocket Launcher': {
 		name: 'Rocket Launcher',
@@ -2165,7 +2189,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 4,
-		features: [],
+		features: ['Oversized (4)', 'Slow Switch Attack ()', 'Rocket Sunder ()'],
 	},
 	'Sword, Heavy': {
 		name: 'Sword, Heavy',
@@ -2193,7 +2217,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 2,
-		features: [],
+		features: ['Sword Defense ()', 'Str Powered (2)', 'Aimed Advantage ()'],
 	},
 };
 type WeaponData = Characters & {
@@ -2235,7 +2259,10 @@ const weaponDataToWeapon = (
 		'+' +
 		damageSupplements;
 	const formula = damageStringToDownstream(damageFormula, sourceStats);
-	const perkNameList = data.perks === undefined ? [] : data.perks.split(', ');
+	const perkNameList = [
+		...preset.features.map((feat) => '_ _ ' + feat),
+		...(data.perks === undefined ? [] : data.perks.split(', ')),
+	];
 	const perkList: Record<string, WeaponPerk> = {};
 	for (let i = 0; i < perkNameList.length; i++) {
 		const perkBaseName = perkNameList[i].split(' ').slice(2, -1).join(' ');
