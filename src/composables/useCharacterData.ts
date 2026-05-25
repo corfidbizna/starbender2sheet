@@ -1837,7 +1837,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeType: 'Melee',
 		rangeBonus: 0,
 		hands: 2,
-		slots: 3,
+		slots: 2,
 		features: [],
 	},
 	'Shield, Solid': {
@@ -2192,7 +2192,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeType: 'Melee',
 		rangeBonus: 0,
 		hands: 2,
-		slots: 3,
+		slots: 2,
 		features: [],
 	},
 };
