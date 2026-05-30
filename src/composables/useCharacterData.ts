@@ -1412,6 +1412,7 @@ type ImportedWeaponPerk = {
 	takeAimDependant: boolean;
 	stacking: boolean;
 	stacksMax: number;
+	stackName: string;
 	stackAffectedStats: string;
 	replaceStats: boolean;
 	attackType: string;
@@ -1449,6 +1450,7 @@ export type WeaponPerk = DamageComponent & {
 	isActive: boolean;
 	stacking: boolean;
 	stacksMax: number;
+	stackName: string;
 	stackAffectedStats: string[];
 	stacks: number;
 	replaceStats: boolean;
@@ -1512,7 +1514,7 @@ const processPerkParameters = (input: WeaponPerk, procList: WeaponPerkProc[]): W
 			.split(', ')
 			.filter((str) => str !== '') || [];
 	const proc: WeaponPerkProc =
-		procList.find((pfx) => pfx.prefix === prefixProcName) || <WeaponPerkProc>{};
+		procList.find((pfx) => pfx.prefix.trim() === prefixProcName) || <WeaponPerkProc>{};
 	const parameterNames = parameterExtractor(input.description);
 	if (parameterNames.length !== parameters.length) {
 		console.warn(
@@ -1530,7 +1532,51 @@ const processPerkParameters = (input: WeaponPerk, procList: WeaponPerkProc[]): W
 		const paramAsNumber: number = parseFloat(parameters[i]);
 		const resultSupplement: Record<string, number | boolean | string> = {};
 		const rx = new RegExp('\\${' + word + '}', 'g'); // The regex that isolates parameters in text.
-		if (Object.keys(result).includes(word)) {
+		const availablePerkKeys = [
+			// DamageComponent
+			'attackType',
+			'hitType',
+			'hitBonus',
+			'hitBonusSource',
+			'critRange',
+			'critMult',
+			'techMult',
+			'damageFormula', // TODO
+			// 'dmgShort',
+			// 'dmgMin',
+			// 'dmgAvg',
+			// 'dmgMax',
+			'damageType',
+			'rangeType',
+			'range',
+			'rangePenalty',
+			'rangeIncrementsModifier',
+			'size',
+			'shape',
+			'duration',
+			// WeaponPerk
+			// 'name',
+			// 'description',
+			'passive',
+			'takeAimDependant',
+			// 'isActive',
+			'stacking',
+			'stacksMax',
+			'stackName',
+			'stackAffectedStats', // TODO
+			// 'stacks',
+			'replaceStats',
+			'autoFireRange',
+			'ammo',
+			'ammoCapacity',
+			'ammoCanOverflow',
+			'ammoReloadAmount',
+			'ammoType',
+			'isMagic',
+			'buffs', // TODO
+		]; // NOTE: This will have to be updated if WeaponPerk keys change at all!
+		if (availablePerkKeys.includes(word)) {
+			// If the parameter word is the name of a stat
 			if (word === 'buffs' && result.buffs) {
 				result.buffs.replace(rx, param);
 			} else {
@@ -1547,29 +1593,34 @@ const processPerkParameters = (input: WeaponPerk, procList: WeaponPerkProc[]): W
 		description = description.replace(rx, param);
 	}
 	result.description = description;
-	Object.keys(proc)
-		.filter((key) => proc[key as keyof WeaponPerkProc] !== undefined)
-		.forEach((key) => {
-			// if (key === 'brand') result.brand = proc.brand;
-			if (key === 'passive') result.passive = proc.passive;
-			if (key === 'takeAimDependant') result.takeAimDependant = proc.takeAimDependant;
-			if (key === 'stacking') result.stacking = proc.stacking;
-			if (key === 'description')
-				result.description = proc.description + '\n' + result.description;
-			if (key === 'stacksMax') result.stacksMax = proc.stacksMax;
-			// if (key === 'stackName') result.stackName = proc.stackName;
-			// TODO
-			// const funcMap = {
-			// brand: () => result.brand = proc.brand,
-			// passive: () => (result.passive = proc.passive),
-			// takeAimDependant: () => (result.takeAimDependant = proc.takeAimDependant),
-			// stacking: () => (result.stacking = proc.stacking),
-			// description: () => (result.description = proc.description),
-			// stacksMax: () => (result.stacksMax = proc.stacksMax),
-			// stackName: () => result.stackName = proc.stackName,
-			// };
-			// funcMap[key as keyof typeof funcMap];
-		});
+	if (proc.prefix !== undefined && proc.prefix !== '_') {
+		Object.keys(proc)
+			.filter((key) => proc[key as keyof WeaponPerkProc] !== undefined)
+			.forEach((key) => {
+				// if (key === 'brand') result.brand = proc.brand;
+				if (key === 'passive') {
+					result.passive = proc.passive;
+					result.isActive = proc.passive;
+				} else if (key === 'takeAimDependant')
+					result.takeAimDependant = proc.takeAimDependant;
+				else if (key === 'stacking') result.stacking = proc.stacking;
+				else if (key === 'description')
+					result.description = proc.description + '\n' + result.description;
+				else if (key === 'stacksMax') result.stacksMax = proc.stacksMax;
+				else if (key === 'stackName') result.stackName = proc.stackName;
+				// TODO
+				// const funcMap = {
+				// brand: () => result.brand = proc.brand,
+				// passive: () => (result.passive = proc.passive),
+				// takeAimDependant: () => (result.takeAimDependant = proc.takeAimDependant),
+				// stacking: () => (result.stacking = proc.stacking),
+				// description: () => (result.description = proc.description),
+				// stacksMax: () => (result.stacksMax = proc.stacksMax),
+				// stackName: () => result.stackName = proc.stackName,
+				// };
+				// funcMap[key as keyof typeof funcMap];
+			});
+	}
 	result.name = splitName
 		.filter((item) => item !== '_')
 		.slice(0, -1)
@@ -2265,7 +2316,7 @@ const weaponDataToWeapon = (
 	const formula = damageStringToDownstream(damageFormula, sourceStats);
 	const perkNameList = [
 		...preset.features.map((feat) => '_ _ ' + feat),
-		...(data.perks === undefined ? [] : data.perks.split(', ')),
+		...(data.perks === undefined ? [] : data.perks.split(/,\s/)).filter((item) => !!item),
 	];
 	const perkList: Record<string, WeaponPerk> = {};
 	for (let i = 0; i < perkNameList.length; i++) {
@@ -2932,6 +2983,7 @@ function useCharacterDataUncached(characterId: string) {
 				isActive: p.passive,
 				stacking: p.stacking,
 				stacksMax: p.stacksMax,
+				stackName: p.stackName,
 				stackAffectedStats: (p.stackAffectedStats || '').split(', '),
 				stacks: 0,
 				replaceStats: p.replaceStats,

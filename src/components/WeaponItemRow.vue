@@ -110,7 +110,7 @@ type RollInfo = {
 };
 const hitRangeMod = computed<number>(() => {
 	const distance = actionResources.value.targetRange;
-	const weaponRange = rangeMap[weapon.value.rangeType].range + weapon.value.range;
+	const weaponRange = rangeMap[Math.round(weapon.value.rangeType)].range + weapon.value.range;
 	const increment = Math.min(10, Math.max(0, distance / weaponRange));
 	return Math.trunc(increment) * weapon.value.rangePenalty;
 });
@@ -351,6 +351,16 @@ const weapon = computed<Weapon>(() => {
 			modified.hitBonusSource = perk.hitBonusSource || modified.hitBonusSource;
 			modified.damageType = perk.damageType || modified.damageType;
 			modified.rangeType = perk.rangeType || modified.rangeType;
+			if (Math.trunc(modified.rangeType) !== modified.rangeType) {
+				console.warn(
+					'Weapon "' +
+						props.name +
+						'" entered a state where it had a non-integer range index (' +
+						modified.rangeType +
+						'). Rounding…. ',
+				);
+				modified.rangeType = Math.round(modified.rangeType);
+			}
 			modified.shape = perk.shape || modified.shape;
 			modified.ammoType = perk.ammoType || modified.ammoType;
 			modified.ammoCanOverflow = perk.ammoCanOverflow || modified.ammoCanOverflow;
@@ -360,6 +370,10 @@ const weapon = computed<Weapon>(() => {
 	modified.dmgMin *= modified.techMult;
 	modified.dmgAvg *= modified.techMult;
 	modified.dmgMax *= modified.techMult;
+	modified.rangeType = Math.max(
+		0,
+		Math.min(Object.keys(rangeMap).length - 1, modified.rangeType),
+	);
 	return modified;
 });
 </script>
