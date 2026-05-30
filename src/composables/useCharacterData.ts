@@ -2244,7 +2244,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 4,
-		features: ['Oversized (4)', 'Slow Switch Attack ()', 'Rocket Sunder ()'],
+		features: ['Oversized (4)', 'Slow Switch Attack ()', 'Rocket Raze ()'],
 	},
 	'Sword, Heavy': {
 		name: 'Sword, Heavy',
