@@ -62,7 +62,8 @@ const keyHandler = (e: KeyboardEvent) => {
 	if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
 		const currentRouteName = router.currentRoute.value.name as string;
 		const currentRouteIndex = names.value.indexOf(currentRouteName);
-		const direction = e.key === 'ArrowLeft' ? -1 : 1;
+		// const direction = e.key === 'ArrowLeft' ? -1 : 1;
+		const direction = 0;
 		const targetIndex =
 			(currentRouteIndex + direction + names.value.length) % names.value.length;
 		// console.log(
