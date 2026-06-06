@@ -133,10 +133,10 @@ const changeSubtab = (name: string) => {
 const incrementTurn = () => {
 	const source = stats.value;
 	const resource = actionResources.value;
-	// Update Log
-	updateLog('—— Turn ' + resource.turns + ' Ended ——');
 	// Turn Counter
 	resource.turns++;
+	// Update Log
+	updateLog('—— Turn ' + resource.turns + ' Started ——');
 	// Energy Regen
 	['Super', 'Class', 'Melee', 'Grenade', 'Universal'].forEach((energy) => {
 		const energyKey = ('energy' + energy) as StatName;
@@ -326,64 +326,66 @@ const applyDamage = () => {
 	actionResources.value.damageShields -= diffShields;
 };
 
-const actionsCapacity = computed<CapacityBoxStatField[]>(() => {
-	return [
-		{
-			label: 'Major',
-			stat: 'actionsMajorUsed',
+type ActionInfo = {
+	gridStyle: string;
+	max: number;
+	remaining: number;
+	isAllowed: boolean;
+	hovertext: string;
+};
+const actionsInfo = computed<Record<string, ActionInfo>>(() => {
+	return {
+		Major: {
+			gridStyle: 'grid-row: 1; grid-column: 1/4',
 			max: statsBuffed.value.actionsMajor.total,
-			current: actionResources.value.actionsMajorUsed,
-			inverted: true,
+			remaining: actionResourcesDisplay.value.actionsMajor,
+			isAllowed: actionResourcesDisplay.value.actionsMajor > 0,
+			hovertext: '',
 		},
-		{
-			label: 'Attacks',
-			stat: 'actionsAttackUsed',
+		Attack: {
+			gridStyle: 'grid-row: 2/4; grid-column: 1',
 			max: statsBuffed.value.actionsAttack.total,
-			current: actionResources.value.actionsAttackUsed,
-			inverted: true,
-			color: '#ddd',
-			underlined: true,
+			remaining: actionResourcesDisplay.value.actionsAttack,
+			isAllowed: actionResourcesDisplay.value.actionsAttack > 0,
+			hovertext: '',
 		},
-		{
-			label: 'Tactical',
-			stat: 'actionsTacticalUsed',
+		Tactical: {
+			gridStyle: 'grid-row: 2; grid-column: 2/4',
 			max: statsBuffed.value.actionsTactical.total,
-			current: actionResources.value.actionsTacticalUsed,
-			inverted: true,
+			remaining: actionResourcesDisplay.value.actionsTactical,
+			isAllowed: actionResourcesDisplay.value.actionsTactical > 0,
+			hovertext: '',
 		},
-		{
-			label: 'Movement',
-			stat: 'actionsMoveUsed',
+		Move: {
+			gridStyle: 'grid-row: 3; grid-column: 2',
 			max: statsBuffed.value.actionsMove.total,
-			current: actionResources.value.actionsMoveUsed,
-			inverted: true,
-			color: '#ddd',
+			remaining: actionResourcesDisplay.value.actionsMove,
+			isAllowed: actionResourcesDisplay.value.actionsMove > 0,
+			hovertext: '',
 		},
-		{
-			label: 'Interactions',
-			stat: 'actionsInteractionUsed',
+		Interaction: {
+			gridStyle: 'grid-row: 3; grid-column: 3',
 			max: statsBuffed.value.actionsInteraction.total,
-			current: actionResources.value.actionsInteractionUsed,
-			inverted: true,
-			color: '#ddd',
-			underlined: true,
+			remaining: actionResourcesDisplay.value.actionsInteraction,
+			isAllowed: actionResourcesDisplay.value.actionsInteraction > 0,
+			hovertext: '',
 		},
-		{
-			label: 'Reactions',
-			stat: 'actionsReactionUsed',
+		Reaction: {
+			gridStyle: 'grid-row: 4; grid-column: 1/4; margin-top: 0.25em',
 			max: statsBuffed.value.actionsReaction.total,
-			current: actionResources.value.actionsReactionUsed,
-			inverted: true,
+			remaining: actionResourcesDisplay.value.actionsReaction,
+			isAllowed: actionResourcesDisplay.value.actionsReaction > 0,
+			hovertext: '',
 		},
-		// {
-		// 	label: 'Bonus Actions',
-		// 	stat: 'actionsOtherUsed',
-		// 	max: statsBuffed.value.actionsBonus.total,
-		// 	current: actionResources.value.actionsOtherUsed,
-		//  inverted: true,
-		// },
-	];
+	};
 });
+const spendAction = (actionName: string, event: MouseEvent) => {
+	if (event.shiftKey) {
+		actionResources.value[('actions' + actionName + 'Used') as ActionResourceKey] -= 1;
+	} else {
+		actionResources.value[('actions' + actionName + 'Used') as ActionResourceKey] += 1;
+	}
+};
 
 const moveShowTiles = ref<boolean>(false);
 const assembleSpeed = (name: string, baseSpeed: number) => {
@@ -516,7 +518,7 @@ const encumberanceColor = computed<string>(() => {
 							Reload Data
 						</button>
 						<h1 class="turn-display">
-							<span style="flex: 1 0 auto">Turn </span
+							<span style="flex: 1 0 auto">Round </span
 							><span style="margin-left: auto; flex: 1 0 auto"
 								><input
 									style="font-size: 0.8em; width: 2em"
@@ -526,7 +528,7 @@ const encumberanceColor = computed<string>(() => {
 									value="1"
 							/></span>
 						</h1>
-						<button @click="incrementTurn">Increment Turn</button>
+						<button @click="incrementTurn">Begin Next Round</button>
 						<button @click="rallyBanner">Rally Banner</button>
 					</div>
 					<!-- <div>
@@ -711,26 +713,47 @@ const encumberanceColor = computed<string>(() => {
 							</tr>
 						</table>
 						<div>
-							<StatCapacityBox
-								v-bind="{
-									label: 'Actions',
-									data: actionsCapacity,
-								}"
-								:characterId="characterId"
-								class="hover-highlight"
-							/>
-							<div>
+							<h2>Actions</h2>
+							<div class="actions-block-currencies">
 								<button
+									class="spend-action"
+									v-for="name in Object.keys(actionsInfo)"
+									:key="name"
+									:class="{ empty: !actionsInfo[name].isAllowed }"
+									:style="actionsInfo[name].gridStyle"
+									@click="spendAction(name, $event)"
+									:title="
+										actionsInfo[name].hovertext +
+										statsBuffed[('actions' + name) as StatName].summary.join(
+											'\n',
+										) +
+										'\n\n(Hold shift to increase instead of spend.)'
+									"
+								>
+									<span class="spend-action-label">{{ name }}</span>
+									<span
+										>{{ actionsInfo[name].remaining }} ⁄ {{
+											actionsInfo[name].max
+										}}</span
+									>
+								</button>
+							</div>
+						</div>
+						<div>
+							<div class="actions-block-toggles">
+								<label
 									title="Hunker down and increase your survivability. Dodge +2, Ref Safe +2"
 								>
-									Defend
-								</button>
-								<button title="Contribute to an ally's action.">Aid</button>
-								<button
+									<input type="checkbox" />Defend
+								</label>
+								<label title="Contribute to an ally's action.">
+									<input type="checkbox" />Aid
+								</label>
+								<label
 									title="Receiving defense from an ally. Rolls +2, Deflection +2"
 								>
-									Being Aided
-								</button>
+									<input type="checkbox" />Being Aided
+								</label>
 							</div>
 						</div>
 						<table class="hover-highlight">
@@ -1014,11 +1037,6 @@ const encumberanceColor = computed<string>(() => {
 	background-color: #fff4;
 }
 /* */
-.secondary-block {
-	width: 500px;
-	display: inline-block;
-	vertical-align: top;
-}
 .action-block {
 	flex: 0 0 auto;
 	display: flex;
@@ -1037,14 +1055,21 @@ const encumberanceColor = computed<string>(() => {
 	flex-grow: 2;
 }
 /* */
-.weapon-block {
-	display: block;
+.actions-block-currencies {
+	display: grid;
 }
-.ability-block {
-	display: block;
-	padding: 0 2em;
+.actions-block-currencies > * {
+	font-weight: bold;
 }
-.ability-button {
-	width: 25%;
+.spend-action.empty {
+	color: #ddd;
+	border-color: #aaa;
+}
+.spend-action-label {
+	font-weight: initial;
+	padding-right: 0.5em;
+}
+.actions-block-toggles > * {
+	margin: 0 auto;
 }
 </style>

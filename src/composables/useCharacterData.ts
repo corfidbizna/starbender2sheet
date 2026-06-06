@@ -1419,7 +1419,7 @@ type ImportedWeaponPerk = {
 	hitType: string;
 	hitBonus: number;
 	hitBonusSource: string;
-	autoFireRange: number;
+	autofire: number;
 	critRange: number;
 	critMult: number;
 	damage: string;
@@ -1530,6 +1530,7 @@ const processPerkParameters = (input: WeaponPerk, procList: WeaponPerkProc[]): W
 		const key = word as WeaponPerkKey;
 		const param: string = parameters[i];
 		const paramAsNumber: number = parseFloat(parameters[i]);
+		// console.log('Perk parameters for ' + input.name, param, paramAsNumber);
 		const resultSupplement: Record<string, number | boolean | string> = {};
 		const rx = new RegExp('\\${' + word + '}', 'g'); // The regex that isolates parameters in text.
 		const availablePerkKeys = [
@@ -2366,7 +2367,7 @@ const weaponDataToWeapon = (
 		dmgMin: formula.dmgMin,
 		dmgAvg: formula.dmgAvg,
 		dmgMax: formula.dmgMax,
-		damageType: data.element,
+		damageType: data.element || 'Kinetic',
 		rangeType: rangeNameToIndex(preset.rangeType),
 		range: preset.rangeBonus,
 		rangePenalty: 2,
@@ -2992,7 +2993,7 @@ function useCharacterDataUncached(characterId: string) {
 				hitType: p.hitType,
 				hitBonus: p.hitBonus,
 				hitBonusSource: p.hitBonusSource,
-				autoFireRange: p.autoFireRange,
+				autoFireRange: p.autofire,
 				critRange: p.critRange,
 				critMult: p.critMult,
 				techMult: p.techMult,

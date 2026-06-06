@@ -319,6 +319,7 @@ const weapon = computed<Weapon>(() => {
 					perk.ammoCapacity * stk('ammoCapacity') || modified.ammoCapacity;
 				modified.ammoReloadAmount =
 					perk.ammoReloadAmount * stk('ammoReloadAmount') || modified.ammoCapacity;
+				modified.autoFireRange = perk.autoFireRange || modified.autoFireRange;
 			} else {
 				// Supplement things instead.
 				modified.hitBonus += perk.hitBonus * stk('hitBonus') || 0;
@@ -335,6 +336,9 @@ const weapon = computed<Weapon>(() => {
 				modified.dmgMin = damageStats.dmgMin;
 				modified.dmgAvg = damageStats.dmgAvg;
 				modified.dmgMax = damageStats.dmgMax;
+				modified.rangeType += perk.rangeType || 0;
+				modified.range = Math.trunc(12.5 * Math.pow(2, modified.rangeType));
+				modified.range += perk.range || 0;
 				modified.rangePenalty += perk.rangePenalty * stk('rangePenalty') || 0;
 				modified.rangeIncrementsModifier +=
 					perk.rangeIncrementsModifier * stk('rangeIncrementsModifier') || 0;
@@ -343,6 +347,7 @@ const weapon = computed<Weapon>(() => {
 				modified.ammo += perk.ammo * stk('ammo') || 0;
 				modified.ammoCapacity += perk.ammoCapacity * stk('ammoCapacity') || 0;
 				modified.ammoReloadAmount += perk.ammoReloadAmount * stk('ammoReloadAmount') || 0;
+				modified.autoFireRange += perk.autoFireRange || 0;
 			}
 			// To do regardless of replace or not.
 			modified.attackType = perk.attackType || modified.attackType;
@@ -350,17 +355,17 @@ const weapon = computed<Weapon>(() => {
 			modified.hitType = perk.hitType || modified.hitType;
 			modified.hitBonusSource = perk.hitBonusSource || modified.hitBonusSource;
 			modified.damageType = perk.damageType || modified.damageType;
-			modified.rangeType = perk.rangeType || modified.rangeType;
-			if (Math.trunc(modified.rangeType) !== modified.rangeType) {
-				console.warn(
-					'Weapon "' +
-						props.name +
-						'" entered a state where it had a non-integer range index (' +
-						modified.rangeType +
-						'). Rounding…. ',
-				);
-				modified.rangeType = Math.round(modified.rangeType);
-			}
+			// modified.rangeType = perk.rangeType || modified.rangeType;
+			// if (Math.trunc(modified.rangeType) !== modified.rangeType) {
+			// 	console.warn(
+			// 		'Weapon "' +
+			// 			props.name +
+			// 			'" entered a state where it had a non-integer range index (' +
+			// 			modified.rangeType +
+			// 			'). Rounding…. ',
+			// 	);
+			// 	modified.rangeType = Math.round(modified.rangeType);
+			// }
 			modified.shape = perk.shape || modified.shape;
 			modified.ammoType = perk.ammoType || modified.ammoType;
 			modified.ammoCanOverflow = perk.ammoCanOverflow || modified.ammoCanOverflow;
@@ -374,6 +379,7 @@ const weapon = computed<Weapon>(() => {
 		0,
 		Math.min(Object.keys(rangeMap).length - 1, modified.rangeType),
 	);
+	// console.log(modified.rangeType);
 	return modified;
 });
 </script>
@@ -489,7 +495,8 @@ const weapon = computed<Weapon>(() => {
 							</td>
 							<td class="weapon-stat-label">Range</td>
 							<td class="weapon-stat-data wide">
-								{{ weapon.range }}ft. {{ rangeMap[weapon.rangeType].name }}
+								{{ weapon.range }}ft.
+								{{ rangeMap[Math.round(weapon.rangeType)].name }}
 							</td>
 						</tr>
 						<tr>
