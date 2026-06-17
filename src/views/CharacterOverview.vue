@@ -27,17 +27,14 @@ defineProps({
 })
 */
 
-const { character, armorLoading, buffsLoading, statsLoading, skillsLoading, weaponsLoading } =
-	useCharacterData(props.characterId);
+const { character, armorLoading, buffsLoading, statsLoading, weaponsLoading } = useCharacterData(
+	props.characterId,
+);
 const params = { characterId: props.characterId };
 let initialLoadComplete = false;
 const isLoading = computed(() => {
 	const done =
-		armorLoading.value ||
-		buffsLoading.value ||
-		statsLoading.value ||
-		skillsLoading.value ||
-		weaponsLoading.value;
+		armorLoading.value || buffsLoading.value || statsLoading.value || weaponsLoading.value;
 	if (done === true && initialLoadComplete === false) {
 		initialLoadComplete = true;
 		bgColor.value = getBGColor();
@@ -143,7 +140,6 @@ onBeforeUnmount(() => {
 			<div>Armor loading… <span v-if="armorLoading">…done!</span></div>
 			<div>Buffs loading… <span v-if="buffsLoading">…done!</span></div>
 			<div>Stats loading… <span v-if="statsLoading">…done!</span></div>
-			<div>Skills loading… <span v-if="skillsLoading">…done!</span></div>
 			<div>Weapons loading… <span v-if="weaponsLoading">…done!</span></div>
 			<LoadingModal />
 		</div>

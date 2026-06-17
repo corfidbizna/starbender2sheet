@@ -18,7 +18,6 @@ export type CharacterDataSource = {
 	label: string;
 	documentId: string;
 	sheets: {
-		skills: string;
 		variables: string;
 		buffs: string;
 		features: string;
@@ -52,7 +51,6 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 		label: 'Kara',
 		documentId: '1RcSqD_99aJc-gOcmJTloZ-jItp2XOTiozjNvV-nzgSI',
 		sheets: {
-			skills: '847620321',
 			variables: '711215743',
 			buffs: '1723104523',
 			features: '80035919',
@@ -70,7 +68,6 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 		label: 'Aurora',
 		documentId: '12vonRcFzriWY5AjLmueqbjd6DCQCJpqiLJkDpZEDgNU',
 		sheets: {
-			skills: '392143893',
 			variables: '1217161183',
 			buffs: '900669394',
 			features: '244313239',
@@ -89,7 +86,6 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 		label: 'Mark',
 		documentId: '1sa9fdn6xgqjoClBUKJ1n2yZRoR5cevaK4YWwq1x2v10',
 		sheets: {
-			skills: '1502753776',
 			variables: '769576778',
 			buffs: '919733175',
 			features: '978974344',
@@ -104,7 +100,6 @@ export const characterDataSources: Record<string, CharacterDataSource> = {
 		label: 'Lewis Reed',
 		documentId: '1Emn-t1tU1Ugztb3Q0PqHO6gBEcuujWP-hTYEZHzdtKc',
 		sheets: {
-			skills: '1546065139',
 			variables: '625235028',
 			buffs: '858793392',
 			features: '703590883',
@@ -883,6 +878,35 @@ const skillLabelMap = Object.entries(skillsInfoMap).reduce(
 	(acc, entry) => ({ ...acc, [entry[0]]: entry[1].label }),
 	{},
 );
+export const skillListDefault = [
+	'Acrobatics',
+	'Appraise',
+	'Bluff',
+	'Climb',
+	'Concentration',
+	'Craft',
+	'Diplomacy',
+	'Disable Device',
+	'Disguise',
+	'Escape Artist',
+	'Fly',
+	'Handle Animal',
+	'Heal',
+	'Intimidate',
+	'Knowledge',
+	'Linguistics',
+	'Perception',
+	'Perform',
+	'Profession',
+	'Ride',
+	'Sense Motive',
+	'Sleight of Hand',
+	'Spellcraft',
+	'Stealth',
+	'Survival',
+	'Swim',
+	'Use Magic Device',
+];
 export type SkillsTableItem = {
 	Bonus: number;
 	Name: string;
@@ -1567,7 +1591,7 @@ const processPerkParameters = (input: WeaponPerk, procList: WeaponPerkProc[]): W
 			'stackAffectedStats', // TODO
 			// 'stacks',
 			'replaceStats',
-			'autoFireRange',
+			'autofire', // TODO (??)
 			'ammo',
 			'ammoCapacity',
 			'ammoCanOverflow',
@@ -2562,66 +2586,35 @@ function useCharacterDataUncached(characterId: string) {
 
 	// ==================================================================================================
 	// SKILLS START
-	const {
-		data: skillsThatNeedToBeFiltered,
-		isLoading: skillsLoading,
-		refresh: skillsRefresh,
-	} = getSheetForCharacter<Skill>(characterId, 'skills');
-	const skills = computed<Partial<Skill>>(() => {
-		const statsToUse = stats.value;
+	const findSkills = (statsToUse: Stats) => {
 		const activeSkills: Partial<Skill> = {};
-		const skillList = Object.keys(skillsThatNeedToBeFiltered.value[0]);
+		const skillList = [
+			...skillListDefault,
+			...Object.keys(skillsInfoMap)
+				.filter((key) => {
+					// We've got to get the buffed version in order to make sure
+					// there's a base version of a skill present when it gets buffed.
+					return statsBuffed.value[key as StatName].summary.length > 0;
+				})
+				.map((key) => skillsInfoMap[key as SkillKey].label),
+		].sort();
 		for (let i = 0; i < skillList.length; i++) {
 			const skill = skillList[i];
-			// const skillShortName = skill
-			// 	.toLocaleLowerCase()
-			// 	.slice(0, skill.indexOf('(') < 0 ? skill.length : skill.indexOf('('))
-			// 	.trim();
 			const skillKey = labelToSkillName[skill.toLocaleLowerCase()] as SkillKey;
 			if (skillKey === undefined) {
 				console.warn("Couldn't find the skill " + skill);
 				continue;
 			}
-			// const focus = skillsThatNeedToBeFiltered.value[0][skill as SkillKey];
-			const focus = 0;
+			if (activeSkills[skillKey] !== undefined) continue; // We've already processed this skill, so we'll skip
 			const skillInfo = skillsInfoMap[skillKey];
-			const abilityMod =
+			activeSkills[skillKey] =
 				statsToUse[(skillInfo.baseStat + 'Skills') as StatName].total +
 				statsToUse[skillInfo.baseStat as StatName].total;
-			activeSkills[skillKey] = Math.trunc(
-				focus * statsToUse.cpl.total + abilityMod + (focus > 0 ? 3 : 0),
-			);
 		}
 		return activeSkills;
-	});
-	const skillsBuffed = computed<Partial<Skill>>(() => {
-		// Currently the only difference between `skills` and `skillsBuffed` is which layer of stats they're sourcing.
-		// However, ideally, this will need to be changed when `skills` and `stats` are integrated. ¬_¬
-		const statsToUse = statsBuffed.value;
-		const activeSkills: Partial<Skill> = {};
-		const skillList = Object.keys(skillsThatNeedToBeFiltered.value[0]);
-		for (let i = 0; i < skillList.length; i++) {
-			const skill = skillList[i];
-			// const skillShortName = skill
-			// 	.toLocaleLowerCase()
-			// 	.slice(0, skill.indexOf('(') < 0 ? skill.length : skill.indexOf('('))
-			// 	.trim();
-			const skillKey = labelToSkillName[skill.toLocaleLowerCase()] as SkillKey;
-			if (skillKey === undefined) {
-				console.warn("Couldn't find the skill " + skill);
-				continue;
-			}
-			const focus = skillsThatNeedToBeFiltered.value[0][skill as SkillKey];
-			const skillInfo = skillsInfoMap[skillKey];
-			const abilityMod =
-				statsToUse[(skillInfo.baseStat + 'Skills') as StatName].total +
-				statsToUse[skillInfo.baseStat as StatName].total;
-			activeSkills[skillKey] = Math.trunc(
-				focus * statsToUse.cpl.total + abilityMod + (focus > 0 ? 3 : 0),
-			);
-		}
-		return activeSkills;
-	});
+	};
+	const skills = computed<Partial<Skill>>(() => findSkills(stats.value));
+	const skillsBuffed = computed<Partial<Skill>>(() => findSkills(statsBuffed.value));
 	// SKILLS END
 
 	// ==================================================================================================
@@ -3284,7 +3277,8 @@ function useCharacterDataUncached(characterId: string) {
 				parsedAbility.element = parsedAbility.element || 'Kinetic';
 				parsedAbility.prerequisites = parsedAbility.prerequisites || [];
 				// parsedAbility.damageStatsBase = parsedAbility.damageStatsBase || {};
-				parsedAbility.dmgDieQuantity = parsedAbility.dmgDieQuantity || 0;
+				parsedAbility.dmgDieQuantity =
+					parsedAbility.dmgDieQuantity || (!!parsedAbility.dmgDieFormula ? 1 : 0); // 'cause its a multiplier
 				parsedAbility.dmgDieFormula = parsedAbility.dmgDieFormula || '';
 				// parsedAbility.dmg = parsedAbility.dmg || ;
 				parsedAbility.energyMax = parsedAbility.energyMax || 0;
@@ -3838,8 +3832,6 @@ function useCharacterDataUncached(characterId: string) {
 		// Skills
 		skills,
 		skillsBuffed,
-		skillsLoading,
-		skillsRefresh,
 		// Features,
 		features,
 		featureShouldBeActive,
@@ -3894,7 +3886,6 @@ function useCharacterDataUncached(characterId: string) {
 		// Data Loading Statuses
 		anythingLoading:
 			buffsLoading.value ||
-			skillsLoading.value ||
 			// weaponsLoading.value ||
 			// weaponPerksLoading.value ||
 			// armorLoading.value ||

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { actionLog, updateLog } from '@/sharedState.ts';
 import useCharacterData, { skillsInfoMap, type SkillKey } from '@/composables/useCharacterData';
-import LoadingModal from './LoadingModal.vue';
 import useFilter from '@/composables/useFilter';
 import { computed } from 'vue';
 import { DiceFormula } from '@/business_logic/diceFormula';
@@ -9,7 +8,7 @@ import { DiceFormula } from '@/business_logic/diceFormula';
 const props = defineProps<{
 	characterId: string;
 }>();
-const { skills, skillsLoading, skillsRefresh } = useCharacterData(props.characterId);
+const { skills } = useCharacterData(props.characterId);
 const skillsList = computed<string[]>(() => Object.keys(skills.value));
 const rangeMax = computed<number>((): number => {
 	let max = -Infinity;
@@ -69,7 +68,6 @@ const rollStat = (label: string, value: number) => {
 <template>
 	<div class="skills">
 		<span class="skills-infos">
-			<button @click="skillsRefresh">Reload Skills</button>
 			<h2>Filter</h2>
 			<div class="search">
 				<label>
@@ -94,13 +92,7 @@ const rollStat = (label: string, value: number) => {
 				class="action-log"
 			></textarea>
 		</span>
-		<span v-if="skillsLoading">
-			<LoadingModal />
-		</span>
-		<span
-			v-else
-			class="skills-content"
-		>
+		<span class="skills-content">
 			<h2>Skills</h2>
 			<div>(Hover over a skill to see its uses)</div>
 			<div class="scroll-box">

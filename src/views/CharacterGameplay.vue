@@ -36,8 +36,6 @@ const {
 	getStat,
 	lightLevel,
 	skills,
-	skillsLoading,
-	skillsRefresh,
 	weapons,
 	weaponAmmoUpdate,
 	subclassGet,
@@ -500,7 +498,7 @@ const encumberanceColor = computed<string>(() => {
 		<BGImage
 			:bgNames="['Gameplay', 'Gameplay_Q1', 'Gameplay_Q2', 'Gameplay_Q3', 'Gameplay_Q4']"
 		/>
-		<div v-if="statsLoading || skillsLoading">
+		<div v-if="statsLoading">
 			<LoadingModal />
 		</div>
 		<div v-else>
@@ -509,14 +507,7 @@ const encumberanceColor = computed<string>(() => {
 					<!-- <SpinBox v-bind="{ value: 0, max: 10 }" />
 					<SpinBox v-bind="{ value: 0, max: 10, inverted: true }" /> -->
 					<div>
-						<button
-							@click="
-								statsRefresh();
-								skillsRefresh();
-							"
-						>
-							Reload Data
-						</button>
+						<button @click="statsRefresh()">Reload Data</button>
 						<h1 class="turn-display">
 							<span style="flex: 1 0 auto">Round </span
 							><span style="margin-left: auto; flex: 1 0 auto"
