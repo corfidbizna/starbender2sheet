@@ -46,12 +46,12 @@ const lookupGlyph = (text: string): string => {
 const superscript = props.name === 'Light';
 </script>
 <template>
-	<div
+	<span
 		class="destiny-symbols"
 		:class="{ superscript }"
 	>
 		{{ lookupGlyph(props.name) }}
-	</div>
+	</span>
 	<!-- <div>{{ props.name }}</div> -->
 </template>
 <style>

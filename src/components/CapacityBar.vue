@@ -7,6 +7,7 @@ type CapacityBarInfo = {
 	color: string;
 	colorFull?: string;
 	min?: number;
+	hideLine?: boolean;
 };
 const props = defineProps<CapacityBarInfo>();
 const range = computed<number>(() => props.max - (props.min || 0));
@@ -31,6 +32,7 @@ const progress = computed<number>(() =>
 			:style="'width: ' + progress + '%; background-color: ' + color"
 		></span>
 		<span
+			v-if="!hideLine"
 			class="line"
 			:style="'left: calc(' + progress + '% - 1px)'"
 		></span>

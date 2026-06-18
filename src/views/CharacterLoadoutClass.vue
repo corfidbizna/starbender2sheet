@@ -185,10 +185,9 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 					class="subclass-box"
 					:style="subclassBackground"
 				>
-					<DGlyph
-						class="subclass-symbol"
-						v-bind="{ name: subclassGet }"
-					/>
+					<div class="subclass-symbol">
+						<DGlyph v-bind="{ name: subclassGet }" />
+					</div>
 				</div>
 			</div>
 
@@ -352,7 +351,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 	font-size: 1.5em;
 }
 .subclass-box .subclass-symbol {
-	font-size: 3em;
+	font-size: 2em;
 }
 
 .subclass-override {

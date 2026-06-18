@@ -18,6 +18,7 @@ import CapacityBar from '@/components/CapacityBar.vue';
 import DGlyph from '@/components/DGlyph.vue';
 import { actionLog, subtabNameGameplay, updateLog } from '@/sharedState';
 import BGImage from '@/components/BGImage.vue';
+import SpinBox from '@/components/SpinBox.vue';
 // import { DiceFormula, getStatByCharacter } from '@/business_logic/diceFormula';
 type CharacterProps = {
 	characterId: string;
@@ -168,7 +169,7 @@ const rallyBanner = () => {
 	// Update Log
 	updateLog('    Rallying to a banner!\nAll energies and health refilled');
 	// Energy Regen
-	['Super', 'Class', 'Melee', 'Grenade', 'Ritual', 'Universal'].forEach((energy) => {
+	['Super', 'Class', 'Melee', 'Grenade', 'Universal'].forEach((energy) => {
 		const energyKey = ('energy' + energy) as StatName;
 		resource[(energyKey + 'Used') as ActionResourceKey] = 0;
 	});
@@ -200,30 +201,16 @@ const rallyBanner = () => {
 // };
 // const customDice = ref<string>('');
 // const customDiceFormula = ref<DiceFormula>();
-const healthCapacity = computed<CapacityBoxStatField[]>(() => {
-	const healthColor =
-		actionResourcesDisplay.value.health > statsBuffed.value.hpMax.total / 4
-			? '#fff'
-			: 'var(--color-debuff)';
-	return [
-		{
-			label: 'Hit Points',
-			stat: 'damage',
-			max: statsBuffed.value.hpMax.total,
-			current: actionResources.value.damage,
-			color: healthColor,
-			inverted: true,
-		},
-		{
-			label: activeShieldType.value + ' Shields',
-			stat: 'damageShields',
-			max: statsBuffed.value.hpShieldMax.total,
-			current: actionResources.value.damageShields,
-			color: shieldColor.value,
-			inverted: true,
-		},
-	];
-});
+const revive = () => {
+	actionResources.value.damage = 0;
+	actionResources.value.damageShields = 0;
+	updateLog('== Revived! ==');
+};
+const healthColor = computed<string>(() =>
+	previewDamage.value.health > statsBuffed.value.hpMax.total / 4
+		? '#ffff'
+		: 'var(--color-debuff)',
+);
 
 const dmg = ref(0);
 const dmgMult = ref(1);
@@ -286,6 +273,13 @@ const previewDamage = computed<Record<string, number>>(() => {
 	}
 	return result;
 });
+const healthBarPercentage = computed<number>(() => {
+	return (
+		100 *
+		(statsBuffed.value.hpMax.total /
+			(statsBuffed.value.hpMax.total + statsBuffed.value.hpShieldMax.total))
+	);
+});
 const glyphMap: Record<string, string> = {
 	Kinetic: '',
 	Solar: '',
@@ -318,10 +312,19 @@ const applyDamage = () => {
 	updateLog(stringStart + (startingShields > 0 ? stringShield : '') + stringHealth);
 	if (previewDamage.value.health <= 0) {
 		updateLog('== Guardian down! ==');
+		// The following code would reset all actions to zero once your health reaches zero.
+		// Object.keys(actionResources.value).forEach((key) => {
+		// 	const statKey = key.slice(0, -4) as StatName;
+		// 	if (key.slice(0, 7) === 'actions' && statsBuffed.value[statKey] !== undefined) {
+		// 		actionResources.value[key as ActionResourceKey] =
+		// 			statsBuffed.value[statKey]?.total || 0;
+		// 	}
+		// });
 	}
 	//
 	actionResources.value.damage -= diffHealth;
 	actionResources.value.damageShields -= diffShields;
+	dmg.value = 0;
 };
 
 type ActionInfo = {
@@ -581,14 +584,92 @@ const encumberanceColor = computed<string>(() => {
 						/>
 					</div>
 					<div class="stat-column-b">
-						<StatCapacityBox
-							v-bind="{
-								label: 'Health',
-								data: healthCapacity,
-							}"
-							:characterId="characterId"
-							class="hover-highlight"
-						/>
+						<h2>
+							Health & Shields<button
+								style="float: right"
+								:disabled="actionResourcesDisplay.health > 0"
+								@click="revive()"
+							>
+								Revive
+							</button>
+						</h2>
+						<div class="health-block hover-highlight">
+							<div
+								class="health-block-bars"
+								:class="{ 'guardian-down': previewDamage.health <= 0 }"
+							>
+								<div class="health-bar-back">
+									<CapacityBar
+										v-bind="{
+											max: statsBuffed.hpMax.total,
+											current: actionResourcesDisplay.health,
+											color: '#844',
+											hideLine: true,
+										}"
+										:style="'width: ' + healthBarPercentage + '%'"
+									/>
+									<CapacityBar
+										v-bind="{
+											max: statsBuffed.hpShieldMax.total,
+											current: actionResourcesDisplay.shields,
+											color: shieldColor + '66',
+											hideLine: true,
+										}"
+										:style="'width: ' + (100 - healthBarPercentage) + '%'"
+									/>
+								</div>
+								<div class="health-bar-front">
+									<CapacityBar
+										v-bind="{
+											max: statsBuffed.hpMax.total,
+											current: previewDamage.health,
+											color: healthColor,
+											hideLine: true,
+										}"
+										:style="'width: ' + healthBarPercentage + '%'"
+									/>
+									<CapacityBar
+										v-bind="{
+											max: statsBuffed.hpShieldMax.total,
+											current: previewDamage.shields,
+											color: shieldColor,
+											hideLine: true,
+										}"
+										:style="'width: ' + (100 - healthBarPercentage) + '%'"
+									/>
+								</div>
+							</div>
+							<div class="health-block-infos">
+								<span class="health-block-info-left"
+									><SpinBox
+										v-bind="{
+											value: actionResources.damage,
+											max: statsBuffed.hpMax.total,
+											inverted: true,
+										}"
+										v-model="actionResources.damage"
+										style="width: 4em"
+									/> ⁄ {{ statsBuffed.hpMax.total }}
+								</span>
+								<span class="health-block-info-mid d-glyph"></span>
+								<span class="health-block-info-right">
+									<SpinBox
+										v-bind="{
+											value: actionResources.damageShields,
+											max: statsBuffed.hpShieldMax.total,
+											inverted: true,
+										}"
+										v-model="actionResources.damageShields"
+										style="width: 4em"
+									/> ⁄ {{ statsBuffed.hpShieldMax.total }}
+									<DGlyph
+										v-bind="{ name: activeShieldType }"
+										style="font-size: 1em"
+										:style="'color: ' + elements[activeShieldType]"
+									/>
+								</span>
+							</div>
+						</div>
 						<table class="stat-box-table hover-highlight">
 							<caption>
 								<h2>
@@ -1026,6 +1107,62 @@ const encumberanceColor = computed<string>(() => {
 .tab-header .router-link-exact-active {
 	color: #ffff;
 	background-color: #fff4;
+}
+/* */
+.health-block {
+	position: relative;
+	background-image: url('/public/svgs/health.svg');
+	background-position: top;
+	background-repeat: no-repeat;
+}
+.health-block-bars {
+	padding: 0 0 0 0;
+	margin-left: 8px;
+	height: 1.75em;
+}
+.health-bar-front,
+.health-bar-back {
+	width: calc(100% - 16px);
+	position: absolute;
+	top: 4px;
+}
+.health-bar-front > .container,
+.health-bar-back > .container {
+	height: 10px;
+}
+.health-bar-front > .container > .remaining,
+.health-bar-back > .container > .remaining {
+	border-top: 1px solid #fffd;
+	border-bottom: 1px solid #fffd;
+	top: 1.5px;
+}
+.guardian-down .container > .remaining,
+.guardian-down .container > .remaining {
+	border-color: var(--color-debuff);
+}
+.health-bar-front > .container > .remaining {
+	background-color: #0003;
+}
+.health-bar-back > .container > .remaining {
+	background-color: #0004;
+}
+.health-block-infos {
+	display: grid;
+}
+.health-block-info-left {
+	grid-row: 1;
+	grid-column: 1 / 2;
+}
+.health-block-info-mid {
+	grid-row: 1;
+	grid-column: 1 / 3;
+	pointer-events: none;
+	text-align: center;
+}
+.health-block-info-right {
+	grid-row: 1;
+	grid-column: 2 / 3;
+	text-align: right;
 }
 /* */
 .action-block {
