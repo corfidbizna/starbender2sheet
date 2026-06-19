@@ -682,7 +682,7 @@ const encumberanceColor = computed<string>(() => {
 									</button>
 								</h2>
 							</caption>
-							<tr>
+							<tr title="(Damage Received × Mult) - DR → Count → Resulting Damage">
 								<td class="stat-label">Math</td>
 								<td
 									class="stat-value"
