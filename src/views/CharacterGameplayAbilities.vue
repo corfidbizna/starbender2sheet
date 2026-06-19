@@ -255,6 +255,7 @@ const abilityFilter = ref<string>('All');
 				<span style="float: right">
 					Show:
 					<select
+						name="ability-filter"
 						style="width: 10em"
 						v-model="abilityFilter"
 					>

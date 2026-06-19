@@ -98,6 +98,7 @@ const equippedWeapons = computed<Weapon[]>(() => {
 							v-model="actionResources.targetRange"
 							value="0"
 							min="0"
+							name="target-distance"
 						/>
 						<span>ft.</span>
 					</div>

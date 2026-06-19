@@ -42,6 +42,7 @@ watch(realMax, () => {
 			v-on:focus="textboxValue = displayValue"
 			v-on:focusout="textboxValue = displayValue"
 			:min="minZero ? 0 : ''"
+			name="spinbox-input"
 		/>
 		<!-- <span style="position: absolute; pointer-events: none">{{ realValue }}</span> -->
 	</span>

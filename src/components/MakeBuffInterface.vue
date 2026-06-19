@@ -164,6 +164,7 @@ for (let i = 0; i < statLabelList.length; i++) {
 					<td class="custom-buff-info-label">Name</td>
 					<td>
 						<input
+							name="buff-name"
 							v-model="currentState.name"
 							type="text"
 						/>
@@ -172,6 +173,7 @@ for (let i = 0; i < statLabelList.length; i++) {
 					<td class="custom-buff-info-label">Category</td>
 					<td>
 						<input
+							name="buff-category"
 							v-model="currentState.category"
 							type="text"
 						/>
@@ -184,14 +186,20 @@ for (let i = 0; i < statLabelList.length; i++) {
 				>
 					<td class="custom-buff-info-label">Icon</td>
 					<td colspan="2">
-						<select v-model="currentState.icon">
+						<select
+							name="buff-icon"
+							v-model="currentState.icon"
+						>
 							<option
 								v-for="icon in iconList"
 								:key="icon"
 							>
 								{{ icon }}
 							</option></select
-						><select v-model="currentState.type">
+						><select
+							name="buff-type"
+							v-model="currentState.type"
+						>
 							<option
 								v-for="type in buffTypeList"
 								:key="type"
@@ -226,6 +234,7 @@ for (let i = 0; i < statLabelList.length; i++) {
 					<td class="custom-buff-info-label">Stacks Max</td>
 					<td>
 						<input
+							name="buff-stacks-max"
 							v-model="currentState.stackMax"
 							type="number"
 							min="0"
@@ -236,13 +245,17 @@ for (let i = 0; i < statLabelList.length; i++) {
 				<tr class="line-below">
 					<td class="custom-buff-info-label">Description</td>
 					<td colspan="5">
-						<textarea v-model="currentState.description"></textarea>
+						<textarea
+							name="buff-description"
+							v-model="currentState.description"
+						></textarea>
 					</td>
 				</tr>
 				<tr>
 					<td class="custom-buff-info-label">Effects</td>
 					<td>
 						<select
+							name="buff-effects"
 							v-model="currentEffectKey"
 							style="width: 18em"
 						>
@@ -270,6 +283,7 @@ for (let i = 0; i < statLabelList.length; i++) {
 					</td>
 					<td>
 						<input
+							name="buff-effect-quantity"
 							v-model="currentEffectValue"
 							type="number"
 						/>

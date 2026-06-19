@@ -99,9 +99,7 @@ const labelsSkills = Object.keys(skillsInfoMap).map((key) => skillsInfoMap[key a
 					</td>
 				</tr>
 				<tr title="Reset all visual configuration to default settings.">
-					<td class="setting-label">
-						<label>Reset Visuals</label>
-					</td>
+					<td class="setting-label">Reset Visuals</td>
 					<td class="setting-content">
 						<button
 							id="reset-visuals"
@@ -114,9 +112,7 @@ const labelsSkills = Object.keys(skillsInfoMap).map((key) => skillsInfoMap[key a
 				<tr
 					title="Save the current specified visual settings to local storage so they'll persist if the tab closes."
 				>
-					<td class="setting-label">
-						<label>Write Visuals to Local Storage</label>
-					</td>
+					<td class="setting-label">Write Visuals to Local Storage</td>
 					<td class="setting-content">
 						<button
 							id="save-visuals"
@@ -158,9 +154,7 @@ const labelsSkills = Object.keys(skillsInfoMap).map((key) => skillsInfoMap[key a
 				<tr
 					title="Removes all saved state from local storage. Does not affect the current state of things."
 				>
-					<td class="setting-label">
-						<label>Clear Local Storage</label>
-					</td>
+					<td class="setting-label">Clear Local Storage</td>
 					<td class="setting-content">
 						<button @click="clearLocalStorage()">Clear</button>
 					</td>

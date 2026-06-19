@@ -96,7 +96,7 @@ watch(stackCount, () => {
 						v-if="props.isStacking"
 						class="stacks"
 						><input
-							:id="'spinbox-' + idName"
+							:name="'spinbox-' + idName"
 							class="stacks-input"
 							type="number"
 							min="0"

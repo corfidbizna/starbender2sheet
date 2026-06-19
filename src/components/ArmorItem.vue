@@ -69,6 +69,7 @@ const buffsForDisplay = computed<Record<string, string>>(() => {
 				<div v-if="isStacking">
 					{{ stacksName || 'Stacks' }} x
 					<input
+						name="armor-stacks"
 						type="number"
 						min="0"
 						class="stacks-input"

@@ -199,7 +199,10 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 				:characterId="characterId"
 			/>
 			<h2>Show Abilities</h2>
-			<select v-model="listKey">
+			<select
+				name="abilities-filter"
+				v-model="listKey"
+			>
 				<option value="">ALL</option>
 				<option
 					v-for="ability in abilityTypes"
@@ -217,6 +220,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 						v-model="shouldOverrideSubclass"
 					/>Override to</label
 				><select
+					name="subclass-override"
 					:disabled="!shouldOverrideSubclass"
 					v-model="subclassOverride"
 				>
@@ -234,6 +238,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 			</div>
 			<h2>Action Log</h2>
 			<textarea
+				name="action-log"
 				v-model="actionLog"
 				readonly
 				class="action-log"

@@ -520,6 +520,7 @@ const encumberanceColor = computed<string>(() => {
 									type="number"
 									min="0"
 									value="1"
+									name="turn-counter"
 							/></span>
 						</h1>
 						<button @click="incrementTurn">Begin Next Round</button>
@@ -543,6 +544,7 @@ const encumberanceColor = computed<string>(() => {
 						v-model="actionLog"
 						readonly
 						class="action-log"
+						name="action-log"
 					></textarea>
 				</div>
 				<div class="left-block">
@@ -729,8 +731,7 @@ const encumberanceColor = computed<string>(() => {
 									<td class="stat-label">Type</td>
 									<td class="stat-value">
 										<select
-											name="damage-select"
-											id="damage-select"
+											name="damage-type"
 											v-model="dmgType"
 											style="width: 100%"
 										>
@@ -760,7 +761,7 @@ const encumberanceColor = computed<string>(() => {
 									<td class="stat-label">Count</td>
 									<td class="stat-value">
 										<input
-											id="damage-count"
+											name="damage-count"
 											type="number"
 											value="1"
 											min="1"

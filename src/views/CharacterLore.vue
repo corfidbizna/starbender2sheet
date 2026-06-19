@@ -106,6 +106,7 @@ const currentImageURL = ref<string>(
 				{{ characterTitle }}
 			</h1>
 			<select
+				name="character-image-list"
 				v-if="!!character.images"
 				v-model="currentImageURL"
 			>
@@ -161,7 +162,10 @@ const currentImageURL = ref<string>(
 		</div>
 		<div class="notes">
 			<h2>Notes</h2>
-			<textarea rows="25"></textarea>
+			<textarea
+				name="notes"
+				rows="25"
+			></textarea>
 		</div>
 	</div>
 </template>

@@ -2545,7 +2545,7 @@ const getNetworkDataStateForSheet = <T>(
 		// Return early if cached.
 		return sheetCache[cacheKey] as NetworkDataState<T>;
 	}
-	const data = ref<T[]>([]) as Ref<T[]>;
+	const data: Ref<T[]> = ref([]);
 	const isLoading = ref<boolean>(true);
 	const refresh = () => {
 		isLoading.value = true;

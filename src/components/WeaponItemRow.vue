@@ -463,6 +463,7 @@ const weapon = computed<Weapon>(() => {
 						/>
 						<span
 							><input
+								name="ammo-count"
 								type="number"
 								v-model="weapons[weaponIndex].ammoCurrent"
 								style="width: 3em"
@@ -555,7 +556,10 @@ const weapon = computed<Weapon>(() => {
 					</tbody>
 				</table>
 				<div class="weapon-damage-mods">
-					<select v-model="advantageState">
+					<select
+						name="advantage-select"
+						v-model="advantageState"
+					>
 						<option value="">--</option>
 						<option value="Advantage">Advantage</option>
 						<option value="Disadvantage">Disadvantage</option>

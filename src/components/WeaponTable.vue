@@ -110,6 +110,7 @@ const multipleExotics = computed<boolean>(() => {
 				<label>
 					<span class="label">Filter by name: </span>
 					<input
+						name="weapon-filter-by-name"
 						type="text"
 						v-model="queryValue"
 					/>
@@ -145,6 +146,7 @@ const multipleExotics = computed<boolean>(() => {
 			</div>
 			<h2>Action Log</h2>
 			<textarea
+				name="action-log"
 				v-model="actionLog"
 				readonly
 				class="action-log"
