@@ -291,6 +291,66 @@ describe('Dice Formula Stuff', () => {
 		const reformula = formula.evaluateExceptDice(getStat).stringify();
 		expect(reformula).toEqual('15');
 	});
+	test('`Weapon Damage` lookup', () => {
+		const formula = new DiceFormula('Weapon Damage');
+		const evaluatedDice = formula.evaluateExceptDice(getStat);
+		const reformula = evaluatedDice.stringify();
+		expect(reformula).toEqual('0');
+	});
+	test('`Weapon Damage` lookup plus number', () => {
+		const formula = new DiceFormula('Weapon Damage+5');
+		const evaluatedDice = formula.evaluateExceptDice(getStat);
+		const reformula = evaluatedDice.stringify();
+		expect(reformula).toEqual('5');
+	});
+	test('`Weapon Damage` lookup minus number', () => {
+		const formula = new DiceFormula('Weapon Damage-5');
+		const evaluatedDice = formula.evaluateExceptDice(getStat);
+		const reformula = evaluatedDice.stringify();
+		expect(reformula).toEqual('-5');
+	});
+	test('Number minus `Weapon Damage`', () => {
+		const formula = new DiceFormula('5-Weapon Damage');
+		const evaluatedDice = formula.evaluateExceptDice(getStat);
+		const reformula = evaluatedDice.stringify();
+		expect(reformula).toEqual('5');
+	});
+	test('Number and `Weapon Damage` and another number', () => {
+		const formula = new DiceFormula('5+Weapon Damage-2');
+		const evaluatedDice = formula.evaluateExceptDice(getStat);
+		const reformula = evaluatedDice.stringify();
+		expect(reformula).toEqual('3');
+	});
+	test('Multiple numbers and `Weapon Damage` and another number', () => {
+		const formula = new DiceFormula('5+5+Weapon Damage-2');
+		const evaluatedDice = formula.evaluateExceptDice(getStat);
+		const reformula = evaluatedDice.stringify();
+		expect(reformula).toEqual('8');
+	});
+	test('Multiple named stats being added', () => {
+		const formula = new DiceFormula('Weapon Damage+Solar Damage+Melee Damage');
+		const evaluatedDice = formula.evaluateExceptDice(getStat);
+		const reformula = evaluatedDice.stringify();
+		expect(reformula).toEqual('0');
+	});
+	test('Multiple named stats being added with dice at the end', () => {
+		const formula = new DiceFormula('Weapon Damage+Solar Damage+Melee Damage+1d4');
+		const evaluatedDice = formula.evaluateExceptDice(getStat);
+		const reformula = evaluatedDice.stringify();
+		expect(reformula).toEqual('1d4');
+	});
+	test('Multiple named stats being added with dice at the front', () => {
+		const formula = new DiceFormula('1d4+Weapon Damage+Solar Damage+Melee Damage');
+		const evaluatedDice = formula.evaluateExceptDice(getStat);
+		const reformula = evaluatedDice.stringify();
+		expect(reformula).toEqual('1d4');
+	});
+	test('Dice formula plus sequential constants with stat as the middle constant', () => {
+		const formula = new DiceFormula('5d4+3+Weapon Damage-2');
+		const evaluatedDice = formula.evaluateExceptDice(getStat);
+		const reformula = evaluatedDice.stringify();
+		expect(reformula).toEqual('5d4+1');
+	});
 	// test('Variable dice count', () => {
 	// 	const formula = new DiceFormula('(4*2)d8'); // Stray die roll
 	// 	const reformula = formula.evaluateExceptDice(getStat).stringify;
