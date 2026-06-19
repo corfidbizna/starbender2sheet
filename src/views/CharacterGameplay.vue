@@ -600,45 +600,47 @@ const encumberanceColor = computed<string>(() => {
 								class="health-block-bars"
 								:class="{ 'guardian-down': previewDamage.health <= 0 }"
 							>
-								<div class="health-bar-back">
-									<CapacityBar
-										v-bind="{
-											max: statsBuffed.hpMax.total,
-											current: actionResourcesDisplay.health,
-											color: '#844',
-											hideLine: true,
-										}"
-										:style="'width: ' + healthBarPercentage + '%'"
-									/>
-									<CapacityBar
-										v-bind="{
-											max: statsBuffed.hpShieldMax.total,
-											current: actionResourcesDisplay.shields,
-											color: shieldColor + '66',
-											hideLine: true,
-										}"
-										:style="'width: ' + (100 - healthBarPercentage) + '%'"
-									/>
-								</div>
-								<div class="health-bar-front">
-									<CapacityBar
-										v-bind="{
-											max: statsBuffed.hpMax.total,
-											current: previewDamage.health,
-											color: healthColor,
-											hideLine: true,
-										}"
-										:style="'width: ' + healthBarPercentage + '%'"
-									/>
-									<CapacityBar
-										v-bind="{
-											max: statsBuffed.hpShieldMax.total,
-											current: previewDamage.shields,
-											color: shieldColor,
-											hideLine: true,
-										}"
-										:style="'width: ' + (100 - healthBarPercentage) + '%'"
-									/>
+								<div class="health-block-bars-container">
+									<div class="health-bar-back">
+										<CapacityBar
+											v-bind="{
+												max: statsBuffed.hpMax.total,
+												current: actionResourcesDisplay.health,
+												color: '#844',
+												hideLine: true,
+											}"
+											:style="'width: ' + healthBarPercentage + '%'"
+										/>
+										<CapacityBar
+											v-bind="{
+												max: statsBuffed.hpShieldMax.total,
+												current: actionResourcesDisplay.shields,
+												color: shieldColor + '66',
+												hideLine: true,
+											}"
+											:style="'width: ' + (100 - healthBarPercentage) + '%'"
+										/>
+									</div>
+									<div class="health-bar-front">
+										<CapacityBar
+											v-bind="{
+												max: statsBuffed.hpMax.total,
+												current: previewDamage.health,
+												color: healthColor,
+												hideLine: true,
+											}"
+											:style="'width: ' + healthBarPercentage + '%'"
+										/>
+										<CapacityBar
+											v-bind="{
+												max: statsBuffed.hpShieldMax.total,
+												current: previewDamage.shields,
+												color: shieldColor,
+												hideLine: true,
+											}"
+											:style="'width: ' + (100 - healthBarPercentage) + '%'"
+										/>
+									</div>
 								</div>
 							</div>
 							<div class="health-block-infos">
@@ -685,7 +687,9 @@ const encumberanceColor = computed<string>(() => {
 								</h2>
 							</caption>
 							<tbody>
-								<tr title="(Damage Received × Mult) - DR → Count → Resulting Damage">
+								<tr
+									title="(Damage Received × Mult) - DR → Count → Resulting Damage"
+								>
 									<td class="stat-label">Math</td>
 									<td
 										class="stat-value"
@@ -751,7 +755,8 @@ const encumberanceColor = computed<string>(() => {
 											v-bind="{ name: dmgType }"
 											class="element-glyph"
 											:style="
-												'color: ' + (elements[dmgType as Element] || '#7a6666')
+												'color: ' +
+												(elements[dmgType as Element] || '#7a6666')
 											"
 											style="font-size: 1em"
 										/>
@@ -842,13 +847,18 @@ const encumberanceColor = computed<string>(() => {
 								</h2>
 							</caption>
 							<tbody>
-								<tr :title="buffsTallied.actionsMoveBaseLand.summary.join('\n') || ''">
+								<tr
+									:title="
+										buffsTallied.actionsMoveBaseLand.summary.join('\n') || ''
+									"
+								>
 									<td class="stat-label">Movement Per Action</td>
 									<td class="stat-value">
 										{{
 											moveShowTiles
-												? toTiles(statsBuffed['actionsMoveBaseLand'].total) +
-													' tiles'
+												? toTiles(
+														statsBuffed['actionsMoveBaseLand'].total,
+													) + ' tiles'
 												: statsBuffed['actionsMoveBaseLand'].total + ' ft.'
 										}}
 									</td>
@@ -936,7 +946,9 @@ const encumberanceColor = computed<string>(() => {
 										<span v-else-if="encumberanceTEMP === 2">
 											Heavily Encumbered
 										</span>
-										<span v-else-if="encumberanceTEMP >= 3"> Over Encumbered </span>
+										<span v-else-if="encumberanceTEMP >= 3">
+											Over Encumbered
+										</span>
 									</td>
 									<td>
 										<CapacityBar
@@ -1121,34 +1133,33 @@ const encumberanceColor = computed<string>(() => {
 	background-repeat: no-repeat;
 }
 .health-block-bars {
-	padding: 0 0 0 0;
-	margin-left: 8px;
+	padding: 0 8px;
 	height: 1.75em;
+}
+.health-block-bars-container {
+	position: relative;
+	border-bottom: 1px solid #fffd;
+	border-top: 1px solid #fffd;
+	height: 10px;
 }
 .health-bar-front,
 .health-bar-back {
-	width: calc(100% - 16px);
+	width: 100%;
+	height: 100%;
 	position: absolute;
-	top: 4px;
+	top: -4px;
 }
-.health-bar-front > .container,
+/* .health-bar-front > .container,
 .health-bar-back > .container {
 	height: 10px;
-}
-.health-bar-front > .container > .remaining,
-.health-bar-back > .container > .remaining {
-	border-top: 1px solid #fffd;
-	border-bottom: 1px solid #fffd;
-	top: 1.5px;
-}
-.guardian-down .container > .remaining,
-.guardian-down .container > .remaining {
+} */
+.guardian-down > .health-block-bars-container {
 	border-color: var(--color-debuff);
 }
-.health-bar-front > .container > .remaining {
+.health-bar-front > .container {
 	background-color: #0003;
 }
-.health-bar-back > .container > .remaining {
+.health-bar-back > .container {
 	background-color: #0004;
 }
 .health-block-infos {

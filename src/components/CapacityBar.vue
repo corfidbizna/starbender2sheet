@@ -26,7 +26,7 @@ const progress = computed<number>(() =>
 		class="container"
 		v-if="props.max > 0"
 	>
-		<span class="remaining"></span>
+		<!-- <span class="remaining"></span> -->
 		<span
 			class="bar"
 			:style="'width: ' + progress + '%; background-color: ' + color"
@@ -49,41 +49,33 @@ const progress = computed<number>(() =>
 	text-align: left;
 	display: inline-block;
 	width: 100%;
-	height: 1.2em;
+	max-height: 1.2em;
+	height: 100%;
+	background-color: #fff4;
 }
 .bar,
-.remaining,
 .line {
 	transition:
 		width 0.15s,
 		background-color 0.075s;
 }
-.bar,
-.remaining {
-	display: inline-block;
-	height: calc(100% - 2px);
-	margin-top: 1px;
-	margin-bottom: 1px;
+.bar {
+	display: block;
+	height: 100%;
 }
 .line {
 	position: absolute;
-	display: inline-block;
+	display: block;
+	top: -1px;
 	width: 2px;
-	height: 100%;
+	height: calc(100% + 2px);
 	background-color: #fff;
 }
 .line {
 	transition: left 0.15s;
 }
-.remaining {
-	position: absolute;
-	width: 100%;
-	left: 0;
-	z-index: -1;
-	background-color: #fff4;
-}
 .blank {
 	height: 1em;
-	display: inline-block;
+	display: block;
 }
 </style>
