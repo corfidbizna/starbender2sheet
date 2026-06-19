@@ -1,16 +1,9 @@
 <script setup lang="ts">
-import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
-import {
-	bgColor,
-	banner,
-	getBanner,
-	getBGColor,
-	subtabNameGameplay,
-	subtabNameLoadout,
-} from '@/sharedState';
-import router from '@/router/index.ts';
-import LoadingModal from '@/components/LoadingModal.vue';
 import { computed, onBeforeUnmount } from 'vue';
+import router from '@/router/index.ts';
+import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
+import { bgColor, banner, subtabNameGameplay, subtabNameLoadout } from '@/sharedState';
+import LoadingModal from '@/components/LoadingModal.vue';
 type CharacterProps = {
 	characterId: CharacterNames;
 };
@@ -31,16 +24,8 @@ const { character, armorLoading, buffsLoading, statsLoading, weaponsLoading } = 
 	props.characterId,
 );
 const params = { characterId: props.characterId };
-let initialLoadComplete = false;
 const isLoading = computed(() => {
-	const done =
-		armorLoading.value || buffsLoading.value || statsLoading.value || weaponsLoading.value;
-	if (done === true && initialLoadComplete === false) {
-		initialLoadComplete = true;
-		bgColor.value = getBGColor();
-		banner.value = getBanner();
-	}
-	return !initialLoadComplete;
+	return armorLoading.value || buffsLoading.value || statsLoading.value || weaponsLoading.value;
 });
 
 const names = computed<string[]>(() => [
@@ -137,10 +122,10 @@ onBeforeUnmount(() => {
 			<h1>Invalid character ID: {{ characterId }}</h1>
 		</div>
 		<div v-else-if="isLoading">
-			<div>Armor loading… <span v-if="armorLoading">…done!</span></div>
-			<div>Buffs loading… <span v-if="buffsLoading">…done!</span></div>
-			<div>Stats loading… <span v-if="statsLoading">…done!</span></div>
-			<div>Weapons loading… <span v-if="weaponsLoading">…done!</span></div>
+			<div>Armor loading… <span v-if="!armorLoading">…done!</span></div>
+			<div>Buffs loading… <span v-if="!buffsLoading">…done!</span></div>
+			<div>Stats loading… <span v-if="!statsLoading">…done!</span></div>
+			<div>Weapons loading… <span v-if="!weaponsLoading">…done!</span></div>
 			<LoadingModal />
 		</div>
 		<router-view

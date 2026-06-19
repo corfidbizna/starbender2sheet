@@ -136,11 +136,15 @@ export const rotateBGs = ref<boolean>(localStorage.getItem('rotateBGs') === 'tru
 export const bgColor = ref<string>(localStorage.getItem('bgColor') || defaultBGColor);
 export const banner = ref<string>(localStorage.getItem('banner') || defaultBanner);
 export const getBGColor = (): string => {
-	return localStorage.getItem('bgColor') || defaultBGColor;
+	const value = localStorage.getItem('bgColor') || defaultBGColor;
+	return (bgColor.value = value);
 };
+getBGColor();
 export const getBanner = (): string => {
-	return localStorage.getItem('banner') || defaultBanner;
+	const value = localStorage.getItem('banner') || defaultBanner;
+	return (banner.value = value);
 };
+getBanner();
 
 export const resetVisuals = () => {
 	rotateBGs.value = false;
