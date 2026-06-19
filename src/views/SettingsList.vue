@@ -25,145 +25,147 @@ const labelsSkills = Object.keys(skillsInfoMap).map((key) => skillsInfoMap[key a
 <template>
 	<div class="settings-box">
 		<table>
-			<tr class="header">
-				<td colspan="2"><h2>General</h2></td>
-			</tr>
-			<!-- <tr title="Whether or not to show distances in feet or tiles.">
-				<td class="setting-label">
-					<label for="setting-distance-display">Use Tiles for Distance</label>
-				</td>
-				<td class="setting-content">
-					<input
-						id="setting-distance-display"
-						type="checkbox"
-					/>
-				</td>
-			</tr> -->
-			<tr
-				title="Whether or not to show the group in the buffs section that collects all currently active buffs together."
-			>
-				<td class="setting-label">
-					<label for="setting-active-buffs">Show Active Buffs Group</label>
-				</td>
-				<td class="setting-content">
-					<input
-						id="setting-active-buffs"
-						type="checkbox"
-					/>
-				</td>
-			</tr>
-			<tr class="header">
-				<td colspan="2"><h2>Visuals</h2></td>
-			</tr>
-			<tr
-				title="Whether or not per-tab SVG backgrounds rotate (having this enabled will cause your computer to get warm)."
-			>
-				<td class="setting-label">
-					<label for="setting-animate-bg">Animate Backgrounds</label>
-				</td>
-				<td class="setting-content">
-					<input
-						id="setting-animate-bg"
-						type="checkbox"
-						v-model="rotateBGs"
-					/>
-				</td>
-			</tr>
-			<tr title="The primary color the background will use.">
-				<td class="setting-label">
-					<label for="setting-background-color">Background Color</label>
-				</td>
-				<td class="setting-content">
-					<input
-						id="setting-background-color"
-						type="color"
-						format="hex"
-						alpha
-						v-model="bgColor"
-						style="height: 24px"
-					/>
-				</td>
-			</tr>
-			<tr title="What image the banner at the top should use as its background.">
-				<td class="setting-label">
-					<label for="setting-banner-image">Banner Image URL</label>
-				</td>
-				<td class="setting-content">
-					<input
-						id="setting-banner-image"
-						type="url"
-						v-model="banner"
-						style="width: 4em"
-					/>
-				</td>
-			</tr>
-			<tr title="Reset all visual configuration to default settings.">
-				<td class="setting-label">
-					<label>Reset Visuals</label>
-				</td>
-				<td class="setting-content">
-					<button
-						id="reset-visuals"
-						@click="resetVisuals()"
-					>
-						Reset
-					</button>
-				</td>
-			</tr>
-			<tr
-				title="Save the current specified visual settings to local storage so they'll persist if the tab closes."
-			>
-				<td class="setting-label">
-					<label>Write Visuals to Local Storage</label>
-				</td>
-				<td class="setting-content">
-					<button
-						id="save-visuals"
-						@click="storeVisuals()"
-					>
-						Save
-					</button>
-				</td>
-			</tr>
-			<tr class="header">
-				<td colspan="2"><h2>Debug</h2></td>
-			</tr>
-			<tr
-				title="Whether or not to display the complete list of active buff names on the Buffs page."
-			>
-				<td class="setting-label">
-					<label for="setting-full-buff-list">Show Entire Active Buff List</label>
-				</td>
-				<td class="setting-content">
-					<input
-						id="setting-full-buff-list"
-						type="checkbox"
-						v-model="fullListBuff"
-					/>
-				</td>
-			</tr>
-			<tr title="Whether or not to display features that have been marked as unlisted.">
-				<td class="setting-label">
-					<label for="setting-full-feature-list">Show Entire Feature List</label>
-				</td>
-				<td class="setting-content">
-					<input
-						id="setting-full-feature-list"
-						type="checkbox"
-						v-model="fullListFeature"
-					/>
-				</td>
-			</tr>
-			<tr
-				title="Removes all saved state from local storage. Does not affect the current state of things."
-			>
-				<td class="setting-label">
-					<label>Clear Local Storage</label>
-				</td>
-				<td class="setting-content">
-					<button @click="clearLocalStorage()">Clear</button>
-				</td>
-			</tr>
+			<tbody>
+				<tr class="header">
+					<td colspan="2"><h2>General</h2></td>
+				</tr>
+				<!-- <tr title="Whether or not to show distances in feet or tiles.">
+					<td class="setting-label">
+						<label for="setting-distance-display">Use Tiles for Distance</label>
+					</td>
+					<td class="setting-content">
+						<input
+							id="setting-distance-display"
+							type="checkbox"
+						/>
+					</td>
+				</tr> -->
+				<tr
+					title="Whether or not to show the group in the buffs section that collects all currently active buffs together."
+				>
+					<td class="setting-label">
+						<label for="setting-active-buffs">Show Active Buffs Group</label>
+					</td>
+					<td class="setting-content">
+						<input
+							id="setting-active-buffs"
+							type="checkbox"
+						/>
+					</td>
+				</tr>
+				<tr class="header">
+					<td colspan="2"><h2>Visuals</h2></td>
+				</tr>
+				<tr
+					title="Whether or not per-tab SVG backgrounds rotate (having this enabled will cause your computer to get warm)."
+				>
+					<td class="setting-label">
+						<label for="setting-animate-bg">Animate Backgrounds</label>
+					</td>
+					<td class="setting-content">
+						<input
+							id="setting-animate-bg"
+							type="checkbox"
+							v-model="rotateBGs"
+						/>
+					</td>
+				</tr>
+				<tr title="The primary color the background will use.">
+					<td class="setting-label">
+						<label for="setting-background-color">Background Color</label>
+					</td>
+					<td class="setting-content">
+						<input
+							id="setting-background-color"
+							type="color"
+							format="hex"
+							alpha
+							v-model="bgColor"
+							style="height: 24px"
+						/>
+					</td>
+				</tr>
+				<tr title="What image the banner at the top should use as its background.">
+					<td class="setting-label">
+						<label for="setting-banner-image">Banner Image URL</label>
+					</td>
+					<td class="setting-content">
+						<input
+							id="setting-banner-image"
+							type="url"
+							v-model="banner"
+							style="width: 4em"
+						/>
+					</td>
+				</tr>
+				<tr title="Reset all visual configuration to default settings.">
+					<td class="setting-label">
+						<label>Reset Visuals</label>
+					</td>
+					<td class="setting-content">
+						<button
+							id="reset-visuals"
+							@click="resetVisuals()"
+						>
+							Reset
+						</button>
+					</td>
+				</tr>
+				<tr
+					title="Save the current specified visual settings to local storage so they'll persist if the tab closes."
+				>
+					<td class="setting-label">
+						<label>Write Visuals to Local Storage</label>
+					</td>
+					<td class="setting-content">
+						<button
+							id="save-visuals"
+							@click="storeVisuals()"
+						>
+							Save
+						</button>
+					</td>
+				</tr>
+				<tr class="header">
+					<td colspan="2"><h2>Debug</h2></td>
+				</tr>
+				<tr
+					title="Whether or not to display the complete list of active buff names on the Buffs page."
+				>
+					<td class="setting-label">
+						<label for="setting-full-buff-list">Show Entire Active Buff List</label>
+					</td>
+					<td class="setting-content">
+						<input
+							id="setting-full-buff-list"
+							type="checkbox"
+							v-model="fullListBuff"
+						/>
+					</td>
+				</tr>
+				<tr title="Whether or not to display features that have been marked as unlisted.">
+					<td class="setting-label">
+						<label for="setting-full-feature-list">Show Entire Feature List</label>
+					</td>
+					<td class="setting-content">
+						<input
+							id="setting-full-feature-list"
+							type="checkbox"
+							v-model="fullListFeature"
+						/>
+					</td>
+				</tr>
+				<tr
+					title="Removes all saved state from local storage. Does not affect the current state of things."
+				>
+					<td class="setting-label">
+						<label>Clear Local Storage</label>
+					</td>
+					<td class="setting-content">
+						<button @click="clearLocalStorage()">Clear</button>
+					</td>
+				</tr>
+			</tbody>
 		</table>
 		<div class="settings-list">
 			<h2>Buffable Stat List</h2>

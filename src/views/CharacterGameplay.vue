@@ -682,107 +682,109 @@ const encumberanceColor = computed<string>(() => {
 									</button>
 								</h2>
 							</caption>
-							<tr title="(Damage Received × Mult) - DR → Count → Resulting Damage">
-								<td class="stat-label">Math</td>
-								<td
-									class="stat-value"
-									colspan="3"
-								>
-									({{ dmg }} × {{ dmgMult }}){{ currentDR < 0 ? ' + ' : ' - '
-									}}{{ Math.abs(currentDR) }} → {{ dmgCount }}× →
-								</td>
-								<td
-									class="stat-value"
-									style="text-align: right"
-								>
-									<span>{{ currentDamage }}</span>
-								</td>
-							</tr>
-							<tr>
-								<td class="stat-label">Received</td>
-								<td
-									class="stat-value"
-									colspan="4"
-								>
-									<input
-										id="damage-raw"
-										type="number"
-										value="0"
-										v-model="dmg"
-										style="min-width: 4em; width: 40%"
-									/>
-								</td>
-							</tr>
-							<tr>
-								<td class="stat-label">Mult</td>
-								<td class="stat-value">
-									<input
-										id="damage-mult"
-										type="number"
-										value="1"
-										min="0"
-										v-model="dmgMult"
-										style="width: 3em"
-									/>
-								</td>
-								<td class="stat-label">Type</td>
-								<td class="stat-value">
-									<select
-										name="damage-select"
-										id="damage-select"
-										v-model="dmgType"
-										style="width: 100%"
+							<tbody>
+								<tr title="(Damage Received × Mult) - DR → Count → Resulting Damage">
+									<td class="stat-label">Math</td>
+									<td
+										class="stat-value"
+										colspan="3"
 									>
-										<option
-											v-for="element in Object.keys(elements)"
-											:key="element"
-											:value="element"
+										({{ dmg }} × {{ dmgMult }}){{ currentDR < 0 ? ' + ' : ' - '
+										}}{{ Math.abs(currentDR) }} → {{ dmgCount }}× →
+									</td>
+									<td
+										class="stat-value"
+										style="text-align: right"
+									>
+										<span>{{ currentDamage }}</span>
+									</td>
+								</tr>
+								<tr>
+									<td class="stat-label">Received</td>
+									<td
+										class="stat-value"
+										colspan="4"
+									>
+										<input
+											id="damage-raw"
+											type="number"
+											value="0"
+											v-model="dmg"
+											style="min-width: 4em; width: 40%"
+										/>
+									</td>
+								</tr>
+								<tr>
+									<td class="stat-label">Mult</td>
+									<td class="stat-value">
+										<input
+											id="damage-mult"
+											type="number"
+											value="1"
+											min="0"
+											v-model="dmgMult"
+											style="width: 3em"
+										/>
+									</td>
+									<td class="stat-label">Type</td>
+									<td class="stat-value">
+										<select
+											name="damage-select"
+											id="damage-select"
+											v-model="dmgType"
+											style="width: 100%"
 										>
-											{{ element }}
-										</option>
-										<option value="Darkness">Darkness</option>
-									</select>
-								</td>
-								<td>
-									<DGlyph
-										v-if="dmgType !== 'Kinetic'"
-										v-bind="{ name: dmgType }"
-										class="element-glyph"
-										:style="
-											'color: ' + (elements[dmgType as Element] || '#7a6666')
-										"
-										style="font-size: 1em"
-									/>
-								</td>
-							</tr>
-							<tr>
-								<td class="stat-label">Count</td>
-								<td class="stat-value">
-									<input
-										id="damage-count"
-										type="number"
-										value="1"
-										min="1"
-										v-model="dmgCount"
-										style="width: 3em"
-									/>
-								</td>
-								<td class="stat-label">DR</td>
-								<td class="stat-value">
-									<select
-										name="damage-select"
-										id="damage-select"
-										v-model="dmgDRType"
-									>
-										<option value="None">--None--</option>
-										<option value="DR">DR</option>
-										<option value="FFDR">FFDR</option>
-									</select>
-								</td>
-								<td class="stat-value">
-									{{ currentDR }}
-								</td>
-							</tr>
+											<option
+												v-for="element in Object.keys(elements)"
+												:key="element"
+												:value="element"
+											>
+												{{ element }}
+											</option>
+											<option value="Darkness">Darkness</option>
+										</select>
+									</td>
+									<td>
+										<DGlyph
+											v-if="dmgType !== 'Kinetic'"
+											v-bind="{ name: dmgType }"
+											class="element-glyph"
+											:style="
+												'color: ' + (elements[dmgType as Element] || '#7a6666')
+											"
+											style="font-size: 1em"
+										/>
+									</td>
+								</tr>
+								<tr>
+									<td class="stat-label">Count</td>
+									<td class="stat-value">
+										<input
+											id="damage-count"
+											type="number"
+											value="1"
+											min="1"
+											v-model="dmgCount"
+											style="width: 3em"
+										/>
+									</td>
+									<td class="stat-label">DR</td>
+									<td class="stat-value">
+										<select
+											name="damage-select"
+											id="damage-select"
+											v-model="dmgDRType"
+										>
+											<option value="None">--None--</option>
+											<option value="DR">DR</option>
+											<option value="FFDR">FFDR</option>
+										</select>
+									</td>
+									<td class="stat-value">
+										{{ currentDR }}
+									</td>
+								</tr>
+							</tbody>
 						</table>
 						<div>
 							<h2>Actions</h2>
@@ -838,113 +840,115 @@ const encumberanceColor = computed<string>(() => {
 									>
 								</h2>
 							</caption>
-							<tr :title="buffsTallied.actionsMoveBaseLand.summary.join('\n') || ''">
-								<td class="stat-label">Movement Per Action</td>
-								<td class="stat-value">
-									{{
-										moveShowTiles
-											? toTiles(statsBuffed['actionsMoveBaseLand'].total) +
-												' tiles'
-											: statsBuffed['actionsMoveBaseLand'].total + ' ft.'
-									}}
-								</td>
-							</tr>
-							<tr>
-								<td colspan="2">
-									<table class="movement-table">
-										<tbody>
-											<tr>
-												<td>Jump</td>
-												<td>Climb</td>
-												<td>Swim</td>
-												<td>Fly</td>
-											</tr>
-											<tr>
-												<td class="movement-table-value">
-													{{ moveResults.jump }}
-												</td>
-												<td class="movement-table-value">
-													{{ moveResults.climb }}
-												</td>
-												<td class="movement-table-value">
-													{{ moveResults.swim }}
-												</td>
-												<td class="movement-table-value">
-													{{ moveResults.fly }}
-												</td>
-											</tr>
-										</tbody>
-									</table>
-								</td>
-							</tr>
-							<!-- <tr>
-								<td class="stat-label">Jump Height</td>
-								<td class="stat-value">
-									{{ moveInfo.acrobatics }} ft. /
-									{{ toTiles(moveInfo.acrobatics) }} tiles
-								</td>
-							</tr>
-							<tr>
-								<td class="stat-label">Climb Speed</td>
-								<td class="stat-value">
-									{{ moveInfo.climb }} ft. / {{ toTiles(moveInfo.climb) }} tiles
-								</td>
-							</tr>
-							<tr>
-								<td class="stat-label">Swim Speed</td>
-								<td class="stat-value">
-									{{ moveInfo.swim }} ft. / {{ toTiles(moveInfo.swim) }} tiles
-								</td>
-							</tr>
-							<tr>
-								<td class="stat-label">Fly Speed</td>
-								<td class="stat-value">
-									{{ moveInfo.fly }} ft. / {{ toTiles(moveInfo.fly) }} tiles
-								</td>
-							</tr> -->
-							<tr>
-								<td class="stat-label">Reach</td>
-								<td class="stat-value">
-									{{
-										moveShowTiles
-											? toTiles(statsBuffed['reach'].total) + ' tiles'
-											: statsBuffed['reach'].total + ' ft.'
-									}}
-								</td>
-							</tr>
-							<tr>
-								<td class="stat-label">Size</td>
-								<td class="stat-value">
-									{{ sizeMap[statsBuffed['size'].total].name }}
-								</td>
-							</tr>
-							<tr>
-								<td class="stat-label">Carrying Capacity</td>
-								<td class="stat-value">
-									{{ statsBuffed['weightCurrent'].total }} ⁄
-									{{ statsBuffed['capacityCarrying'].total }} lbs.
-								</td>
-							</tr>
-							<tr>
-								<td class="stat-label">
-									<span v-if="encumberanceTEMP <= 0"> Not Encumbered </span>
-									<span v-else-if="encumberanceTEMP === 1"> Encumbered </span>
-									<span v-else-if="encumberanceTEMP === 2">
-										Heavily Encumbered
-									</span>
-									<span v-else-if="encumberanceTEMP >= 3"> Over Encumbered </span>
-								</td>
-								<td>
-									<CapacityBar
-										v-bind="{
-											max: statsBuffed.capacityCarrying.total,
-											current: statsBuffed.weightCurrent.total || 0,
-											color: encumberanceColor,
-										}"
-										style="height: 0.8em"
-									/>
-								</td>
-							</tr>
+							<tbody>
+								<tr :title="buffsTallied.actionsMoveBaseLand.summary.join('\n') || ''">
+									<td class="stat-label">Movement Per Action</td>
+									<td class="stat-value">
+										{{
+											moveShowTiles
+												? toTiles(statsBuffed['actionsMoveBaseLand'].total) +
+													' tiles'
+												: statsBuffed['actionsMoveBaseLand'].total + ' ft.'
+										}}
+									</td>
+								</tr>
+								<tr>
+									<td colspan="2">
+										<table class="movement-table">
+											<tbody>
+												<tr>
+													<td>Jump</td>
+													<td>Climb</td>
+													<td>Swim</td>
+													<td>Fly</td>
+												</tr>
+												<tr>
+													<td class="movement-table-value">
+														{{ moveResults.jump }}
+													</td>
+													<td class="movement-table-value">
+														{{ moveResults.climb }}
+													</td>
+													<td class="movement-table-value">
+														{{ moveResults.swim }}
+													</td>
+													<td class="movement-table-value">
+														{{ moveResults.fly }}
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</td>
+								</tr>
+								<!-- <tr>
+									<td class="stat-label">Jump Height</td>
+									<td class="stat-value">
+										{{ moveInfo.acrobatics }} ft. /
+										{{ toTiles(moveInfo.acrobatics) }} tiles
+									</td>
+								</tr>
+								<tr>
+									<td class="stat-label">Climb Speed</td>
+									<td class="stat-value">
+										{{ moveInfo.climb }} ft. / {{ toTiles(moveInfo.climb) }} tiles
+									</td>
+								</tr>
+								<tr>
+									<td class="stat-label">Swim Speed</td>
+									<td class="stat-value">
+										{{ moveInfo.swim }} ft. / {{ toTiles(moveInfo.swim) }} tiles
+									</td>
+								</tr>
+								<tr>
+									<td class="stat-label">Fly Speed</td>
+									<td class="stat-value">
+										{{ moveInfo.fly }} ft. / {{ toTiles(moveInfo.fly) }} tiles
+									</td>
+								</tr> -->
+								<tr>
+									<td class="stat-label">Reach</td>
+									<td class="stat-value">
+										{{
+											moveShowTiles
+												? toTiles(statsBuffed['reach'].total) + ' tiles'
+												: statsBuffed['reach'].total + ' ft.'
+										}}
+									</td>
+								</tr>
+								<tr>
+									<td class="stat-label">Size</td>
+									<td class="stat-value">
+										{{ sizeMap[statsBuffed['size'].total].name }}
+									</td>
+								</tr>
+								<tr>
+									<td class="stat-label">Carrying Capacity</td>
+									<td class="stat-value">
+										{{ statsBuffed['weightCurrent'].total }} ⁄
+										{{ statsBuffed['capacityCarrying'].total }} lbs.
+									</td>
+								</tr>
+								<tr>
+									<td class="stat-label">
+										<span v-if="encumberanceTEMP <= 0"> Not Encumbered </span>
+										<span v-else-if="encumberanceTEMP === 1"> Encumbered </span>
+										<span v-else-if="encumberanceTEMP === 2">
+											Heavily Encumbered
+										</span>
+										<span v-else-if="encumberanceTEMP >= 3"> Over Encumbered </span>
+									</td>
+									<td>
+										<CapacityBar
+											v-bind="{
+												max: statsBuffed.capacityCarrying.total,
+												current: statsBuffed.weightCurrent.total || 0,
+												color: encumberanceColor,
+											}"
+											style="height: 0.8em"
+										/>
+									</td>
+								</tr>
+							</tbody>
 						</table>
 					</div>
 					<!-- <div class="stat-column-c">
@@ -1111,7 +1115,7 @@ const encumberanceColor = computed<string>(() => {
 /* */
 .health-block {
 	position: relative;
-	background-image: url('/public/svgs/health.svg');
+	background-image: url('/svgs/health.svg');
 	background-position: top;
 	background-repeat: no-repeat;
 }

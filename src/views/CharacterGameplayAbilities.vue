@@ -69,7 +69,7 @@ const filteredAbilities = computed<Ability[]>(() => {
 // 		Warlock: './svgs/class_warlock_proportional.svg',
 // 		Hunter: './svgs/class_hunter_proportional.svg',
 // 	};
-// 	return classMap[gClass] || '/public/svgs/Tricorn.svg';
+// 	return classMap[gClass] || '/svgs/Tricorn.svg';
 // });
 const energyTypes = computed<string[]>(() => {
 	const list = ['Grenade', 'Melee', 'Class', 'Universal'];
@@ -122,7 +122,7 @@ const abilityFilter = ref<string>('All');
 					:style="'background-color: ' + subclassColor"
 					@click="abilityFilter = 'Super'"
 				>
-					<img src="/public/svgs/stat_intellect.svg" />
+					<img src="/svgs/stat_intellect.svg" />
 				</button>
 				<table
 					class="ability-gameplay-table"

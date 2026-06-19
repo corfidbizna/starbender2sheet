@@ -250,21 +250,21 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 	white-space: pre-line;
 }
 .armor-slot.full {
-	background-image: url('/public/icons/Slot_Overview.svg');
+	background-image: url('/icons/Slot_Overview.svg');
 }
 .armor-slot.helmet {
-	background-image: url('/public/icons/Slot_Helmet.svg');
+	background-image: url('/icons/Slot_Helmet.svg');
 }
 .armor-slot.arm {
-	background-image: url('/public/icons/Slot_Arms.svg');
+	background-image: url('/icons/Slot_Arms.svg');
 }
 .armor-slot.torso {
-	background-image: url('/public/icons/Slot_Chest.svg');
+	background-image: url('/icons/Slot_Chest.svg');
 }
 .armor-slot.legs {
-	background-image: url('/public/icons/Slot_Leg.svg');
+	background-image: url('/icons/Slot_Leg.svg');
 }
 .armor-slot.class {
-	background-image: url('/public/icons/Slot_Class.svg');
+	background-image: url('/icons/Slot_Class.svg');
 }
 </style>

@@ -115,7 +115,7 @@ const energyImage: Record<string, string> = {
 			Warlock: './svgs/class_warlock_proportional.svg',
 			Hunter: './svgs/class_hunter_proportional.svg',
 		};
-		return classMap[gClass] || '/public/svgs/Tricorn.svg';
+		return classMap[gClass] || '/svgs/Tricorn.svg';
 	}).value,
 	Ritual: './svgs/Symbol_Ritual.svg',
 	Universal: './svgs/Tricorn.svg',
@@ -393,7 +393,7 @@ const updateEnergy = () => {
 						<img
 							v-else
 							class="kinetic-icon"
-							src="/public/svgs/Kenetic.svg"
+							src="/svgs/Kenetic.svg"
 						/>
 						<span
 							:class="{ debuffed: debuffed.dmg }"

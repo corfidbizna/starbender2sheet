@@ -439,7 +439,7 @@ const weapon = computed<Weapon>(() => {
 						<img
 							v-else
 							class="kinetic-icon"
-							src="/public/svgs/Kenetic.svg"
+							src="/svgs/Kenetic.svg"
 						/>
 						<span
 							:style="'color: ' + colorsElement(weapon.element)"
