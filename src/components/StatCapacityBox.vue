@@ -143,6 +143,7 @@ const refillAll = () => {
 .stat-box-table .capacity-bar {
 	font-size: 0.8em;
 	width: 100%;
+	height: 1em;
 	margin: 0;
 	padding: 0;
 }

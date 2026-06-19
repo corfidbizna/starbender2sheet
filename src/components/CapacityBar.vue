@@ -50,6 +50,7 @@ const progress = computed<number>(() =>
 	display: inline-block;
 	width: 100%;
 	max-height: 1.2em;
+	min-height: 4px;
 	height: 100%;
 	background-color: #fff4;
 }
@@ -75,7 +76,7 @@ const progress = computed<number>(() =>
 	transition: left 0.15s;
 }
 .blank {
-	height: 1em;
+	height: 100%;
 	display: block;
 }
 </style>

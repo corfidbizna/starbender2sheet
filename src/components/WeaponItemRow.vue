@@ -752,7 +752,8 @@ input[type='checkbox'].hidden {
 	text-transform: uppercase;
 }
 .ammo-bar {
-	max-width: 5em;
+	max-width: 3em;
+	height: 1em;
 	margin: 0 0.3em;
 }
 .weapon-details {
