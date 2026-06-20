@@ -595,83 +595,84 @@ const encumberanceColor = computed<string>(() => {
 								Revive
 							</button>
 						</h2>
-						<div class="health-block hover-highlight">
+						<div
+							class="health-block hover-highlight"
+							:class="{ 'guardian-down': previewDamage.health <= 0 }"
+						>
 							<div
-								class="health-block-bars"
-								:class="{ 'guardian-down': previewDamage.health <= 0 }"
+								class="health-bars-container"
+								:style="
+									'grid-template-columns: ' +
+									healthBarPercentage +
+									'% ' +
+									(100 - healthBarPercentage) +
+									'%'
+								"
 							>
-								<div class="health-block-bars-container">
-									<div class="health-bar-back">
-										<CapacityBar
-											v-bind="{
-												max: statsBuffed.hpMax.total,
-												current: actionResourcesDisplay.health,
-												color: '#844',
-												hideLine: true,
-											}"
-											:style="'width: ' + healthBarPercentage + '%'"
-										/>
-										<CapacityBar
-											v-bind="{
-												max: statsBuffed.hpShieldMax.total,
-												current: actionResourcesDisplay.shields,
-												color: shieldColor + '66',
-												hideLine: true,
-											}"
-											:style="'width: ' + (100 - healthBarPercentage) + '%'"
-										/>
-									</div>
-									<div class="health-bar-front">
-										<CapacityBar
-											v-bind="{
-												max: statsBuffed.hpMax.total,
-												current: previewDamage.health,
-												color: healthColor,
-												hideLine: true,
-											}"
-											:style="'width: ' + healthBarPercentage + '%'"
-										/>
-										<CapacityBar
-											v-bind="{
-												max: statsBuffed.hpShieldMax.total,
-												current: previewDamage.shields,
-												color: shieldColor,
-												hideLine: true,
-											}"
-											:style="'width: ' + (100 - healthBarPercentage) + '%'"
-										/>
-									</div>
-								</div>
+								<CapacityBar
+									class="health-bar back left"
+									v-bind="{
+										max: statsBuffed.hpMax.total,
+										current: actionResourcesDisplay.health,
+										color: '#844',
+										hideLine: true,
+									}"
+								/>
+								<CapacityBar
+									class="health-bar back right"
+									v-bind="{
+										max: statsBuffed.hpShieldMax.total,
+										current: actionResourcesDisplay.shields,
+										color: shieldColor + '66',
+										hideLine: true,
+									}"
+								/>
+								<CapacityBar
+									class="health-bar front left"
+									v-bind="{
+										max: statsBuffed.hpMax.total,
+										current: previewDamage.health,
+										color: healthColor,
+										hideLine: true,
+									}"
+								/>
+								<CapacityBar
+									class="health-bar front right"
+									v-bind="{
+										max: statsBuffed.hpShieldMax.total,
+										current: previewDamage.shields,
+										color: shieldColor,
+										hideLine: true,
+									}"
+								/>
 							</div>
-							<div class="health-block-infos">
-								<span class="health-block-info-left"
-									><SpinBox
-										v-bind="{
-											value: actionResources.damage,
-											max: statsBuffed.hpMax.total,
-											inverted: true,
-										}"
-										v-model="actionResources.damage"
-										style="width: 4em"
-									/> ⁄ {{ statsBuffed.hpMax.total }}
-								</span>
-								<span class="health-block-info-mid d-glyph"></span>
-								<span class="health-block-info-right">
-									<SpinBox
-										v-bind="{
-											value: actionResources.damageShields,
-											max: statsBuffed.hpShieldMax.total,
-											inverted: true,
-										}"
-										v-model="actionResources.damageShields"
-										style="width: 4em"
-									/> ⁄ {{ statsBuffed.hpShieldMax.total }}
-									<DGlyph
-										v-bind="{ name: activeShieldType }"
-										style="font-size: 1em"
-										:style="'color: ' + elements[activeShieldType]"
-									/>
-								</span>
+							<div class="health-info left">
+								<SpinBox
+									v-bind="{
+										value: actionResources.damage,
+										max: statsBuffed.hpMax.total,
+										inverted: true,
+									}"
+									v-model="actionResources.damage"
+									style="width: 4em"
+								/> ⁄ {{ statsBuffed.hpMax.total }}
+							</div>
+							<div class="health-info mid d-glyph"></div>
+							<div class="health-info right">
+								<SpinBox
+									v-bind="{
+										value: actionResources.damageShields,
+										max: statsBuffed.hpShieldMax.total,
+										inverted: true,
+									}"
+									v-model="actionResources.damageShields"
+									style="width: 4em"
+								/> ⁄ {{ statsBuffed.hpShieldMax.total }}
+								<DGlyph
+									v-bind="{ name: activeShieldType }"
+									style="font-size: 1em"
+									:style="'color: ' + elements[activeShieldType]"
+								/>
 							</div>
 						</div>
 						<table class="stat-box-table hover-highlight">
@@ -1131,54 +1132,48 @@ const encumberanceColor = computed<string>(() => {
 	background-image: url('/svgs/health.svg');
 	background-position: top;
 	background-repeat: no-repeat;
-}
-.health-block-bars {
-	padding: 0 8px;
-	height: 1.75em;
-}
-.health-block-bars-container {
-	position: relative;
-	border-bottom: 1px solid #fffd;
-	border-top: 1px solid #fffd;
-	height: 10px;
-}
-.health-bar-front,
-.health-bar-back {
-	width: 100%;
-	height: 100%;
-	position: absolute;
-	top: -4px;
-}
-/* .health-bar-front > .container,
-.health-bar-back > .container {
-	height: 10px;
-} */
-.guardian-down > .health-block-bars-container {
-	border-color: var(--color-debuff);
-}
-.health-bar-front > .container {
-	background-color: #0003;
-}
-.health-bar-back > .container {
-	background-color: #0004;
-}
-.health-block-infos {
 	display: grid;
+	grid-template-columns: 1fr 1fr;
 }
-.health-block-info-left {
-	grid-row: 1;
+.health-block .left {
 	grid-column: 1 / 2;
+	text-align: left;
 }
-.health-block-info-mid {
-	grid-row: 1;
+.health-block .mid {
 	grid-column: 1 / 3;
 	pointer-events: none;
 	text-align: center;
 }
-.health-block-info-right {
-	grid-row: 1;
+.health-block .right {
 	grid-column: 2 / 3;
 	text-align: right;
+}
+.health-bars-container {
+	display: grid;
+	grid-row: 1;
+	grid-column: 1/3;
+	border: 1px solid #fffd;
+	padding: 1px;
+	margin: 6px 8px 8px 8px;
+	height: 9px;
+}
+.health-bars-container > .container {
+	height: 100%;
+}
+.guardian-down > .health-bars-container {
+	border-color: var(--color-debuff);
+}
+.health-bar {
+	grid-row: 1;
+}
+.health-bar.front {
+	background-color: #0003;
+}
+.health-bar.back {
+	background-color: #0004;
+}
+.health-info {
+	grid-row: 2;
 }
 /* */
 .action-block {
