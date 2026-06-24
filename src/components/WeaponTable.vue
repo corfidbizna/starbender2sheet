@@ -96,6 +96,7 @@ const multipleExotics = computed<boolean>(() => {
 									? 'var(--color-debuff)'
 									: '#eee',
 						}"
+						style="height: 0.75em"
 					/>
 				</span>
 				<span> {{ getStat('slotsWeaponUsed') }} ⁄ {{ getStat('slotsWeapon') }}</span>

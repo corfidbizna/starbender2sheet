@@ -129,7 +129,8 @@ button {
 }
 button:enabled:hover {
 	background: #fff1;
-	transition: background 0.1s;
+	transition: 0.1s;
+	filter: brightness(110%);
 }
 button:enabled:active {
 	background: #fff8;

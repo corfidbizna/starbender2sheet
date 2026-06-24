@@ -298,9 +298,6 @@ const abilityFilter = ref<string>('All');
 	height: 18px;
 	margin: 4px;
 }
-.subclass-change-button:hover {
-	filter: brightness(110%);
-}
 .subclass-change-button > * {
 	transform: rotate(-45deg);
 	position: absolute;

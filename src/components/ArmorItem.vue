@@ -36,6 +36,7 @@ const buffsForDisplay = computed<Record<string, string>>(() => {
 </script>
 <template>
 	<label
+		:id="props.name"
 		class="armor-item"
 		:class="equipped ? 'equipped' : ''"
 		:for="name + '-equip'"

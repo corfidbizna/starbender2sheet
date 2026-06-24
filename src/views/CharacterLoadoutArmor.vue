@@ -30,7 +30,7 @@ const armorSlotSortOrder: Record<string, number> = {
 	exotic: 6,
 	other: 7,
 };
-const armorSlots = ['Full', 'Helmet', 'Arm', 'Torso', 'Legs', 'Class', 'Other'];
+// const armorSlots = ['Full', 'Helmet', 'Arm', 'Torso', 'Legs', 'Class', 'Other'];
 const sortedArmorList = computed<Armor[]>(() => {
 	return [...armorList.value].sort(
 		(a, b) =>
@@ -38,16 +38,16 @@ const sortedArmorList = computed<Armor[]>(() => {
 			armorSlotSortOrder[(b.slots || 'full').split(' ')[0]],
 	);
 });
-const findArmorSlots = computed<Record<string, string>>(() => {
-	const result: Record<string, string> = {
-		full: '',
-		head: '',
-		arm: '',
-		chest: '',
-		leg: '',
-		class: '',
-		exotic: '',
-		other: '',
+const findArmorSlots = computed<Record<string, string[]>>(() => {
+	const result: Record<string, string[]> = {
+		full: [],
+		head: [],
+		arm: [],
+		chest: [],
+		leg: [],
+		class: [],
+		exotic: [],
+		other: [],
 	};
 	const slots = Object.keys(result);
 	const filteredArmorList = computed<Armor[]>(() =>
@@ -62,18 +62,35 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 				const individualSlots = armor.slots.split(', ');
 				individualSlots.forEach((individual) => {
 					if (individual.toLocaleLowerCase().search(slot) === 0) {
-						result[slot] += armor.name + '\n';
+						result[slot].push(armor.name);
 						added = true;
 					}
 				});
 			}
 		});
 		if (!added) {
-			result.other += armor.name + '\n';
+			result.other.push(armor.name);
 		}
 	});
+	Object.keys(result).forEach((key) => result[key].sort());
 	return result;
 });
+const getBackgroundColor = (armorName: string) => {
+	const armor = armorList.value.find((armor) => armor.name === armorName);
+	return {
+		Common: '#c2bdb466',
+		Uncommon: '#356f4266',
+		Rare: '#5076a366',
+		Legendary: '#522e6566',
+		Exotic: '#cdae3466',
+	}[armor?.rarity || 'Common'];
+};
+const scrollTo = (id: string) => {
+	const element = document.getElementById(id);
+	if (element) {
+		element.scrollIntoView({ behavior: 'smooth' });
+	}
+};
 </script>
 <template>
 	<div v-if="armorLoading || buffsLoading || statsLoading">
@@ -112,7 +129,18 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 						Full: {{ statsBuffed.equipArmorFull.total }} ⁄
 						{{ getStat('slotsArmorFull') }}
 					</h2>
-					<span>{{ findArmorSlots.full || '--' }}</span>
+					<span v-if="findArmorSlots.full.length > 0">
+						<button
+							v-for="armor in findArmorSlots.full"
+							:key="armor"
+							class="armor-list-button"
+							@click="scrollTo(armor)"
+							:style="'background-color: ' + getBackgroundColor(armor)"
+						>
+							{{ armor }}
+						</button>
+					</span>
+					<span v-else>--</span>
 				</div>
 				<div
 					class="armor-slot helmet"
@@ -122,7 +150,18 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 						Helmet: {{ statsBuffed.equipArmorHead.total }} ⁄
 						{{ getStat('slotsArmorHead') }}
 					</h2>
-					<span>{{ findArmorSlots.head || '--' }}</span>
+					<span v-if="findArmorSlots.head.length > 0">
+						<button
+							v-for="armor in findArmorSlots.head"
+							:key="armor"
+							class="armor-list-button"
+							@click="scrollTo(armor)"
+							:style="'background-color: ' + getBackgroundColor(armor)"
+						>
+							{{ armor }}
+						</button>
+					</span>
+					<span v-else>--</span>
 				</div>
 				<div
 					class="armor-slot arm"
@@ -132,7 +171,18 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 						Arm: {{ statsBuffed.equipArmorArm.total }} ⁄
 						{{ getStat('slotsArmorArm') }}
 					</h2>
-					<span>{{ findArmorSlots.arm || '--' }}</span>
+					<span v-if="findArmorSlots.arm.length > 0">
+						<button
+							v-for="armor in findArmorSlots.arm"
+							:key="armor"
+							class="armor-list-button"
+							@click="scrollTo(armor)"
+							:style="'background-color: ' + getBackgroundColor(armor)"
+						>
+							{{ armor }}
+						</button>
+					</span>
+					<span v-else>--</span>
 				</div>
 				<div
 					class="armor-slot torso"
@@ -144,7 +194,18 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 						Torso: {{ statsBuffed.equipArmorChest.total }} ⁄
 						{{ getStat('slotsArmorChest') }}
 					</h2>
-					<span>{{ findArmorSlots.chest || '--' }}</span>
+					<span v-if="findArmorSlots.chest.length > 0">
+						<button
+							v-for="armor in findArmorSlots.chest"
+							:key="armor"
+							class="armor-list-button"
+							@click="scrollTo(armor)"
+							:style="'background-color: ' + getBackgroundColor(armor)"
+						>
+							{{ armor }}
+						</button>
+					</span>
+					<span v-else>--</span>
 				</div>
 				<div
 					class="armor-slot legs"
@@ -154,7 +215,18 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 						Legs: {{ statsBuffed.equipArmorLegs.total }} ⁄
 						{{ getStat('slotsArmorLegs') }}
 					</h2>
-					<span>{{ findArmorSlots.leg || '--' }}</span>
+					<span v-if="findArmorSlots.leg.length > 0">
+						<button
+							v-for="armor in findArmorSlots.leg"
+							:key="armor"
+							class="armor-list-button"
+							@click="scrollTo(armor)"
+							:style="'background-color: ' + getBackgroundColor(armor)"
+						>
+							{{ armor }}
+						</button>
+					</span>
+					<span v-else>--</span>
 				</div>
 				<div
 					class="armor-slot class"
@@ -166,7 +238,18 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 						Class: {{ statsBuffed.equipArmorClass.total }} ⁄
 						{{ getStat('slotsArmorClass') }}
 					</h2>
-					<span>{{ findArmorSlots.class || '--' }}</span>
+					<span v-if="findArmorSlots.class.length > 0">
+						<button
+							v-for="armor in findArmorSlots.class"
+							:key="armor"
+							class="armor-list-button"
+							@click="scrollTo(armor)"
+							:style="'background-color: ' + getBackgroundColor(armor)"
+						>
+							{{ armor }}
+						</button>
+					</span>
+					<span v-else>--</span>
 				</div>
 				<div
 					class="armor-slot exotic"
@@ -178,14 +261,33 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 						Exotic: {{ statsBuffed.equipArmorExotic.total }} ⁄
 						{{ getStat('slotsArmorExotic') }}
 					</h2>
-					<span>{{ findArmorSlots.exotic || '--' }}</span>
+					<span v-if="findArmorSlots.exotic.length > 0">
+						<button
+							v-for="armor in findArmorSlots.exotic"
+							:key="armor"
+							class="armor-list-button"
+							@click="scrollTo(armor)"
+							:style="'background-color: ' + getBackgroundColor(armor)"
+						>
+							{{ armor }}
+						</button>
+					</span>
+					<span v-else>--</span>
 				</div>
 				<div
-					v-if="findArmorSlots.other"
+					v-if="findArmorSlots.other.length > 0"
 					class="armor-slot other"
 				>
 					<h2>Other:</h2>
-					<span>{{ findArmorSlots.other || '--' }}</span>
+					<button
+						v-for="armor in findArmorSlots.other"
+						:key="armor"
+						class="armor-list-button"
+						@click="scrollTo(armor)"
+						:style="'background-color: ' + getBackgroundColor(armor)"
+					>
+						{{ armor }}
+					</button>
 				</div>
 			</div>
 		</div>
@@ -225,14 +327,18 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 	flex-direction: column;
 	width: 100%;
 }
+.armor-slots-active :first-child {
+	border-top: var(--line);
+}
 .armor-slots-active h2 {
 	width: 14em;
 }
 .armor-slot {
 	flex: 1 1 auto;
-	margin: 0.25em;
-	border: 2px solid #fff8;
-	padding: 0.25em;
+	border-left: var(--line);
+	border-right: var(--line);
+	border-bottom: var(--line);
+	padding: 2px;
 	background-repeat: no-repeat;
 	background-position: right;
 	background-size: 2.5em;
@@ -246,8 +352,9 @@ const findArmorSlots = computed<Record<string, string>>(() => {
 .armor-slot h2 {
 	margin-top: 0;
 }
-.armor-slot span {
-	white-space: pre-line;
+.armor-list-button {
+	display: block;
+	width: 100%;
 }
 .armor-slot.full {
 	background-image: url('/icons/Slot_Overview.svg');
