@@ -3,7 +3,7 @@ import ArmorItem from '@/components/ArmorItem.vue';
 import LoadingModal from '@/components/LoadingModal.vue';
 import StatCapacityBox from '@/components/StatCapacityBox.vue';
 import type { Armor, CharacterNames } from '@/composables/useCharacterData';
-import useCharacterData from '@/composables/useCharacterData';
+import useCharacterData, { rarities } from '@/composables/useCharacterData';
 import { computed } from 'vue';
 
 const props = defineProps<{
@@ -34,8 +34,10 @@ const armorSlotSortOrder: Record<string, number> = {
 const sortedArmorList = computed<Armor[]>(() => {
 	return [...armorList.value].sort(
 		(a, b) =>
-			armorSlotSortOrder[(a.slots || 'full').split(' ')[0]] -
-			armorSlotSortOrder[(b.slots || 'full').split(' ')[0]],
+			10 *
+				(armorSlotSortOrder[(a.slots || 'full').toLocaleLowerCase().split(' ')[0]] -
+					armorSlotSortOrder[(b.slots || 'full').toLocaleLowerCase().split(' ')[0]]) +
+			(rarities[a.rarity] - rarities[b.rarity]),
 	);
 });
 const findArmorSlots = computed<Record<string, string[]>>(() => {
@@ -327,11 +329,10 @@ const scrollTo = (id: string) => {
 	flex-direction: column;
 	width: 100%;
 }
-.armor-slots-active :first-child {
-	border-top: var(--line);
-}
 .armor-slots-active h2 {
 	width: 14em;
+	border-bottom: none;
+	margin-bottom: 0;
 }
 .armor-slot {
 	flex: 1 1 auto;
@@ -341,9 +342,9 @@ const scrollTo = (id: string) => {
 	padding: 2px;
 	background-repeat: no-repeat;
 	background-position: right;
-	background-size: 2.5em;
+	background-size: 2.25em;
 	background-color: #0002;
-	background-position-y: 0.4em;
+	background-position: 244px 4px;
 }
 .armor-slot.overfull h2 {
 	color: #d64;
