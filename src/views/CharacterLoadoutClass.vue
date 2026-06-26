@@ -356,7 +356,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 	font-size: 1.5em;
 }
 .subclass-box .subclass-symbol {
-	font-size: 2em;
+	font-size: 3em;
 }
 
 .subclass-override {

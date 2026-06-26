@@ -144,7 +144,7 @@ const equippedWeapons = computed<Weapon[]>(() => {
 	overflow-y: scroll;
 	overflow-x: clip;
 	scrollbar-width: thin;
-	font-size: 0.9rem;
+	font-size: 0.8rem;
 }
 .gameplay-weapons-list :first-child {
 	margin-top: 0;

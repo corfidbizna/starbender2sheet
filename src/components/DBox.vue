@@ -14,7 +14,10 @@ const props = defineProps<DBox>();
 const showLore = ref<boolean>(false);
 </script>
 <template>
-	<div class="d-box">
+	<div
+		class="d-box"
+		:style="$slots.footer || lore ? 'border-bottom: none;' : ''"
+	>
 		<div
 			class="header"
 			:class="props.rarity.toLocaleLowerCase() || 'neutral'"
@@ -47,15 +50,17 @@ const showLore = ref<boolean>(false);
 		>
 			{{ props.flavortext }}
 		</div>
-		<div class="footer">
+		<div
+			v-if="$slots.footer || lore"
+			class="footer"
+		>
 			<button
 				v-if="lore"
 				@click="showLore = !showLore"
-				style="float: left"
 			>
 				Show Lore
 			</button>
-			<slot name="footer-text"></slot>
+			<slot name="footer"></slot>
 		</div>
 		<label
 			v-if="lore && showLore"
@@ -199,6 +204,14 @@ const showLore = ref<boolean>(false);
 	background-color: #000a;
 	text-align: right;
 	height: 1.25em;
+	display: flex;
+	align-items: flex-end;
+	justify-content: end;
+	gap: 1em;
+	padding: 2px 1em;
+}
+.d-box .footer button {
+	margin-right: auto;
 }
 .d-box.active .footer {
 	background-color: #ffff;

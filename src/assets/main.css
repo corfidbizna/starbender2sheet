@@ -7,6 +7,11 @@
 	font-display: auto;
 	src: url('/src/assets/fonts/destiny_symbols_common.woff') format('woff');
 }
+@font-face {
+	font-family: 'Destiny Symbols PC';
+	font-display: auto;
+	src: url('/src/assets/fonts/destiny_symbols_pc.woff') format('woff');
+}
 @keyframes bgRotate {
 	from {
 		rotate: 0deg;

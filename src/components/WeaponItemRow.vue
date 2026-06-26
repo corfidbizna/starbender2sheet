@@ -641,16 +641,26 @@ const weapon = computed<Weapon>(() => {
 					{{ description }}
 				</div>
 			</template>
-			<template #footer-text>
+			<template #footer>
 				<span
-					v-if="isEquipped && !activatable"
+					v-if="activatable && isActive"
 					class="is-equipped"
-					>CURRENTLY EQUIPPED</span
+					><DGlyph v-bind="{ name: 'LeftClick' }" /> Deactivate</span
 				>
 				<span
-					v-else-if="isActive"
+					v-else-if="activatable && !isActive"
 					class="is-equipped"
-					>CURRENTLY ACTIVE</span
+					><DGlyph v-bind="{ name: 'LeftClick' }" /> Activate</span
+				>
+				<span
+					v-else-if="isEquipped"
+					class="is-equipped"
+					><DGlyph v-bind="{ name: 'LeftClick' }" /> Unequip</span
+				>
+				<span
+					v-else
+					class="is-equipped"
+					><DGlyph v-bind="{ name: 'LeftClick' }" /> Equip</span
 				>
 			</template>
 		</DBox>
@@ -659,7 +669,6 @@ const weapon = computed<Weapon>(() => {
 <style scoped>
 .weapon-row {
 	display: block;
-	font-size: 0.9em;
 	max-width: 40em;
 	text-shadow: none;
 }
@@ -667,7 +676,7 @@ const weapon = computed<Weapon>(() => {
 	opacity: 0.5;
 }
 .gun-icon {
-	font-size: 1.9em;
+	font-size: 2.5em;
 	display: inline-block;
 	padding-right: 0.25em;
 	text-shadow: none;
@@ -874,5 +883,8 @@ button:active {
 }
 .weapon-description {
 	white-space: pre-line;
+}
+.footer .destiny-symbols {
+	font-size: 1em;
 }
 </style>

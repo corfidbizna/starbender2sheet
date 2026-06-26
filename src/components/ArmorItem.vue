@@ -3,6 +3,7 @@ import type { Armor } from '@/composables/useCharacterData';
 import useCharacterData from '@/composables/useCharacterData';
 import DBox from '@/components/DBox.vue';
 import { computed, ref, watch } from 'vue';
+import DGlyph from './DGlyph.vue';
 
 const props = defineProps<Armor & { characterId: string; activatable?: boolean }>();
 const { namesOfEquippedArmor, namesOfActiveArmor, armorStackUpdate } = useCharacterData(
@@ -120,12 +121,16 @@ const buffsForDisplay = computed<Record<string, string>>(() => {
 					{{ description }}
 				</div>
 			</template>
-			<template #footer-text>
+			<template
+				#footer
+				v-if="activatable"
+			>
 				<span
-					v-if="equipped && activatable"
+					v-if="equipped"
 					class="is-equipped"
-					>CURRENTLY EQUIPPED</span
+					><DGlyph v-bind="{ name: 'LeftClick' }" /> Unequip</span
 				>
+				<span v-else><DGlyph v-bind="{ name: 'LeftClick' }" /> Equip</span>
 			</template>
 		</DBox>
 		<!-- <div
@@ -281,5 +286,8 @@ const buffsForDisplay = computed<Record<string, string>>(() => {
 	padding-bottom: 0;
 	text-align: right;
 	color: #000a;
+}
+.footer .destiny-symbols {
+	font-size: 1em;
 }
 </style>

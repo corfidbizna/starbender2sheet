@@ -68,6 +68,7 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 	>
 		<template #header-icon
 			><DGlyph
+				class="feature-subclass-icon"
 				v-if="subclass"
 				:name="subclass"
 		/></template>
@@ -152,6 +153,9 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 	color: var(--color-debuff);
 	text-align: right;
 	white-space: pre-line;
+}
+.feature-subclass-icon {
+	font-size: 2em;
 }
 .feature-effects {
 	font-style: italic;

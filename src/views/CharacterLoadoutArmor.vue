@@ -329,6 +329,9 @@ const scrollTo = (id: string) => {
 	flex-direction: column;
 	width: 100%;
 }
+.armor-slots-active > :first-child {
+	border-top: var(--line);
+}
 .armor-slots-active h2 {
 	width: 14em;
 	border-bottom: none;
@@ -340,14 +343,14 @@ const scrollTo = (id: string) => {
 	border-right: var(--line);
 	border-bottom: var(--line);
 	padding: 2px;
+	padding-right: 44px;
 	background-repeat: no-repeat;
-	background-position: right;
+	background-position: right 4px top 50%;
 	background-size: 2.25em;
 	background-color: #0002;
-	background-position: 244px 4px;
 }
 .armor-slot.overfull h2 {
-	color: #d64;
+	color: var(--color-debuff);
 	font-weight: bold;
 }
 .armor-slot h2 {
