@@ -13,9 +13,8 @@ import { DiceFormula, getStatByCharacter } from '@/business_logic/diceFormula';
 import { computed, ref } from 'vue';
 
 const props = defineProps<Weapon & { characterId: string; activatable?: boolean }>();
-const { weapons, damageStringToDownstream, statsBuffed, actionResources } = useCharacterData(
-	props.characterId,
-);
+const { weapons, damageStringToDownstream, statsBuffed, getFinalStatFromLabel, actionResources } =
+	useCharacterData(props.characterId);
 const weaponIndex = computed<number>(() =>
 	weapons.value.findIndex((weapon) => weapon.name === props.name),
 );
@@ -139,7 +138,9 @@ const rollDamage = () => {
 	for (let i = 0; i < loops; i++) {
 		const current: RollInfo = { value: 0, description: '' };
 		const statFunction = getStatByCharacter(statsBuffed.value);
-		const result = weapon.value.damageFormula.roll(statFunction) * weapon.value.techMult;
+		const result =
+			(weapon.value.damageFormula.roll(statFunction) + additionalDamage.value) *
+			weapon.value.techMult;
 		const glyph = glyphMap[weapon.value.damageType];
 		const stringList = [];
 		let total = 0;
@@ -271,6 +272,17 @@ const reload = () => {
 		wep.ammoCurrent = Math.min(wep.ammoCurrent, weapon.value.ammoCapacity * 2);
 	}
 };
+const additionalDamage = computed<number>(() => {
+	const sourcesList = [
+		'Weapon Damage',
+		props.weaponClass + ' Damage',
+		props.rangeType <= 1 ? 'Melee Damage' : 'Ranged Damage',
+		props.damageType + ' Damage',
+	].map((source) => getFinalStatFromLabel(source));
+	return sourcesList.reduce((acc, cur) => {
+		return acc + cur;
+	}, 0);
+});
 
 // Perks stuff lives here
 const weapon = computed<Weapon>(() => {
@@ -302,10 +314,6 @@ const weapon = computed<Weapon>(() => {
 					statsBuffed.value,
 				);
 				modified.damageFormula = damageStats.damageFormula;
-				modified.dmgShort = damageStats.dmgShort;
-				modified.dmgMin = damageStats.dmgMin;
-				modified.dmgAvg = damageStats.dmgAvg;
-				modified.dmgMax = damageStats.dmgMax;
 				modified.range = perk.range * stk('range') || modified.range;
 				modified.rangePenalty =
 					perk.rangePenalty * stk('rangePenalty') || modified.rangePenalty;
@@ -332,10 +340,6 @@ const weapon = computed<Weapon>(() => {
 					statsBuffed.value,
 				);
 				modified.damageFormula = damageStats.damageFormula;
-				modified.dmgShort = damageStats.dmgShort;
-				modified.dmgMin = damageStats.dmgMin;
-				modified.dmgAvg = damageStats.dmgAvg;
-				modified.dmgMax = damageStats.dmgMax;
 				modified.rangeType += perk.rangeType || 0;
 				modified.range = Math.trunc(12.5 * Math.pow(2, modified.rangeType));
 				modified.range += perk.range || 0;
@@ -372,6 +376,14 @@ const weapon = computed<Weapon>(() => {
 			modified.isMagic = perk.isMagic || modified.isMagic;
 		}
 	}
+	const finalDamage = damageStringToDownstream(
+		modified.dmgShort + ('+' + additionalDamage.value).replace('+-', '-'),
+		statsBuffed.value,
+	);
+	modified.dmgShort = finalDamage.dmgShort;
+	modified.dmgMin = finalDamage.dmgMin;
+	modified.dmgAvg = finalDamage.dmgAvg;
+	modified.dmgMax = finalDamage.dmgMax;
 	modified.dmgMin *= modified.techMult;
 	modified.dmgAvg *= modified.techMult;
 	modified.dmgMax *= modified.techMult;

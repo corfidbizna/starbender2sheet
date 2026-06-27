@@ -2322,22 +2322,27 @@ const weaponDataToWeapon = (
 	if (preset === undefined) {
 		console.error('Weapon', data, 'had an undefined weapon class!');
 	}
-	const damageSupplements =
-		[
-			'Weapon',
-			preset.rangeType === 'Melee' ? 'Melee' : 'Ranged',
-			preset.symbolKey,
-			data.element,
-		]
-			.filter((item) => !!item)
-			.join(' Damage+') + ' Damage';
 	const damageFormula =
 		preset.dmgDieCount +
 		'd' +
 		preset.dmgDieFaceCount +
-		('+' + preset.dmgDieBonus).replace('+-', '-') +
-		'+' +
-		damageSupplements;
+		('+' + preset.dmgDieBonus).replace('+-', '-');
+	// const damageSupplements =
+	// 	[
+	// 		'Weapon',
+	// 		preset.rangeType === 'Melee' ? 'Melee' : 'Ranged',
+	// 		preset.symbolKey,
+	// 		data.element,
+	// 	]
+	// 		.filter((item) => !!item)
+	// 		.join(' Damage+') + ' Damage';
+	// const damageFormula =
+	// 	preset.dmgDieCount +
+	// 	'd' +
+	// 	preset.dmgDieFaceCount +
+	// 	('+' + preset.dmgDieBonus).replace('+-', '-') +
+	// 	'+' +
+	// 	damageSupplements;
 	const formula = damageStringToDownstream(damageFormula, sourceStats);
 	const perkNameList = [
 		...preset.features.map((feat) => '_ _ ' + feat),
@@ -3535,12 +3540,12 @@ function useCharacterDataUncached(characterId: string) {
 		}
 		return statsBuffed.value[name as StatName]?.total || 0;
 	};
-	const getFinalStatFromLabel = (name: string) => {
-		const key = labelToStatName[(name || '').toLocaleLowerCase()];
-		if (statsBuffed.value[key as StatName] === undefined) {
-			console.warn('"' + name + '" did not validly map to a stat.');
+	const getFinalStatFromLabel = (label: string) => {
+		const key = labelToStatName[(label || '').toLocaleLowerCase()] as StatName;
+		if (statsBuffed.value[key] === undefined) {
+			console.warn('"' + label + '" did not validly map to a stat.');
 		}
-		return statsBuffed.value[name as StatName]?.total || 0;
+		return statsBuffed.value[key]?.total || 0;
 	};
 	const actionResourcesLocal = JSON.parse(
 		localStorage.getItem(characterId + '_actionResources') || 'null',
