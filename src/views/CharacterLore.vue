@@ -160,13 +160,6 @@ const currentImageURL = ref<string>(
 				{{ getScoreDescription('cha', statsBuffed.chaScore.total) }}
 			</div>
 		</div>
-		<div class="notes">
-			<h2>Notes</h2>
-			<textarea
-				name="notes"
-				rows="25"
-			></textarea>
-		</div>
 	</div>
 </template>
 <style scoped>
