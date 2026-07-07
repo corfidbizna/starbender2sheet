@@ -2370,8 +2370,8 @@ const weaponDataToWeapon = (
 			perkList[perkNewName] = {
 				...processPerkParameters(targetPerk, sourcePerkProcPrefixes),
 			};
+			}
 		}
-	}
 	const result: Weapon = {
 		name: data.name,
 		flavortext: data.flavortext || '',
@@ -2654,11 +2654,16 @@ function useCharacterDataUncached(characterId: string) {
 			...artifactAsBuffs.value,
 			...featuresAsBuffs.value,
 		];
+		const localBuffStacks = JSON.parse(
+			localStorage.getItem(characterId + '_buffStacks') || '{}',
+		);
 		const resultWithDefaults: BuffInfo[] = result
 			.filter((buff) => buff.name)
 			.map((buff) => {
+				if (buff.isStacking)
+					console.log(buff.name + ' stacks: ' + localBuffStacks[buff.name]);
 				const newBuff = { ...buff };
-				newBuff.stacks = buff.stacks || 0;
+				newBuff.stacks = localBuffStacks[buff.name] || 0;
 				newBuff.active = buff.isPassive || buff.active || false;
 				newBuff.type = buff.type || 'Buff';
 				newBuff.isStory = buff.isStory || false;
@@ -2690,7 +2695,7 @@ function useCharacterDataUncached(characterId: string) {
 	);
 	const activatedPartyBuffs = computed<BuffInfo[]>(() => {
 		const addThese = [
-			subclassGet.value + ' Atunement',
+			// subclassGet.value + ' Atunement',
 			...namesOfActivatedBuffs.value,
 			...weapons.value
 				.filter((weapon) => weapon.isEquipped)
@@ -2748,27 +2753,6 @@ function useCharacterDataUncached(characterId: string) {
 	const lightLevel = computed<number>(() => {
 		return activatablePartyBuffs.value.filter((buff) => buff.active && buff.isMagic).length;
 	});
-	const buffsStackUpdate = (name: string, amount: number) => {
-		const targetBuff: BuffInfo | undefined = buffs.value.find((buff) => buff.name === name);
-		if (targetBuff !== undefined) {
-			// If the buff was found...
-			if (targetBuff.isStacking) {
-				// ...and it stacks...
-				targetBuff.stacks = amount;
-				return targetBuff.stacks;
-			}
-			// The buff doesn't stack.
-			console.error(
-				'The buff ' + name + " doesn't stack but we tried to change its stack amount.",
-			);
-			return 0;
-		}
-		// The buff was not found.
-		console.error(
-			'The buff ' + name + " didn't exist when we tried to change its stack amount.",
-		);
-		return 0;
-	};
 	// BUFFS END
 
 	// ==================================================================================================
@@ -3036,6 +3020,7 @@ function useCharacterDataUncached(characterId: string) {
 		ammo: number;
 		equipped: boolean;
 		active: boolean;
+		perks?: Record<string, number>;
 	};
 	const weaponVariables = computed<Record<string, WeaponVariables>>(() => {
 		const result: Record<string, WeaponVariables> = {};
@@ -3700,7 +3685,7 @@ function useCharacterDataUncached(characterId: string) {
 						energyUniversalUsed: actionResources.value.energyUniversalUsed + reduceBy,
 					};
 					console.log(newResources);
-					actionResources.value = { ...newResources };
+					Object.assign(actionResources.value, newResources);
 					console.log(
 						'New universal energy used:',
 						actionResources.value.energyUniversalUsed,
@@ -3725,6 +3710,24 @@ function useCharacterDataUncached(characterId: string) {
 	watch(partyBuffs, () => {
 		buffs.value = JSON.parse(JSON.stringify(partyBuffs.value));
 	});
+	watch(
+		buffs,
+		() => {
+			const existingStorage = JSON.parse(
+				localStorage.getItem(characterId + '_buffStacks') || '{}',
+			);
+			Object.assign(
+				existingStorage,
+				Object.fromEntries(
+					buffs.value
+						.filter((buff) => buff.isStacking)
+						.map((buff) => [buff.name, buff.stacks || existingStorage[buff.name] || 0]),
+				),
+			);
+			localStorage.setItem(characterId + '_buffStacks', JSON.stringify(existingStorage));
+		},
+		{ deep: true },
+	);
 	watch(namesOfActivatedBuffs, () => {
 		localStorage.setItem(characterId + '_activeBuffs', namesOfActivatedBuffs.value.join('»'));
 	});
@@ -3827,7 +3830,6 @@ function useCharacterDataUncached(characterId: string) {
 		namesOfActivatedBuffs,
 		activatablePartyBuffs,
 		activatedPartyBuffs,
-		buffsStackUpdate,
 		buffArrayFlat,
 		buffsTallied: statsBuffed,
 		statsBuffed,
@@ -3849,7 +3851,7 @@ function useCharacterDataUncached(characterId: string) {
 		weaponActivate,
 		weaponPerkActivate,
 		weaponPerkStackUpdate,
-		weaponsLoading: weaponsLoading && weaponPerksLoading && weaponPerkProcsLoading,
+		weaponsLoading: weaponsLoading || weaponPerksLoading || weaponPerkProcsLoading,
 		weaponsRefresh,
 		weaponPerks,
 		weaponPerksLoading,

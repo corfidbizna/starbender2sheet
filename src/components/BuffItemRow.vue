@@ -2,12 +2,10 @@
 import type { BuffInfo } from '@/business_logic/buffs';
 import useCharacterData from '@/composables/useCharacterData';
 import DGlyph from '@/components/DGlyph.vue';
-import { computed, ref, watch } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps<BuffInfo & { characterId: string; condensed: boolean }>();
-const { namesOfActivatedBuffs, buffsStackUpdate, customBuffs } = useCharacterData(
-	props.characterId,
-);
+const { buffs, customBuffs, namesOfActivatedBuffs } = useCharacterData(props.characterId);
 
 const imageSrc = computed<string>(() => {
 	return (
@@ -16,43 +14,17 @@ const imageSrc = computed<string>(() => {
 });
 
 const idName = props.name.replace(/ /g, '-').toLocaleLowerCase();
-const stackCount = ref<number>(props.stacks);
-
-const changeStacksUpdate = (amount: number) => {
-	return buffsStackUpdate(props.name, amount);
-};
+const ogBuff = computed<BuffInfo>(
+	() =>
+		buffs.value.find((buff) => buff.name === props.name) ||
+		customBuffs.value[props.name] ||
+		<BuffInfo>{ stacks: props.stacks },
+);
 const removeBuff = () => {
 	const nameIndex = namesOfActivatedBuffs.value.indexOf(props.name);
 	namesOfActivatedBuffs.value.splice(nameIndex, 1);
 	delete customBuffs.value[props.name];
 };
-watch(stackCount, () => {
-	changeStacksUpdate(stackCount.value);
-});
-// type BuffPerk = {
-// 	label: string;
-// 	description?: string;
-// 	effects?: string;
-// 	passive: boolean;
-// };
-// const perkList = computed<BuffPerk[]>(() => {
-// 	return (props.perks || '').split('\n').map((line) => {
-// 		const passive = line.slice(0, 2) === '##';
-// 		const effects = /{[^}]*}/.exec(line)?.join();
-// 		const splitLine = line
-// 			.slice(passive ? 2 : 0)
-// 			.split('{')[0]
-// 			.split('`');
-// 		const label = splitLine[0].trim();
-// 		const description = (splitLine[1] || '').trim();
-// 		return {
-// 			label,
-// 			description,
-// 			effects,
-// 			passive,
-// 		};
-// 	});
-// });
 </script>
 <template>
 	<label
@@ -101,7 +73,7 @@ watch(stackCount, () => {
 							type="number"
 							min="0"
 							:max="props.stackMax || Infinity"
-							v-model="stackCount"
+							v-model="ogBuff.stacks"
 						/>
 						<span v-if="props.stackMax">⁄{{ props.stackMax }}</span></span
 					>
@@ -125,20 +97,6 @@ watch(stackCount, () => {
 				<summary>Description</summary>
 				{{ props.description }}
 			</details>
-			<!-- <div v-if="props.perks">
-				<details
-					v-for="perk in perkList"
-					:key="perk.label"
-				>
-					<summary>
-						<input
-							v-if="perk.passive"
-							type="checkbox"
-						/>{{ perk.label }}
-					</summary>
-					{{ perk.description }} :::: {{ perk.effects }}
-				</details>
-			</div> -->
 		</div>
 	</label>
 </template>
