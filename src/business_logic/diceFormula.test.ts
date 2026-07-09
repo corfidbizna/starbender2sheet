@@ -297,6 +297,18 @@ describe('Dice Formula Stuff', () => {
 		const reformula = evaluatedDice.stringify();
 		expect(reformula).toEqual('0');
 	});
+	test('`Negative number` lookup', () => {
+		const formula = new DiceFormula('-2');
+		const evaluatedDice = formula.evaluateExceptDice(getStat);
+		const reformula = evaluatedDice.stringify();
+		expect(reformula).toEqual('-2');
+	});
+	test('`Negative stat` lookup', () => {
+		const formula = new DiceFormula('-AC');
+		const evaluatedDice = formula.evaluateExceptDice(getStat);
+		const reformula = evaluatedDice.stringify();
+		expect(reformula).toEqual('-20');
+	});
 	test('`Weapon Damage` lookup plus number', () => {
 		const formula = new DiceFormula('Weapon Damage+5');
 		const evaluatedDice = formula.evaluateExceptDice(getStat);
@@ -350,6 +362,30 @@ describe('Dice Formula Stuff', () => {
 		const evaluatedDice = formula.evaluateExceptDice(getStat);
 		const reformula = evaluatedDice.stringify();
 		expect(reformula).toEqual('5d4+1');
+	});
+	test('Multiple named stats (with no spaces) being added with dice at the front', () => {
+		const formula = new DiceFormula('1d4+AC+AC+AC');
+		const evaluatedDice = formula.evaluateExceptDice(getStat);
+		const reformula = evaluatedDice.stringify();
+		expect(reformula).toEqual('1d4+60');
+	});
+	test('Dice formula plus sequential constants with stat (that has no spaces) as the middle constant', () => {
+		const formula = new DiceFormula('5d4+3+AC-2');
+		const evaluatedDice = formula.evaluateExceptDice(getStat);
+		const reformula = evaluatedDice.stringify();
+		expect(reformula).toEqual('5d4+21');
+	});
+	test('Dice roll with multiple non-stat values afterwards with a bunch of operators', () => {
+		const formula = new DiceFormula('5d4+3-2*2');
+		const evaluatedDice = formula.evaluateExceptDice(getStat);
+		const reformula = evaluatedDice.stringify();
+		expect(reformula).toEqual('5d4-1');
+	});
+	test("Putting a dice roll in the middle of a long string of things, just 'cause why not", () => {
+		const formula = new DiceFormula('1-2+3+1d4+4+0');
+		const evaluatedDice = formula.evaluateExceptDice(getStat);
+		const reformula = evaluatedDice.stringify();
+		expect(reformula).toEqual('1d4+6');
 	});
 	// test('Variable dice count', () => {
 	// 	const formula = new DiceFormula('(4*2)d8'); // Stray die roll

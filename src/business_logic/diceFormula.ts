@@ -31,6 +31,49 @@ const isDigit = (ch: string) => /^[0-9]$/.test(ch);
 const isD = (ch: string) => /^[dD]$/.test(ch);
 const isLetter = (ch: string) => /^[A-Za-z]$/.test(ch);
 const isLetterOrSpace = (ch: string) => /^[A-Za-z ]$/.test(ch);
+const tryCondenseBinaryAndNumber = (
+	binaryNode: BinaryOpNode,
+	number: NumberNode,
+	op: Operator,
+	getStat: (name: string) => number,
+) => {
+	const canCombine =
+		((binaryNode.operator === '-' || binaryNode.operator === '+') &&
+			(op === '-' || op === '+')) ||
+		(binaryNode.operator === '*' && op === '*');
+	if (canCombine) {
+		const checkRHS = new BinaryOpNode(
+			// Evaluate a new node made from the RIGHT side and the number
+			binaryNode.rhs,
+			number,
+			op,
+		).evaluateExceptDice(getStat);
+		const checkLHS = new BinaryOpNode(
+			// Evaluate a new node made from the LEFT side and the number
+			binaryNode.lhs,
+			number,
+			op,
+		).evaluateExceptDice(getStat);
+		if (checkRHS instanceof NumberNode) {
+			// The right-handed swap successfully condensed.
+			return {
+				tree: new BinaryOpNode(binaryNode.lhs, checkRHS, binaryNode.operator),
+				success: true,
+			};
+		} else if (checkLHS instanceof NumberNode) {
+			// the left-handed swap successfully condensed.
+			return {
+				tree: new BinaryOpNode(binaryNode.rhs, checkLHS, binaryNode.operator),
+				success: true,
+			};
+		}
+	}
+	// Condensing was unsuccessful, returning a re-assembled version of the parameters.
+	return {
+		tree: new BinaryOpNode(binaryNode, number, op),
+		success: false,
+	};
+};
 
 // A UnitNode is something that knows how to "become a number".
 abstract class UnitNode {
@@ -46,6 +89,8 @@ abstract class UnitNode {
 	involvesDice(): boolean {
 		return false;
 	}
+	// vvvv This line is to make the `any` here not be an whatever-weird error it was being
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	static fromFormula(formula: any[]): UnitNode {
 		console.assert(formula.length % 2 === 1);
 		const nodes: UnitNode[] = [];
@@ -83,6 +128,9 @@ abstract class UnitNode {
 			operators.push(formula[i].op as Operator);
 		}
 		console.assert(operators.length === nodes.length - 1);
+		// The problem with the code below is that it's prioritizing operators, not the operands.
+		// So a dice node and a number node with a `+` operator will take priority
+		// over two number nodes separated by a `-`, since the `+` takes priority.
 		while (nodes.length > 1) {
 			let bestOpIndex = 0;
 			let bestPrecedence = OPERATOR_PRIORITIES[operators[0]];
@@ -213,7 +261,7 @@ class BinaryOpNode extends UnitNode {
 		} else if (rhsString === '0') {
 			return lhsString;
 		} else {
-			return lhsString + this.operator + rhsString;
+			return (lhsString + this.operator + rhsString).replace(/\+-/g, '-');
 		}
 	}
 	involvesDice(): boolean {
@@ -222,37 +270,96 @@ class BinaryOpNode extends UnitNode {
 	evaluateExceptDice(getStat: (name: string) => number): UnitNode {
 		let newLHS: NumberNode | UnitNode | undefined;
 		let newRHS: NumberNode | UnitNode | undefined;
+		if (!this.lhs.involvesDice() && !this.rhs.involvesDice()) {
+			// Neither of my sides involve dice, so return an evaluated version of myself.
+			return new NumberNode(
+				new BinaryOpNode(
+					new NumberNode(this.lhs.evaluate(() => 0, getStat)),
+					new NumberNode(this.rhs.evaluate(() => 0, getStat)),
+					this.operator,
+				).evaluate(() => 0, getStat),
+			);
+		}
 		if (!this.lhs.involvesDice()) {
+			// If my left-hand side does not involve dice,
+			// evaluate my left-hand side into a number.
 			newLHS = new NumberNode(this.lhs.evaluate(() => 0, getStat));
 		}
 		if (!this.rhs.involvesDice()) {
+			// If my right-hand side does not involve dice,
+			// evaluate my right-hand side into a number.
 			newRHS = new NumberNode(this.rhs.evaluate(() => 0, getStat));
 		}
 		// ====================================================================
-		if ((newLHS || this.lhs) instanceof BinaryOpNode && newRHS instanceof NumberNode) {
-			// Do I need to do this for the other side? Or maybe not because of the way nodes are structured?
-			const friend = (newLHS || this.lhs) as BinaryOpNode;
-			if (friend.operator === this.operator) {
-				const checkRHS = new BinaryOpNode(
-					friend.rhs,
-					this.rhs,
-					this.operator,
-				).evaluateExceptDice(getStat);
-				const checkLHS = new BinaryOpNode(
-					friend.lhs,
-					this.rhs,
-					this.operator,
-				).evaluateExceptDice(getStat);
-				if (checkRHS instanceof NumberNode) {
-					newLHS = friend.lhs;
-					newRHS = checkRHS;
-				}
-				if (checkLHS instanceof NumberNode) {
-					newLHS = friend.rhs;
-					newRHS = checkLHS;
-				}
+		if (this.lhs instanceof BinaryOpNode && newRHS instanceof NumberNode) {
+			const rResult = tryCondenseBinaryAndNumber(this.lhs, newRHS, this.operator, getStat);
+			if (rResult.success) {
+				return rResult.tree.evaluateExceptDice(getStat);
 			}
 		}
+		if (this.rhs instanceof BinaryOpNode && newLHS instanceof NumberNode) {
+			const lResult = tryCondenseBinaryAndNumber(this.rhs, newLHS, this.operator, getStat);
+			if (lResult.success) {
+				return lResult.tree.evaluateExceptDice(getStat);
+			}
+		}
+		// ====================================================================
+		// if (this.lhs instanceof BinaryOpNode && newRHS instanceof NumberNode) {
+		// 	// If my left side's a BinaryOpNode and the new right-hand side is a number,
+		// 	// try combining my left side's right / left sides to my right side
+		// 	const binaryNode = this.lhs;
+		// 	const myOperator = this.operator;
+		// 	const canCombine =
+		// 		((binaryNode.operator === '-' || binaryNode.operator === '+') &&
+		// 			(myOperator === '-' || myOperator === '+')) ||
+		// 		(binaryNode.operator === '*' && myOperator === '*');
+		// 	if (canCombine) {
+		// 		const checkRHS = new BinaryOpNode(
+		// 			// Trying to make a new node with my binary's right and the new right
+		// 			// (or the original right-hand side if the new one is undefined)
+		// 			binaryNode.rhs,
+		// 			newRHS || this.rhs,
+		// 			myOperator,
+		// 		).evaluateExceptDice(getStat);
+		// 		const checkLHS = new BinaryOpNode(
+		// 			binaryNode.lhs,
+		// 			newRHS || this.rhs,
+		// 			myOperator,
+		// 		).evaluateExceptDice(getStat);
+		// 		if (checkRHS instanceof NumberNode) {
+		// 			newLHS = binaryNode.lhs;
+		// 			newRHS = checkRHS;
+		// 		} else if (checkLHS instanceof NumberNode) {
+		// 			newLHS = binaryNode.rhs;
+		// 			newRHS = checkLHS;
+		// 		}
+		// 	}
+		// }
+		// ====================================================================
+		// if ((newLHS || this.lhs) instanceof BinaryOpNode && newRHS instanceof NumberNode) {
+		// 	// Do I need to do this for the other side? Or maybe not because of the way nodes are structured?
+		// 	const friend = (newLHS || this.lhs) as BinaryOpNode;
+		// 	if (friend.operator === this.operator) {
+		// 		const checkRHS = new BinaryOpNode(
+		// 			friend.rhs,
+		// 			this.rhs,
+		// 			this.operator,
+		// 		).evaluateExceptDice(getStat);
+		// 		const checkLHS = new BinaryOpNode(
+		// 			friend.lhs,
+		// 			this.rhs,
+		// 			this.operator,
+		// 		).evaluateExceptDice(getStat);
+		// 		if (checkRHS instanceof NumberNode) {
+		// 			newLHS = friend.lhs;
+		// 			newRHS = checkRHS;
+		// 		}
+		// 		if (checkLHS instanceof NumberNode) {
+		// 			newLHS = friend.rhs;
+		// 			newRHS = checkLHS;
+		// 		}
+		// 	}
+		// }
 		// ====================================================================
 		// THIS CODE WORKS BUT IS REALLY SLOW; included here for posterity.
 		// if ((newLHS || this.lhs) instanceof BinaryOpNode && newRHS instanceof NumberNode) {
@@ -300,7 +407,14 @@ class BinaryOpNode extends UnitNode {
 				}, getStat),
 			);
 		} else {
-			return new BinaryOpNode(newLHS || this.lhs, newRHS || this.rhs, this.operator);
+			const finalLHS = newLHS || this.lhs;
+			const finalRHS = newRHS || this.rhs;
+			const finalOperator = this.operator;
+			// if (finalRHS instanceof NumberNode && finalRHS.value < 0) {
+			// 	finalOperator = this.operator === '-' ? '+' : this.operator;
+			// 	finalRHS.value = finalRHS.value + -1;
+			// }
+			return new BinaryOpNode(finalLHS, finalRHS, finalOperator);
 		}
 	}
 }
@@ -409,15 +523,29 @@ export class DiceFormula {
 		let currentFormula: object[] = [];
 		let pos = 0;
 		let curChar;
+		let negated = false;
 		formula.replace(/\+-/g, '-');
 		while (true) {
 			// skip any leading whitespace
 			while (formula[pos] === ' ') ++pos;
 			if (pos === formula.length) break;
 			curChar = formula[pos];
-			// TODO: allow negative numbers
 			if (isOperator(curChar)) {
 				if (currentFormula.length % 2 !== 1) {
+					if (curChar === '-' && pos + 1 < formula.length) {
+						// If the current letter is a minus, check if the next letter
+						// is a digit or letter. Might be a negation.
+						if (isDigit(formula[pos + 1])) {
+							pos++;
+							negated = true;
+							continue; // Skip this letter, we're gonna try to find it looking backward.
+						} else if (isLetter(formula[pos + 1])) {
+							currentFormula.push({ type: 'unit', subtype: 'number', theNumber: 0 });
+							currentFormula.push({ type: 'operator', op: curChar });
+							pos++;
+							continue; // Put a "0" in front of it so it gets negated from something if it's by itself.
+						}
+					}
 					throw new Error('stray operator');
 				}
 				pos += 1;
@@ -426,12 +554,18 @@ export class DiceFormula {
 				if (currentFormula.length % 2 !== 0) {
 					throw new Error('stray number');
 				}
-				const startPos = pos;
+				let startPos = pos;
 				pos += 1;
 				while (pos < formula.length && isDigit(formula[pos])) {
 					pos += 1;
 				}
 				const endPos = pos;
+				if (negated) {
+					// If the previous letter to the formula was a minus sign,
+					// incorporate it into the number.
+					startPos--;
+					negated = false;
+				}
 				const theNumber = parseInt(formula.substring(startPos, endPos));
 				if (pos < formula.length) {
 					curChar = formula[pos];
@@ -496,8 +630,8 @@ export class DiceFormula {
 					// we are our own unit, not a repetition
 					const oldCurrentFormula = currentFormula;
 					currentFormula = [];
-					//                                                    vvv This is the thing we're gonna put
-					//                                                        the stuff we put into `currentFormula` into.
+					//    vvv This is the thing we're gonna put
+					//        the stuff we put into `currentFormula` into.
 					oldCurrentFormula.push({
 						type: 'unit',
 						subtype: 'group',
@@ -562,7 +696,13 @@ export class DiceFormula {
 		return this.tree.stringify();
 	}
 	evaluateExceptDice(getStat: (name: string) => number): DiceFormula {
-		return new DiceFormula(this.tree.evaluateExceptDice(getStat));
+		const previous = this.tree.stringify();
+		const next = this.tree.evaluateExceptDice(getStat).stringify();
+		if (previous === next) {
+			return new DiceFormula(next);
+		} else {
+			return new DiceFormula(next).evaluateExceptDice(getStat);
+		}
 	}
 	execute(roller: (sides: number) => number, getStat: (name: string) => number): number {
 		return this.tree.evaluate(roller, getStat);
