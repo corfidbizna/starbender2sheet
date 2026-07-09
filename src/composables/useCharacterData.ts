@@ -1427,6 +1427,7 @@ export type Weapon = DamageComponent & {
 	isEquipped: boolean;
 	isActive: boolean;
 	perks: Record<string, WeaponPerk>;
+	stackMap: Record<string, number>;
 };
 // Weapon Perks
 type ImportedWeaponPerk = {
@@ -2349,6 +2350,7 @@ const weaponDataToWeapon = (
 		...(data.perks === undefined ? [] : data.perks.split(/,\s/)).filter((item) => !!item),
 	];
 	const perkList: Record<string, WeaponPerk> = {};
+	const stackMap: Record<string, number> = {};
 	for (let i = 0; i < perkNameList.length; i++) {
 		const perkBaseName = perkNameList[i].split(' ').slice(2, -1).join(' ');
 		const targetPerk = JSON.parse(
@@ -2370,8 +2372,18 @@ const weaponDataToWeapon = (
 			perkList[perkNewName] = {
 				...processPerkParameters(targetPerk, sourcePerkProcPrefixes),
 			};
+			if (perkList[perkNewName].stacking) {
+				// If the perk is stacking...
+				if (perkList[perkNewName].stackName !== undefined) {
+					// ...and it has a stack name
+					stackMap[perkList[perkNewName].stackName] = 0;
+				} else {
+					// ...but it doesn't have a stack name
+					stackMap.Stacks = 0;
+				}
 			}
 		}
+	}
 	const result: Weapon = {
 		name: data.name,
 		flavortext: data.flavortext || '',
@@ -2419,6 +2431,7 @@ const weaponDataToWeapon = (
 		isEquipped: false,
 		isActive: false,
 		perks: perkList,
+		stackMap,
 	};
 	return result;
 };
@@ -2660,8 +2673,8 @@ function useCharacterDataUncached(characterId: string) {
 		const resultWithDefaults: BuffInfo[] = result
 			.filter((buff) => buff.name)
 			.map((buff) => {
-				if (buff.isStacking)
-					console.log(buff.name + ' stacks: ' + localBuffStacks[buff.name]);
+				// if (buff.isStacking)
+				// 	console.log(buff.name + ' stacks: ' + localBuffStacks[buff.name]);
 				const newBuff = { ...buff };
 				newBuff.stacks = localBuffStacks[buff.name] || 0;
 				newBuff.active = buff.isPassive || buff.active || false;
@@ -2956,7 +2969,8 @@ function useCharacterDataUncached(characterId: string) {
 			const damageAsString =
 				p.damage === undefined
 					? '0'
-					: ('0+' + p.damage).replace('+-', '-').replace('+*', '*');
+					: ('0+' + p.damage).replace('+-', '-').replace('0+*', '1*');
+			console.log(p.name + ': ' + damageAsString);
 			const damageStats = damageStringToDownstream(damageAsString, stats.value);
 			const resultPerk: WeaponPerk = {
 				name: p.name,
@@ -3795,7 +3809,14 @@ function useCharacterDataUncached(characterId: string) {
 					// isActive: false,
 					isActive: storedWeapons[ogWeapon.name]?.active || false,
 					perks: { ...ogWeapon.perks },
+					stackMap: { ...ogWeapon.stackMap },
 				};
+				Object.keys(weapon.perks).forEach(
+					(name) =>
+						(weapon.perks[name].damageFormula = new DiceFormula(
+							ogWeapon.perks[name].dmgShort,
+						)),
+				);
 				// Put whether or not the weapon is active / equipped from Local Storage here!!
 				return weapon;
 			});

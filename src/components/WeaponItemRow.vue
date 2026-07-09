@@ -291,6 +291,9 @@ const weapon = computed<Weapon>(() => {
 	const perkKeys = Object.keys(props.perks);
 	for (let i = 0; i < perkKeys.length; i++) {
 		const perk = props.perks[perkKeys[i]];
+		if (perk.name === 'Str Powered') {
+			console.log('Str Powered damage formula: ', perk.damageFormula);
+		}
 		if (perk.takeAimDependant && !isAiming.value) {
 			// Skip this perk if it wants to be taking aim and we aren't doing it.
 			continue;
@@ -298,7 +301,7 @@ const weapon = computed<Weapon>(() => {
 		const stk = (statName: string) => {
 			// If the stat is affected by stacks, return the stack amount.
 			if (perk.stacking && perk.stackAffectedStats.includes(statName)) {
-				return perk.stacks;
+				return weapons.value[weaponIndex.value]?.stackMap[perk.stackName];
 			}
 			return 1;
 		};
@@ -310,7 +313,7 @@ const weapon = computed<Weapon>(() => {
 				modified.critRange = perk.critRange * stk('critRange') || modified.critRange;
 				modified.critMult = perk.critMult * stk('critMult') || modified.critMult;
 				const damageStats = damageStringToDownstream(
-					!!perk.dmgMax ? perk.dmgShort : modified.dmgShort,
+					!!perk.dmgMax ? perk.dmgShort + '*' + stk('damage') : modified.dmgShort,
 					statsBuffed.value,
 				);
 				modified.damageFormula = damageStats.damageFormula;
@@ -333,13 +336,12 @@ const weapon = computed<Weapon>(() => {
 				modified.hitBonus += perk.hitBonus * stk('hitBonus') || 0;
 				modified.critRange += perk.critRange * stk('critRange') || 0;
 				modified.critMult += perk.critMult * stk('critMult') || 0;
-				const damageStats = damageStringToDownstream(
-					perk.damageFormula
-						? modified.dmgShort + ('+' + perk.dmgShort).replace('+-', '-')
-						: modified.dmgShort,
-					statsBuffed.value,
-				);
-				modified.damageFormula = damageStats.damageFormula;
+				if (perk.dmgShort !== '0' && stk('damage') !== 0) {
+					modified.dmgShort += ('+' + perk.dmgShort + '*' + stk('damage')).replace(
+						'+-',
+						'-',
+					);
+				}
 				modified.rangeType += perk.rangeType || 0;
 				modified.range = Math.trunc(12.5 * Math.pow(2, modified.rangeType));
 				modified.range += perk.range || 0;
@@ -608,6 +610,7 @@ const weapon = computed<Weapon>(() => {
 					class="weapon-perks"
 					v-if="Object.keys(perks).length"
 				>
+					<pre>{{ weapon.stackMap }}</pre>
 					<details
 						v-for="perk in perks"
 						:key="perk.name"
@@ -635,7 +638,7 @@ const weapon = computed<Weapon>(() => {
 									type="number"
 									min="0"
 									:max="perk.stacksMax || Infinity"
-									v-model="weapons[weaponIndex].perks[perk.name].stacks"
+									v-model="weapons[weaponIndex].stackMap[perk.stackName]"
 							/></span>
 							<span
 								v-if="perk.takeAimDependant"
