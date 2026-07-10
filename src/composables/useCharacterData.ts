@@ -1520,9 +1520,10 @@ export const parameterExtractor = (text: string): string[] => {
 };
 const processPerkParameters = (input: WeaponPerk, procList: WeaponPerkProc[]): WeaponPerk => {
 	// Takes a perk name in the format of '_ Instant Accurate (5)' and distributes the parameters.
-	const result: WeaponPerk = JSON.parse(JSON.stringify(input));
+	const result: WeaponPerk & { formulaAsString: string } = JSON.parse(JSON.stringify(input));
 	// const splitName = input.name.replace(/ \([\w\s,]\)$/, '').split(' ');
-	const splitName = input.name.split(' ');
+	const firstSplit = input.name.split(' (');
+	const splitName = [...firstSplit[0].split(' '), firstSplit[1].slice(0, -1)];
 	if (splitName.length < 4) {
 		console.warn(
 			'The name ' + input.name + ' was too short to be valid. Skipping…. \nPerk source:',
@@ -1533,11 +1534,7 @@ const processPerkParameters = (input: WeaponPerk, procList: WeaponPerkProc[]): W
 	const prefixProcName = splitName[0];
 	const prefixTimeName = splitName[1];
 	const parametersBlock = splitName.slice(-1)[0];
-	const parameters =
-		parametersBlock
-			.slice(1, -1)
-			.split(', ')
-			.filter((str) => str !== '') || [];
+	const parameters = parametersBlock.split(', ').filter((str) => str !== '') || [];
 	const proc: WeaponPerkProc =
 		procList.find((pfx) => pfx.prefix.trim() === prefixProcName) || <WeaponPerkProc>{};
 	const parameterNames = parameterExtractor(input.description);
@@ -1605,6 +1602,8 @@ const processPerkParameters = (input: WeaponPerk, procList: WeaponPerkProc[]): W
 			// If the parameter word is the name of a stat
 			if (word === 'buffs' && result.buffs) {
 				result.buffs.replace(rx, param);
+			} else if (word === 'damageFormula') {
+				resultSupplement.dmgShort = new DiceFormula(param).stringify();
 			} else {
 				if (!isNaN(paramAsNumber) && typeof result[key] === 'number') {
 					resultSupplement[key] = paramAsNumber;
@@ -1651,6 +1650,7 @@ const processPerkParameters = (input: WeaponPerk, procList: WeaponPerkProc[]): W
 		.filter((item) => item !== '_')
 		.slice(0, -1)
 		.join(' ');
+	// console.log('Processed perk ' + result.name + ': ', result.formulaAsString);
 	return result;
 };
 type RangeInfo = {
@@ -1921,7 +1921,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		features: [
 			'Open-Hand ()',
 			'Akimbo ()',
-			'Str Powered (1)',
+			'Str Powered (1*Str Mod)',
 			'Shield Active ()',
 			'Shield Defense ()',
 			'Shield Manuver ()',
@@ -1955,7 +1955,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 2,
-		features: ['Sword Defense ()', 'Str Powered (2)', 'Aimed Advantage ()'],
+		features: ['Sword Defense ()', 'Str Powered (2*Str Mod)', 'Aimed Advantage ()'],
 	},
 	'Shotgun, Spread': {
 		name: 'Shotgun, Spread',
@@ -2154,7 +2154,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		features: [
 			'Open-Hand ()',
 			'Akimbo ()',
-			'Str Powered (1)',
+			'Str Powered (1*Str Mod)',
 			'Energy Shield Active ()',
 			'Energy Shield Defense ()',
 			'Shield Manuver ()',
@@ -2298,7 +2298,7 @@ export const weaponPresetsMap: Record<string, WeaponPreset> = {
 		rangeBonus: 0,
 		hands: 2,
 		slots: 2,
-		features: ['Sword Defense ()', 'Str Powered (2)', 'Aimed Advantage ()'],
+		features: ['Sword Defense ()', 'Str Powered (2*Str Mod)', 'Aimed Advantage ()'],
 	},
 };
 type WeaponData = Characters & {
@@ -2350,9 +2350,12 @@ const weaponDataToWeapon = (
 		...(data.perks === undefined ? [] : data.perks.split(/,\s/)).filter((item) => !!item),
 	];
 	const perkList: Record<string, WeaponPerk> = {};
+	const perkFormulaStrings: Record<string, string> = {};
 	const stackMap: Record<string, number> = {};
 	for (let i = 0; i < perkNameList.length; i++) {
-		const perkBaseName = perkNameList[i].split(' ').slice(2, -1).join(' ');
+		const perkBaseName = perkNameList[i].split(' (')[0].split(' ').slice(2).join(' ');
+		// It needs to be a copy of the perk or else it references
+		// the original perk.
 		const targetPerk = JSON.parse(
 			JSON.stringify(
 				sourcePerks.find(
@@ -2361,17 +2364,22 @@ const weaponDataToWeapon = (
 			),
 		);
 		if (targetPerk.name !== undefined) {
-			// It needs to be a copy of the perk or else it references
-			// the original perk.
 			targetPerk.name = perkNameList[i];
 			const perkNewName = perkNameList[i]
 				.split(' ')
 				.filter((str) => str !== '_')
-				.slice(0, -1)
-				.join(' ');
+				.join(' ')
+				.split(' (')[0];
+			const perkNew = processPerkParameters(targetPerk, sourcePerkProcPrefixes);
+			// console.log('Post processing perk ' + perkNewName + ':', perkNew.formulaAsString);
 			perkList[perkNewName] = {
 				...processPerkParameters(targetPerk, sourcePerkProcPrefixes),
 			};
+			perkFormulaStrings[perkNewName] = perkNew.dmgShort;
+			if (perkNew.dmgShort !== undefined) {
+				perkList[perkNewName].damageFormula = new DiceFormula(perkNew.dmgShort);
+				// console.log('    ' + perkNewName, perkList[perkNewName].damageFormula);
+			}
 			if (perkList[perkNewName].stacking) {
 				// If the perk is stacking...
 				if (perkList[perkNewName].stackName !== undefined) {
@@ -2433,6 +2441,15 @@ const weaponDataToWeapon = (
 		perks: perkList,
 		stackMap,
 	};
+	const nameList = Object.keys(result.perks);
+	for (let i = 0; i < nameList.length; i++) {
+		const key = nameList[i];
+		if (perkFormulaStrings[key] !== undefined) {
+			result.perks[key].damageFormula = new DiceFormula(perkFormulaStrings[key]);
+			// console.log('»»', result.perks[key].damageFormula);
+		}
+	}
+	// console.log('Resulting perks:', result.perks, '\nOG perks:', perkList);
 	return result;
 };
 
@@ -2970,7 +2987,6 @@ function useCharacterDataUncached(characterId: string) {
 				p.damage === undefined
 					? '0'
 					: ('0+' + p.damage).replace('+-', '-').replace('0+*', '1*');
-			console.log(p.name + ': ' + damageAsString);
 			const damageStats = damageStringToDownstream(damageAsString, stats.value);
 			const resultPerk: WeaponPerk = {
 				name: p.name,
@@ -3325,7 +3341,7 @@ function useCharacterDataUncached(characterId: string) {
 						? '0'
 						: assembledDamage + ('+' + abilityDamageBuffs).replace('+-', '-');
 				parsedAbility.damageStatsBase = {
-					...damageStringToDownstream(newDamage, stats.value),
+					...damageStringToDownstream(newDamage, statsBuffed.value),
 					attackType: 'Ability',
 					hitType: ability.hitBonus > 0 && !ability.hitType ? 'AC' : ability.hitType,
 					hitBonus:

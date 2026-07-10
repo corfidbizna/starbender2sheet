@@ -279,9 +279,7 @@ const additionalDamage = computed<number>(() => {
 		props.rangeType <= 1 ? 'Melee Damage' : 'Ranged Damage',
 		props.damageType + ' Damage',
 	].map((source) => getFinalStatFromLabel(source));
-	return sourcesList.reduce((acc, cur) => {
-		return acc + cur;
-	}, 0);
+	return sourcesList.reduce((acc, cur) => acc + cur, 0);
 });
 
 // Perks stuff lives here
@@ -292,7 +290,7 @@ const weapon = computed<Weapon>(() => {
 	for (let i = 0; i < perkKeys.length; i++) {
 		const perk = props.perks[perkKeys[i]];
 		if (perk.name === 'Str Powered') {
-			console.log('Str Powered damage formula: ', perk.damageFormula);
+			console.log('Str Powered damage formula: ', perk.damageFormula, perk);
 		}
 		if (perk.takeAimDependant && !isAiming.value) {
 			// Skip this perk if it wants to be taking aim and we aren't doing it.
@@ -313,7 +311,9 @@ const weapon = computed<Weapon>(() => {
 				modified.critRange = perk.critRange * stk('critRange') || modified.critRange;
 				modified.critMult = perk.critMult * stk('critMult') || modified.critMult;
 				const damageStats = damageStringToDownstream(
-					!!perk.dmgMax ? perk.dmgShort + '*' + stk('damage') : modified.dmgShort,
+					!!perk.dmgMax
+						? perk.damageFormula.stringify() + '*' + stk('damage')
+						: modified.dmgShort,
 					statsBuffed.value,
 				);
 				modified.damageFormula = damageStats.damageFormula;
@@ -336,11 +336,14 @@ const weapon = computed<Weapon>(() => {
 				modified.hitBonus += perk.hitBonus * stk('hitBonus') || 0;
 				modified.critRange += perk.critRange * stk('critRange') || 0;
 				modified.critMult += perk.critMult * stk('critMult') || 0;
-				if (perk.dmgShort !== '0' && stk('damage') !== 0) {
-					modified.dmgShort += ('+' + perk.dmgShort + '*' + stk('damage')).replace(
-						'+-',
-						'-',
-					);
+				console.log(props.perks[perk.name].damageFormula);
+				if (perk.damageFormula.stringify() !== '0' && stk('damage') !== 0) {
+					modified.dmgShort += (
+						'+' +
+						perk.damageFormula.stringify() +
+						'*' +
+						stk('damage')
+					).replace('+-', '-');
 				}
 				modified.rangeType += perk.rangeType || 0;
 				modified.range = Math.trunc(12.5 * Math.pow(2, modified.rangeType));
@@ -382,6 +385,7 @@ const weapon = computed<Weapon>(() => {
 		modified.dmgShort + ('+' + additionalDamage.value).replace('+-', '-'),
 		statsBuffed.value,
 	);
+	console.log('Total strength: ' + statsBuffed.value.str.total);
 	modified.dmgShort = finalDamage.dmgShort;
 	modified.dmgMin = finalDamage.dmgMin;
 	modified.dmgAvg = finalDamage.dmgAvg;
@@ -457,7 +461,7 @@ const weapon = computed<Weapon>(() => {
 						/>
 						<span
 							:style="'color: ' + colorsElement(weapon.element)"
-							:title="weapon.dmgShort"
+							:title="weapon.damageFormula.stringify()"
 							>{{ weapon.dmgShort }} × {{ weapon.techMult }}</span
 						>
 					</div>
