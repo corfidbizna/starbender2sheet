@@ -110,12 +110,16 @@ const distributeStat = (
 };
 
 const neutralStatTotals: Record<string, number> = {
-	str: -5,
-	dex: -5,
-	con: -5,
-	wis: -5,
-	int: -5,
-	cha: -5,
+	// TODO: These minus fives weren't applying for some reason.
+	// Buffing these stats has the correct effect, so an invisible permanent buff has been added
+	// to compensate for this phenomenon (and to make sure the ability mods are the correct numbers).
+	// For some reason, this bug doesn't affect skills (they're in the same boat as the mods).
+	str: 0, // -5
+	dex: 0, // -5
+	con: 0, // -5
+	wis: 0, // -5
+	int: 0, // -5
+	cha: 0, // -5
 	ac: 10,
 	acFF: 10,
 	acTouch: 10,

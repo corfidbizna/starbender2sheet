@@ -289,9 +289,6 @@ const weapon = computed<Weapon>(() => {
 	const perkKeys = Object.keys(props.perks);
 	for (let i = 0; i < perkKeys.length; i++) {
 		const perk = props.perks[perkKeys[i]];
-		if (perk.name === 'Str Powered') {
-			console.log('Str Powered damage formula: ', perk.damageFormula, perk);
-		}
 		if (perk.takeAimDependant && !isAiming.value) {
 			// Skip this perk if it wants to be taking aim and we aren't doing it.
 			continue;
@@ -336,7 +333,6 @@ const weapon = computed<Weapon>(() => {
 				modified.hitBonus += perk.hitBonus * stk('hitBonus') || 0;
 				modified.critRange += perk.critRange * stk('critRange') || 0;
 				modified.critMult += perk.critMult * stk('critMult') || 0;
-				console.log(props.perks[perk.name].damageFormula);
 				if (perk.damageFormula.stringify() !== '0' && stk('damage') !== 0) {
 					modified.dmgShort += (
 						'+' +
@@ -385,7 +381,6 @@ const weapon = computed<Weapon>(() => {
 		modified.dmgShort + ('+' + additionalDamage.value).replace('+-', '-'),
 		statsBuffed.value,
 	);
-	console.log('Total strength: ' + statsBuffed.value.str.total);
 	modified.dmgShort = finalDamage.dmgShort;
 	modified.dmgMin = finalDamage.dmgMin;
 	modified.dmgAvg = finalDamage.dmgAvg;

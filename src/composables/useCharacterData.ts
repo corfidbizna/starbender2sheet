@@ -2774,6 +2774,16 @@ function useCharacterDataUncached(characterId: string) {
 			return tallyBuffs([]);
 		}
 		const allEffects = [
+			...getBuffEffects(<BuffInfo>{
+				name: 'This fixes the offbyfive error for the ability mods downstream stuff!! TODO actually fix pls',
+				type: 'Hidden',
+				isStory: true,
+				isBasic: true,
+				stacks: 0,
+				effects: 'Str Mod -5, Dex Mod -5, Con Mod -5, Int Mod -5, Wis Mod -5, Cha Mod -5',
+				isPassive: true,
+				active: true,
+			}),
 			...statsFirstBuffPass.value,
 			...activatedPartyBuffs.value.map((buff) => getBuffEffects(buff)).flat(),
 		];
@@ -3540,6 +3550,16 @@ function useCharacterDataUncached(characterId: string) {
 			return tallyBuffs([]);
 		}
 		const allEffects = [
+			...getBuffEffects(<BuffInfo>{
+				name: 'This fixes the offbyfive error for the ability mods downstream stuff!! TODO actually fix pls',
+				type: 'Hidden',
+				isStory: true,
+				isBasic: true,
+				stacks: 0,
+				effects: 'Str Mod -5, Dex Mod -5, Con Mod -5, Int Mod -5, Wis Mod -5, Cha Mod -5',
+				isPassive: true,
+				active: true,
+			}),
 			...statsFirstBuffPass.value,
 			...featuresAsBuffs.value
 				.filter((feature) => feature.active && feature.effects)
@@ -3930,10 +3950,10 @@ function useCharacterDataUncached(characterId: string) {
 		// Data Loading Statuses
 		anythingLoading:
 			buffsLoading.value ||
-			// weaponsLoading.value ||
-			// weaponPerksLoading.value ||
-			// armorLoading.value ||
-			// abilitiesLoading.value ||
+			weaponsLoading.value ||
+			weaponPerksLoading.value ||
+			armorLoading.value ||
+			abilitiesLoading.value ||
 			statsLoading.value,
 	};
 	return composable;
