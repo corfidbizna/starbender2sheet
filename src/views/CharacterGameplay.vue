@@ -208,7 +208,7 @@ const revive = () => {
 };
 const healthColor = computed<string>(() =>
 	previewDamage.value.health > statsBuffed.value.hpMax.total / 4
-		? '#ffff'
+		? '#efefefff'
 		: 'var(--color-debuff)',
 );
 
