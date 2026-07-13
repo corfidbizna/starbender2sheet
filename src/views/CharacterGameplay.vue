@@ -27,7 +27,6 @@ const props = defineProps<CharacterProps>();
 
 const {
 	character,
-	buffsTallied,
 	stats,
 	statsBuffed,
 	actionResources,
@@ -35,6 +34,7 @@ const {
 	statsLoading,
 	statsRefresh,
 	getStat,
+	makeSummaryForStat,
 	lightLevel,
 	skills,
 	weapons,
@@ -325,6 +325,8 @@ const applyDamage = () => {
 	actionResources.value.damage -= diffHealth;
 	actionResources.value.damageShields -= diffShields;
 	dmg.value = 0;
+	dmgMult.value = 1;
+	dmgCount.value = 1;
 };
 
 type ActionInfo = {
@@ -646,7 +648,19 @@ const encumberanceColor = computed<string>(() => {
 									}"
 								/>
 							</div>
-							<div class="health-info left">
+							<div
+								class="health-info left"
+								:title="
+									makeSummaryForStat([
+										{ statName: 'hpMax' },
+										{
+											statName: 'hpRecharge',
+											description:
+												'The amount of health regeneration you experience per turn.',
+										},
+									])
+								"
+							>
 								<SpinBox
 									v-bind="{
 										value: actionResources.damage,
@@ -658,7 +672,15 @@ const encumberanceColor = computed<string>(() => {
 								/> ⁄ {{ statsBuffed.hpMax.total }}
 							</div>
 							<div class="health-info mid d-glyph"></div>
-							<div class="health-info right">
+							<div
+								class="health-info right"
+								:title="
+									makeSummaryForStat([
+										{ statName: 'hpShieldMax' },
+										{ statName: 'hpShieldRecharge' },
+									])
+								"
+							>
 								<SpinBox
 									v-bind="{
 										value: actionResources.damageShields,
@@ -804,11 +826,9 @@ const encumberanceColor = computed<string>(() => {
 									:style="actionsInfo[name].gridStyle"
 									@click="spendAction(name, $event)"
 									:title="
-										actionsInfo[name].hovertext +
-										statsBuffed[('actions' + name) as StatName].summary.join(
-											'\n',
-										) +
-										'\n\n(Hold shift to increase instead of spend.)'
+										makeSummaryForStat([
+											{ statName: ('actions' + name) as StatName },
+										])
 									"
 								>
 									<span class="spend-action-label">{{ name }}</span>
@@ -850,7 +870,7 @@ const encumberanceColor = computed<string>(() => {
 							<tbody>
 								<tr
 									:title="
-										buffsTallied.actionsMoveBaseLand.summary.join('\n') || ''
+										makeSummaryForStat([{ statName: 'actionsMoveBaseLand' }])
 									"
 								>
 									<td class="stat-label">Movement Per Action</td>
@@ -917,7 +937,7 @@ const encumberanceColor = computed<string>(() => {
 										{{ moveInfo.fly }} ft. / {{ toTiles(moveInfo.fly) }} tiles
 									</td>
 								</tr> -->
-								<tr>
+								<tr :title="makeSummaryForStat([{ statName: 'reach' }])">
 									<td class="stat-label">Reach</td>
 									<td class="stat-value">
 										{{
@@ -927,13 +947,24 @@ const encumberanceColor = computed<string>(() => {
 										}}
 									</td>
 								</tr>
-								<tr>
+								<tr :title="makeSummaryForStat([{ statName: 'size' }])">
 									<td class="stat-label">Size</td>
 									<td class="stat-value">
 										{{ sizeMap[statsBuffed['size'].total].name }}
 									</td>
 								</tr>
-								<tr>
+								<tr
+									:title="
+										makeSummaryForStat([
+											{
+												statName: 'weightCurrent',
+												description:
+													'The total weight of all you\'re carrying in pounds (lbs).',
+											},
+											{ statName: 'capacityCarrying' },
+										])
+									"
+								>
 									<td class="stat-label">Carrying Capacity</td>
 									<td class="stat-value">
 										{{ statsBuffed['weightCurrent'].total }} ⁄

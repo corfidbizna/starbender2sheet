@@ -2775,7 +2775,7 @@ function useCharacterDataUncached(characterId: string) {
 		}
 		const allEffects = [
 			...getBuffEffects(<BuffInfo>{
-				name: 'This fixes the offbyfive error for the ability mods downstream stuff!! TODO actually fix pls',
+				name: '.This fixes the offbyfive error for the ability mods downstream stuff!! TODO actually fix pls',
 				type: 'Hidden',
 				isStory: true,
 				isBasic: true,
@@ -2898,7 +2898,7 @@ function useCharacterDataUncached(characterId: string) {
 							// Then provided the group's mods have a buff dependency OR a subclass requirement,
 							// add the mod to the `featureModsResult` array to be added at the end.
 							featureModsResult.push(<BuffInfo>{
-								name: feature.name + ' - ' + mod.name + ' (Feature Mod)',
+								name: feature.name + ' - ' + mod.name, // Feature Mod
 								type: 'Hidden',
 								category: feature.effectsCategory || 'Misc',
 								isStory: false,
@@ -3551,7 +3551,7 @@ function useCharacterDataUncached(characterId: string) {
 		}
 		const allEffects = [
 			...getBuffEffects(<BuffInfo>{
-				name: 'This fixes the offbyfive error for the ability mods downstream stuff!! TODO actually fix pls',
+				name: '.This fixes the offbyfive error for the ability mods downstream stuff!! TODO actually fix pls',
 				type: 'Hidden',
 				isStory: true,
 				isBasic: true,
@@ -3581,6 +3581,45 @@ function useCharacterDataUncached(characterId: string) {
 			console.warn('"' + label + '" did not validly map to a stat.');
 		}
 		return statsBuffed.value[key]?.total || 0;
+	};
+	type SummaryComponents = {
+		statName: StatName;
+		label?: string;
+		description?: string;
+	};
+	const makeSummaryForStat = (items: SummaryComponents[]) => {
+		const rule = '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+		const rule2 = '╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴╴';
+		const descIndent = '  ';
+		const result: string[] = [];
+		for (const item of items) {
+			const stat = item.statName;
+			const value = stats.value[stat].total;
+			const value2 = statsBuffed.value[stat].total;
+			const extraSummaries = statsBuffed.value[stat].summary
+				.slice(0, statsBuffed.value[stat].summary.length - stats.value[stat].summary.length)
+				.map((a) => a);
+			const summary = [
+				stats.value[stat].summary.length ? rule2 : '',
+				...stats.value[stat].summary,
+				extraSummaries.length ? rule2 : '',
+				...extraSummaries,
+			]
+				.filter((a) => !!a)
+				.join('\n');
+			result.push(
+				(item.label || labelMap[stat]) +
+					':\n' +
+					descIndent +
+					value +
+					(value2 !== undefined && value2 !== value
+						? ' base, ' + value2 + ' total'
+						: '') +
+					(item.description ? '\n' + descIndent + item.description : '') +
+					(summary ? '\n' + summary : ''),
+			);
+		}
+		return result.join('\n' + rule + '\n');
 	};
 	const actionResourcesLocal = JSON.parse(
 		localStorage.getItem(characterId + '_actionResources') || 'null',
@@ -3944,6 +3983,7 @@ function useCharacterDataUncached(characterId: string) {
 		subclassSet,
 		getStat,
 		getFinalStatFromLabel,
+		makeSummaryForStat,
 		stats,
 		statsLoading,
 		statsRefresh,

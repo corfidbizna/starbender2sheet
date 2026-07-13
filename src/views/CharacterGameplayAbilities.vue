@@ -25,6 +25,7 @@ const {
 	abilities,
 	abilitiesLoading,
 	getStat,
+	makeSummaryForStat,
 	actionResources,
 	actionResourcesDisplay,
 	subclassSet,
@@ -129,7 +130,14 @@ const abilityFilter = ref<string>('All');
 					style="width: 100%"
 				>
 					<tbody>
-						<tr>
+						<tr
+							:title="
+								makeSummaryForStat([
+									{ statName: 'energySuper' },
+									{ statName: 'energySuperRecharge' },
+								])
+							"
+						>
 							<td
 								colspan="3"
 								style="width: 100%; position: relative"
@@ -168,11 +176,10 @@ const abilityFilter = ref<string>('All');
 							v-for="energyType in energyTypes"
 							:key="energyType"
 							:title="
-								energyType +
-								' Energy: ' +
-								statsBuffed[('energy' + energyType) as StatName].total +
-								'\n' +
-								statsBuffed[('energy' + energyType) as StatName].summary.join('\n')
+								makeSummaryForStat([
+									{ statName: ('energy' + energyType) as StatName },
+									{ statName: ('energy' + energyType + 'Recharge') as StatName },
+								])
 							"
 						>
 							<td>
