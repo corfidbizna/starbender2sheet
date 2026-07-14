@@ -12,12 +12,9 @@ import type {
 } from '@/composables/useCharacterData';
 import useCharacterData, { elements } from '@/composables/useCharacterData';
 import { actionLog } from '@/sharedState';
-import { computed, ref } from 'vue';
+import { computed, inject, ref } from 'vue';
 
-type CharacterProps = {
-	characterId: CharacterNames;
-};
-const props = defineProps<CharacterProps>();
+const characterId: CharacterNames = inject('character') || 'kara';
 const {
 	character,
 	statsLoading,
@@ -27,7 +24,7 @@ const {
 	abilitiesLoading,
 	subclassGet,
 	subclassSet,
-} = useCharacterData(props.characterId);
+} = useCharacterData(characterId);
 const subclassBackground = computed<string>(() => {
 	return 'background-color: var(--color-' + subclassGet.value.toLocaleLowerCase() + ')';
 });
@@ -196,7 +193,6 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 					label: 'Energy',
 					data: energyCapacity,
 				}"
-				:characterId="characterId"
 			/>
 			<h2>Show Abilities</h2>
 			<select

@@ -62,7 +62,6 @@ const equippedWeapons = computed<Weapon[]>(() => {
 						label: 'Ammo',
 						data: ammoCapacity,
 					}"
-					:characterId="characterId"
 					style="width: 55%"
 				/>
 				<div style="width: 45%; margin-left: 1em">
@@ -88,7 +87,6 @@ const equippedWeapons = computed<Weapon[]>(() => {
 							hideRefillAll: true,
 							noInteract: true,
 						}"
-						:characterId="characterId"
 					/>
 					<div class="range-controls">
 						<span style="flex-grow: 1">Target Distance</span>
@@ -123,7 +121,6 @@ const equippedWeapons = computed<Weapon[]>(() => {
 						v-for="weapon in equippedWeapons"
 						:key="weapon.name"
 						v-bind="weapon"
-						:characterId="characterId"
 						:activatable="true"
 					/>
 				</div>

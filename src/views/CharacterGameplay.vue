@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, inject, ref } from 'vue';
 import useCharacterData, {
 	type StatBoxInfo,
 	makeComputedOfStats,
@@ -10,6 +10,7 @@ import useCharacterData, {
 	type Element,
 	type ActionResourceKey,
 	type SkillKey,
+	type CharacterNames,
 } from '@/composables/useCharacterData';
 import StatBarsBox from '@/components/StatBarsBox.vue';
 import LoadingModal from '@/components/LoadingModal.vue';
@@ -20,11 +21,8 @@ import { actionLog, subtabNameGameplay, updateLog } from '@/sharedState';
 import BGImage from '@/components/BGImage.vue';
 import SpinBox from '@/components/SpinBox.vue';
 // import { DiceFormula, getStatByCharacter } from '@/business_logic/diceFormula';
-type CharacterProps = {
-	characterId: string;
-};
-const props = defineProps<CharacterProps>();
 
+const characterId: CharacterNames = inject('character') || 'kara';
 const {
 	character,
 	stats,
@@ -40,7 +38,7 @@ const {
 	weapons,
 	weaponAmmoUpdate,
 	subclassGet,
-} = useCharacterData(props.characterId);
+} = useCharacterData(characterId);
 
 const activeShieldType = computed<Element>(() => {
 	const shieldTotals = [
@@ -582,7 +580,6 @@ const encumberanceColor = computed<string>(() => {
 						/>
 						<StatCapacityBox
 							v-bind="{ label: 'Expendables', data: expendables }"
-							:characterId="characterId"
 							class="hover-highlight"
 							style="margin: 0.5em"
 						/>

@@ -4,11 +4,9 @@ import LoadingModal from '@/components/LoadingModal.vue';
 import StatCapacityBox from '@/components/StatCapacityBox.vue';
 import type { Armor, CharacterNames } from '@/composables/useCharacterData';
 import useCharacterData, { rarities } from '@/composables/useCharacterData';
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 
-const props = defineProps<{
-	characterId: CharacterNames;
-}>();
+const characterId: CharacterNames = inject('character') || 'kara';
 const {
 	statsLoading,
 	actionResources,
@@ -19,7 +17,7 @@ const {
 	armorLoading,
 	armorRefresh,
 	getStat,
-} = useCharacterData(props.characterId);
+} = useCharacterData(characterId);
 const armorSlotSortOrder: Record<string, number> = {
 	full: 0,
 	head: 1,
@@ -119,7 +117,6 @@ const scrollTo = (id: string) => {
 					],
 					hideRefillAll: true,
 				}"
-				:characterId="characterId"
 			/>
 			<h2>Slots</h2>
 			<div class="armor-slots-active">
@@ -299,7 +296,6 @@ const scrollTo = (id: string) => {
 				:key="armor.name"
 				v-bind="armor"
 				:activatable="true"
-				:characterId="characterId"
 			/>
 		</div>
 		<!-- <pre>{{ armor }}</pre> -->

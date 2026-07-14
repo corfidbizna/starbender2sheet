@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import type { BuffInfo } from '@/business_logic/buffs';
-import useCharacterData from '@/composables/useCharacterData';
+import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
 import DGlyph from '@/components/DGlyph.vue';
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 
-const props = defineProps<BuffInfo & { characterId: string; condensed: boolean }>();
-const { buffs, customBuffs, namesOfActivatedBuffs } = useCharacterData(props.characterId);
+const characterId: CharacterNames = inject('character') || 'kara';
+
+const props = defineProps<BuffInfo & { condensed: boolean }>();
+const { buffs, customBuffs, namesOfActivatedBuffs } = useCharacterData(characterId);
 
 const imageSrc = computed<string>(() => {
 	return (

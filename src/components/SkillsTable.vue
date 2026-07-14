@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { actionLog, updateLog } from '@/sharedState.ts';
-import useCharacterData, { skillsInfoMap, type SkillKey } from '@/composables/useCharacterData';
+import useCharacterData, {
+	skillsInfoMap,
+	type CharacterNames,
+	type SkillKey,
+} from '@/composables/useCharacterData';
 import useFilter from '@/composables/useFilter';
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 import { DiceFormula } from '@/business_logic/diceFormula';
 
-const props = defineProps<{
-	characterId: string;
-}>();
-const { skills } = useCharacterData(props.characterId);
+const characterId: CharacterNames = inject('character') || 'kara';
+
+const { skills } = useCharacterData(characterId);
 const skillsList = computed<string[]>(() => Object.keys(skills.value));
 const rangeMax = computed<number>((): number => {
 	let max = -Infinity;

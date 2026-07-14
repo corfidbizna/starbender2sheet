@@ -4,12 +4,15 @@ import type {
 	ActionResourceKey,
 	CapacityBoxInfo,
 	CapacityBoxStatField,
+	CharacterNames,
 } from '@/composables/useCharacterData';
 import CapacityBar from './CapacityBar.vue';
 import SpinBox from './SpinBox.vue';
+import { inject } from 'vue';
 
-const props = defineProps<CapacityBoxInfo & { characterId: string }>();
-const { actionResources, actionResourceUpdate } = useCharacterData(props.characterId);
+const characterId: CharacterNames = inject('character') || 'kara';
+const props = defineProps<CapacityBoxInfo>();
+const { actionResources, actionResourceUpdate } = useCharacterData(characterId);
 
 const refillStat = (stat: CapacityBoxStatField) => {
 	const diff = stat.inverted ? -stat.current || 0 : stat.max - (stat.current || 0);

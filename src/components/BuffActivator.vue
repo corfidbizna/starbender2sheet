@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import type { BuffInfo } from '@/business_logic/buffs';
-import useCharacterData from '@/composables/useCharacterData';
+import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
 // import useFilter from '@/composables/useFilter';
 import BuffItemRow from './BuffItemRow.vue';
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 
-type CharacterProps = {
-	characterId: string;
-	condensed: boolean;
-};
-const props = defineProps<CharacterProps>();
+const characterId: CharacterNames = inject('character') || 'kara';
 
-const { buffs } = useCharacterData(props.characterId);
+const props = defineProps<{ condensed: boolean }>();
+
+const { buffs } = useCharacterData(characterId);
 
 const storyBuffs = computed<BuffInfo[]>(() => buffs.value.filter((buff) => buff.isStory));
 const otherBuffs = computed<BuffInfo[]>(() =>
@@ -33,7 +31,6 @@ const activeBuffs = computed<BuffInfo[]>(() => [
 				v-for="buff in storyBuffs"
 				:key="buff.name"
 				v-bind="buff"
-				:characterId="characterId"
 				:condensed="props.condensed"
 			/>
 			<h2>Active Buffs</h2>
@@ -41,7 +38,6 @@ const activeBuffs = computed<BuffInfo[]>(() => [
 				v-for="buff in activeBuffs"
 				:key="buff.name"
 				v-bind="buff"
-				:characterId="characterId"
 				:condensed="props.condensed"
 			/>
 		</div>
@@ -51,7 +47,6 @@ const activeBuffs = computed<BuffInfo[]>(() => [
 				v-for="buff in otherBuffs"
 				:key="buff.name"
 				v-bind="buff"
-				:characterId="characterId"
 				:condensed="props.condensed"
 			/>
 		</div>

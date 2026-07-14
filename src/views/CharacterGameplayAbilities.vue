@@ -9,15 +9,12 @@ import type {
 } from '@/composables/useCharacterData';
 import useCharacterData, { elements } from '@/composables/useCharacterData';
 import CapacityBar from '@/components/CapacityBar.vue';
-import { computed, ref } from 'vue';
+import { computed, inject, ref } from 'vue';
 import AbilityItemRow from '@/components/AbilityItemRow.vue';
 import SpinBox from '@/components/SpinBox.vue';
 import DGlyph from '@/components/DGlyph.vue';
 
-type CharacterProps = {
-	characterId: CharacterNames;
-};
-const props = defineProps<CharacterProps>();
+const characterId: CharacterNames = inject('character') || 'kara';
 const {
 	character,
 	// statsBase,
@@ -29,7 +26,7 @@ const {
 	actionResources,
 	actionResourcesDisplay,
 	subclassSet,
-} = useCharacterData(props.characterId);
+} = useCharacterData(characterId);
 
 const allowedSubclasses = computed<Element[]>(() => {
 	const result = Object.keys(elements)
@@ -152,7 +149,6 @@ const abilityFilter = ref<string>('All');
 										max: getStat('energySuper'),
 										current: actionResourcesDisplay.energySuper,
 									}"
-									:characterId="characterId"
 								/>
 								<span class="super-bar-ticks"></span>
 							</td>
@@ -217,7 +213,6 @@ const abilityFilter = ref<string>('All');
 												('energy' + energyType) as ActionResourceDisplayKey
 											],
 									}"
-									:characterId="characterId"
 								/>
 							</td>
 							<td>
@@ -282,7 +277,6 @@ const abilityFilter = ref<string>('All');
 					v-for="ability in filteredAbilities"
 					:key="ability.name"
 					v-bind="ability"
-					:character-id="characterId"
 				/>
 			</div>
 		</div>

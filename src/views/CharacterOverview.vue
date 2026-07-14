@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount } from 'vue';
+import { computed, onBeforeUnmount, provide } from 'vue';
 import router from '@/router/index.ts';
 import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
 import { bgColor, banner, subtabNameGameplay, subtabNameLoadout } from '@/sharedState';
@@ -19,6 +19,7 @@ defineProps({
 	characterId: String, // <- note that this is the JS string class
 })
 */
+provide('character', props.characterId);
 
 const { character, armorLoading, buffsLoading, statsLoading, weaponsLoading } = useCharacterData(
 	props.characterId,

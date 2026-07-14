@@ -162,13 +162,11 @@ const multipleExotics = computed<boolean>(() => {
 				v-for="weapon in filteredData.includes"
 				:key="weapon.name"
 				v-bind="weapon"
-				:characterId="characterId"
 			/>
 			<WeaponItemRow
 				v-for="weapon in filteredData.excludes"
 				:key="weapon.name"
 				v-bind="weapon"
-				:characterId="characterId"
 				class="filtered"
 			/>
 		</span>

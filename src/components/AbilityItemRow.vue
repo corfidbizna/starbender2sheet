@@ -9,19 +9,18 @@ import type {
 } from '@/composables/useCharacterData';
 import useCharacterData, { rangeMap } from '@/composables/useCharacterData';
 import DBox from '@/components/DBox.vue';
-import { computed, ref } from 'vue';
+import { computed, inject, ref } from 'vue';
 import DGlyph from '@/components/DGlyph.vue';
 import { DiceFormula, getStatByCharacter } from '@/business_logic/diceFormula';
 import { updateLog } from '@/sharedState';
 import type { BuffInfo } from '@/business_logic/buffs';
 import BuffItemRow from './BuffItemRow.vue';
 
-type CharacterProps = {
-	characterId: CharacterNames;
-};
-const props = defineProps<Ability & CharacterProps>();
+const characterId: CharacterNames = inject('character') || 'kara';
+
+const props = defineProps<Ability>();
 const { statsBase, buffs, statsBuffed, getStat, actionResources, actionResourcesDisplay } =
-	useCharacterData(props.characterId);
+	useCharacterData(characterId);
 
 // =======================
 //          Stats
@@ -544,7 +543,6 @@ const updateEnergy = () => {
 						v-for="buff in buffsFiltered"
 						:key="buff.name"
 						v-bind="buff"
-						:character-id="characterId"
 						:condensed="true"
 					/>
 				</div>

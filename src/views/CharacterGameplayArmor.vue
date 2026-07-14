@@ -30,7 +30,6 @@ const equippedArmor = computed<Armor[]>(() => armor.value.filter((armor) => armo
 				v-for="armor in equippedArmor"
 				:key="armor.name"
 				v-bind="armor"
-				:characterId="characterId"
 			/>
 		</div>
 	</div>

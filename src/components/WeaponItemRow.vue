@@ -3,6 +3,7 @@ import { updateLog } from '@/sharedState.ts';
 import useCharacterData, {
 	labelToStatName,
 	rangeMap,
+	type CharacterNames,
 	type StatName,
 	type Weapon,
 } from '@/composables/useCharacterData';
@@ -10,11 +11,13 @@ import DBox from '@/components/DBox.vue';
 import DGlyph from './DGlyph.vue';
 import CapacityBar from './CapacityBar.vue';
 import { DiceFormula, getStatByCharacter } from '@/business_logic/diceFormula';
-import { computed, ref } from 'vue';
+import { computed, inject, ref } from 'vue';
 
-const props = defineProps<Weapon & { characterId: string; activatable?: boolean }>();
+const characterId: CharacterNames = inject('character') || 'kara';
+
+const props = defineProps<Weapon & { activatable?: boolean }>();
 const { weapons, damageStringToDownstream, statsBuffed, getFinalStatFromLabel, actionResources } =
-	useCharacterData(props.characterId);
+	useCharacterData(characterId);
 const weaponIndex = computed<number>(() =>
 	weapons.value.findIndex((weapon) => weapon.name === props.name),
 );

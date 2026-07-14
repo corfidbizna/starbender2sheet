@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import useCharacterData, { labelMap, type StatName } from '@/composables/useCharacterData';
+import useCharacterData, {
+	labelMap,
+	type CharacterNames,
+	type StatName,
+} from '@/composables/useCharacterData';
 import LoadingModal from '@/components/LoadingModal.vue';
 import BuffActivator from '@/components/BuffActivator.vue';
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 import MakeBuffInterface from '@/components/MakeBuffInterface.vue';
 import BGImage from '@/components/BGImage.vue';
 import { fullListBuff } from '@/sharedState';
 
-type CharacterProps = {
-	characterId: string;
-};
-const props = defineProps<CharacterProps>();
+const characterId: CharacterNames = inject('character') || 'kara';
+
 const {
 	character,
 	stats,
@@ -19,7 +21,7 @@ const {
 	activatedPartyBuffs,
 	buffsLoading,
 	buffsRefresh,
-} = useCharacterData(props.characterId);
+} = useCharacterData(characterId);
 
 const buffTotals = computed<string>(() => {
 	let result = '';
