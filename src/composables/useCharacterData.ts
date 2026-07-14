@@ -3063,7 +3063,8 @@ function useCharacterDataUncached(characterId: string) {
 		perks?: Record<string, number>;
 	};
 	const weaponVariables = computed<Record<string, WeaponVariables>>(() => {
-		const result: Record<string, WeaponVariables> = {};
+		const result: Record<string, WeaponVariables> =
+			JSON.parse(localStorage.getItem(characterId + '_weaponVariables') || '') || {};
 		for (let i = 0; i < weapons.value.length; i++) {
 			const wep = weapons.value[i];
 			result[wep.name] = {
