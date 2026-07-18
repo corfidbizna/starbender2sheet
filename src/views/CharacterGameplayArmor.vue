@@ -1,22 +1,15 @@
 <script setup lang="ts">
-import type { CharacterNames, Armor } from '@/composables/useCharacterData';
+import type { Armor } from '@/composables/useCharacterData';
 import useCharacterData from '@/composables/useCharacterData';
 import ArmorItem from '@/components/ArmorItem.vue';
 // import StatCapacityBox from '@/components/StatCapacityBox.vue';
 import { computed } from 'vue';
 
-type CharacterProps = {
-	characterId: CharacterNames;
-};
-const props = defineProps<CharacterProps>();
-const { character, armor } = useCharacterData(props.characterId);
+const { armor } = useCharacterData();
 const equippedArmor = computed<Armor[]>(() => armor.value.filter((armor) => armor.equipped));
 </script>
 <template>
-	<div
-		v-if="character"
-		class="armor-gameplay-block"
-	>
+	<div class="armor-gameplay-block">
 		<h2>Equipped Armor</h2>
 		<div v-if="equippedArmor.length === 0">
 			<h1 style="text-align: center">No armor equipped</h1>

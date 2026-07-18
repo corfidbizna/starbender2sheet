@@ -48,12 +48,7 @@ const stats = computed<
 	const max = rangeMax.value;
 	return props.data.map(({ label, hovertext, value, value2, description }) => ({
 		label,
-		hovertext:
-			label +
-			': ' +
-			value +
-			(value2 !== undefined && value2 !== value ? ' base, ' + value2 + ' total' : '') +
-			(hovertext ? '\n' + hovertext : ''),
+		hovertext: hovertext || '',
 		bar: makeBar(0, max, value, value2),
 		value: value2 != undefined ? value2 : value,
 		description: description || '',

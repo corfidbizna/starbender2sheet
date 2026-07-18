@@ -1,5 +1,6 @@
 <script setup lang="ts">
-// import { RouterLink, RouterView } from 'vue-router';
+import { useRoute, RouterView } from 'vue-router';
+const route = useRoute();
 </script>
 
 <template>
@@ -13,7 +14,7 @@
 		</nav>
 		<h1>STARBENDER 2: Season of Collapse</h1>
 	</header> -->
-	<RouterView />
+	<RouterView :key="route.params.characterId + ''" />
 </template>
 
 <style scoped>

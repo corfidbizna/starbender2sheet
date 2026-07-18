@@ -1,5 +1,5 @@
-import { ref, watch } from 'vue';
-import type { CharacterNames } from './composables/useCharacterData';
+import { computed, ref, watch } from 'vue';
+import { characterDataSources, type CharacterNames } from './composables/useCharacterData';
 
 type SavedCharacterData = {
 	name: string;
@@ -111,9 +111,39 @@ watch([subtabNameGameplay, subtabNameLoadout], () => {
 });
 
 // Game State
+export const characterName = ref<CharacterNames>('kara');
+// const characterId = computed<CharacterNames | undefined>(
+// 	() => useRouter().currentRoute.value.params.characterId as CharacterNames | undefined,
+// );
+const characterLabel = computed<string>(() => characterDataSources[characterName.value].label);
+// let socket: WebSocket;
+const makeSocket = () => {
+	const newSocket = new WebSocket('https://corfid.bizna.name/starbender/debug/');
+	newSocket.onopen = () => {
+		console.log('Socket opened!');
+		newSocket.send(
+			JSON.stringify({
+				type: 'WannaLogMessage',
+				message: `Hello from ${characterLabel.value}\n`,
+			}),
+		);
+	};
+	newSocket.onclose = () => {
+		console.log('Socket closed!');
+		makeSocket();
+	};
+	newSocket.onmessage = (event: MessageEvent) => {
+		const message = JSON.parse(event.data);
+		console.log(message);
+	};
+	Object.assign(window, { socket: newSocket });
+	// socket = makeSocket();
+};
+makeSocket();
 export const actionLog = ref<string>('');
 export const updateLog = (text: string) => {
-	actionLog.value = text + '\n\n\n' + actionLog.value;
+	actionLog.value =
+		characterDataSources[characterName.value].label + ':\n' + text + '\n\n\n' + actionLog.value;
 };
 export const storeGameState = (turnCount: number) => {
 	localStorage.setItem('actionLog', actionLog.value);

@@ -3,20 +3,17 @@ import type {
 	Ability,
 	ActionResourceDisplayKey,
 	ActionResourceKey,
-	CharacterNames,
 	Element,
 	StatName,
 } from '@/composables/useCharacterData';
 import useCharacterData, { elements } from '@/composables/useCharacterData';
 import CapacityBar from '@/components/CapacityBar.vue';
-import { computed, inject, ref } from 'vue';
+import { computed, ref } from 'vue';
 import AbilityItemRow from '@/components/AbilityItemRow.vue';
 import SpinBox from '@/components/SpinBox.vue';
 import DGlyph from '@/components/DGlyph.vue';
 
-const characterId: CharacterNames = inject('character') || 'kara';
 const {
-	character,
 	// statsBase,
 	statsBuffed,
 	abilities,
@@ -26,7 +23,7 @@ const {
 	actionResources,
 	actionResourcesDisplay,
 	subclassSet,
-} = useCharacterData(characterId);
+} = useCharacterData();
 
 const allowedSubclasses = computed<Element[]>(() => {
 	const result = Object.keys(elements)
@@ -94,7 +91,7 @@ const abilityFilter = ref<string>('All');
 <template>
 	<div
 		class="ability-gameplay-block"
-		v-if="character && !abilitiesLoading"
+		v-if="!abilitiesLoading"
 	>
 		<div
 			v-if="mainAbilities.length === 0"

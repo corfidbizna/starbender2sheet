@@ -1,27 +1,14 @@
 <script setup lang="ts">
-import useCharacterData, {
-	labelMap,
-	type CharacterNames,
-	type StatName,
-} from '@/composables/useCharacterData';
+import useCharacterData, { labelMap, type StatName } from '@/composables/useCharacterData';
 import LoadingModal from '@/components/LoadingModal.vue';
 import BuffActivator from '@/components/BuffActivator.vue';
-import { computed, inject } from 'vue';
+import { computed } from 'vue';
 import MakeBuffInterface from '@/components/MakeBuffInterface.vue';
 import BGImage from '@/components/BGImage.vue';
 import { fullListBuff } from '@/sharedState';
 
-const characterId: CharacterNames = inject('character') || 'kara';
-
-const {
-	character,
-	stats,
-	statsBuffed,
-	statsLoading,
-	activatedPartyBuffs,
-	buffsLoading,
-	buffsRefresh,
-} = useCharacterData(characterId);
+const { stats, statsBuffed, statsLoading, activatedPartyBuffs, buffsLoading, buffsRefresh } =
+	useCharacterData();
 
 const buffTotals = computed<string>(() => {
 	let result = '';
@@ -73,10 +60,7 @@ const activeBuffNames = computed<string[]>(() => {
 });
 </script>
 <template>
-	<div
-		class="CharacterBuff"
-		v-if="character"
-	>
+	<div class="CharacterBuff">
 		<div v-if="statsLoading || buffsLoading">
 			<LoadingModal />
 		</div>
@@ -112,11 +96,8 @@ const activeBuffNames = computed<string[]>(() => {
 				</div>
 			</div>
 			<div style="margin-left: 17em">
-				<MakeBuffInterface v-bind:character-id="characterId" />
-				<BuffActivator
-					:character-id="characterId"
-					:condensed="false"
-				/>
+				<MakeBuffInterface />
+				<BuffActivator :condensed="false" />
 			</div>
 		</div>
 	</div>

@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import type { Armor, CharacterNames } from '@/composables/useCharacterData';
+import type { Armor } from '@/composables/useCharacterData';
 import useCharacterData from '@/composables/useCharacterData';
 import DBox from '@/components/DBox.vue';
-import { computed, inject, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import DGlyph from './DGlyph.vue';
 
-const characterId: CharacterNames = inject('character') || 'kara';
-
 const props = defineProps<Armor & { activatable?: boolean }>();
-const { namesOfEquippedArmor, namesOfActiveArmor, armorStackUpdate } =
-	useCharacterData(characterId);
+const { namesOfEquippedArmor, namesOfActiveArmor, armorStackUpdate } = useCharacterData();
 const currentStacks = ref<number>(props.stacks);
 watch(currentStacks, () => {
 	armorStackUpdate(props.name, currentStacks.value);

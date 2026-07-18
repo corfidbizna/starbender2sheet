@@ -1,21 +1,9 @@
 <script setup lang="ts">
-import type { CharacterNames } from '@/composables/useCharacterData';
-import useCharacterData from '@/composables/useCharacterData';
 import BuffActivator from '@/components/BuffActivator.vue';
-
-type CharacterProps = {
-	characterId: CharacterNames;
-};
-const props = defineProps<CharacterProps>();
-const { character } = useCharacterData(props.characterId);
 </script>
 <template>
-	<div
-		class="buff-gameplay-block"
-		v-if="character"
-	>
+	<div class="buff-gameplay-block">
 		<BuffActivator
-			:character-id="characterId"
 			:condensed="true"
 			class="gameplay-buffs-list"
 		/>

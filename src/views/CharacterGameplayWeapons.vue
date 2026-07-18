@@ -1,23 +1,12 @@
 <script setup lang="ts">
-import type { CapacityBoxStatField, CharacterNames, Weapon } from '@/composables/useCharacterData';
+import type { CapacityBoxStatField, Weapon } from '@/composables/useCharacterData';
 import useCharacterData from '@/composables/useCharacterData';
 import WeaponItemRow from '@/components/WeaponItemRow.vue';
 import StatCapacityBox from '@/components/StatCapacityBox.vue';
 import { computed } from 'vue';
 
-type CharacterProps = {
-	characterId: CharacterNames;
-};
-const props = defineProps<CharacterProps>();
-const {
-	character,
-	statsBuffed,
-	weapons,
-	weaponsLoading,
-	weaponPerksLoading,
-	actionResources,
-	getStat,
-} = useCharacterData(props.characterId);
+const { statsBuffed, weapons, weaponsLoading, weaponPerksLoading, actionResources, getStat } =
+	useCharacterData();
 const ammoCapacity = computed<CapacityBoxStatField[]>(() => {
 	return [
 		{
@@ -51,10 +40,7 @@ const equippedWeapons = computed<Weapon[]>(() => {
 });
 </script>
 <template>
-	<div
-		class="weapon-gameplay-block"
-		v-if="character"
-	>
+	<div class="weapon-gameplay-block">
 		<div class="weapon-block">
 			<div style="display: flex">
 				<StatCapacityBox

@@ -7,7 +7,7 @@ import {
 	type PartyBuffInfo,
 } from '@/business_logic/buffs';
 import { DiceFormula, getStatByCharacter } from '@/business_logic/diceFormula';
-import { computed, ref, type Ref, type ComputedRef, watch } from 'vue';
+import { computed, ref, type Ref, type ComputedRef, watch, inject } from 'vue';
 
 // ==================================================================================================
 // Sheet Types
@@ -46,7 +46,7 @@ type SheetNames = keyof CharacterDataSource['sheets'];
 // ==================================================================================================
 
 // Character Sheet IDs (add new characters here)
-export const characterDataSources: Record<string, CharacterDataSource> = {
+export const characterDataSources: Record<CharacterNames, CharacterDataSource> = {
 	kara: {
 		label: 'Kara',
 		documentId: '1RcSqD_99aJc-gOcmJTloZ-jItp2XOTiozjNvV-nzgSI',
@@ -2551,7 +2551,7 @@ export type ArtifactMod = {
 
 const unwrapJSONPRegex = /google\.visualization\.Query\.setResponse\((.+)\);/;
 const getSheetForCharacter = <T>(
-	characterId: string,
+	characterId: CharacterNames,
 	sheetName: SheetNames,
 ): NetworkDataState<T> => {
 	const character = characterDataSources[characterId];
@@ -2614,10 +2614,8 @@ const getSheet = async <T>(documentId: string, sheetKey: string): Promise<T[]> =
 	// console.log('flattened', flattened);
 	return flattened as T[];
 };
-function useCharacterDataUncached(characterId: string) {
-	const character = computed<CharacterDataSource | undefined>(
-		() => characterDataSources[characterId],
-	);
+function useCharacterDataUncached(characterId: CharacterNames) {
+	// const character = computed<CharacterDataSource>(() => characterDataSources[characterId]);
 
 	// ==================================================================================================
 	// SKILLS START
@@ -3612,10 +3610,8 @@ function useCharacterDataUncached(characterId: string) {
 				(item.label || labelMap[stat]) +
 					':\n' +
 					descIndent +
-					value +
-					(value2 !== undefined && value2 !== value
-						? ' base, ' + value2 + ' total'
-						: '') +
+					(value + (value2 !== undefined && value2 !== value ? ' base, ' + value2 : '')) +
+					' total' +
 					(item.description ? '\n' + descIndent + item.description : '') +
 					(summary ? '\n' + summary : ''),
 			);
@@ -3920,7 +3916,7 @@ function useCharacterDataUncached(characterId: string) {
 	// Export Stuff
 	const composable = {
 		// Characters
-		character,
+		// character,
 		// Buffs
 		buffs,
 		customBuffs,
@@ -4004,9 +4000,11 @@ const characterDataComposableForEachCharacter: Record<
 	string,
 	ReturnType<typeof useCharacterDataUncached>
 > = {};
-export default function useCharacterData(
-	characterId: string,
-): ReturnType<typeof useCharacterDataUncached> {
+export default function useCharacterData(): ReturnType<typeof useCharacterDataUncached> {
+	// To change what character's data is being used, `provide` a different ID
+	// to the parent component and everything downstream of that component
+	// will use that data.
+	const characterId: CharacterNames = inject('character') || 'kara';
 	if (characterDataComposableForEachCharacter[characterId]) {
 		return characterDataComposableForEachCharacter[characterId];
 	}

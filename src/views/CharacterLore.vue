@@ -1,33 +1,30 @@
 <script setup lang="ts">
 import useCharacterData, {
-	type CharacterNames,
+	characterDataSources,
 	getScoreDescription,
+	type CharacterNames,
 } from '@/composables/useCharacterData';
 import BGImage from '@/components/BGImage.vue';
-import { computed, ref } from 'vue';
+import { computed, inject, ref } from 'vue';
 import LoadingModal from '@/components/LoadingModal.vue';
 
-type CharacterProps = {
-	characterId: CharacterNames;
-};
-const props = defineProps<CharacterProps>();
-const { character, statsBuffed, statsBase, subclassGet, statsLoading } = useCharacterData(
-	props.characterId,
-);
+const { statsBuffed, statsBase, subclassGet, statsLoading } = useCharacterData();
 
+const characterId: CharacterNames = inject('character') || 'kara';
+const character = characterDataSources[characterId];
 const characterTitle = computed<string>(() =>
-	character.value && !statsLoading.value
-		? character.value.label + ', the ' + subclassGet.value + ' ' + statsBase.value.guardianClass
+	character && !statsLoading.value
+		? character.label + ', the ' + subclassGet.value + ' ' + statsBase.value.guardianClass
 		: 'Loading…',
 );
 const currentImageURL = ref<string>(
-	character.value?.images
-		? character.value.images[0]
+	character?.images
+		? character.images[0]
 		: 'https://static.wikia.nocookie.net/kingdomhearts/images/0/00/Sora_KHIII_RM.png',
 );
 </script>
 <template>
-	<div v-if="!character || statsLoading">
+	<div v-if="statsLoading">
 		<LoadingModal />
 	</div>
 	<div

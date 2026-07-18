@@ -2,11 +2,10 @@
 import ArmorItem from '@/components/ArmorItem.vue';
 import LoadingModal from '@/components/LoadingModal.vue';
 import StatCapacityBox from '@/components/StatCapacityBox.vue';
-import type { Armor, CharacterNames } from '@/composables/useCharacterData';
+import type { Armor } from '@/composables/useCharacterData';
 import useCharacterData, { rarities } from '@/composables/useCharacterData';
-import { computed, inject } from 'vue';
+import { computed } from 'vue';
 
-const characterId: CharacterNames = inject('character') || 'kara';
 const {
 	statsLoading,
 	actionResources,
@@ -17,7 +16,7 @@ const {
 	armorLoading,
 	armorRefresh,
 	getStat,
-} = useCharacterData(characterId);
+} = useCharacterData();
 const armorSlotSortOrder: Record<string, number> = {
 	full: 0,
 	head: 1,

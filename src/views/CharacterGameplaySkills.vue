@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import useCharacterData, {
 	type BarBoxStatField,
-	type CharacterNames,
 	type SkillKey,
 	type StatBoxInfo,
 	type StatName,
@@ -10,11 +9,7 @@ import useCharacterData, {
 import StatBarsBox from '@/components/StatBarsBox.vue';
 import { computed } from 'vue';
 
-type CharacterProps = {
-	characterId: CharacterNames;
-};
-const props = defineProps<CharacterProps>();
-const { character, skills, skillsBuffed, stats, statsBuffed } = useCharacterData(props.characterId);
+const { skills, skillsBuffed, stats, statsBuffed, makeSummaryForStat } = useCharacterData();
 
 const skillsInfo = computed<StatBoxInfo>(() => {
 	const fieldArray = <BarBoxStatField[]>[];
@@ -24,12 +19,15 @@ const skillsInfo = computed<StatBoxInfo>(() => {
 		fieldArray.push({
 			label: skillsInfoMap[key].label,
 			stat: 'str',
-			hovertext: [
-				'"' + skillsInfoMap[key].description + '"',
-				...statsBuffed.value[key as StatName].summary,
-				...statsBuffed.value[(skillsInfoMap[key].baseStat + 'Skills') as StatName].summary,
-				...statsBuffed.value[skillsInfoMap[key].baseStat as StatName].summary,
-			].join('\n'),
+			hovertext: makeSummaryForStat([
+				{ statName: key as StatName, description: skillsInfoMap[key].description },
+				{ statName: (skillsInfoMap[key].baseStat + 'Skills') as StatName },
+				{ statName: skillsInfoMap[key].baseStat as StatName },
+				// '"' + skillsInfoMap[key].description + '"',
+				// ...statsBuffed.value[key as StatName].summary,
+				// ...statsBuffed.value[(skillsInfoMap[key].baseStat + 'Skills') as StatName].summary,
+				// ...statsBuffed.value[skillsInfoMap[key].baseStat as StatName].summary,
+			]),
 			value: (skills.value[key] || 0) + (stats.value[key as StatName].total || 0),
 			value2:
 				(skillsBuffed.value[key] || 0) + (statsBuffed.value[key as StatName].total || 0),
@@ -42,10 +40,7 @@ const skillsInfo = computed<StatBoxInfo>(() => {
 });
 </script>
 <template>
-	<div
-		class="skills-gameplay-block"
-		v-if="character"
-	>
+	<div class="skills-gameplay-block">
 		<div class="gameplay-skills-list">
 			<StatBarsBox v-bind="skillsInfo" />
 		</div>

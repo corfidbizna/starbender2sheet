@@ -1,15 +1,10 @@
 <script setup lang="ts">
-import type { ArtifactMod, CharacterNames } from '@/composables/useCharacterData';
+import DBox from '@/components/DBox.vue';
+import type { ArtifactMod } from '@/composables/useCharacterData';
 import useCharacterData from '@/composables/useCharacterData';
 import { computed } from 'vue';
 
-type CharacterProps = {
-	characterId: CharacterNames;
-};
-const props = defineProps<CharacterProps>();
-const { character, artifactMods, namesOfActiveArtifactMods, artifactLoading } = useCharacterData(
-	props.characterId,
-);
+const { artifactMods, namesOfActiveArtifactMods, artifactLoading } = useCharacterData();
 const artifactList = computed<ArtifactMod[]>(() => {
 	return artifactMods.value.filter((mod) => namesOfActiveArtifactMods.value.includes(mod.name));
 });
@@ -17,7 +12,7 @@ const artifactList = computed<ArtifactMod[]>(() => {
 <template>
 	<div
 		class="artifact-gameplay-block"
-		v-if="character && !artifactLoading"
+		v-if="!artifactLoading"
 	>
 		<div
 			v-if="artifactList.length === 0"
@@ -30,26 +25,22 @@ const artifactList = computed<ArtifactMod[]>(() => {
 			v-for="mod in artifactList"
 			:key="mod.name"
 		>
-			<details class="gameplay-mod">
-				<summary>
-					{{ mod.name }}
-				</summary>
-				<div>{{ mod.description }}</div>
-			</details>
+			<DBox v-bind="{ title: mod.name, rarity: '', subtitle: '' }">
+				<template #contents>
+					<div>
+						{{ mod.description }}
+					</div>
+				</template>
+			</DBox>
 		</div>
 	</div>
 	<div v-else><h1>Loading seasonal artifact…</h1></div>
 </template>
 <style>
-.gameplay-artifact-list {
+.artifact-gameplay-block {
 	height: calc(100vh - 125px);
 	overflow-y: scroll;
 	scrollbar-width: none;
-}
-.gameplay-mod summary {
-	text-transform: uppercase;
-	border-bottom: 2px solid #fff8;
-	padding: 0.25em 0;
-	margin: 0.25em;
+	font-size: 0.9rem;
 }
 </style>

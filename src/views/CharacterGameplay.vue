@@ -2,7 +2,6 @@
 import { computed, inject, ref } from 'vue';
 import useCharacterData, {
 	type StatBoxInfo,
-	makeComputedOfStats,
 	type CapacityBoxStatField,
 	sizeMap,
 	type StatName,
@@ -10,7 +9,10 @@ import useCharacterData, {
 	type Element,
 	type ActionResourceKey,
 	type SkillKey,
+	getScoreDescription,
+	labelMap,
 	type CharacterNames,
+	characterDataSources,
 } from '@/composables/useCharacterData';
 import StatBarsBox from '@/components/StatBarsBox.vue';
 import LoadingModal from '@/components/LoadingModal.vue';
@@ -24,7 +26,6 @@ import SpinBox from '@/components/SpinBox.vue';
 
 const characterId: CharacterNames = inject('character') || 'kara';
 const {
-	character,
 	stats,
 	statsBuffed,
 	actionResources,
@@ -38,7 +39,7 @@ const {
 	weapons,
 	weaponAmmoUpdate,
 	subclassGet,
-} = useCharacterData(characterId);
+} = useCharacterData();
 
 const activeShieldType = computed<Element>(() => {
 	const shieldTotals = [
@@ -68,12 +69,48 @@ const lightLevelColor = computed<string>(() => {
 const infoAbilityScores = computed<StatBoxInfo>(() => {
 	const keys = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 	const descriptions = [
-		'"Physical might"',
-		'"Agility, reflexes, and balance"',
-		'"Health and stamina"',
-		'"Reasoning and memory"',
-		'"Perceptiveness and mental fortitude"',
-		'"Confidence, poise, and charm"',
+		makeSummaryForStat([
+			{
+				statName: 'strScore',
+				description: getScoreDescription('str', statsBuffed.value.strScore.total),
+			},
+			{ statName: 'str', description: 'Physical might' },
+		]),
+		makeSummaryForStat([
+			{
+				statName: 'dexScore',
+				description: getScoreDescription('dex', statsBuffed.value.dexScore.total),
+			},
+			{ statName: 'dex', description: 'Agility, reflexes, and balance' },
+		]),
+		makeSummaryForStat([
+			{
+				statName: 'conScore',
+				description: getScoreDescription('con', statsBuffed.value.conScore.total),
+			},
+			{ statName: 'con', description: 'Health and stamina' },
+		]),
+		makeSummaryForStat([
+			{
+				statName: 'intScore',
+				description: getScoreDescription('int', statsBuffed.value.intScore.total),
+			},
+			{ statName: 'int', description: 'Reasoning and memory' },
+		]),
+		makeSummaryForStat([
+			{
+				statName: 'wisScore',
+				description: getScoreDescription('wis', statsBuffed.value.wisScore.total),
+			},
+			{ statName: 'wis', description: 'Perceptiveness and mental fortitude' },
+		]),
+		makeSummaryForStat([
+			{
+				statName: 'chaScore',
+				description: getScoreDescription('cha', statsBuffed.value.chaScore.total),
+			},
+			{ statName: 'cha', description: 'Confidence, poise, and charm' },
+		]),
 	];
 	return {
 		label: 'Ability Scores',
@@ -84,23 +121,29 @@ const infoAbilityScores = computed<StatBoxInfo>(() => {
 				' ' +
 				statsBuffed.value[(keys[i] + 'Score') as StatName].total,
 			stat: key,
-			hovertext:
-				descriptions[i] + '\n' + statsBuffed.value[key as StatName].summary.join('\n'),
+			hovertext: descriptions[i],
 			value: stats.value[key as StatName].total,
 			value2: statsBuffed.value[key as StatName].total,
 		})),
 		noRoll: false,
 	};
 });
-const infoDefenseMods = computed<StatBoxInfo>(
-	makeComputedOfStats(
-		stats,
-		statsBuffed,
-		'Defense Mods',
-		['ac', 'acTouch', 'acFF', 'acFFTouch', 'dr', 'drFF'],
-		true,
-	),
-);
+const infoDefenseMods = computed<StatBoxInfo>(() => {
+	return {
+		label: 'Defense Mods',
+		data: ['ac', 'acTouch', 'acFF', 'acFFTouch', 'dr', 'drFF'].map((item) => {
+			const key = item as StatName;
+			return {
+				label: labelMap[key],
+				stat: key,
+				hovertext: makeSummaryForStat([{ statName: key }]),
+				value: stats.value[key].total,
+				value2: statsBuffed.value[key].total,
+			};
+		}),
+		noRoll: true,
+	};
+});
 const expendables = computed<CapacityBoxStatField[]>(() => {
 	return [
 		{
@@ -121,9 +164,21 @@ const expendables = computed<CapacityBoxStatField[]>(() => {
 		},
 	];
 });
-const infoSaves = computed<StatBoxInfo>(
-	makeComputedOfStats(stats, statsBuffed, 'Saving Throws', ['fort', 'ref', 'will']),
-);
+const infoSaves = computed<StatBoxInfo>(() => {
+	return {
+		label: 'Saving Throws',
+		data: ['fort', 'ref', 'will'].map((item) => {
+			const key = item as StatName;
+			return {
+				label: labelMap[key],
+				stat: key,
+				hovertext: makeSummaryForStat([{ statName: key }]),
+				value: stats.value[key].total,
+				value2: statsBuffed.value[key].total,
+			};
+		}),
+	};
+});
 const changeSubtab = (name: string) => {
 	subtabNameGameplay.value = name;
 };
@@ -494,10 +549,7 @@ const encumberanceColor = computed<string>(() => {
 });
 </script>
 <template>
-	<div
-		class="CharacterGameplay"
-		v-if="character"
-	>
+	<div class="CharacterGameplay">
 		<BGImage
 			:bgNames="['Gameplay', 'Gameplay_Q1', 'Gameplay_Q2', 'Gameplay_Q3', 'Gameplay_Q4']"
 		/>
@@ -556,7 +608,9 @@ const encumberanceColor = computed<string>(() => {
 							:src="'./icons/headshot_' + characterId + '.png'"
 							style="height: 48px; position: absolute; bottom: -2px; left: -20px"
 						/>
-						<span style="flex-grow: 1">{{ character.label }}</span>
+						<span style="flex-grow: 1">{{
+							characterDataSources[characterId].label
+						}}</span>
 						<span class="label">CPL</span>
 						<span>{{ statsBuffed.cpl.total }}</span>
 						<span class="label">LIGHT LEVEL</span>
@@ -1000,32 +1054,32 @@ const encumberanceColor = computed<string>(() => {
 				<div class="right-block">
 					<div class="tab-header">
 						<RouterLink
-							:to="{ name: 'characterGameplayWeapons', params: { characterId } }"
+							:to="{ name: 'characterGameplayWeapons' }"
 							@click="changeSubtab('characterGameplayWeapons')"
 							>Weapons</RouterLink
 						>
 						<RouterLink
-							:to="{ name: 'characterGameplayAbilities', params: { characterId } }"
+							:to="{ name: 'characterGameplayAbilities' }"
 							@click="changeSubtab('characterGameplayAbilities')"
 							>Abilities</RouterLink
 						>
 						<RouterLink
-							:to="{ name: 'characterGameplaySkills', params: { characterId } }"
+							:to="{ name: 'characterGameplaySkills' }"
 							@click="changeSubtab('characterGameplaySkills')"
 							>Skills</RouterLink
 						>
 						<RouterLink
-							:to="{ name: 'characterGameplayBuffs', params: { characterId } }"
+							:to="{ name: 'characterGameplayBuffs' }"
 							@click="changeSubtab('characterGameplayBuffs')"
 							>Buffs</RouterLink
 						>
 						<RouterLink
-							:to="{ name: 'characterGameplayArmor', params: { characterId } }"
+							:to="{ name: 'characterGameplayArmor' }"
 							@click="changeSubtab('characterGameplayArmor')"
 							>Armor</RouterLink
 						>
 						<RouterLink
-							:to="{ name: 'characterGameplayArtifact', params: { characterId } }"
+							:to="{ name: 'characterGameplayArtifact' }"
 							@click="changeSubtab('characterGameplayArtifact')"
 							>Artifact</RouterLink
 						>

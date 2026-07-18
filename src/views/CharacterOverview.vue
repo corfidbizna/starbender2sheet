@@ -1,8 +1,17 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, provide } from 'vue';
 import router from '@/router/index.ts';
-import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
-import { bgColor, banner, subtabNameGameplay, subtabNameLoadout } from '@/sharedState';
+import useCharacterData, {
+	characterDataSources,
+	type CharacterNames,
+} from '@/composables/useCharacterData';
+import {
+	bgColor,
+	banner,
+	subtabNameGameplay,
+	subtabNameLoadout,
+	characterName,
+} from '@/sharedState';
 import LoadingModal from '@/components/LoadingModal.vue';
 type CharacterProps = {
 	characterId: CharacterNames;
@@ -20,11 +29,10 @@ defineProps({
 })
 */
 provide('character', props.characterId);
-
-const { character, armorLoading, buffsLoading, statsLoading, weaponsLoading } = useCharacterData(
-	props.characterId,
-);
-const params = { characterId: props.characterId };
+characterName.value = props.characterId;
+console.log(props.characterId);
+const characterLabel = computed<string>(() => characterDataSources[props.characterId].label);
+const { armorLoading, buffsLoading, statsLoading, weaponsLoading } = useCharacterData();
 const isLoading = computed(() => {
 	return armorLoading.value || buffsLoading.value || statsLoading.value || weaponsLoading.value;
 });
@@ -40,7 +48,7 @@ const names = computed<string[]>(() => [
 	'characterLore',
 	'settings',
 ]);
-const routeList = computed(() => names.value.map((name) => ({ name, params })));
+const routeList = computed(() => names.value.map((name) => ({ name })));
 const keyHandler = (e: KeyboardEvent) => {
 	if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
 		const currentRouteName = router.currentRoute.value.name as string;
@@ -81,45 +89,30 @@ onBeforeUnmount(() => {
 					<img src="/src/assets/icons/slot_tricorn.png" />
 				</div>
 				<div class="icon">
-					<h1>{{ character?.label }}</h1>
+					<h1>{{ characterLabel }}</h1>
 					<h2 style="text-transform: none">Season of Reckoning</h2>
 				</div>
 			</RouterLink>
-			<nav
-				v-if="character"
-				class="tab-container"
-			>
-				<RouterLink :to="{ name: subtabNameGameplay, params: { characterId } }"
-					>Gameplay</RouterLink
-				>
+			<nav class="tab-container">
+				<RouterLink :to="{ name: subtabNameGameplay }">Gameplay</RouterLink>
 				<!-- <RouterLink :to="{ name: 'characterSkills', params: { characterId } }"
 					>Skills</RouterLink
 				> -->
-				<RouterLink :to="{ name: 'characterBuffs', params: { characterId } }"
-					>Buffs</RouterLink
-				>
-				<RouterLink :to="{ name: subtabNameLoadout, params: { characterId } }"
-					>Loadout</RouterLink
-				>
-				<RouterLink :to="{ name: 'characterFeatures', params: { characterId } }"
-					>Features</RouterLink
-				>
-				<RouterLink :to="{ name: 'seasonalArtifact', params: { characterId } }"
-					>Seasonal Artifact</RouterLink
-				>
-				<RouterLink :to="{ name: 'questList', params: { characterId } }">Quests</RouterLink>
-				<RouterLink :to="{ name: 'characterLore', params: { characterId } }"
-					>Lore</RouterLink
-				>
+				<RouterLink :to="{ name: 'characterBuffs' }">Buffs</RouterLink>
+				<RouterLink :to="{ name: subtabNameLoadout }">Loadout</RouterLink>
+				<RouterLink :to="{ name: 'characterFeatures' }">Features</RouterLink>
+				<RouterLink :to="{ name: 'seasonalArtifact' }">Seasonal Artifact</RouterLink>
+				<RouterLink :to="{ name: 'questList' }">Quests</RouterLink>
+				<RouterLink :to="{ name: 'characterLore' }">Lore</RouterLink>
 				<RouterLink
-					:to="{ name: 'settings', params: { characterId } }"
+					:to="{ name: 'settings' }"
 					class="d-glyph"
 					></RouterLink
 				>
 			</nav>
 		</header>
 
-		<div v-if="!character">
+		<div v-if="!characterLabel">
 			<h1>Invalid character ID: {{ characterId }}</h1>
 		</div>
 		<div v-else-if="isLoading">

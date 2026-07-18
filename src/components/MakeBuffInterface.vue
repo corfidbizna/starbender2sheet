@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import type { BuffInfo } from '@/business_logic/buffs';
-import useCharacterData, { labelMap, type CharacterNames } from '@/composables/useCharacterData';
-import { computed, inject, ref } from 'vue';
+import useCharacterData, { labelMap } from '@/composables/useCharacterData';
+import { computed, ref } from 'vue';
 
-const characterId: CharacterNames = inject('character') || 'kara';
-
-const { customBuffs, activatablePartyBuffs } = useCharacterData(characterId);
+const { customBuffs, activatablePartyBuffs } = useCharacterData();
 
 const currentState = ref<BuffInfo>({
 	name: 'New Buff ' + (Object.keys(customBuffs.value).length + 1),

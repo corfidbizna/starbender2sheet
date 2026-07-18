@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { computed, inject } from 'vue';
+import { computed } from 'vue';
 import QuestBox from '@/components/QuestBox.vue';
-import useCharacterData, { type CharacterNames, type Quest } from '@/composables/useCharacterData';
+import useCharacterData, { type Quest } from '@/composables/useCharacterData';
 import LoadingModal from '@/components/LoadingModal.vue';
 import BGImage from '@/components/BGImage.vue';
 
-const characterId: CharacterNames = inject('character') || 'kara';
-
-const { quests: allQuests, questsLoading, questsRefresh } = useCharacterData(characterId);
+const { quests: allQuests, questsLoading, questsRefresh } = useCharacterData();
 const quests = computed<Quest[]>(() => {
 	return allQuests.value.filter((quest) => {
 		return quest.isMajor;

@@ -8,15 +8,12 @@ import type {
 	AbilityClass,
 	ActionResourceKey,
 	CapacityBoxStatField,
-	CharacterNames,
 } from '@/composables/useCharacterData';
 import useCharacterData, { elements } from '@/composables/useCharacterData';
 import { actionLog } from '@/sharedState';
-import { computed, inject, ref } from 'vue';
+import { computed, ref } from 'vue';
 
-const characterId: CharacterNames = inject('character') || 'kara';
 const {
-	character,
 	statsLoading,
 	getStat,
 	actionResources,
@@ -24,7 +21,7 @@ const {
 	abilitiesLoading,
 	subclassGet,
 	subclassSet,
-} = useCharacterData(characterId);
+} = useCharacterData();
 const subclassBackground = computed<string>(() => {
 	return 'background-color: var(--color-' + subclassGet.value.toLocaleLowerCase() + ')';
 });
@@ -133,7 +130,7 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 });
 </script>
 <template>
-	<div v-if="!character || abilitiesLoading || statsLoading"><LoadingModal /></div>
+	<div v-if="abilitiesLoading || statsLoading"><LoadingModal /></div>
 	<div
 		class="CharacterSkills"
 		v-else
@@ -247,20 +244,14 @@ const energyCapacity = computed<CapacityBoxStatField[]>(() => {
 						v-for="ability in listIncludes"
 						:key="ability.name"
 					>
-						<AbilityItemRow
-							v-bind="ability"
-							:character-id="characterId"
-						/>
+						<AbilityItemRow v-bind="ability" />
 					</div>
 					<div
 						v-for="ability in listExcludes"
 						:key="ability.name"
 						class="disabled"
 					>
-						<AbilityItemRow
-							v-bind="ability"
-							:character-id="characterId"
-						/>
+						<AbilityItemRow v-bind="ability" />
 					</div>
 				</div>
 			</div>

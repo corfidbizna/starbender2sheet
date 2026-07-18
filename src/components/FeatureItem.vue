@@ -1,20 +1,13 @@
 <script setup lang="ts">
-import useCharacterData, {
-	type CharacterNames,
-	type Element,
-	type Feature,
-} from '@/composables/useCharacterData';
+import useCharacterData, { type Element, type Feature } from '@/composables/useCharacterData';
 import DBox from '@/components/DBox.vue';
 import BuffItemRow from './BuffItemRow.vue';
 import { computed } from 'vue';
 import type { BuffInfo } from '@/business_logic/buffs';
 import DGlyph from './DGlyph.vue';
 
-type CharacterProps = {
-	characterId: CharacterNames;
-};
-const props = defineProps<Feature & CharacterProps>();
-const { buffs, featureShouldBeActive } = useCharacterData(props.characterId);
+const props = defineProps<Feature>();
+const { buffs, featureShouldBeActive } = useCharacterData();
 
 const featureActiveStatus = computed<{ active: boolean; reasons: string[] }>(() =>
 	featureShouldBeActive(props),
@@ -108,7 +101,6 @@ const buffsFiltered = computed<BuffInfo[]>(() => {
 					v-for="buff in buffsFiltered"
 					:key="buff.name"
 					v-bind="buff"
-					:character-id="characterId"
 					:condensed="true"
 				/>
 			</div>

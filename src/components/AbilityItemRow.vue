@@ -3,24 +3,21 @@ import type {
 	Ability,
 	ActionResourceDisplayKey,
 	ActionResourceKey,
-	CharacterNames,
 	DamageComponent,
 	StatName,
 } from '@/composables/useCharacterData';
 import useCharacterData, { rangeMap } from '@/composables/useCharacterData';
 import DBox from '@/components/DBox.vue';
-import { computed, inject, ref } from 'vue';
+import { computed, ref } from 'vue';
 import DGlyph from '@/components/DGlyph.vue';
 import { DiceFormula, getStatByCharacter } from '@/business_logic/diceFormula';
 import { updateLog } from '@/sharedState';
 import type { BuffInfo } from '@/business_logic/buffs';
 import BuffItemRow from './BuffItemRow.vue';
 
-const characterId: CharacterNames = inject('character') || 'kara';
-
 const props = defineProps<Ability>();
 const { statsBase, buffs, statsBuffed, getStat, actionResources, actionResourcesDisplay } =
-	useCharacterData(characterId);
+	useCharacterData();
 
 // =======================
 //          Stats

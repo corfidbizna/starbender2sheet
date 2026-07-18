@@ -1,14 +1,9 @@
 <script setup lang="ts">
 import CapacityBar from '@/components/CapacityBar.vue';
 import LoadingModal from '@/components/LoadingModal.vue';
-import useCharacterData, {
-	type ArtifactMod,
-	type CharacterNames,
-} from '@/composables/useCharacterData';
+import useCharacterData, { type ArtifactMod } from '@/composables/useCharacterData';
 import BGImage from '@/components/BGImage.vue';
-import { computed, inject } from 'vue';
-
-const characterId: CharacterNames = inject('character') || 'kara';
+import { computed } from 'vue';
 
 const {
 	artifactMods,
@@ -18,7 +13,7 @@ const {
 	getStat,
 	statsLoading,
 	buffsLoading,
-} = useCharacterData(characterId);
+} = useCharacterData();
 
 const columns = 5;
 const stageQuantitiesForUnlock = [0, 2, 4, 6, 8];

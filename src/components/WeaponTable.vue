@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import { actionLog } from '@/sharedState.ts';
-import useCharacterData, {
-	elements,
-	rarities,
-	type CharacterNames,
-	type Weapon,
-} from '@/composables/useCharacterData';
+import useCharacterData, { elements, rarities, type Weapon } from '@/composables/useCharacterData';
 import WeaponItemRow from './WeaponItemRow.vue';
 import LoadingModal from './LoadingModal.vue';
 import useFilter from '@/composables/useFilter';
@@ -27,11 +22,8 @@ const sortAscending = ref<boolean>(true);
 const toggleSortAscending = () => {
 	sortAscending.value = !sortAscending.value;
 };
-const props = defineProps<{
-	characterId: CharacterNames;
-}>();
 const { weapons, weaponsLoading, weaponsRefresh, weaponPerksLoading, weaponPerksRefresh, getStat } =
-	useCharacterData(props.characterId);
+	useCharacterData();
 const sortedWeapons = computed<Weapon[]>(() => {
 	const weaponsForSort = weapons.value.slice();
 	// if (!(sortBy as weaponKeys)) {

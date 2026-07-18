@@ -1,22 +1,15 @@
 <script setup lang="ts">
-import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
 import BGImage from '@/components/BGImage.vue';
 import { subtabNameLoadout } from '@/sharedState';
-import { inject } from 'vue';
 // import WeaponItemRow from './WeaponItemRow.vue';
 
-const characterId: CharacterNames = inject('character') || 'kara';
-const { character } = useCharacterData(characterId);
 const changeSubtab = (name: string) => {
 	subtabNameLoadout.value = name;
 };
 </script>
 
 <template>
-	<div
-		class="CharacterEquipment"
-		v-if="character"
-	>
+	<div class="CharacterEquipment">
 		<BGImage :bgNames="['Loadout']" />
 		<div class="stacked-nav">
 			<RouterLink

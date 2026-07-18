@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import type { BuffInfo } from '@/business_logic/buffs';
-import useCharacterData, { type CharacterNames } from '@/composables/useCharacterData';
+import useCharacterData from '@/composables/useCharacterData';
 // import useFilter from '@/composables/useFilter';
 import BuffItemRow from './BuffItemRow.vue';
-import { computed, inject } from 'vue';
-
-const characterId: CharacterNames = inject('character') || 'kara';
+import { computed } from 'vue';
 
 const props = defineProps<{ condensed: boolean }>();
 
-const { buffs } = useCharacterData(characterId);
+const { buffs } = useCharacterData();
 
 const storyBuffs = computed<BuffInfo[]>(() => buffs.value.filter((buff) => buff.isStory));
 const otherBuffs = computed<BuffInfo[]>(() =>

@@ -1,21 +1,12 @@
 <script setup lang="ts">
-import useCharacterData, {
-	type CharacterNames,
-	type Feature,
-} from '@/composables/useCharacterData';
+import useCharacterData, { type Feature } from '@/composables/useCharacterData';
 import LoadingModal from '@/components/LoadingModal.vue';
 import FeatureItem from '@/components/FeatureItem.vue';
 import BGImage from '@/components/BGImage.vue';
 import { fullListFeature } from '@/sharedState';
 import { computed } from 'vue';
 
-type CharacterProps = {
-	characterId: CharacterNames;
-};
-const props = defineProps<CharacterProps>();
-const { statsBase, features, featuresLoading, featuresRefresh, buffsLoading } = useCharacterData(
-	props.characterId,
-);
+const { statsBase, features, featuresLoading, featuresRefresh, buffsLoading } = useCharacterData();
 
 const featureList = computed<Feature[]>(() => {
 	if (fullListFeature.value) {
@@ -57,7 +48,6 @@ const scrollTo = (id: string) => {
 				v-for="feature in features"
 				:key="feature.name"
 				v-bind="feature"
-				:character-id="characterId"
 			/>
 		</div>
 	</div>
