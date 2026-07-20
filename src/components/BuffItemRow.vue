@@ -81,10 +81,16 @@ const removeBuff = () => {
 				style="width: 3em"
 		/></template>
 		<template #contents>
-			<div v-if="props.effects">
+			<div
+				v-if="props.effects"
+				class="effects"
+			>
 				{{ props.effects }}
 			</div>
-			<div v-if="props.description">
+			<div
+				v-if="props.description"
+				class="description"
+			>
 				{{ props.description }}
 			</div>
 		</template>
@@ -258,7 +264,7 @@ const removeBuff = () => {
 	padding-top: 4px;
 	border-top: 2px solid #fff8;
 }
-.buff-text.effects {
+.effects {
 	opacity: 0.8;
 	font-size: 0.9em;
 	font-style: italic;
