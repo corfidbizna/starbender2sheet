@@ -2,10 +2,41 @@
 import type { BuffInfo } from '@/business_logic/buffs';
 import useCharacterData from '@/composables/useCharacterData';
 import DGlyph from '@/components/DGlyph.vue';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import DBox from './DBox.vue';
 
 const props = defineProps<BuffInfo & { condensed: boolean }>();
 const { buffs, customBuffs, namesOfActivatedBuffs } = useCharacterData();
+
+const hovering = ref<boolean>(false);
+const cursorPosX = ref<number>(0);
+const cursorPosY = ref<number>(0);
+document.addEventListener('mousemove', (event) => {
+	cursorPosX.value = event.clientX;
+	cursorPosY.value = event.clientY;
+});
+const cursorPosStyle = computed<string>(() => {
+	const width = 1000;
+	const crossoverX = cursorPosX.value - window.innerWidth / 2 > 0 ? -100 : 0;
+	const crossoverY = cursorPosY.value - window.innerHeight / 2 > 0 ? -100 : 0;
+	return (
+		'left: ' +
+		cursorPosX.value +
+		'px; top: ' +
+		cursorPosY.value +
+		'px; width: ' +
+		width +
+		'px;' +
+		'transform: translateX(' +
+		crossoverX +
+		'%) translateY(' +
+		crossoverY +
+		'%);'
+	);
+});
+const buffIsActive = computed<boolean>(
+	() => namesOfActivatedBuffs.value.includes(props.name) || props.isPassive,
+);
 
 const imageSrc = computed<string>(() => {
 	return (
@@ -27,10 +58,49 @@ const removeBuff = () => {
 };
 </script>
 <template>
+	<DBox
+		v-if="hovering && props.condensed"
+		v-bind="{
+			rarity: '',
+			title: props.name,
+			subtitle: [props.category || 'Misc', props.type || ''].join(' '),
+		}"
+		:class="{ active: buffIsActive }"
+		style="
+			position: absolute;
+			pointer-events: none;
+			text-align: left;
+			overflow: clip;
+			z-index: 2;
+		"
+		:style="cursorPosStyle"
+	>
+		<template #header-icon
+			><img
+				:src="imageSrc"
+				style="width: 3em"
+		/></template>
+		<template #contents>
+			<div v-if="props.effects">
+				{{ props.effects }}
+			</div>
+			<div v-if="props.description">
+				{{ props.description }}
+			</div>
+		</template>
+		<template
+			#footer
+			v-if="!props.isPassive"
+		>
+			<span v-if="buffIsActive"><DGlyph v-bind="{ name: 'LeftClick' }" /> Deactivate</span>
+			<span v-else><DGlyph v-bind="{ name: 'LeftClick' }" /> Activate</span>
+		</template>
+	</DBox>
 	<label
-		:title="props.description"
 		class="buff-label"
-		:class="condensed ? 'condensed' : ''"
+		:class="{ condensed, passive: props.isPassive }"
+		@mouseover="hovering = true"
+		@mouseout="hovering = false"
 	>
 		<div class="buff-contents">
 			<div class="buff-header">
@@ -102,7 +172,21 @@ const removeBuff = () => {
 </template>
 <style scoped>
 .condensed {
-	font-size: 0.8em;
+	font-size: 0.7em;
+}
+.condensed input[type='checkbox'] {
+	display: none;
+}
+.buff-label.condensed.passive {
+	background-color: #0003;
+}
+.buff-label.condensed {
+	border: none;
+	background-color: #0000;
+	padding: 0px;
+	padding-right: 2px;
+	margin: 2px;
+	width: 235px;
 }
 .buff-label:has(input[type='checkbox']:checked),
 .buff-label:has(input[type='checkbox']:disabled) {
@@ -112,7 +196,7 @@ const removeBuff = () => {
 .buff-label {
 	text-align: left;
 	display: flex;
-	width: auto;
+	width: 450px;
 	max-width: 530px;
 	padding: 0.25em;
 	margin: 0.5em;
@@ -121,13 +205,6 @@ const removeBuff = () => {
 		border-color 0.15s,
 		background-color 0.15s;
 	background-color: #0004;
-}
-.buff-label.condensed {
-	border: none;
-	background-color: #0000;
-	padding: 0px;
-	padding-right: 2px;
-	margin: 2px;
 }
 .buff-header > input {
 	height: 1em;

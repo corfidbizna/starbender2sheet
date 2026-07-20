@@ -209,6 +209,7 @@ const showLore = ref<boolean>(false);
 	justify-content: end;
 	gap: 1em;
 	padding: 2px 1em;
+	text-shadow: none;
 }
 .d-box .footer button {
 	margin-right: auto;

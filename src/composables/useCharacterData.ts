@@ -2692,7 +2692,7 @@ function useCharacterDataUncached(characterId: CharacterNames) {
 				// 	console.log(buff.name + ' stacks: ' + localBuffStacks[buff.name]);
 				const newBuff = { ...buff };
 				newBuff.stacks = localBuffStacks[buff.name] || 0;
-				newBuff.active = buff.isPassive || buff.active || false;
+				newBuff.hovering = buff.isPassive || buff.hovering || false;
 				newBuff.type = buff.type || 'Buff';
 				newBuff.isStory = buff.isStory || false;
 				newBuff.isBasic = buff.isBasic || false;
@@ -2745,14 +2745,14 @@ function useCharacterDataUncached(characterId: CharacterNames) {
 			...namesOfActiveArmor.value,
 			...namesOfActiveArtifactMods.value,
 			...featuresAsBuffs.value
-				.filter((buff) => buff.active && buff.effects)
+				.filter((buff) => buff.hovering && buff.effects)
 				.map((buff) => buff.name),
 		];
 		buffs.value.forEach((buff) => {
 			if (buff.isPassive || addThese.includes(buff.name)) {
-				buff.active = true;
+				buff.hovering = true;
 			} else {
-				buff.active = false;
+				buff.hovering = false;
 			}
 		});
 		return buffs.value.filter((buff) => buff.isPassive || addThese.includes(buff.name));
@@ -2780,7 +2780,7 @@ function useCharacterDataUncached(characterId: CharacterNames) {
 				stacks: 0,
 				effects: 'Str Mod -5, Dex Mod -5, Con Mod -5, Int Mod -5, Wis Mod -5, Cha Mod -5',
 				isPassive: true,
-				active: true,
+				hovering: true,
 			}),
 			...statsFirstBuffPass.value,
 			...activatedPartyBuffs.value.map((buff) => getBuffEffects(buff)).flat(),
@@ -2789,7 +2789,7 @@ function useCharacterDataUncached(characterId: CharacterNames) {
 		return result;
 	});
 	const lightLevel = computed<number>(() => {
-		return activatablePartyBuffs.value.filter((buff) => buff.active && buff.isMagic).length;
+		return activatablePartyBuffs.value.filter((buff) => buff.hovering && buff.isMagic).length;
 	});
 	// BUFFS END
 
@@ -2904,7 +2904,7 @@ function useCharacterDataUncached(characterId: CharacterNames) {
 								stacks: 0,
 								effects: mod.effects.replace(/,\s*$/, ''),
 								isMagic: false, // If feature mods ever become magic-able, be sure to change this!
-								active: featureShouldBeActive(mod).active,
+								hovering: featureShouldBeActive(mod).active,
 							});
 						});
 				});
@@ -2918,7 +2918,7 @@ function useCharacterDataUncached(characterId: CharacterNames) {
 				stacks: 0,
 				effects: feature.effects.replace(/,\s*$/, ''),
 				isMagic: feature.isMagic,
-				active: featureActive,
+				hovering: featureActive,
 			};
 			return featureBuff;
 		});
@@ -3095,7 +3095,7 @@ function useCharacterDataUncached(characterId: CharacterNames) {
 					isBasic: false,
 					stacks: 0,
 					effects: buffString.replace(/,\s*$/, '') || '',
-					active: true,
+					hovering: true,
 				};
 				return newBuff;
 			});
@@ -3114,7 +3114,7 @@ function useCharacterDataUncached(characterId: CharacterNames) {
 					isBasic: false,
 					stacks: 0,
 					effects: buffString.replace(/,\s*$/, '') || '',
-					active: true,
+					hovering: true,
 				};
 				return newBuff;
 			});
@@ -3134,7 +3134,7 @@ function useCharacterDataUncached(characterId: CharacterNames) {
 						isBasic: false,
 						stacks: perk.stacks || 0,
 						effects: perk.buffs?.replace(/,\s*$/, ''),
-						active: true,
+						hovering: true,
 					};
 				});
 			})
@@ -3225,7 +3225,7 @@ function useCharacterDataUncached(characterId: CharacterNames) {
 					isStacking: !!armor.stacksMax || armor.isStacking,
 					stacks: armor.stacks,
 					effects: buffString.replace(/,\s*$/, '') || '',
-					active: true,
+					hovering: true,
 				};
 				return newBuff;
 			});
@@ -3241,7 +3241,7 @@ function useCharacterDataUncached(characterId: CharacterNames) {
 					isStacking: !!armor.stacksMax || armor.isStacking,
 					stacks: armor.stacks,
 					effects: armor.buffsCharged?.replace(/,\s*$/, '') || '',
-					active: true,
+					hovering: true,
 				};
 				return newBuff;
 			});
@@ -3456,7 +3456,7 @@ function useCharacterDataUncached(characterId: CharacterNames) {
 					isBasic: false,
 					stacks: 0,
 					effects: artifactMod.buffs?.replace(/,\s*$/, '') || '',
-					active: true,
+					hovering: true,
 				};
 				return newBuff;
 			});
@@ -3538,7 +3538,7 @@ function useCharacterDataUncached(characterId: CharacterNames) {
 			isStory: false,
 			isBasic: false,
 			stacks: 0,
-			active: true,
+			hovering: true,
 			effects: effects.join(', ').replace(/, *$/g, ''),
 		};
 		return getBuffEffects(buffInfo);
@@ -3557,11 +3557,11 @@ function useCharacterDataUncached(characterId: CharacterNames) {
 				stacks: 0,
 				effects: 'Str Mod -5, Dex Mod -5, Con Mod -5, Int Mod -5, Wis Mod -5, Cha Mod -5',
 				isPassive: true,
-				active: true,
+				hovering: true,
 			}),
 			...statsFirstBuffPass.value,
 			...featuresAsBuffs.value
-				.filter((feature) => feature.active && feature.effects)
+				.filter((feature) => feature.hovering && feature.effects)
 				.map((feature) => getBuffEffects(feature))
 				.flat(),
 		];

@@ -24,7 +24,7 @@ export type BuffInfo = {
 	// perks?: string;
 	effects?: string;
 	isPassive?: boolean;
-	active: boolean;
+	hovering: boolean;
 	isCustom?: boolean;
 	isMagic?: boolean;
 };

@@ -66,7 +66,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStory: false,
 			isBasic: false,
 			description: 'Makes you look cool',
-			active: true,
+			hovering: true,
 			stacks: 0,
 		};
 		const result = getBuffEffects(buff);
@@ -81,7 +81,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: false,
 			description: 'Buffs strength by 5.',
 			effects: 'Str Mod +5',
-			active: true,
+			hovering: true,
 			stacks: 0,
 		};
 		const result = getBuffEffects(buff);
@@ -103,7 +103,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isBasic: false,
 			description: 'Debuffs strength and dexterity.',
 			effects: 'Str Mod -5, Dex Mod -7',
-			active: true,
+			hovering: true,
 			stacks: 0,
 		};
 		const result = getBuffEffects(buff);
@@ -205,7 +205,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: true,
 			stacks: 3,
 			effects: 'Str Mod +10, Dex Mod +stacks',
-			active: true,
+			hovering: true,
 		};
 		const result = getBuffEffects(buff);
 		expect(result).toEqual([
@@ -232,7 +232,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: true,
 			stacks: 3,
 			effects: 'Str Mod +10, Dex Mod +1*stacks',
-			active: true,
+			hovering: true,
 		};
 		const result = getBuffEffects(buff);
 		expect(result).toEqual([
@@ -259,7 +259,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: true,
 			stacks: 0,
 			effects: 'Str Mod +1*stacks',
-			active: true,
+			hovering: true,
 		};
 		const result = getBuffEffects(buff);
 		expect(result).toEqual([
@@ -279,7 +279,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isBasic: false,
 			stacks: 0,
 			effects: 'Str Mod +0',
-			active: true,
+			hovering: true,
 		};
 		const result = getBuffEffects(buff);
 		expect(result).toEqual([
@@ -300,7 +300,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isStacking: true,
 			stacks: 3,
 			effects: 'Str Mod -stacks',
-			active: true,
+			hovering: true,
 		};
 		const result = getBuffEffects(buff);
 		expect(result).toEqual([
@@ -320,7 +320,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isBasic: false,
 			isStacking: false,
 			effects: '+5',
-			active: true,
+			hovering: true,
 			stacks: 0,
 		};
 
@@ -357,7 +357,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isBasic: false,
 			isStacking: false,
 			effects: 'Str Mod +5, Str Mod -3',
-			active: true,
+			hovering: true,
 			stacks: 0,
 		};
 		const result = getBuffEffects(buff);
@@ -385,7 +385,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isBasic: false,
 			isStacking: false,
 			effects: 'Str Mod +10',
-			active: true,
+			hovering: true,
 			stacks: 0,
 		};
 		const result = getBuffEffects(buff);
@@ -407,7 +407,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isBasic: false,
 			isStacking: false,
 			effects: 'Str Mod +5, misc Dex Mod +5',
-			active: true,
+			hovering: true,
 			stacks: 0,
 		};
 		const result = getBuffEffects(buff);
@@ -435,7 +435,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isBasic: false,
 			isStacking: false,
 			effects: 'Natural Armor +3',
-			active: true,
+			hovering: true,
 			stacks: 0,
 		};
 		const result = getBuffEffects(buff);
@@ -457,7 +457,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isBasic: false,
 			isStacking: true,
 			effects: 'Movement Action -0.5*stacks',
-			active: true,
+			hovering: true,
 			stacks: 5,
 		};
 		const result = getBuffEffects(buff);
@@ -479,7 +479,7 @@ describe('Behaviors of getBuffEffects', () => {
 			isBasic: false,
 			isStacking: false,
 			effects: 'Natural Armor +2',
-			active: true,
+			hovering: true,
 			stacks: 0,
 		};
 		const result = getBuffEffects(buff);

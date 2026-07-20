@@ -14,8 +14,8 @@ const otherBuffs = computed<BuffInfo[]>(() =>
 	buffs.value.filter((buff) => !buff.isStory && buff.type !== 'Hidden'),
 );
 const activeBuffs = computed<BuffInfo[]>(() => [
-	...storyBuffs.value.filter((buff) => buff.active),
-	...otherBuffs.value.filter((buff) => buff.active),
+	...storyBuffs.value.filter((buff) => buff.hovering),
+	...otherBuffs.value.filter((buff) => buff.hovering),
 ]);
 </script>
 <template>
@@ -24,13 +24,6 @@ const activeBuffs = computed<BuffInfo[]>(() => [
 		v-if="buffs.length > 0"
 	>
 		<div class="buff-table">
-			<h2>Story Buffs</h2>
-			<BuffItemRow
-				v-for="buff in storyBuffs"
-				:key="buff.name"
-				v-bind="buff"
-				:condensed="props.condensed"
-			/>
 			<h2>Active Buffs</h2>
 			<BuffItemRow
 				v-for="buff in activeBuffs"
@@ -40,6 +33,13 @@ const activeBuffs = computed<BuffInfo[]>(() => [
 			/>
 		</div>
 		<div class="buff-table">
+			<h2>Story Buffs</h2>
+			<BuffItemRow
+				v-for="buff in storyBuffs"
+				:key="buff.name"
+				v-bind="buff"
+				:condensed="props.condensed"
+			/>
 			<h2>Other Buffs</h2>
 			<BuffItemRow
 				v-for="buff in otherBuffs"
@@ -59,7 +59,7 @@ const activeBuffs = computed<BuffInfo[]>(() => [
 .buff-table {
 	display: inline-block;
 	vertical-align: top;
-	width: 450px;
+	/* width: 450px; */
 	margin: 0 0.2em;
 }
 </style>

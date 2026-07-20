@@ -20,7 +20,7 @@ const currentState = ref<BuffInfo>({
 	description: '', //
 	effects: '', //
 	isPassive: false, //
-	active: false,
+	hovering: false,
 	isCustom: true,
 	isMagic: false,
 });
